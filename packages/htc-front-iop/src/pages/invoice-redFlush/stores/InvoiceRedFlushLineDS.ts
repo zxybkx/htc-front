@@ -1,0 +1,347 @@
+/*
+ * @Description:发票红冲行
+ * @version: 1.0
+ * @Author: xinyan.zhou@hand-china.com
+ * @Date: 2021-1-6 12:21:22
+ * @LastEditTime:
+ * @Copyright: Copyright (c) 2020, Hand
+ */
+import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
+import { AxiosRequestConfig } from 'axios';
+import commonConfig from '@common/config/commonConfig';
+import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
+import intl from 'utils/intl';
+import { getCurrentOrganizationId } from 'utils/utils';
+
+const modelCode = 'hiop.invoice-redFlush';
+const amountValidator = (value, name, record) => {
+  if (value && name && record) {
+    const taxAmount = record.get('taxAmount');
+    const amount = record.get('amount');
+    if (Math.abs(amount) < Math.abs(taxAmount)) {
+      return '金额必须大于税额';
+    }
+  }
+  return undefined;
+};
+const taxAmountValidator = (value, name, record) => {
+  if (value && name && record) {
+    const taxAmount = record.get('taxAmount');
+    const totalTax = record.get('totalTax');
+    if (Math.abs(taxAmount) > Math.abs(totalTax)) {
+      return '税额必须小于原蓝字发票税额';
+    }
+  }
+  return undefined;
+};
+const getTaxRate = (value) => {
+  if (value.indexOf('%') > 0) {
+    return value.replace('%', '') / 100;
+  } else {
+    return value;
+  }
+};
+const zeroTaxRateFlagJudge = (record) => {
+  return (
+    (record.get('taxRate') && Number(record.get('taxRate')) !== 0) ||
+    (Number(record.get('listFlag')) === 1 &&
+      record.get('invoicingOrderHeaderId') &&
+      !record.get('taxRate'))
+  );
+};
+export default (dsParams): DataSetProps => {
+  // const API_PREFIX = `${commonConfig.IOP_API}-28090` || '';
+  const API_PREFIX = commonConfig.IOP_API || '';
+  const tenantId = getCurrentOrganizationId();
+  return {
+    transport: {
+      read: (): AxiosRequestConfig => {
+        const url = `${API_PREFIX}/v1/${tenantId}/invoicing-order-lines/list-red-flush-lines`;
+        const axiosConfig: AxiosRequestConfig = {
+          params: {
+            orderHeaderId: dsParams.invoicingOrderHeaderId,
+          },
+          url,
+          method: 'GET',
+        };
+        return axiosConfig;
+      },
+    },
+    primaryKey: 'redFlushLines',
+    pageSize: 10,
+    paging: false,
+    events: {
+      update: ({ record, name, value }) => {
+        // quantity(数量)projectUnitPrice(单价)amount(金额)
+        const projectUnitPrice = record.get('projectUnitPrice');
+        const quantity = record.get('quantity');
+        const invoiceLineNature = record.get('invoiceLineNature');
+        if (name === 'quantity' && value) {
+          if (projectUnitPrice) {
+            record.set('amount', (value * projectUnitPrice).toFixed(2));
+          }
+        }
+        if (name === 'projectUnitPrice' && value) {
+          record.set('amount', (value * quantity).toFixed(2));
+        }
+        if (name === 'amount') {
+          if (record.get('listFlag') !== 1 && record.get('taxRate')) {
+            if (projectUnitPrice) {
+              record.set('quantity', (value / projectUnitPrice).toFixed(8));
+            }
+            // 税额
+            const taxIncludedFlag = record.get('taxIncludedFlag');
+            const amount = record.get('amount');
+            const taxRate = Number(record.get('taxRate')) || 0;
+            const deduction = record.get('deduction') || 0;
+            let taxAmount = 0;
+            // 当【含税标志】为1时
+            if (taxIncludedFlag === '1') {
+              if (['1', '6'].includes(invoiceLineNature)) {
+                // 税额=【（金额/（1+税率）】*税率
+                taxAmount = (amount / (1 + taxRate)) * taxRate;
+              } else {
+                // 税额=【（金额-扣除额）/（1+税率）】*税率
+                taxAmount = ((amount - deduction) / (1 + taxRate)) * taxRate;
+              }
+              // 当【含税标志】为0时
+            } else if (taxIncludedFlag === '0') {
+              if (['1', '6'].includes(invoiceLineNature)) {
+                // 税额=金额 *税率
+                taxAmount = amount * taxRate;
+              } else {
+                // 税额=（金额-扣除额）*税率
+                taxAmount = (amount - deduction) * taxRate;
+              }
+            }
+            record.set('taxAmount', taxAmount);
+          }
+        }
+        // 商品自行编码
+        if (name === 'projectObj' && value) {
+          const { zeroTaxRateFlag, projectUnit, model, ...otherData } = value;
+          record.set({
+            commodityNumberObj: otherData,
+            zeroTaxRateFlag,
+            projectUnit,
+            model,
+          });
+        }
+        // 商品编码
+        if (name === 'commodityNumberObj') {
+          record.set({
+            projectName: value.invoiceProjectName,
+            taxRateObj: (value && value.taxRate && { value: getTaxRate(value.taxRate) }) || {},
+          });
+        }
+      },
+      loadFailed: ({ dataSet }) => {
+        dataSet.loadData([]);
+      },
+    },
+    fields: [
+      {
+        name: 'companyId',
+        label: intl.get(`${modelCode}.view.companyId`).d('公司ID'),
+        type: FieldType.number,
+      },
+      {
+        name: 'companyCode',
+        type: FieldType.string,
+      },
+      {
+        name: 'listFlag',
+        label: intl.get(`${modelCode}.view.listFlag`).d('购货清单标志'),
+        type: FieldType.string,
+      },
+      {
+        name: 'invoiceVariety',
+        label: intl.get(`${modelCode}.view.invoiceVariety`).d('发票种类'),
+        type: FieldType.string,
+      },
+      {
+        name: 'customerName',
+        type: FieldType.string,
+      },
+      {
+        name: 'extNumber',
+        type: FieldType.string,
+      },
+      {
+        name: 'totalTax',
+        type: FieldType.string,
+      },
+      {
+        name: 'invoiceLineNature',
+        label: intl.get(`${modelCode}.view.invoiceLineNature`).d('发票行性质'),
+        lookupCode: 'HIOP.INVOICE_LINE_NATURE',
+        type: FieldType.string,
+        readOnly: true,
+      },
+      {
+        name: 'projectObj',
+        type: FieldType.object,
+        label: intl.get(`${modelCode}.view.projectObj`).d('自行编码'),
+        lovCode: 'HIOP.GOODS_QUERY',
+        cascadeMap: {
+          companyId: 'companyId',
+          companyCode: 'companyCode',
+          customerName: 'customerName',
+        },
+        lovPara: { queryBySelfCode: true },
+        computedProps: {
+          readOnly: ({ record }) => record.get('invoiceLineNature') === '1',
+        },
+        ignore: FieldIgnore.always,
+        textField: 'projectNumber',
+      },
+      {
+        name: 'projectNumber',
+        type: FieldType.string,
+        bind: 'projectObj.projectNumber',
+      },
+      {
+        name: 'projectName',
+        label: intl.get(`${modelCode}.view.projectName`).d('项目名称'),
+        type: FieldType.string,
+        bind: 'projectObj.invoiceProjectName',
+        required: true,
+      },
+      {
+        name: 'quantityCopy',
+        type: FieldType.number,
+      },
+      {
+        name: 'quantity',
+        label: intl.get(`${modelCode}.view.quantity`).d('数量'),
+        type: FieldType.number,
+        step: 0.00000001,
+        computedProps: {
+          max: ({ record }) => (record.get('invoiceLineNature') !== '1' ? 0 : 'quantityCopy'),
+          min: ({ record }) => (record.get('invoiceLineNature') === '1' ? 0 : 'quantityCopy'),
+        },
+      },
+      {
+        name: 'projectUnitPrice',
+        label: intl.get(`${modelCode}.view.projectUnitPrice`).d('单价'),
+        type: FieldType.currency,
+        min: 0.001,
+        precision: 8,
+      },
+      {
+        name: 'taxRateObj',
+        label: intl.get(`${modelCode}.view.taxRateObj`).d('税率'),
+        type: FieldType.object,
+        lovCode: 'HIOP.TAX_TAX_RATE',
+        cascadeMap: {
+          companyId: 'companyId',
+          extNumber: 'extNumber',
+          invoiceType: 'invoiceVariety',
+        },
+        computedProps: {
+          required: ({ record }) =>
+            record.get('listFlag') !== '1' || !record.get('invoicingOrderHeaderId'),
+        },
+        ignore: FieldIgnore.always,
+      },
+      {
+        name: 'taxRate',
+        label: intl.get(`${modelCode}.view.taxRate`).d('税率'),
+        type: FieldType.string,
+        bind: 'taxRateObj.value',
+      },
+      {
+        name: 'amountCopy',
+        type: FieldType.currency,
+      },
+      {
+        name: 'amount',
+        label: intl.get(`${modelCode}.view.amount`).d('金额'),
+        type: FieldType.currency,
+        step: 0.01,
+        validator: (value, name, record) =>
+          new Promise((reject) => reject(amountValidator(value, name, record))),
+        required: true,
+      },
+      {
+        name: 'taxIncludedFlag',
+        label: intl.get(`${modelCode}.view.taxIncludedFlag`).d('是否含税'),
+        type: FieldType.string,
+        lookupCode: 'HIOP.TAX_MARK',
+        trueValue: '1',
+        falseValue: '0',
+        readOnly: true,
+      },
+      {
+        name: 'taxAmount',
+        label: intl.get(`${modelCode}.view.taxAmount`).d('税额'),
+        type: FieldType.currency,
+        required: true,
+        validator: (value, name, record) =>
+          new Promise((reject) => reject(taxAmountValidator(value, name, record))),
+      },
+      {
+        name: 'deduction',
+        label: intl.get(`${modelCode}.view.deduction`).d('扣除额'),
+        type: FieldType.currency,
+      },
+      {
+        name: 'model',
+        label: intl.get(`${modelCode}.view.model`).d('规格型号'),
+        type: FieldType.string,
+        bind: 'projectObj.model',
+      },
+      {
+        name: 'projectUnit',
+        label: intl.get(`${modelCode}.view.projectUnit`).d('单位'),
+        type: FieldType.string,
+        bind: 'projectObj.projectUnit',
+      },
+      {
+        name: 'preferentialPolicyFlag',
+        label: intl.get(`${modelCode}.view.preferentialPolicyFlag`).d('优惠政策标识'),
+        type: FieldType.string,
+        lookupCode: 'HIOP.PREFERENTIAL_POLICY_MARK',
+        defaultValue: '0',
+      },
+      {
+        name: 'zeroTaxRateFlag',
+        label: intl.get(`${modelCode}.view.zeroTaxRateFlag`).d('零税率标识'),
+        type: FieldType.string,
+        lookupCode: 'HIOP.ZERO_TAX_RATE_MARK',
+        computedProps: {
+          required: ({ record }) => record.get('taxRate') && Number(record.get('taxRate')) === 0,
+          readOnly: ({ record }) => zeroTaxRateFlagJudge(record),
+        },
+      },
+      {
+        name: 'specialVatManagement',
+        label: intl.get(`${modelCode}.view.specialVatManagement`).d('增值税特殊管理'),
+        type: FieldType.string,
+      },
+      {
+        name: 'commodityNumberObj',
+        label: intl.get(`${modelCode}.view.commodityNumber`).d('商品编码'),
+        type: FieldType.object,
+        cascadeMap: {
+          companyId: 'companyId',
+          companyCode: 'companyCode',
+          customerName: 'customerName',
+        },
+        lovCode: 'HIOP.GOODS_TAX_CODE',
+        computedProps: {
+          required: ({ record }) =>
+            record.get('listFlag') !== '1' || !record.get('invoicingOrderHeaderId'),
+        },
+        ignore: FieldIgnore.always,
+        textField: 'commodityNumber',
+      },
+      {
+        name: 'commodityNumber',
+        label: intl.get(`${modelCode}.view.commodityNumber`).d('商品编码'),
+        type: FieldType.string,
+        bind: 'commodityNumberObj.commodityNumber',
+      },
+    ],
+  };
+};

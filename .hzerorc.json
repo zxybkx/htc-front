@@ -1,0 +1,16 @@
+{
+  "packages": [
+    {
+      "name": "htc-front-iop"
+    },
+    {
+      "name": "htc-front-ivp"
+    },
+    {
+      "name": "htc-front-chan"
+    },
+    {
+      "name": "htc-front-mdm"
+    }
+  ]
+}
