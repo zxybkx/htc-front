@@ -3,22 +3,8 @@ import { Dispatch } from 'redux';
 import { routerRedux } from 'dva/router';
 import { Bind } from 'lodash-decorators';
 import { Header, Content } from 'components/Page';
-import {
-  DataSet,
-  Table,
-  Button,
-  Form,
-  Lov,
-  Output,
-  Radio,
-  TextField,
-  DatePicker,
-  CheckBox,
-  Currency,
-  Upload,
-  Modal,
-  Select,
-} from 'choerodon-ui/pro';
+import { DataSet, Button, Upload, Modal } from 'choerodon-ui/pro';
+import { Tag } from 'choerodon-ui';
 import { Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
@@ -26,7 +12,7 @@ import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
 import querystring from 'querystring';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import notification from 'utils/notification';
 import { HZERO_FILE, API_HOST } from 'utils/config';
 import {
@@ -38,18 +24,16 @@ import {
 import { openTab } from 'utils/menuTab';
 import withProps from 'utils/withProps';
 import { downloadFile, DownloadFileParams } from 'hzero-front/lib/services/api';
-import { getCurrentEmployeeInfo } from '@common/services/commonService';
+import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
 import { deleteInvoiceInfo } from '@src/services/myInvoicesService';
+import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
 import InvoicesHeadersDS from '../stores/InvoicesHeadersDS';
 
 const modelCode = 'hivp.myInvoice';
 const tenantId = getCurrentOrganizationId();
 const bucketName = 'hivp';
-const HIVP_API = commonConfig.IVP_API;
+const HIVP_API = commonConfig.IVP_API || '';
 const acceptType = ['.pdf', '.jpg', '.png', '.ofd'];
-const { Option } = Select;
-const invoiceSourceCode = 'INVOICE_POOL';
-const billSourceCode = 'BILL_POOL';
 
 interface MyInvoicePageProps {
   dispatch: Dispatch<any>;
@@ -57,7 +41,14 @@ interface MyInvoicePageProps {
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: [
+    modelCode,
+    'hcan.invoiceCheck',
+    'hivp.batchCheck',
+    'hivp.invoicesArchiveUpload',
+    'hivp.bill',
+    'htc.common',
+  ],
 })
 @withProps(
   () => {
@@ -99,88 +90,6 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
     }
   };
 
-  // 自定义查询
-  @Bind()
-  renderQueryBar(props) {
-    const { queryDataSet, dataSet } = props;
-    if (queryDataSet) {
-      return (
-        <>
-          <Form columns={4} dataSet={queryDataSet} excludeUseColonTagList={['Output', 'div']}>
-            <Lov name="companyObj" colSpan={2} clearButton={false} />
-            <TextField name="employeeName" />
-            <div>
-              <Button onClick={() => this.handleGotoInvoiceCheck()}>
-                {intl.get(`${modelCode}.button.invoiceCheck`).d('发票查验')}
-              </Button>
-              <Button onClick={() => this.handleGotoBatchDentificationCheck()}>
-                {intl.get(`${modelCode}.button.batchDentificationCheck`).d('批量识别查验')}
-              </Button>
-            </div>
-            <CheckBox name="notSubmittedFlag" />
-            <CheckBox name="isSubmittedFlag" />
-            <DatePicker name="invoiceDateFrom" />
-            <DatePicker name="invoiceDateTo" />
-            <TextField name="buyerName" colSpan={2} />
-            <TextField name="salerName" colSpan={2} />
-            <Select
-              name="sourceCode"
-              onChange={(value, oldValue) => this.handleSourceCodeChange(value, oldValue)}
-            >
-              <Option value={invoiceSourceCode}>
-                {intl.get(`${modelCode}.invoicePool`).d('发票池')}
-              </Option>
-              <Option value={billSourceCode}>
-                {intl.get(`${modelCode}.billPool`).d('票据池')}
-              </Option>
-            </Select>
-            <Select name="invoiceType" />
-            <TextField name="invoiceCode" />
-            <TextField name="invoiceNo" />
-            <Output
-              name="inOutType"
-              colSpan={1}
-              renderer={() => (
-                <Radio name="inOutType" value="IN">
-                  我收到的发票
-                </Radio>
-              )}
-            />
-            <Output
-              name="inOutType"
-              colSpan={1}
-              renderer={() => (
-                <Radio name="inOutType" value="OUT">
-                  我开具的发票
-                </Radio>
-              )}
-            />
-            <Currency name="invoiceAmount" />
-            <div>
-              <Button
-                onClick={() => {
-                  queryDataSet.reset();
-                  queryDataSet.create();
-                }}
-              >
-                {intl.get('hzero.c7nProUI.Table.reset_button').d('重置')}
-              </Button>
-              <Button
-                color={ButtonColor.primary}
-                onClick={() => {
-                  dataSet.query();
-                }}
-              >
-                {intl.get('hzero.c7nProUI.Table.query_button').d('查询')}
-              </Button>
-            </div>
-          </Form>
-        </>
-      );
-    }
-    return <></>;
-  }
-
   // 跳转至手工发票查验界面
   @Bind()
   handleGotoInvoiceCheck() {
@@ -188,7 +97,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
     openTab({
       key: pathname,
       path: pathname,
-      title: intl.get(`${modelCode}.invoiceCheck`).d('手工发票查验'),
+      title: intl.get('hcan.invoiceCheck.view.title').d('手工发票查验'),
       closable: true,
       type: 'menu',
     });
@@ -201,7 +110,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
     openTab({
       key: pathname,
       path: pathname,
-      title: intl.get(`${modelCode}.batchCheck`).d('批量识别查验'),
+      title: intl.get('hivp.batchCheck.title.check').d('批量识别查验'),
       closable: true,
       type: 'menu',
     });
@@ -213,10 +122,19 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
     const { dispatch } = this.props;
     const { sourceCode, poolHeaderId, invoiceType, entryPoolSource, companyCode } = record.toData();
     let invoiceHeaderId;
-    if (entryPoolSource === 'EXTERNAL_IMPORT') {
-      invoiceHeaderId = poolHeaderId;
-    } else {
-      invoiceHeaderId = record.get('invoiceHeaderId');
+    if (sourceCode === 'INVOICE_POOL') {
+      if (entryPoolSource === 'EXTERNAL_IMPORT') {
+        invoiceHeaderId = poolHeaderId;
+      } else {
+        invoiceHeaderId = record.get('invoiceHeaderId');
+      }
+      if (invoiceHeaderId === 'undefined' || !invoiceHeaderId) {
+        notification.info({
+          description: '',
+          message: intl.get(`${modelCode}.view.checkDetailMessage`).d('此发票未查验，无全票面信息'),
+        });
+        return;
+      }
     }
     dispatch(
       routerRedux.push({
@@ -262,6 +180,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
   handleGotoDocRelated(record) {
     const { dispatch } = this.props;
     const { sourceCode, poolHeaderId, companyId } = record.toData();
+    localStorage.setItem('myInvoicerecord', JSON.stringify(record.data)); // 添加跳转record缓存
     dispatch(
       routerRedux.push({
         pathname: `/htc-front-ivp/my-invoice/doc-related/${sourceCode}/${poolHeaderId}`,
@@ -345,6 +264,8 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
           if (button === 'ok') {
             this.singleIsCheck = 'N';
             this.upload[curPoolHeaderId].startUpload();
+          } else {
+            this.setState({ loadingFlag: false });
           }
         });
       }
@@ -362,7 +283,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
     } catch (err) {
       notification.error({
         description: err.message,
-        message: intl.get(`${modelCode}.view.uploadInvalid`).d('上传返回数据无效'),
+        message: intl.get('hivp.invoicesArchiveUpload.view.uploadInvalid').d('上传返回数据无效'),
       });
       this.setState({ loadingFlag: false });
       this.props.invoiceDS.query();
@@ -381,6 +302,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
     const { uploadFileRec } = this.state;
     uploadFileRec[poolHeaderId] = fileList;
     this.setState({ uploadFileRec });
+    this.handleSmartUpload(poolHeaderId);
   };
 
   // 智能上传
@@ -393,7 +315,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
   }
 
   get columns(): ColumnProps[] {
-    const { uploadFileRec, curPoolHeaderId, loadingFlag } = this.state;
+    const { loadingFlag } = this.state;
     const uploadProps = {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -405,11 +327,41 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
       partialUpload: false,
       showUploadBtn: false,
       showPreviewImage: true,
+      id: 'upload',
       onUploadSuccess: this.handleUploadSuccess,
       onUploadError: this.handleUploadError,
     };
     return [
-      { name: 'invoiceTypeMeaning', width: 200 },
+      {
+        name: 'invoiceTypeMeaning',
+        width: 200,
+        aggregation: true,
+        children: [
+          {
+            renderer: ({ record }) => {
+              const receiptsState = record && record.get('receiptsState');
+              const entryAccountState = record && record.get('entryAccountState');
+              return (
+                <Tag
+                  color={receiptsState === '0' && entryAccountState === '0' ? '#dadada' : '#87d068'}
+                >
+                  {receiptsState === '0' && entryAccountState === '0'
+                    ? intl.get(`${modelCode}.button.notSubmittedFlag`).d('未报销')
+                    : intl.get(`${modelCode}.button.isSubmittedFlag`).d('已报销')}
+                </Tag>
+              );
+            },
+          },
+          {
+            name: 'invoiceTypeMeaning',
+            title: '',
+            renderer: ({ record }) => {
+              const invoiceTypeMeaning = record && record.get('invoiceTypeMeaning');
+              return <a onClick={() => this.handleGotoDetailPage(record)}>{invoiceTypeMeaning}</a>;
+            },
+          },
+        ],
+      },
       { name: 'invoiceCode', width: 150 },
       { name: 'invoiceNo', width: 150 },
       { name: 'invoiceDate', width: 150 },
@@ -429,59 +381,54 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
           // if (!value && record && record.get('invoiceTypeTag') !== 'E') {
           if (!value && record) {
             return (
-              <Upload
-                ref={(node) => this.saveUpload(poolHeaderId, node)}
-                {...uploadProps}
-                onFileChange={(fileList) => this.handleFileChange(poolHeaderId, fileList)}
-                data={() => ({
-                  companyId: record.get('companyId'),
-                  companyCode: record.get('companyCode'),
-                  employeeNo: record.get('employeeNum'),
-                  sourceCode: record.get('sourceCode'),
-                  invoicePoolHeaderId: poolHeaderId,
-                  isCheck: this.singleIsCheck,
-                })}
-                accept={acceptType}
-              />
+              <Button loading={loadingFlag} style={{ border: 'none', background: 'transparent' }}>
+                {/* eslint-disable */}
+                <label htmlFor="upload">
+                  <a>{intl.get('hivp.bill.button.archiveUpload').d('上传档案')}</a>
+                </label>
+                {/* eslint-enable */}
+                <div style={{ display: 'none' }}>
+                  <Upload
+                    ref={(node) => this.saveUpload(poolHeaderId, node)}
+                    {...uploadProps}
+                    onFileChange={(fileList) => this.handleFileChange(poolHeaderId, fileList)}
+                    data={() => ({
+                      companyId: record.get('companyId'),
+                      companyCode: record.get('companyCode'),
+                      employeeNo: record.get('employeeNum'),
+                      sourceCode: record.get('sourceCode'),
+                      invoicePoolHeaderId: poolHeaderId,
+                      isCheck: this.singleIsCheck,
+                    })}
+                    accept={acceptType}
+                  />
+                </div>
+              </Button>
             );
           } else {
-            return <a onClick={() => this.handledDownload(record)}> {value}</a>;
+            return <a onClick={() => this.handleGotoArchiveView(record)}> {value}</a>;
           }
         },
       },
       {
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
-        width: 400,
+        width: 200,
         command: ({ record }): Commands[] => {
-          const poolHeaderId = record && record.get('poolHeaderId');
           return [
-            <Button key="viewDetail" onClick={() => this.handleGotoDetailPage(record)}>
-              {intl.get(`${modelCode}.button.viewDetail`).d('查看详情')}
+            <Button
+              color={ButtonColor.default}
+              style={{ border: 'none', background: 'transparent' }}
+              onClick={() => this.handleGotoDocRelated(record)}
+            >
+              <a>{intl.get(`${modelCode}.button.relateDoc`).d('查看单据')}</a>
             </Button>,
             <Button
-              key="viewArchive"
-              disabled={!record.get('fileUrl')}
-              onClick={() => this.handleGotoArchiveView(record)}
+              color={ButtonColor.default}
+              style={{ border: 'none', background: 'transparent' }}
+              onClick={() => this.handleDeleteInvoiceInfo(record)}
             >
-              {intl.get(`${modelCode}.button.viewArchive`).d('查看档案')}
-            </Button>,
-            <Button key="relateDoc" onClick={() => this.handleGotoDocRelated(record)}>
-              {intl.get(`${modelCode}.button.relateDoc`).d('单据信息')}
-            </Button>,
-            <Button key="delete" onClick={() => this.handleDeleteInvoiceInfo(record)}>
-              {intl.get(`${modelCode}.button.delete`).d('删除')}
-            </Button>,
-            <Button
-              key="smartUpload"
-              onClick={() => this.handleSmartUpload(poolHeaderId)}
-              loading={loadingFlag && curPoolHeaderId === record.get('poolHeaderId')}
-              disabled={
-                loadingFlag ||
-                !(uploadFileRec[poolHeaderId] && uploadFileRec[poolHeaderId].length > 0)
-              }
-            >
-              {intl.get(`${modelCode}.button.smartUpload`).d('智能上传')}
+              {intl.get('hzero.common.button.delete').d('删除')}
             </Button>,
           ];
         },
@@ -494,13 +441,22 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('我的发票')} />
+        <Header title={intl.get(`${modelCode}.view.title`).d('我的发票')}>
+          <Button
+            color={ButtonColor.primary}
+            onClick={() => this.handleGotoBatchDentificationCheck()}
+          >
+            {intl.get('hivp.batchCheck.title.check').d('批量识别查验')}
+          </Button>
+          <Button color={ButtonColor.primary} onClick={() => this.handleGotoInvoiceCheck()}>
+            {intl.get('hcan.invoiceCheck.view.title').d('手工发票查验')}
+          </Button>
+        </Header>
         <Content>
-          <Table
+          <AggregationTable
             dataSet={this.props.invoiceDS}
             columns={this.columns}
-            queryBar={this.renderQueryBar}
-            style={{ height: 300 }}
+            style={{ height: 500 }}
           />
         </Content>
       </>

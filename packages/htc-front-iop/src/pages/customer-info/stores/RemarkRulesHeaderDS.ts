@@ -1,19 +1,17 @@
-/*
+/**
  * @Description:备注规则
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-04-09 10:33:24
- * @LastEditTime:
- * @Copyright: Copyright (c) 2020, Hand
+ * @LastEditTime: 2022-06-15 14:02
+ * @Copyright: Copyright (c) 2021, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
-
-const modelCode = 'hiop.remarkRules';
 
 export default (dsProps): DataSetProps => {
   // const API_PREFIX = `${commonConfig.IOP_API}-28946` || '';
@@ -53,39 +51,39 @@ export default (dsProps): DataSetProps => {
         defaultValue: customerInformationId,
       },
       {
-        name: 'dynamicRemarkGenerationRulesId',
+        name: 'htcDynamicRemarkRulesId',
         type: FieldType.number,
       },
       {
-        name: 'dynamicRemarksRulePrefix',
-        label: intl.get(`${modelCode}.view.dynamicRemarksRulePrefix`).d('动态备注规则-前缀'),
+        name: 'remarksRulePrefix',
+        label: intl.get('hiop.customerInfo.modal.remarksRulePrefix').d('动态备注规则-前缀'),
         type: FieldType.string,
         labelWidth: '150',
       },
       {
-        name: 'dynamicRemarksRulePrefixOne',
-        label: intl.get(`${modelCode}.view.dynamicRemarksRulePrefixOne`).d('动态备注规则-前缀'),
+        name: 'remarksRulePrefix1',
+        label: intl.get('hiop.customerInfo.modal.remarksRulePrefix').d('动态备注规则-前缀'),
         type: FieldType.string,
       },
       {
-        name: 'dynamicRemarksRulePrefixTwo',
-        label: intl.get(`${modelCode}.view.dynamicRemarksRulePrefixTwo`).d('动态备注规则-前缀'),
+        name: 'remarksRulePrefix2',
+        label: intl.get('hiop.customerInfo.modal.remarksRulePrefix').d('动态备注规则-前缀'),
         type: FieldType.string,
       },
       {
-        name: 'dynamicRemarksRulePrefixThree',
-        label: intl.get(`${modelCode}.view.dynamicRemarksRulePrefixThree`).d('动态备注规则-前缀'),
+        name: 'remarksRulePrefix3',
+        label: intl.get('hiop.customerInfo.modal.remarksRulePrefix').d('动态备注规则-前缀'),
         type: FieldType.string,
       },
       {
-        name: 'dynamicRemarksRulePrefixFour',
-        label: intl.get(`${modelCode}.view.dynamicRemarksRulePrefixFour`).d('动态备注规则-前缀'),
+        name: 'remarksRulePrefix4',
+        label: intl.get('hiop.customerInfo.modal.remarksRulePrefix').d('动态备注规则-前缀'),
         type: FieldType.string,
       },
       {
-        name: 'enableApplySourceAsDynamic',
+        name: 'enableSourceAsDynamic',
         label: intl
-          .get(`${modelCode}.view.enableApplySourceAsDynamic`)
+          .get('hiop.customerInfo.modal.enableSourceAsDynamic')
           .d('启用申请来源单号字段作为动态备注'),
         type: FieldType.boolean,
         labelWidth: '220',
@@ -94,9 +92,9 @@ export default (dsProps): DataSetProps => {
         defaultValue: 'N',
       },
       {
-        name: 'enableApplySourceAsDynamicOne',
+        name: 'enableSourceAsDynamic1',
         label: intl
-          .get(`${modelCode}.view.enableApplySourceAsDynamicOne`)
+          .get('hiop.customerInfo.modal.enableSourceAsDynamic1')
           .d('启用申请来源1字段作为动态备注'),
         type: FieldType.boolean,
         trueValue: 'Y',
@@ -104,9 +102,9 @@ export default (dsProps): DataSetProps => {
         defaultValue: 'N',
       },
       {
-        name: 'enableApplySourceAsDynamicTwo',
+        name: 'enableSourceAsDynamic2',
         label: intl
-          .get(`${modelCode}.view.enableApplySourceAsDynamicTwo`)
+          .get('hiop.customerInfo.modal.enableSourceAsDynamic2')
           .d('启用申请来源2字段作为动态备注'),
         type: FieldType.boolean,
         trueValue: 'Y',
@@ -114,9 +112,9 @@ export default (dsProps): DataSetProps => {
         defaultValue: 'N',
       },
       {
-        name: 'enableApplySourceAsDynamicThree',
+        name: 'enableSourceAsDynamic3',
         label: intl
-          .get(`${modelCode}.view.enableApplySourceAsDynamicThree`)
+          .get('hiop.customerInfo.modal.enableSourceAsDynamic3')
           .d('启用申请来源3字段作为动态备注'),
         type: FieldType.boolean,
         trueValue: 'Y',
@@ -124,9 +122,9 @@ export default (dsProps): DataSetProps => {
         defaultValue: 'N',
       },
       {
-        name: 'enableApplySourceAsDynamicFour',
+        name: 'enableSourceAsDynamic4',
         label: intl
-          .get(`${modelCode}.view.enableApplySourceAsDynamicFour`)
+          .get('hiop.customerInfo.modal.enableSourceAsDynamic4')
           .d('启用申请来源4字段作为动态备注'),
         type: FieldType.boolean,
         trueValue: 'Y',

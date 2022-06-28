@@ -1,4 +1,4 @@
-/*
+/**
  * @Description:商品信息服务
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
@@ -7,14 +7,15 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import request from 'utils/request';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 
-const HIOP_API = commonConfig.IOP_API;
+const HIOP_API = commonConfig.IOP_API || '';
 
 /**
  * 初始化商品信息列表
  * @async
  * @function initCommodity
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function initCommodity(params) {

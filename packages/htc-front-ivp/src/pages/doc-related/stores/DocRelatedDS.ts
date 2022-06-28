@@ -1,21 +1,21 @@
 /*
- * @Descripttion:发票池-单据关联
+ * @Description:发票池-单据关联
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
  * @LastEditTime: 2021-01-22 13:48:42
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
-// import notification from 'utils/notification';
+import notification from 'utils/notification';
 // import { TransportProps } from 'choerodon-ui/pro/lib/data-set/Transport';
 
-const modelCode = 'hivp.invoices.fileArchive';
+const modelCode = 'hivp.invoicesDocRelated';
 
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
@@ -64,23 +64,25 @@ export default (dsParams): DataSetProps => {
         dataSet.query();
       },
     },
-    // feedback: {
-    //   submitSuccess: (resp) => {
-    //     if (resp.content && resp.content[0]) {
-    //       if (resp.content[0].status === '1024') {
-    //         notification.success({
-    //           description: '',
-    //           message: '操作成功',
-    //         });
-    //       } else {
-    //         notification.error({
-    //           description: '',
-    //           message: resp.content[0].data,
-    //         });
-    //       }
-    //     }
-    //   },
-    // } as TransportProps,
+    feedback: {
+      submitSuccess: (resp) => {
+        if (resp.content && resp.content[0]) {
+          if (resp.content[0].status === '1000') {
+            notification.success({
+              description: '',
+              message: intl.get('hzero.common.notification.success').d('操作成功'),
+              placement: 'bottomRight',
+            });
+          } else {
+            notification.error({
+              description: '',
+              placement: 'bottomRight',
+              message: resp.content[0].message,
+            });
+          }
+        }
+      },
+    },
     pageSize: 10,
     selection: false,
     primaryKey: 'detailId',
@@ -99,7 +101,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'systemObj',
-        label: intl.get(`${modelCode}.view.systemObj`).d('对接系统'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.systemName').d('对接系统'),
         type: FieldType.object,
         lovCode: 'HIVP.SYSTEM_CODE',
         required: true,
@@ -112,7 +114,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'systemName',
-        label: intl.get(`${modelCode}.view.systemName`).d('对接系统'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.systemName').d('对接系统'),
         type: FieldType.string,
         bind: 'systemObj.systemName',
       },
@@ -132,35 +134,35 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'documentTypeMeaning',
-        label: intl.get(`${modelCode}.view.documentTypeMeaning`).d('单据类型'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
         type: FieldType.string,
         bind: 'documentTypeObj.documentTypeMeaning',
       },
       {
         name: 'documentNumber',
-        label: intl.get(`${modelCode}.view.documentNumber`).d('单据编号'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'documentSourceId',
-        label: intl.get(`${modelCode}.view.documentSourceId`).d('对接系统单据ID'),
+        label: intl.get(`hivp.invoicesArchiveUpload.view.documentSourceId`).d('对接系统单据ID'),
         type: FieldType.string,
       },
       {
         name: 'documentSourceKey',
-        label: intl.get(`${modelCode}.view.documentSourceKey`).d('单据关键字'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentSourceKey').d('单据关键字'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'documentRemark',
-        label: intl.get(`${modelCode}.view.documentRemark`).d('单据描述'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentRemark').d('单据描述'),
         type: FieldType.string,
       },
       {
         name: 'receiptsState',
-        label: intl.get(`${modelCode}.view.receiptsState`).d('关联状态'),
+        label: intl.get('hivp.checkCertification.view.receiptsState').d('关联状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.INTERFACE_DOCS_STATE',
         defaultValue: '0',
@@ -172,7 +174,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'employeeName',
-        label: intl.get(`${modelCode}.view.employeeName`).d('关联员工'),
+        label: intl.get(`${modelCode}.view.AssociatedEmployees`).d('关联员工'),
         type: FieldType.string,
       },
     ],
@@ -184,7 +186,7 @@ const DocumentDS = (companyId): DataSetProps => {
     fields: [
       {
         name: 'documentObj',
-        label: intl.get(`${modelCode}.view.documentObj`).d('单据编号'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
         type: FieldType.object,
         lovCode: 'HIVP.RELATION_NO',
         lovPara: { companyId },

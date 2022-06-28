@@ -1,5 +1,5 @@
-/*
- * @Descripttion:发票全票面信息
+/**
+ * @Description: 发票全票面信息
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-24 15:48:54

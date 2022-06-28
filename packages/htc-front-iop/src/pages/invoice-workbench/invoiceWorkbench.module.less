@@ -1,0 +1,213 @@
+.flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.containTable:extend(.flex) {
+  height: 54px;
+  .title {
+    margin: 0;
+    margin-right: 16px;
+  }
+}
+.tableTitleRight:extend(.flex) {
+  padding: 8px 0 8px 16px;
+  background: #eff6ff;
+  border-radius: 4px;
+  p {
+    margin: 0;
+    color: #5a6677;
+  }
+  span {
+    margin-right: 24px;
+    color: blue;
+    opacity: 1;
+  }
+}
+.customTable {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding-bottom: 16px;
+}
+.invoiceContainer:extend(.flex) {
+  justify-content: space-around;
+  width: 500px;
+}
+
+.background {
+  background-image: url('https://digi.aisino.com:8003/images/fpylbj.png');
+  background-repeat: no-repeat;
+  background-position: 55% 63%;
+}
+
+.invoice_top {
+  width: 100%;
+  color: #9e520a;
+  font-family: '楷体', serif;
+  font-size: 13px;
+  height: 80px;
+}
+
+.negative {
+  font-size: 18px;
+  font-weight: bold;
+  color: #000;
+  text-align: center;
+  font-family: '微软雅黑', serif;
+  span {
+    margin-left: 70px;
+  }
+}
+
+.top_left {
+  width: 28%;
+}
+
+.top_middle {
+  position: relative;
+  bottom: 50px;
+  color: #9e520a;
+  font-size: 26px;
+  line-height: 20px;
+}
+
+.top_right {
+  width: 30%;
+  text-align: right;
+}
+
+.invoiceTable {
+  width: 100%;
+  border-top: 1px solid #b88787;
+  border-left: 1px solid #b88787;
+  border-bottom: 1px solid #b88787;
+  td {
+    border-right: 1px solid #b88787;
+    border-bottom: 1px solid #b88787;
+    line-height: 25px;
+  }
+}
+
+.sellerInfo {
+  width: 100%;
+  border-left: 1px solid #b88787;
+  border-right: 1px solid #b88787;
+  border-bottom: 1px solid #b88787;
+  white-space: pre-wrap;
+  td {
+    border-right: 1px solid #b88787;
+    line-height: 25px;
+  }
+}
+
+.goodTable {
+  width: 100%;
+  border-left: 1px solid #b88787;
+  //border-right: 1px solid #b88787;
+  border-bottom: 0.5px solid #b88787;
+  td {
+    border-right: 1px solid #b88787;
+  }
+}
+
+.goodBottom {
+  td {
+    border-top: 1px solid #b88787;
+    padding: 0 4px;
+  }
+}
+
+.goodInfo {
+  td {
+    line-height: 28px;
+    padding: 0 4px;
+  }
+}
+
+.topSide {
+  width: 25px;
+  padding: 0 6px;
+  color: #9e520a;
+}
+
+.total {
+  td {
+    padding: 0 4px;
+  }
+}
+
+.label {
+  color: #9e520a;
+  padding: 0 4px;
+  font-family: '楷体', serif;
+  font-size: 14px;
+}
+
+.goodLabel {
+  color: #9e520a;
+  text-align: center;
+  line-height: 25px;
+  font-family: '楷体', serif;
+  font-size: 14px;
+}
+
+.labelField {
+  font-family: '微软雅黑', serif;
+}
+
+.code {
+  color: #000;
+  font-family: '微软雅黑', serif;
+}
+
+.remark {
+  font-family: '微软雅黑', serif;
+  //padding: 0 4px;
+}
+
+.bottomTable {
+  width: 100%;
+  td {
+    line-height: 25px;
+  }
+}
+
+.ticketTile {
+  font-size: 18px;
+  color: #574b9d;
+  text-align: center;
+}
+.ticketSubTit {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.contain {
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px dashed rgb(204, 204, 204);
+  width: 500px;
+  line-height: 30px;
+  background-color: rgb(247, 247, 247);
+}
+.ticketTable {
+  width: 100%;
+  background-image: url('https://digi.aisino.com:8003/images/fpylbj.png');
+  background-repeat: no-repeat;
+  background-size: 135%;
+  background-position: center;
+}
+.ticketLabel {
+  font-size: 14px;
+  color: #9e520a;
+}
+.ticketField {
+  font-size: 14px;
+  color: #574b9d;
+}
+
+.invoiceModal {
+  width: calc(63vw) !important;
+}

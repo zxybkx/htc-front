@@ -1,19 +1,17 @@
-/*
- * @Descripttion:开票规则行
+/**
+ * @Description:开票规则行
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-08-03 10:19:48
  * @LastEditTime: 2021-03-05 11:00:48
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
-import { FieldType, FieldIgnore, DataSetSelection } from 'choerodon-ui/pro/lib/data-set/enum';
+import { DataSetSelection, FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
-
-const modelCode = 'hiop.tax-info';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IOP_API || '';
@@ -41,7 +39,7 @@ export default (): DataSetProps => {
         };
       },
     },
-    pageSize: 5,
+    pageSize: 10,
     selection: DataSetSelection.multiple,
     primaryKey: 'rulesLinesId',
     events: {
@@ -70,14 +68,14 @@ export default (): DataSetProps => {
       },
       {
         name: 'operationTypeCode',
-        label: intl.get(`${modelCode}.view.operationTypeCode`).d('操作类型'),
+        label: intl.get('hzero.common.components.dataAudit.operationType').d('操作类型'),
         type: FieldType.string,
         lookupCode: 'HIOP.OPERATION_TYPE',
         required: true,
       },
       {
         name: 'employeeNumObj',
-        label: intl.get(`${modelCode}.view.employeeNum`).d('员工号'),
+        label: intl.get('hiop.invoiceRule.modal.employeeNumObj').d('员工号'),
         type: FieldType.object,
         lovCode: 'HMDM.EMPLOYEE_NAME',
         ignore: FieldIgnore.always,
@@ -93,19 +91,19 @@ export default (): DataSetProps => {
       },
       {
         name: 'employeeName',
-        label: intl.get(`${modelCode}.view.employeeName`).d('姓名'),
+        label: intl.get('hiop.invoiceRule.modal.employeeName').d('姓名'),
         type: FieldType.string,
         bind: 'employeeNumObj.employeeName',
       },
       {
         name: 'employeeNumber',
-        label: intl.get(`${modelCode}.view.employeeNumber`).d('编号'),
+        label: intl.get('hiop.invoiceRule.modal.employeeNumber').d('编号'),
         type: FieldType.string,
         bind: 'employeeNumObj.employeeNum',
       },
       {
         name: 'qualifiedAuditorObj',
-        label: intl.get(`${modelCode}.view.qualifiedAuditorObj`).d('限定审核人'),
+        label: intl.get('hiop.invoiceRule.modal.qualifiedAuditorObj').d('限定审核人'),
         type: FieldType.object,
         lovCode: 'HMDM.EMPLOYEE_NAME',
         ignore: FieldIgnore.always,
@@ -127,13 +125,13 @@ export default (): DataSetProps => {
       },
       {
         name: 'applyBusinessCode',
-        label: intl.get(`${modelCode}.view.applyBusinessCode`).d('限定业务类型'),
+        label: intl.get('hiop.invoiceRule.modal.applyBusinessCode').d('限定业务类型'),
         type: FieldType.string,
         lookupCode: 'HIOP.INVOICE_REQUEST_TYPE',
       },
       {
         name: 'purchaseInvoiceFlag',
-        label: intl.get(`${modelCode}.view.purchaseInvoiceFlag`).d('默认收购发票'),
+        label: intl.get('hiop.invoiceRule.modal.purchaseInvoiceFlag').d('默认收购发票'),
         type: FieldType.boolean,
         trueValue: 'Y',
         falseValue: '',
@@ -141,7 +139,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'limitInvoiceTypeObj',
-        label: intl.get(`${modelCode}.view.limitInvoiceType`).d('限定开票种类'),
+        label: intl.get('hiop.invoiceRule.modal.limitInvoiceTypeObj').d('限定开票种类'),
         type: FieldType.object,
         lovCode: 'HIOP.COMPANY_INVOICE_TYPE',
         cascadeMap: { companyId: 'companyId' },
@@ -162,7 +160,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'defaultInvoiceTypeObj',
-        label: intl.get(`${modelCode}.view.defaultInvoiceType`).d('默认开票种类'),
+        label: intl.get('hiop.invoiceRule.modal.defaultInvoiceTypeObj').d('默认开票种类'),
         type: FieldType.object,
         lovCode: 'HIOP.COMPANY_INVOICE_TYPE',
         cascadeMap: { companyId: 'companyId' },
@@ -189,7 +187,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'limitExtensionCodeObj',
-        label: intl.get(`${modelCode}.view.limitExtensionCode`).d('限定分机号'),
+        label: intl.get('hiop.invoiceRule.modal.limitExtensionCodeObj').d('限定分机号'),
         type: FieldType.object,
         lovCode: 'HIOP.COMPANY_TAX_CONTROL_INFO',
         cascadeMap: { companyId: 'companyId' },
@@ -198,18 +196,28 @@ export default (): DataSetProps => {
       },
       {
         name: 'limitExtensionCode',
-        label: intl.get(`${modelCode}.view.limitExtensionCode`).d('限定分机号'),
+        label: intl.get('hiop.invoiceRule.modal.limitExtensionCodeObj').d('限定分机号'),
         type: FieldType.string,
         bind: 'limitExtensionCodeObj.extNumber',
       },
       {
         name: 'printFileDownloadPath',
-        label: intl.get(`${modelCode}.view.printFileDownloadPath`).d('发票打印路径'),
+        label: intl.get('hiop.invoiceRule.modal.printFileDownloadPath').d('打印路径'),
+        type: FieldType.string,
+      },
+      {
+        name: 'invoiceDownloadPath',
+        label: intl.get('hiop.invoiceRule.modal.invoiceDownloadPath').d('打印发票路径'),
+        type: FieldType.string,
+      },
+      {
+        name: 'listDownloadPath',
+        label: intl.get('hiop.invoiceRule.modal.listDownloadPath').d('打印清单路径'),
         type: FieldType.string,
       },
       {
         name: 'enabledFlag',
-        label: intl.get(`${modelCode}.view.enabledFlag`).d('是否启用'),
+        label: intl.get('hiop.invoiceRule.modal.enabledFlag').d('是否启用'),
         type: FieldType.boolean,
         trueValue: 1,
         falseValue: 0,

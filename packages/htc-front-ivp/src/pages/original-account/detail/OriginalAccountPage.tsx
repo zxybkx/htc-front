@@ -1,5 +1,5 @@
 /*
- * @Descripttion:发票池-底账
+ * @Description:发票池-底账
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
@@ -26,18 +26,17 @@ import {
   // TimePicker,
 } from 'choerodon-ui/pro';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
 import notification from 'utils/notification';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { getOriginalAccount, getOriginalAccountAutoDate } from '@src/services/invoicesService';
 import { Button as PermissionButton } from 'components/Permission';
-import { getPresentMenu } from '@common/utils/utils';
+import { getPresentMenu } from '@htccommon/utils/utils';
 import OriginalAccountHeaderDS from '../stores/OriginalAccountHeaderDS';
 import OriginalAccountLineDS from '../stores/OriginalAccountLineDS';
 
-const modelCode = 'hivp.invoices.originalAccount';
+const modelCode = 'hivp.invoicesOriginalAccount';
 const tenantId = getCurrentOrganizationId();
 const permissionPath = `${getPresentMenu().name}.ps`;
 
@@ -46,7 +45,13 @@ interface OriginalAccountPageProps extends RouteComponentProps {
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: [
+    modelCode,
+    'htc.common',
+    'hivp.checkCertification',
+    'hivp.invoicesArchiveUpload',
+    'hiop.redInvoiceInfo',
+  ],
 })
 export default class OriginalAccountPage extends Component<OriginalAccountPageProps> {
   state = { refreshTimeValue: 30, inChannelCode: '', companyCode: '', employeeNum: '' };
@@ -180,7 +185,7 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
       const resp = getResponse(await getOriginalAccountAutoDate(params));
       if (resp) {
         notification.info({
-          message: `${intl.get(`${modelCode}.view.lastAutoDate`).d('上一次的自动获取时间为：')}${
+          message: `${intl.get(`${modelCode}.view.lastAutoDate`).d('上一次的自动获取时间为')}：${
             resp.data
           }`,
           description: '',
@@ -215,7 +220,7 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
   get columns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get(`htc.common.orderSeq`).d('序号'),
         width: 60,
         renderer: ({ record }) => {
           return record ? this.lineDS.indexOf(record) + 1 : '';
@@ -266,14 +271,14 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
       <>
         <Header
           backPath="/htc-front-ivp/invoices/list"
-          title={intl.get(`${modelCode}.title`).d('底账获取')}
+          title={intl.get(`${modelCode}.button.getOriginalAccount`).d('底账获取')}
         >
           {/* <Button color={ButtonColor.dark} onClick={() => this.handleSave()}>
             {intl.get(`${modelCode}.button.save`).d('保存')}
           </Button> */}
           <PermissionButton
             type="c7n-pro"
-            color={ButtonColor.dark}
+            // color={ButtonColor.dark}
             onClick={() => this.handleSave()}
             permissionList={[
               {
@@ -283,7 +288,7 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
               },
             ]}
           >
-            {intl.get(`${modelCode}.button.save`).d('保存')}
+            {intl.get('hzero.common.button.save').d('保存')}
           </PermissionButton>
           <GetOriginalAccount dataSet={this.headerDS} />
         </Header>

@@ -216,13 +216,14 @@ export class ConfigProps {
 
 type ConfigKey = keyof ConfigProps;
 
-const HZERO_CONFIG_STORE = '_HZERO_CONFIG_STORE';
+const HTC_CONFIG_STORE = '_HTC_CONFIG_STORE';
 
 export const getConfigStore = (): ConfigProps => {
-  if (!(window as any)[HZERO_CONFIG_STORE]) {
-    ((window as any)[HZERO_CONFIG_STORE] as ConfigProps) = new ConfigProps();
+  // 通过在window上显式设置属性来为对象设置全局命名空间
+  if (!(window as any)[HTC_CONFIG_STORE]) {
+    ((window as any)[HTC_CONFIG_STORE] as ConfigProps) = new ConfigProps();
   }
-  return (window as any)[HZERO_CONFIG_STORE];
+  return (window as any)[HTC_CONFIG_STORE];
 };
 
 export const getConfig = (key: ConfigKey): string => {

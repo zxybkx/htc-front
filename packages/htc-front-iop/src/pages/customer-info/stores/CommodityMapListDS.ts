@@ -1,20 +1,18 @@
-/*
+/**
  * @Description:商品映射
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-04-08 10:15:14
- * @LastEditTime:
- * @Copyright: Copyright (c) 2020, Hand
+ * @LastEditTime: 2022-06-15 14:02
+ * @Copyright: Copyright (c) 2021, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { DataSet } from 'choerodon-ui/pro';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { DataSetSelection, FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
-
-const modelCode = 'hiop.commodity-map';
 
 const getTaxRate = (value) => {
   if (value.indexOf('%') > 0) {
@@ -31,13 +29,6 @@ export default (): DataSetProps => {
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const { dataSet } = config;
-        let companyCode;
-        let customerName;
-        if (dataSet && dataSet.parent) {
-          companyCode = dataSet.parent.current!.get('companyCode');
-          customerName = dataSet.parent.current!.get('customerName');
-        }
         const { oneselfNumber, projectName, issueName } = config.data;
         let url = `${API_PREFIX}/v1/${tenantId}/goods-mapping-main/goods-by-customer`;
         if (oneselfNumber || projectName || issueName) {
@@ -48,8 +39,6 @@ export default (): DataSetProps => {
           url,
           params: {
             ...config.params,
-            companyCode,
-            customerName,
           },
           method: 'GET',
         };
@@ -71,7 +60,7 @@ export default (): DataSetProps => {
         };
       },
     },
-    pageSize: 5,
+    pageSize: 10,
     selection: DataSetSelection.multiple,
     primaryKey: 'goodsMappingId',
     events: {
@@ -118,7 +107,7 @@ export default (): DataSetProps => {
       {
         name: 'projectObj',
         type: FieldType.object,
-        label: intl.get(`${modelCode}.view.projectObj`).d('自行编码'),
+        label: intl.get('hiop.customerInfo.modal.projectObj').d('自行编码'),
         lovCode: 'HIOP.GOODS_QUERY',
         cascadeMap: {
           companyId: 'companyId',
@@ -128,17 +117,17 @@ export default (): DataSetProps => {
         lovPara: { queryBySelfCode: true },
         ignore: FieldIgnore.always,
         textField: 'projectNumber',
-      },
-      {
-        name: 'oneselfNumber',
-        label: intl.get(`${modelCode}.view.oneselfNumber`).d('自行编码'),
-        type: FieldType.string,
-        bind: 'projectObj.projectNumber',
         required: true,
       },
       {
+        name: 'oneselfNumber',
+        type: FieldType.string,
+        bind: 'projectObj.projectNumber',
+        // required: true,
+      },
+      {
         name: 'projectName',
-        label: intl.get(`${modelCode}.view.projectName`).d('项目名称'),
+        label: intl.get('hiop.invoiceWorkbench.modal.projectNameSuffix').d('项目名称'),
         type: FieldType.string,
         required: true,
       },
@@ -149,13 +138,13 @@ export default (): DataSetProps => {
       },
       {
         name: 'issueName',
-        label: intl.get(`${modelCode}.view.issueName`).d('开具名称'),
+        label: intl.get('hiop.invoiceReq.modal.commodityIssues').d('开具名称'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'taxRateObj',
-        label: intl.get(`${modelCode}.view.taxRateObj`).d('税率'),
+        label: intl.get('hiop.invoiceWorkbench.modal.taxRate').d('税率'),
         type: FieldType.object,
         lovCode: 'HIOP.SELECT_TAXRATE',
         lovPara: { tenantId },
@@ -164,19 +153,18 @@ export default (): DataSetProps => {
       },
       {
         name: 'taxRate',
-        label: intl.get(`${modelCode}.view.taxRate`).d('税率'),
         type: FieldType.string,
         bind: 'taxRateObj.taxRate',
       },
       {
         name: 'model',
-        label: intl.get(`${modelCode}.view.model`).d('型号'),
+        label: intl.get('hiop.invoiceWorkbench.modal.model').d('规格型号'),
         type: FieldType.string,
         bind: 'projectObj.model',
       },
       {
         name: 'invoiceTypeObj',
-        label: intl.get(`${modelCode}.view.invoiceTypeObj`).d('发票种类'),
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
         type: FieldType.object,
         lovCode: 'HIOP.SELECT_INVOICETYPE',
         lovPara: { tenantId },
@@ -186,7 +174,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceType',
-        label: intl.get(`${modelCode}.view.invoiceType`).d('发票种类'),
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
         type: FieldType.string,
         lookupCode: 'HMDM.INVOICE_TYPE',
         computedProps: {
@@ -197,19 +185,18 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceTypeMeaning',
-        label: intl.get(`${modelCode}.view.invoiceTypeMeaning`).d('发票种类'),
         type: FieldType.string,
         bind: 'invoiceTypeObj.invoiceTypeMeaning',
       },
       {
         name: 'goodsUnit',
-        label: intl.get(`${modelCode}.view.goodsUnit`).d('单位'),
+        label: intl.get('hiop.invoiceWorkbench.modal.projectUnit').d('单位'),
         type: FieldType.string,
         bind: 'projectObj.projectUnit',
       },
       {
         name: 'goodsUnitPrice',
-        label: intl.get(`${modelCode}.view.goodsUnitPrice`).d('单价'),
+        label: intl.get('hiop.invoiceWorkbench.modal.price').d('单价'),
         type: FieldType.currency,
         defaultValue: 0,
         min: 0,
@@ -217,7 +204,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'enabledFlag',
-        label: intl.get(`${modelCode}.view.enabledFlag`).d('启用状态'),
+        label: intl.get('htc.common.modal.enabledFlag').d('启用状态'),
         type: FieldType.number,
         falseValue: 0,
         trueValue: 1,
@@ -229,17 +216,17 @@ export default (): DataSetProps => {
       fields: [
         {
           name: 'oneselfNumber',
-          label: intl.get(`${modelCode}.view.oneselfNumber`).d('自行编码'),
+          label: intl.get('hiop.customerInfo.modal.projectObj').d('自行编码'),
           type: FieldType.string,
         },
         {
           name: 'projectName',
-          label: intl.get(`${modelCode}.view.projectName`).d('项目名称'),
+          label: intl.get('hiop.invoiceWorkbench.modal.projectNameSuffix').d('项目名称'),
           type: FieldType.string,
         },
         {
           name: 'issueName',
-          label: intl.get(`${modelCode}.view.issueName`).d('开具名称'),
+          label: intl.get('hiop.invoiceReq.modal.commodityIssues').d('开具名称'),
           type: FieldType.string,
         },
       ],

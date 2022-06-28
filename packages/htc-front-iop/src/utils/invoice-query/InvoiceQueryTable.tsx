@@ -3,13 +3,14 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2020-12-14 16:22:22
- * @LastEditTime:
+ * @LastEditTime: 2022-06-15 14:50:22
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
-import { Table, DataSet, Form, Button, TextField, CheckBox } from 'choerodon-ui/pro';
-import { Row, Col } from 'choerodon-ui';
+import { Button, CheckBox, DataSet, Form, Table, TextField } from 'choerodon-ui/pro';
+import { Col, Row } from 'choerodon-ui';
 import intl from 'utils/intl';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { SelectionMode } from 'choerodon-ui/pro/lib/table/enum';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
@@ -18,8 +19,6 @@ import { concat } from 'lodash';
 // import { enterpriseInfo } from '@src/services/invoiceOrderService';
 // import notification from 'utils/notification';
 import InvoiceQueryListDS from './stores/InvoiceQueryListDS';
-
-const modelCode = 'hiop.invoice-query';
 
 interface InvoiceQueryTableProps {
   invoiceType: string; // 发票种类
@@ -32,6 +31,15 @@ interface InvoiceQueryTableProps {
   employeeNum: string;
 }
 
+@formatterCollections({
+  code: [
+    'hiop.invoiceQuery',
+    'hiop.invoiceWorkbench',
+    'htc.common',
+    'hiop.redInvoiceInfo',
+    'hiop.invoiceReq',
+  ],
+})
 export default class InvoiceQueryTable extends Component<InvoiceQueryTableProps> {
   state = { isQueryAll: false };
 
@@ -63,7 +71,7 @@ export default class InvoiceQueryTable extends Component<InvoiceQueryTableProps>
     const { isQueryAll } = this.state;
     const initialColumns = [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('htc.common.orderSeq').d('序号'),
         width: 60,
         renderer: ({ record, dataSet }) => {
           return dataSet && record ? dataSet.indexOf(record) + 1 : '';
@@ -100,10 +108,10 @@ export default class InvoiceQueryTable extends Component<InvoiceQueryTableProps>
             </Col>
             <Col span={6} style={{ textAlign: 'end' }}>
               <Button color={ButtonColor.primary} onClick={this.handleQuery}>
-                {intl.get('hzero.c7nProUI.Table.query_button').d('查询')}
+                {intl.get('hzero.common.button.search').d('查询')}
               </Button>
               <Button color={ButtonColor.primary} onClick={this.chooseCompany}>
-                {intl.get(`${modelCode}.choose`).d('选择')}
+                {intl.get('hzero.common.button.select').d('选择')}
               </Button>
             </Col>
           </Row>

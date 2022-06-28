@@ -1,39 +1,57 @@
-/*
+/**
  * @Description:发票红冲行
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-1-6 12:21:22
- * @LastEditTime:
- * @Copyright: Copyright (c) 2020, Hand
+ * @LastEditTime: 2021-09-06 12:21:22
+ * @Copyright: Copyright (c) 2021, Hand
  */
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { AxiosRequestConfig } from 'axios';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import { getCurrentOrganizationId } from 'utils/utils';
 
-const modelCode = 'hiop.invoice-redFlush';
+/**
+ * 金额校验
+ * @params {string} value-当前值
+ * @params {string} name-标签名
+ * @params {object} record-行记录
+ * @returns {string/undefined}
+ */
 const amountValidator = (value, name, record) => {
   if (value && name && record) {
     const taxAmount = record.get('taxAmount');
     const amount = record.get('amount');
     if (Math.abs(amount) < Math.abs(taxAmount)) {
-      return '金额必须大于税额';
+      return intl.get('hiop.invoiceRedFlush.validate.amount').d('金额必须大于税额');
     }
   }
   return undefined;
 };
+/**
+ * 税额校验
+ * @params {string} value-当前值
+ * @params {string} name-标签名
+ * @params {object} record-行记录
+ * @returns {string/undefined}
+ */
 const taxAmountValidator = (value, name, record) => {
   if (value && name && record) {
     const taxAmount = record.get('taxAmount');
     const totalTax = record.get('totalTax');
     if (Math.abs(taxAmount) > Math.abs(totalTax)) {
-      return '税额必须小于原蓝字发票税额';
+      return intl.get('hiop.invoiceRedFlush.validate.taxAmount').d('税额必须小于原蓝字发票税额');
     }
   }
   return undefined;
 };
+/**
+ * 获取税率
+ * @params {string} value-当前值
+ * @returns {string}
+ */
 const getTaxRate = (value) => {
   if (value.indexOf('%') > 0) {
     return value.replace('%', '') / 100;
@@ -41,6 +59,11 @@ const getTaxRate = (value) => {
     return value;
   }
 };
+/**
+ * 判断零税率标识是否只读
+ * @params {object} record-行记录
+ * @returns {boolean}
+ */
 const zeroTaxRateFlagJudge = (record) => {
   return (
     (record.get('taxRate') && Number(record.get('taxRate')) !== 0) ||
@@ -70,6 +93,7 @@ export default (dsParams): DataSetProps => {
     primaryKey: 'redFlushLines',
     pageSize: 10,
     paging: false,
+    selection: false,
     events: {
       update: ({ record, name, value }) => {
         // quantity(数量)projectUnitPrice(单价)amount(金额)
@@ -84,9 +108,9 @@ export default (dsParams): DataSetProps => {
         if (name === 'projectUnitPrice' && value) {
           record.set('amount', (value * quantity).toFixed(2));
         }
-        if (name === 'amount') {
+        if (['taxIncludedFlag', 'amount', 'taxRateObj', 'deduction'].includes(name)) {
           if (record.get('listFlag') !== 1 && record.get('taxRate')) {
-            if (projectUnitPrice) {
+            if (projectUnitPrice && name !== 'taxIncludedFlag') {
               record.set('quantity', (value / projectUnitPrice).toFixed(8));
             }
             // 税额
@@ -114,7 +138,7 @@ export default (dsParams): DataSetProps => {
                 taxAmount = (amount - deduction) * taxRate;
               }
             }
-            record.set('taxAmount', taxAmount);
+            record.set('taxAmount', taxAmount.toFixed(2));
           }
         }
         // 商品自行编码
@@ -142,7 +166,6 @@ export default (dsParams): DataSetProps => {
     fields: [
       {
         name: 'companyId',
-        label: intl.get(`${modelCode}.view.companyId`).d('公司ID'),
         type: FieldType.number,
       },
       {
@@ -151,12 +174,12 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'listFlag',
-        label: intl.get(`${modelCode}.view.listFlag`).d('购货清单标志'),
+        label: intl.get('hiop.invoiceWorkbench.modal.shopListFlag').d('购货清单标志'),
         type: FieldType.string,
       },
       {
         name: 'invoiceVariety',
-        label: intl.get(`${modelCode}.view.invoiceVariety`).d('发票种类'),
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
         type: FieldType.string,
       },
       {
@@ -173,7 +196,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'invoiceLineNature',
-        label: intl.get(`${modelCode}.view.invoiceLineNature`).d('发票行性质'),
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceLineNature').d('发票行性质'),
         lookupCode: 'HIOP.INVOICE_LINE_NATURE',
         type: FieldType.string,
         readOnly: true,
@@ -181,7 +204,7 @@ export default (dsParams): DataSetProps => {
       {
         name: 'projectObj',
         type: FieldType.object,
-        label: intl.get(`${modelCode}.view.projectObj`).d('自行编码'),
+        label: intl.get('hiop.customerInfo.modal.projectObj').d('自行编码'),
         lovCode: 'HIOP.GOODS_QUERY',
         cascadeMap: {
           companyId: 'companyId',
@@ -202,7 +225,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'projectName',
-        label: intl.get(`${modelCode}.view.projectName`).d('项目名称'),
+        label: intl.get('hiop.invoiceWorkbench.modal.projectNameSuffix').d('项目名称'),
         type: FieldType.string,
         bind: 'projectObj.invoiceProjectName',
         required: true,
@@ -213,24 +236,36 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'quantity',
-        label: intl.get(`${modelCode}.view.quantity`).d('数量'),
-        type: FieldType.number,
-        step: 0.00000001,
+        label: intl.get('hiop.invoiceWorkbench.modal.quantity').d('数量'),
         computedProps: {
           max: ({ record }) => (record.get('invoiceLineNature') !== '1' ? 0 : 'quantityCopy'),
           min: ({ record }) => (record.get('invoiceLineNature') === '1' ? 0 : 'quantityCopy'),
         },
+        type: FieldType.string,
+        transformResponse(value) {
+          const toNonExponential = (num) => {
+            const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
+            return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
+          };
+          return value && toNonExponential(value);
+        },
       },
       {
         name: 'projectUnitPrice',
-        label: intl.get(`${modelCode}.view.projectUnitPrice`).d('单价'),
-        type: FieldType.currency,
+        label: intl.get('hiop.invoiceWorkbench.modal.price').d('单价'),
+        type: FieldType.string,
         min: 0.001,
-        precision: 8,
+        transformResponse(value) {
+          const toNonExponential = (num) => {
+            const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
+            return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
+          };
+          return value && toNonExponential(value);
+        },
       },
       {
         name: 'taxRateObj',
-        label: intl.get(`${modelCode}.view.taxRateObj`).d('税率'),
+        label: intl.get('hiop.invoiceWorkbench.modal.taxRate').d('税率'),
         type: FieldType.object,
         lovCode: 'HIOP.TAX_TAX_RATE',
         cascadeMap: {
@@ -246,7 +281,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'taxRate',
-        label: intl.get(`${modelCode}.view.taxRate`).d('税率'),
+        label: intl.get('hiop.invoiceWorkbench.modal.taxRate').d('税率'),
         type: FieldType.string,
         bind: 'taxRateObj.value',
       },
@@ -256,7 +291,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'amount',
-        label: intl.get(`${modelCode}.view.amount`).d('金额'),
+        label: intl.get('hiop.invoiceWorkbench.modal.amount').d('金额'),
         type: FieldType.currency,
         step: 0.01,
         validator: (value, name, record) =>
@@ -265,48 +300,49 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'taxIncludedFlag',
-        label: intl.get(`${modelCode}.view.taxIncludedFlag`).d('是否含税'),
+        label: intl.get('hiop.invoiceWorkbench.modal.taxIncludedFlag').d('是否含税'),
         type: FieldType.string,
         lookupCode: 'HIOP.TAX_MARK',
         trueValue: '1',
         falseValue: '0',
-        readOnly: true,
+        // readOnly: true,
       },
       {
         name: 'taxAmount',
-        label: intl.get(`${modelCode}.view.taxAmount`).d('税额'),
+        label: intl.get('hiop.invoiceWorkbench.modal.taxAmount').d('税额'),
         type: FieldType.currency,
         required: true,
+        step: 0.01,
         validator: (value, name, record) =>
           new Promise((reject) => reject(taxAmountValidator(value, name, record))),
       },
       {
         name: 'deduction',
-        label: intl.get(`${modelCode}.view.deduction`).d('扣除额'),
+        label: intl.get('hiop.invoiceWorkbench.modal.deduction').d('扣除额'),
         type: FieldType.currency,
       },
       {
         name: 'model',
-        label: intl.get(`${modelCode}.view.model`).d('规格型号'),
+        label: intl.get('hiop.invoiceWorkbench.modal.model').d('规格型号'),
         type: FieldType.string,
         bind: 'projectObj.model',
       },
       {
         name: 'projectUnit',
-        label: intl.get(`${modelCode}.view.projectUnit`).d('单位'),
+        label: intl.get('hiop.invoiceWorkbench.modal.projectUnit').d('单位'),
         type: FieldType.string,
         bind: 'projectObj.projectUnit',
       },
       {
         name: 'preferentialPolicyFlag',
-        label: intl.get(`${modelCode}.view.preferentialPolicyFlag`).d('优惠政策标识'),
+        label: intl.get('hiop.invoiceWorkbench.modal.preferentialPolicyFlag').d('优惠政策标识'),
         type: FieldType.string,
         lookupCode: 'HIOP.PREFERENTIAL_POLICY_MARK',
         defaultValue: '0',
       },
       {
         name: 'zeroTaxRateFlag',
-        label: intl.get(`${modelCode}.view.zeroTaxRateFlag`).d('零税率标识'),
+        label: intl.get('hiop.invoiceWorkbench.modal.zeroTaxRateFlag').d('零税率标识'),
         type: FieldType.string,
         lookupCode: 'HIOP.ZERO_TAX_RATE_MARK',
         computedProps: {
@@ -316,12 +352,12 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'specialVatManagement',
-        label: intl.get(`${modelCode}.view.specialVatManagement`).d('增值税特殊管理'),
+        label: intl.get('hiop.invoiceWorkbench.modal.specialVatManagement').d('增值税特殊管理'),
         type: FieldType.string,
       },
       {
         name: 'commodityNumberObj',
-        label: intl.get(`${modelCode}.view.commodityNumber`).d('商品编码'),
+        label: intl.get('hiop.invoiceWorkbench.modal.commodityNumber').d('商品编码'),
         type: FieldType.object,
         cascadeMap: {
           companyId: 'companyId',
@@ -338,7 +374,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'commodityNumber',
-        label: intl.get(`${modelCode}.view.commodityNumber`).d('商品编码'),
+        label: intl.get('hiop.invoiceWorkbench.modal.commodityNumber').d('商品编码'),
         type: FieldType.string,
         bind: 'commodityNumberObj.commodityNumber',
       },

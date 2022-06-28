@@ -1,16 +1,16 @@
 /**
- * @Description:账单报表列表
+ * @Description: 账单报表列表
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-09-08 10:44:22
- * @LastEditTime:
+ * @LastEditTime: 2022-06-20 15:23
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
-import { FieldType, DataSetSelection, FieldIgnore } from 'choerodon-ui/pro/lib/data-set/enum';
+import { DataSetSelection, FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
+import commonConfig from '@htccommon/config/commonConfig';
 
 const modelCode = 'hmdm.bill-statement';
 

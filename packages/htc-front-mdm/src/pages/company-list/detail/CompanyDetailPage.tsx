@@ -1,5 +1,5 @@
-/*
- * @Descripttion:公司明细
+/**
+ * @Description:公司明细
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 16:19:48

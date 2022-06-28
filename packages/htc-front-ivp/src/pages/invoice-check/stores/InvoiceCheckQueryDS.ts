@@ -12,7 +12,7 @@ import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
 import intl from 'utils/intl';
 import moment from 'moment';
 
-const modelCode = 'hcan.invoice-check';
+const modelCode = 'hcan.invoiceCheck';
 
 export default (): DataSetProps => {
   const tenantId = getCurrentOrganizationId();
@@ -29,13 +29,13 @@ export default (): DataSetProps => {
       },
       {
         name: 'companyName',
-        label: intl.get(`${modelCode}.view.companyName`).d('公司'),
+        label: intl.get('hzero.hzeroTheme.page.companyName').d('公司'),
         type: FieldType.string,
         bind: 'companyObj.companyName',
       },
       {
         name: 'companyCode',
-        label: intl.get(`${modelCode}.view.companyCode`).d('公司代码'),
+        label: intl.get('htc.common.modal.companyCode').d('公司代码'),
         type: FieldType.string,
         bind: 'companyObj.companyCode',
       },
@@ -46,7 +46,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'employeeNumber',
-        label: intl.get(`${modelCode}.view.employeeNumber`).d('员工编码'),
+        label: intl.get('hivp.batchCheck.view.employeeNum').d('员工编码'),
         type: FieldType.string,
         bind: 'companyObj.employeeNum',
       },
@@ -57,27 +57,34 @@ export default (): DataSetProps => {
       },
       {
         name: 'taxpayerIdentificationNumber',
-        label: intl.get(`${modelCode}.view.taxpayerIdentificationNumber`).d('购方纳税人识别号'),
+        label: intl.get('htc.common.view.buyerTaxNo').d('购方纳税人识别号'),
         type: FieldType.string,
         labelWidth: '150',
       },
       {
         name: 'invoiceCode',
-        label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
+        label: intl.get('htc.common.view.invoiceCode').d('发票代码'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => {
+            if (record.get('invoiceNumber')) {
+              return record.get('invoiceNumber').length !== 20;
+            } else {
+              return true;
+            }
+          },
+        },
+      },
+      {
+        name: 'invoiceNumber',
+        label: intl.get('htc.common.view.invoiceNo').d('发票号码'),
         type: FieldType.string,
         required: true,
         maxLength: 20,
       },
       {
-        name: 'invoiceNumber',
-        label: intl.get(`${modelCode}.view.invoiceNumber`).d('发票号码'),
-        type: FieldType.string,
-        required: true,
-        maxLength: 12,
-      },
-      {
         name: 'invoiceDate',
-        label: intl.get(`${modelCode}.view.invoiceDate`).d('开票日期'),
+        label: intl.get('htc.common.view.invoiceDate').d('开票日期'),
         type: FieldType.date,
         format: 'YYYYMMDD',
         required: true,
@@ -85,7 +92,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceAmount',
-        label: intl.get(`${modelCode}.view.invoiceAmount`).d('发票金额'),
+        label: intl.get('htc.common.view.invoiceAmount').d('发票金额'),
         type: FieldType.currency,
         // required: true,
       },

@@ -3,22 +3,20 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-06-22 09:56:22
- * @LastEditTime:
- * @Copyright: Copyright (c) 2020, Hand
+ * @LastEditTime: 2021-11-22 15:32:15
+ * @Copyright: Copyright (c) 2021, Hand
  */
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { AxiosRequestConfig } from 'axios';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import intl from 'utils/intl';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import { getCurrentOrganizationId } from 'utils/utils';
 
-const modelCode = 'hiop.tobe-invoice';
-
-export default (urlParams): DataSetProps => {
+export default (dsProps): DataSetProps => {
   const API_PREFIX = commonConfig.IOP_API || '';
   const tenantId = getCurrentOrganizationId();
-  const { companyId, companyCode, employeeNumber } = urlParams || {};
+  const { companyId, companyCode, employeeNumber } = dsProps || {};
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -89,19 +87,19 @@ export default (urlParams): DataSetProps => {
       },
       {
         name: 'projectNumber',
-        label: intl.get(`${modelCode}.view.projectNumber`).d('物料编码'),
+        label: intl.get('hiop.tobeInvoice.modal.projectNumber').d('物料编码'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'materialDescription',
-        label: intl.get(`${modelCode}.view.materialDescription`).d('物料描述'),
+        label: intl.get('hiop.tobeInvoice.modal.materialDescription').d('物料描述'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'commodityObj',
-        label: intl.get(`${modelCode}.view.commodityObj`).d('商品编码'),
+        label: intl.get('hiop.invoiceWorkbench.modal.commodityNumber').d('商品编码'),
         type: FieldType.object,
         lovCode: 'HIOP.GOODS_TAX_CODE',
         cascadeMap: { companyId: 'companyId', companyCode: 'companyCode' },
@@ -111,14 +109,14 @@ export default (urlParams): DataSetProps => {
       },
       {
         name: 'commodityNumber',
-        label: intl.get(`${modelCode}.view.commodityNumber`).d('商品编码'),
+        label: intl.get('hiop.invoiceWorkbench.modal.commodityNumber').d('商品编码'),
         type: FieldType.string,
         bind: 'commodityObj.commodityNumber',
         required: true,
       },
       {
         name: 'commodityServiceCateCode',
-        label: intl.get(`${modelCode}.view.commodityServiceCateCode`).d('商品和服务分类简称'),
+        label: intl.get('hiop.invoiceWorkbench.modal.abbreviation').d('商品和服务分类简称'),
         type: FieldType.string,
         labelWidth: '150',
         bind: 'commodityObj.abbreviation',
@@ -126,25 +124,31 @@ export default (urlParams): DataSetProps => {
       },
       {
         name: 'commodityName',
-        label: intl.get(`${modelCode}.view.commodityName`).d('开具名称'),
+        label: intl.get('hiop.invoiceWorkbench.modal.projectNameSuffix').d('项目名称'),
         type: FieldType.string,
         bind: 'commodityObj.commodityName',
         required: true,
       },
       {
         name: 'projectName',
-        label: intl.get(`${modelCode}.view.projectName`).d('票面项目名称'),
+        label: intl.get('hiop.invoiceReq.modal.projectName').d('票面项目名称'),
         type: FieldType.string,
         readOnly: true,
       },
       {
+        name: 'projectUnit',
+        label: intl.get('hiop.tobeInvoice.modal.uprojectUnit').d('开票单位'),
+        type: FieldType.string,
+        bind: 'commodityObj.projectUnit',
+      },
+      {
         name: 'taxRate',
-        label: intl.get(`${modelCode}.view.taxRate`).d('税率'),
+        label: intl.get('hiop.invoiceWorkbench.modal.taxRate').d('税率'),
         type: FieldType.string,
       },
       {
         name: 'zeroTaxRateFlag',
-        label: intl.get(`${modelCode}.view.zeroTaxRateFlag`).d('零税率标识'),
+        label: intl.get('hiop.invoiceWorkbench.modal.zeroTaxRateFlag').d('零税率标识'),
         type: FieldType.string,
         lookupCode: 'HIOP.ZERO_TAX_RATE_MARK',
         computedProps: {
@@ -154,32 +158,29 @@ export default (urlParams): DataSetProps => {
       },
       {
         name: 'model',
-        label: intl.get(`${modelCode}.view.model`).d('规格型号'),
+        label: intl.get('hiop.invoiceWorkbench.modal.model').d('规格型号'),
         type: FieldType.string,
       },
       {
         name: 'preferentialPolicyFlag',
-        label: intl.get(`${modelCode}.view.preferentialPolicyFlag`).d('优惠政策标识'),
+        label: intl.get('hiop.invoiceWorkbench.modal.preferentialPolicyFlag').d('优惠政策标识'),
         type: FieldType.string,
         lookupCode: 'HIOP.PREFERENTIAL_POLICY_MARK',
         defaultValue: '0',
       },
       {
         name: 'quantity',
-        label: intl.get(`${modelCode}.view.quantity`).d('数量'),
+        label: intl.get('hiop.invoiceWorkbench.modal.quantity').d('数量'),
         type: FieldType.number,
       },
-      {
-        name: 'projectUnit',
-        label: intl.get(`${modelCode}.view.projectUnit`).d('开票单位'),
-        type: FieldType.string,
-        computedProps: {
-          required: ({ record }) => record.get('quantity'),
-        },
-      },
+      // {
+      //   name: 'projectUnit',
+      //   label: intl.get(`${modelCode}.view.projectUnit`).d('开票单位'),
+      //   type: FieldType.string,
+      // },
       {
         name: 'specialManagementVat',
-        label: intl.get(`${modelCode}.view.specialManagementVat`).d('增值税特殊管理'),
+        label: intl.get('hiop.invoiceWorkbench.modal.specialVatManagement').d('增值税特殊管理'),
         type: FieldType.string,
         readOnly: true,
       },

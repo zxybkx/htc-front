@@ -1,19 +1,17 @@
-/*
+/**
  * @Description:红字信息表编号
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-6-15 15:44:22
- * @LastEditTime:
- * @Copyright: Copyright (c) 2020, Hand
+ * @LastEditTime: 2021-6-25 15:44:22
+ * @Copyright: Copyright (c) 2021, Hand
  */
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { AxiosRequestConfig } from 'axios';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import { getCurrentOrganizationId } from 'utils/utils';
-
-const modelCode = 'hiop.invoice-redFlush-info';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IOP_API || '';
@@ -34,17 +32,17 @@ export default (): DataSetProps => {
         return axiosConfig;
       },
     },
-    primaryKey: 'redInvoiceInfoHeaderId',
+    primaryKey: 'invoicingOrderHeaderId',
     selection: false,
     fields: [
       {
         name: 'redInfoSerialNumber',
-        label: intl.get(`${modelCode}.view.redInfoSerialNumber`).d('红字信息表编号'),
+        label: intl.get('hiop.invoiceWorkbench.modal.redInfoSerialNumber').d('红字信息表编号'),
         type: FieldType.string,
       },
       {
         name: 'invoiceAmount',
-        label: intl.get(`${modelCode}.view.invoiceAmount`).d('金额'),
+        label: intl.get('hiop.invoiceWorkbench.modal.amount').d('金额'),
         type: FieldType.currency,
       },
     ],

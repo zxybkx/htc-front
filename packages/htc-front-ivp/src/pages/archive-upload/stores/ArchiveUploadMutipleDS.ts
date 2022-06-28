@@ -1,5 +1,5 @@
 /*
- * @Descripttion:发票池-批量上传
+ * @Description:发票池-批量上传
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
@@ -10,7 +10,7 @@ import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { FieldType, DataSetSelection } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 
-const modelCode = 'hivp.invoices.fileArchive';
+const modelCode = 'hivp.invoicesArchiveUpload';
 
 export default (): DataSetProps => {
   return {
@@ -24,7 +24,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoicePoolHeaderId',
-        label: intl.get(`${modelCode}.view.invoicePoolHeaderId`).d('记录ID'),
+        label: intl.get('hivp.bill.view.billPoolHeaderId').d('记录ID'),
         type: FieldType.number,
       },
       {
@@ -57,28 +57,28 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceType',
-        label: intl.get(`${modelCode}.view.invoiceType`).d('发票类型'),
+        label: intl.get('htc.common.view.invoiceType').d('发票种类'),
         type: FieldType.string,
         lookupCode: 'HIVC.INVOICE_TYPE',
       },
       {
         name: 'invoiceCode',
-        label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
+        label: intl.get('htc.common.view.invoiceCode').d('发票代码'),
         type: FieldType.string,
       },
       {
         name: 'invoiceNo',
-        label: intl.get(`${modelCode}.view.invoiceNo`).d('发票号码'),
+        label: intl.get('htc.common.view.invoiceNo').d('发票号码'),
         type: FieldType.string,
       },
       {
         name: 'invoiceDate',
-        label: intl.get(`${modelCode}.view.invoiceDate`).d('开票日期'),
+        label: intl.get('htc.common.view.invoiceDate').d('开票日期'),
         type: FieldType.date,
       },
       {
         name: 'invoiceAmount',
-        label: intl.get(`${modelCode}.view.invoiceAmount`).d('发票金额'),
+        label: intl.get('htc.common.view.invoiceAmount').d('发票金额'),
         type: FieldType.currency,
       },
     ],

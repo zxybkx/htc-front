@@ -1,5 +1,5 @@
-/*
- * @Descripttion:税控信息
+/**
+ * @Description:税控信息
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-23 14:35:44

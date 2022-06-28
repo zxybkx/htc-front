@@ -1,5 +1,5 @@
-/*
- * @routes -企业认证请求历史记录查询 :
+/**
+ * @routes -企业认证请求历史记录查询路由
  * @Author: shan.zhang <shan.zhang@hand-china.com>
  * @Date: 2020-09-16 13:56:45
  * @LastEditors: shan.zhang

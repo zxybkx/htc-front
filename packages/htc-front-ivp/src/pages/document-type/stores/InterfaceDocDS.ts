@@ -6,14 +6,14 @@
  * @LastEditTime: 2020-09-17 10:01:01
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
-import { FieldType, FieldIgnore } from 'choerodon-ui/pro/lib/data-set/enum';
+import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 
-const modelCode = 'hivp.interface-doc';
+const modelCode = 'hivp.documentType';
 
 export default (): DataSetProps => {
   // const API_PREFIX = `${commonConfig.IVP_API}-28651` || '';
@@ -62,7 +62,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'orderSeq',
-        label: intl.get(`${modelCode}.view.orderSeq`).d('排序号'),
+        label: intl.get('hzero.common.view.serialNumber').d('排序号'),
         type: FieldType.string,
       },
       {
@@ -86,51 +86,59 @@ export default (): DataSetProps => {
       },
       {
         name: 'companyDescription',
-        label: intl.get(`${modelCode}.view.companyDescription`).d('公司'),
+        label: intl.get('hiop.redInvoiceInfo.modal.companyName').d('公司'),
         type: FieldType.string,
         required: true,
         bind: 'companyObj.companyName',
       },
       {
         name: 'documentNumber',
-        label: intl.get(`${modelCode}.view.documentNumber`).d('单据编号'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'documentSourceId',
-        label: intl.get(`${modelCode}.view.documentSourceId`).d('对接系统单据ID'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentSourceId').d('对接系统单据ID'),
         type: FieldType.string,
       },
       {
         name: 'documentSourceKey',
-        label: intl.get(`${modelCode}.view.documentSourceKey`).d('单据关键字'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentSourceKey').d('单据关键字'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'documentRemark',
-        label: intl.get(`${modelCode}.view.documentRemark`).d('单据描述'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentRemark').d('单据描述'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'relationStateCode',
-        label: intl.get(`${modelCode}.view.relationStateCode`).d('关联状态'),
+        label: intl.get('hivp.checkCertification.view.receiptsState').d('关联状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.INTERFACE_DOCS_STATE',
         defaultValue: '0',
       },
       {
         name: 'relationInvoiceQuantity',
-        label: intl.get(`${modelCode}.view.relationInvoiceQuantity`).d('关联发票数量'),
+        label: intl
+          .get('hivp.invoicesArchiveUpload.view.relationInvoiceQuantity')
+          .d('关联发票数量'),
         type: FieldType.number,
       },
       {
         name: 'sourceTypeCode',
-        label: intl.get(`${modelCode}.view.sourceTypeCode`).d('来源类型'),
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceSourceType').d('来源类型'),
         type: FieldType.string,
         lookupCode: 'HIVP.DOCS_FROM_TYPE',
+      },
+      {
+        name: 'dateInfo',
+        label: intl.get(`${modelCode}.view.recordTime`).d('记录时间'),
+        type: FieldType.object,
+        ignore: FieldIgnore.always,
       },
       {
         name: 'recordCreateDate',
@@ -145,40 +153,8 @@ export default (): DataSetProps => {
     ],
     queryFields: [
       {
-        name: 'systemCode',
-        label: intl.get(`${modelCode}.view.systemCode`).d('系统代码'),
-        type: FieldType.string,
-        ignore: FieldIgnore.always,
-        readOnly: true,
-        required: true,
-      },
-      {
-        name: 'systemName',
-        label: intl.get(`${modelCode}.view.systemName`).d('系统名称'),
-        type: FieldType.string,
-        ignore: FieldIgnore.always,
-        readOnly: true,
-        required: true,
-      },
-      {
-        name: 'documentTypeCode',
-        label: intl.get(`${modelCode}.view.documentTypeCode`).d('单据类型代码'),
-        type: FieldType.string,
-        ignore: FieldIgnore.always,
-        readOnly: true,
-        required: true,
-      },
-      {
-        name: 'documentTypeMeaning',
-        label: intl.get(`${modelCode}.view.documentTypeMeaning`).d('单据类型名称'),
-        type: FieldType.string,
-        ignore: FieldIgnore.always,
-        readOnly: true,
-        required: true,
-      },
-      {
         name: 'companyObj',
-        label: intl.get(`${modelCode}.view.company`).d('所属公司'),
+        label: intl.get('htc.common.modal.companyName').d('所属公司'),
         type: FieldType.object,
         lovCode: 'HMDM.COMPANY_NAME',
         lovPara: { tenantId },
@@ -191,28 +167,28 @@ export default (): DataSetProps => {
       },
       {
         name: 'documentNumber',
-        label: intl.get(`${modelCode}.view.documentNumber`).d('单据编号'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
         type: FieldType.string,
       },
       {
         name: 'documentSourceKey',
-        label: intl.get(`${modelCode}.view.documentSourceKey`).d('单据关键字'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentSourceKey').d('单据关键字'),
         type: FieldType.string,
       },
       {
         name: 'sourceTypeCode',
-        label: intl.get(`${modelCode}.view.sourceTypeCode`).d('来源类型'),
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceSourceType').d('来源类型'),
         type: FieldType.string,
         lookupCode: 'HIVP.DOCS_FROM_TYPE',
       },
       {
         name: 'documentRemark',
-        label: intl.get(`${modelCode}.view.documentRemark`).d('单据描述'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentRemark').d('单据描述'),
         type: FieldType.string,
       },
       {
         name: 'relationStateCode',
-        label: intl.get(`${modelCode}.view.relationStateCode`).d('关联状态'),
+        label: intl.get('hivp.checkCertification.view.receiptsState').d('关联状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.INTERFACE_DOCS_STATE',
         defaultValue: '0',
@@ -221,3 +197,32 @@ export default (): DataSetProps => {
     ],
   };
 };
+
+const SystemDS = (): DataSetProps => {
+  return {
+    fields: [
+      {
+        name: 'systemCode',
+        label: intl.get(`${modelCode}.view.systemCode`).d('系统代码'),
+        type: FieldType.string,
+      },
+      {
+        name: 'systemName',
+        label: intl.get(`${modelCode}.view.systemName`).d('系统名称'),
+        type: FieldType.string,
+      },
+      {
+        name: 'documentTypeCode',
+        label: intl.get(`${modelCode}.view.documentTypeCode`).d('单据类型代码'),
+        type: FieldType.string,
+      },
+      {
+        name: 'documentTypeMeaning',
+        label: intl.get(`${modelCode}.view.documentTypeMeaning`).d('单据类型名称'),
+        type: FieldType.string,
+      },
+    ],
+  };
+};
+
+export { SystemDS };

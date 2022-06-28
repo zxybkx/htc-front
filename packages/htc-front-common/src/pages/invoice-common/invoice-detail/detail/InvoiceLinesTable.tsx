@@ -1,5 +1,5 @@
-/*
- * @Descripttion:全发票明细行
+/**
+ * @Description:全发票明细行
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 16:19:48
@@ -13,13 +13,13 @@ import { DataSet, Table } from 'choerodon-ui/pro';
 import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import intl from 'utils/intl';
 
-const modelCode = 'hcan.invoice-detail';
+const modelCode = 'hcan.invoiceDetail';
 
 interface Props {
   dataSet: DataSet;
 }
 @formatterCollections({
-  code: [modelCode],
+  code: [modelCode, 'htc.common', 'hivp.bill'],
 })
 export default class InvoiceLinesTable extends Component<Props> {
   childDS = this.props.dataSet;
@@ -57,6 +57,13 @@ export default class InvoiceLinesTable extends Component<Props> {
   }
 
   render() {
-    return <Table dataSet={this.childDS} columns={this.childColumns} style={{ height: 300 }} />;
+    return (
+      <Table
+        dataSet={this.childDS}
+        border={false}
+        columns={this.childColumns}
+        style={{ height: 300 }}
+      />
+    );
   }
 }

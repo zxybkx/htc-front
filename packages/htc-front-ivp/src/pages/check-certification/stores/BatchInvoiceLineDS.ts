@@ -6,7 +6,7 @@
  * @LastEditTime:
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
@@ -14,7 +14,7 @@ import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import { assign } from 'lodash';
 
-const modelCode = 'hivp.tax-refund';
+const modelCode = 'hivp.taxRefund';
 
 export default (): DataSetProps => {
   const tenantId = getCurrentOrganizationId();

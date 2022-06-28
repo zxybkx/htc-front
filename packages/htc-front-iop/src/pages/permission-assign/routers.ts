@@ -1,5 +1,5 @@
-/*
- * @Descripttion:
+/**
+ * @Description: 数据权限分配路由
  * @version: 1.0
  * @Author: wenqi.ma@hand-china.com
  * @Date: 2020-11-23 14:35:44

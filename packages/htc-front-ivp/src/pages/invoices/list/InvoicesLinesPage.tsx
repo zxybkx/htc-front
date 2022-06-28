@@ -1,11 +1,3 @@
-/*
- * @Description:
- * @version: 1.0
- * @Author: yang.wang04@hand-china.com
- * @Date: 2021-02-23 14:06:25
- * @LastEditTime: 2021-03-05 15:39:01
- * @Copyright: Copyright (c) 2020, Hand
- */
 /**
  * @Descripttion:发票池-行
  * @version: 1.0
@@ -36,7 +28,7 @@ interface InvoicesLinesPageProps extends RouteComponentProps<RouterInfo> {
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: [modelCode, 'htc.common', 'hivp.bill', 'hcan.invoiceDetail', 'hcan.invoiceDetail'],
 })
 export default class InvoicesLinesPage extends Component<InvoicesLinesPageProps> {
   lineDS = new DataSet({
@@ -47,7 +39,7 @@ export default class InvoicesLinesPage extends Component<InvoicesLinesPageProps>
   get columns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('行号'),
+        header: intl.get(`htc.common.orderSeq`).d('行号'),
         width: 60,
         renderer: ({ record }) => {
           return record ? this.lineDS.indexOf(record) + 1 : '';

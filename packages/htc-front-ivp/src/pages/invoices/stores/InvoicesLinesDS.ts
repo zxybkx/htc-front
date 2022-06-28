@@ -1,12 +1,12 @@
 /*
- * @Descripttion:发票池-头
+ * @Description:发票池-头
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
  * @LastEditTime: 2020-10-10 13:38:33
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
@@ -41,53 +41,53 @@ export default (invoicePoolHeaderId): DataSetProps => {
     fields: [
       {
         name: 'invoicePoolLineId',
-        label: intl.get(`${modelCode}.view.invoicePoolLineId`).d('记录ID'),
+        label: intl.get(`hivp.bill.view.billPoolHeaderId`).d('记录ID'),
         type: FieldType.number,
       },
       {
         name: 'invoicePoolHeaderId',
-        label: intl.get(`${modelCode}.view.invoicePoolHeaderId`).d('记录ID'),
+        label: intl.get(`hivp.bill.view.billPoolHeaderId`).d('记录ID'),
         type: FieldType.number,
       },
       {
         name: 'goodsName',
-        label: intl.get(`${modelCode}.view.goodsName`).d('货物或应税劳务、服务名称'),
+        label: intl.get(`hivp.bill.view.goodsName`).d('货物或应税劳务、服务名称'),
         type: FieldType.string,
       },
       {
         name: 'specificationModel',
-        label: intl.get(`${modelCode}.view.specificationModel`).d('规格型号'),
+        label: intl.get(`htc.common.view.specificationModel`).d('规格型号'),
         type: FieldType.string,
       },
       {
         name: 'unit',
-        label: intl.get(`${modelCode}.view.unit`).d('单位'),
+        label: intl.get(`htc.common.view.unit`).d('单位'),
         type: FieldType.string,
       },
       {
         name: 'num',
-        label: intl.get(`${modelCode}.view.num`).d('数量'),
+        label: intl.get(`htc.common.view.quantity`).d('数量'),
         type: FieldType.number,
       },
       {
         name: 'unitPrice',
-        label: intl.get(`${modelCode}.view.unitPrice`).d('不含税单价'),
+        label: intl.get(`hivp.bill.view.unitPrice`).d('不含税单价'),
         type: FieldType.currency,
       },
 
       {
         name: 'detailAmount',
-        label: intl.get(`${modelCode}.view.detailAmount`).d('金额'),
+        label: intl.get(`htc.common.view.amount`).d('金额'),
         type: FieldType.currency,
       },
       {
         name: 'taxRate',
-        label: intl.get(`${modelCode}.view.taxRate`).d('税率'),
+        label: intl.get(`htc.common.view.taxRate`).d('税率'),
         type: FieldType.string,
       },
       {
         name: 'taxAmount',
-        label: intl.get(`${modelCode}.view.taxAmount`).d('税额'),
+        label: intl.get(`htc.common.view.taxAmount`).d('税额'),
         type: FieldType.string,
       },
       {
@@ -117,12 +117,12 @@ export default (invoicePoolHeaderId): DataSetProps => {
       },
       {
         name: 'taxUnitPrice',
-        label: intl.get(`${modelCode}.view.taxUnitPrice`).d('含税单价'),
+        label: intl.get(`hcan.invoiceDetail.view.taxUnitPrice`).d('含税单价'),
         type: FieldType.currency,
       },
       {
         name: 'taxDetailAmount',
-        label: intl.get(`${modelCode}.view.taxDetailAmount`).d('含税金额'),
+        label: intl.get(`hcan.invoiceDetail.view.taxDetailAmount`).d('含税金额'),
         type: FieldType.currency,
       },
     ],

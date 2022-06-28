@@ -1,19 +1,19 @@
 /*
- * @Descripttion:发票池-历史记录
+ * @Description:发票池-历史记录
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
  * @LastEditTime: 2021-01-27 11:40:39
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 
-const modelCode = 'hivp.invoices.history';
+const modelCode = 'hivp.invoicesHistory';
 
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
@@ -36,13 +36,14 @@ export default (dsParams): DataSetProps => {
         return axiosConfig;
       },
     },
-    pageSize: 10,
+    paging: false,
+    // pageSize: 10,
     selection: false,
     primaryKey: 'historyRecordId',
     fields: [
       {
         name: 'historyRecordId',
-        label: intl.get(`${modelCode}.view.historyRecordId`).d('记录ID'),
+        label: intl.get('hivp.bill.view.billPoolHeaderId').d('记录ID'),
         type: FieldType.number,
       },
       {

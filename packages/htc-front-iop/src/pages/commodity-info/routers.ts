@@ -1,5 +1,5 @@
-/*
- * @Descripttion:商品路由
+/**
+ * @Description:商品路由
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-23 14:59:50

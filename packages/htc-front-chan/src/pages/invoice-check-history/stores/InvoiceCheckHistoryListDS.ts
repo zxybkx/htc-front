@@ -1,4 +1,4 @@
-/*
+/**
  * @DS -查检发票历史记录查询 :
  * @Author: jesse.chen <jun.chen01@hand-china.com>
  * @Date: 2020-07-27 14:21:52
@@ -7,22 +7,19 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { DataSet } from 'choerodon-ui/pro';
-// import { getCurrentOrganizationId } from 'utils/utils';
-import { FieldType, FieldIgnore } from 'choerodon-ui/pro/lib/data-set/enum';
+import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import moment from 'moment';
-import { isUndefined } from 'util';
 
 const modelCode = 'hcan.invoice-check-histroy';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.CHAN_API || '';
-  // const tenantId = getCurrentOrganizationId();
 
   return {
     transport: {
@@ -153,17 +150,18 @@ export default (): DataSetProps => {
           type: FieldType.object,
           lovCode: 'HMDM.COMPANY_INFO_SITE',
           // lovPara: { organizationId: tenantId },
+          cascadeMap: { organizationId: 'tenantId' },
           ignore: FieldIgnore.always,
-          dynamicProps: {
-            lovPara: ({ record }) => {
-              if (!isUndefined(record.get('tenantId'))) {
-                return { organizationId: record.get('tenantId') };
-              }
-            },
-            disabled: ({ record }) => {
-              return isUndefined(record.get('tenantId'));
-            },
-          },
+          // computedProps: {
+          //   lovPara: ({ record }) => {
+          //     if (!isUndefined(record.get('tenantId'))) {
+          //       return { organizationId: record.get('tenantId') };
+          //     }
+          //   },
+          //   disabled: ({ record }) => {
+          //     return isUndefined(record.get('tenantId'));
+          //   },
+          // },
         },
         {
           name: 'companyId',
@@ -176,16 +174,17 @@ export default (): DataSetProps => {
           type: FieldType.object,
           lovCode: 'HMDM.EMPLOYEE_NAME_SITE',
           ignore: FieldIgnore.always,
-          dynamicProps: {
-            lovPara: ({ record }) => {
-              if (!isUndefined(record.get('tenantId')) && !isUndefined(record.get('companyId'))) {
-                return { tenantId: record.get('tenantId'), companyId: record.get('companyId') };
-              }
-            },
-            disabled: ({ record }) => {
-              return isUndefined(record.get('tenantId')) || isUndefined(record.get('companyId'));
-            },
-          },
+          cascadeMap: { tenantId: 'tenantId', companyId: 'companyId' },
+          // computedProps: {
+          //   lovPara: ({ record }) => {
+          //     if (!isUndefined(record.get('tenantId')) && !isUndefined(record.get('companyId'))) {
+          //       return { tenantId: record.get('tenantId'), companyId: record.get('companyId') };
+          //     }
+          //   },
+          //   disabled: ({ record }) => {
+          //     return isUndefined(record.get('tenantId')) || isUndefined(record.get('companyId'));
+          //   },
+          // },
         },
         {
           name: 'employeeId',
@@ -239,6 +238,11 @@ export default (): DataSetProps => {
         {
           name: 'successFlag',
           label: intl.get(`${modelCode}.view.successFlag`).d('是否成功'),
+          type: FieldType.string,
+        },
+        {
+          name: 'processStatusCode',
+          label: intl.get(`${modelCode}.view.processStatusCode`).d('返回码'),
           type: FieldType.string,
         },
       ],

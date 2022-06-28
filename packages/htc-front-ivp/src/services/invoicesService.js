@@ -7,9 +7,9 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import request from 'utils/request';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 
-const HIVP_API = commonConfig.IVP_API;
+const HIVP_API = commonConfig.IVP_API || '';
 
 /**
  * 发票池-发票代码存在
@@ -64,6 +64,36 @@ export async function invoiceUpdateState(params) {
   return request(`${HIVP_API}/v1/${tenantId}/invoice-pool-main/single-invoice-status-update`, {
     method: 'POST',
     query: otherParams,
+  });
+}
+
+/**
+ * 批量查验补全
+ * @async
+ * @function invoiceCheck
+ * @returns {object} fetch Promise
+ */
+export async function invoiceCheck(params) {
+  const { tenantId, list, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/invoice-pool-main/invoice-check`, {
+    method: 'POST',
+    query: otherParams,
+    body: list,
+  });
+}
+
+/**
+ * 新增查验补全
+ * @async
+ * @function invoiceCheck
+ * @returns {object} fetch Promise
+ */
+export async function poolAdd(params) {
+  const { tenantId, list, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/invoice-pool-main/pool-add`, {
+    method: 'POST',
+    query: otherParams,
+    body: list,
   });
 }
 
@@ -251,5 +281,19 @@ export async function archivesDownload(params) {
     method: 'POST',
     query: otherParams,
     body: urlList,
+  });
+}
+
+/**
+ * 查看档案
+ * @async
+ * @function confirmFile
+ * @returns {object} fetch Promise
+ */
+export async function batchUploadAndCheck(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/archives-update/batch-upload-and-check`, {
+    method: 'GET',
+    query: otherParams,
   });
 }

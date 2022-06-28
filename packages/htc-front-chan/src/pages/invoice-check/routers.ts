@@ -1,4 +1,4 @@
-/*
+/**
  * @Descripttion:手工发票查验
  * @version:1.0
  * @Author: yang.wang04@hand-china.com

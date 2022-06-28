@@ -3,7 +3,6 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
 import { observer } from 'mobx-react-lite';
-// import { routerRedux } from 'dva/router';
 import { Bind } from 'lodash-decorators';
 import { Header, Content } from 'components/Page';
 import intl from 'utils/intl';
@@ -14,23 +13,23 @@ import { TabsType } from 'choerodon-ui/lib/tabs/enum';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import moment from 'moment';
-// import querystring from 'querystring';
 import { openTab } from 'utils/menuTab';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { ProgressStatus } from 'choerodon-ui/lib/progress/enum';
 import { ColumnLock, ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { API_HOST } from 'utils/config';
 import { getCurrentOrganizationId, getAccessToken, getResponse } from 'utils/utils';
 import notification from 'utils/notification';
 import uuidv4 from 'uuid/v4';
 import { batchUploadProcessQuery, confirmFile } from '@src/services/invoicesService';
-import { getCurrentEmployeeInfo } from '@common/services/commonService';
+import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
 import SubPageBillHeadersDS from '@src/pages/bill-pool/stores/SubPageBillHeadersDS';
 import SubPageInvoicesHeadersDS from '@src/pages/invoices/stores/SubPageInvoicesHeadersDS';
+import formatterCollections from 'utils/intl/formatterCollections';
 import ArchiveUploadMutipleDS from '../stores/ArchiveUploadMutipleDS';
 
-const modelCode = 'hivp.invoices.archiveUpload';
+const modelCode = 'hivp.invoicesArchiveUpload';
 const { TabPane } = Tabs;
 const tenantId = getCurrentOrganizationId();
 const HIVP_API = commonConfig.IVP_API;
@@ -43,7 +42,9 @@ interface RouterInfo {
 interface ArchiveUploadPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
-
+@formatterCollections({
+  code: [modelCode, 'hivp.bill', 'htc.common', 'hivp.batchCheck'],
+})
 @connect()
 export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps> {
   state = {
@@ -311,7 +312,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
     openTab({
       key: pathname,
       path: pathname,
-      title: intl.get(`${modelCode}.invoiceReq.order.title`).d('查看档案'),
+      title: intl.get(`${modelCode}.view.file`).d('查看档案'),
       closable: true,
       type: 'menu',
     });
@@ -352,7 +353,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
               key="viewArchive"
               onClick={() => this.handleGotoArchiveView()}
             >
-              {intl.get(`${modelCode}.button.viewArchive`).d('查看档案')}
+              {intl.get(`${modelCode}.view.file`).d('查看档案')}
             </Button>,
           ];
         },
@@ -371,8 +372,8 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
           key={props.key}
           onClick={props.onClick}
           disabled={isDisabled}
-          funcType={FuncType.flat}
-          color={ButtonColor.primary}
+          // funcType={FuncType.flat}
+          // color={ButtonColor.primary}
         >
           {props.title}
         </Button>
@@ -384,7 +385,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
         onClick={() => this.handleMultipleUpload(true)}
         loading={btnFlag === 'M' && loadingFlag}
       >
-        {intl.get(`${modelCode}.button.upload`).d('上传并智能校验')}
+        {intl.get(`${modelCode}.button.uploadCheck`).d('上传并智能校验')}
       </Button>,
       <Button key="autoChecked" onClick={() => this.handleAutoChecked()}>
         {intl.get(`${modelCode}.button.autoChecked`).d('自动勾选')}
@@ -451,7 +452,10 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
     });
     return (
       <>
-        <Header backPath={backPath} title={intl.get(`${modelCode}.title`).d('档案上传')} />
+        <Header
+          backPath={backPath}
+          title={intl.get(`${modelCode}.title.uploadFile`).d('档案上传')}
+        />
         <Content>
           <Tabs type={TabsType.card} defaultActiveKey="S">
             <TabPane key="S" tab={intl.get(`${modelCode}.view.singleUpload`).d('单票发票档案上传')}>
@@ -476,7 +480,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
                     key="viewArchive"
                     onClick={() => this.handleGotoArchiveView()}
                     dataSet={this.invoiceDS}
-                    title={intl.get(`${modelCode}.button.viewArchive`).d('查看档案')}
+                    title={intl.get(`${modelCode}.view.file`).d('查看档案')}
                   />
                 </div>
                 {sourceCode === 'BILL_POOL' ? (
@@ -494,7 +498,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
                 <Output name="totalAmount" />
                 <Output name="fileName" />
                 <Output
-                  label="单个文件"
+                  label={intl.get(`${modelCode}.label.singleFile`).d('单个文件')}
                   renderer={() => (
                     <Upload
                       ref={this.saveSingleUpload}
@@ -511,7 +515,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
                     onClick={() => this.handleSingleUpload()}
                     loading={btnFlag === 'S' && loadingFlag}
                   >
-                    {intl.get(`${modelCode}.button.upload`).d('上传并智能校验')}
+                    {intl.get(`${modelCode}.button.uploadCheck`).d('上传并智能校验')}
                   </Button>
                   <p style={{ color: 'red' }}>{uploadResult}</p>
                 </div>
@@ -542,7 +546,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
                   )}
                 />
                 <Output
-                  label="进度条"
+                  label={intl.get(`${modelCode}.view.progressBar`).d('进度条')}
                   renderer={() => <Progress value={progressValue} status={progressStatus} />}
                 />
               </Form>

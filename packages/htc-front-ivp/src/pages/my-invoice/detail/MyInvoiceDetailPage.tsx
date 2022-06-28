@@ -9,11 +9,10 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
-import BillPoolDetailPage from '@common/pages/invoice-common/bill-detail/detail/BillPoolDetailPage';
-import InvoiceDetailPage from '@src/utils/invoiceDetailPage/InvoiceDetailPage';
+import BillPoolDetailPage from '@htccommon/pages/invoice-common/bill-detail/detail/BillPoolDetailPage';
+import InvoiceDetailPage from '@htccommon/pages/invoice-common/invoice-detail/detail/InvoiceDetailPage';
 
 const invoiceSourceCode = 'INVOICE_POOL';
-// const billSourceCode = 'BILL_POOL';
 
 interface RouterInfo {
   sourceCode: string;
@@ -23,7 +22,7 @@ interface InvoicePoolDetailPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
 export default class InvoicePoolDetailPage extends Component<InvoicePoolDetailPageProps> {
-  state = { invoiceType: '', invoiceHeaderId: '', entryPoolSource: '', companyCode: '' };
+  state = { invoiceType: '', invoiceHeaderId: '' };
 
   async componentDidMount() {
     const { sourceCode } = this.props.match.params;
@@ -35,8 +34,6 @@ export default class InvoicePoolDetailPage extends Component<InvoicePoolDetailPa
         this.setState({
           invoiceType: invoiceInfo.invoiceType,
           invoiceHeaderId: invoiceInfo.invoiceHeaderId,
-          entryPoolSource: invoiceInfo.entryPoolSource,
-          companyCode: invoiceInfo.companyCode,
         });
       }
     }
@@ -44,14 +41,12 @@ export default class InvoicePoolDetailPage extends Component<InvoicePoolDetailPa
 
   render() {
     const { sourceCode, sourceHeaderId } = this.props.match.params;
-    const { invoiceHeaderId, invoiceType, entryPoolSource, companyCode } = this.state;
+    const { invoiceHeaderId, invoiceType } = this.state;
     return sourceCode === invoiceSourceCode ? (
       <InvoiceDetailPage
         backPath="/htc-front-ivp/my-invoice/list"
         invoiceHeaderId={invoiceHeaderId}
         invoiceType={invoiceType}
-        entryPoolSource={entryPoolSource}
-        companyCode={companyCode}
       />
     ) : (
       <BillPoolDetailPage

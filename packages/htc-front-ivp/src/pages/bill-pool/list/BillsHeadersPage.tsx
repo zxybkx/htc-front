@@ -1,9 +1,9 @@
-/*
+/**
  * @Description:票据池-头
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-12 15:34:30
- * @LastEditTime: 2021-03-19 11:34:24
+ * @LastEditTime: 2021-12-09 11:34:24
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -12,28 +12,29 @@ import { routerRedux } from 'dva/router';
 import { Bind } from 'lodash-decorators';
 import { observer } from 'mobx-react-lite';
 import moment from 'moment';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import {
-  DataSet,
-  Table,
   Button,
-  Form,
-  Lov,
-  Output,
-  DatePicker,
-  Select,
-  TextField,
   Currency,
-  Menu,
+  DataSet,
+  DatePicker,
   Dropdown,
+  Form,
   Icon,
+  Lov,
+  Menu,
+  Modal,
+  Select,
+  Table,
+  TextField,
 } from 'choerodon-ui/pro';
-import { Row, Col } from 'choerodon-ui';
-import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
+import { Col, Row, Tag } from 'choerodon-ui';
+import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
+import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import querystring from 'querystring';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import withProps from 'utils/withProps';
@@ -42,18 +43,21 @@ import { isNullOrUndefined } from 'util';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { queryMapIdpValue } from 'hzero-front/lib/services/api';
 import ExcelExport from 'components/ExcelExport';
-import commonConfig from '@common/config/commonConfig';
-import { getCurrentEmployeeInfo } from '@common/services/commonService';
+import commonConfig from '@htccommon/config/commonConfig';
+import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
 import { Button as PermissionButton } from 'components/Permission';
-import { getPresentMenu } from '@common/utils/utils';
-import { invoiceCheckExist, invoiceCheckComplete } from '@src/services/invoicesService';
+import { getPresentMenu } from '@htccommon/utils/utils';
+import { invoiceCheckComplete, invoiceCheckExist } from '@src/services/invoicesService';
 import BillsHeadersDS from '../stores/BillsHeadersDS';
+import InvoiceHistory from '../../invoice-history/detail/InvoiceHistoryPage';
+import billPoolConfig from '../../../config/billPoolConfig';
 
-const modelCode = 'hivp.bills';
+const modelCode = 'hivp.bill';
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.IVP_API || '';
 const permissionPath = `${getPresentMenu().name}.ps`;
 const sourceCode = 'BILL_POOL';
+const { Item: MenuItem } = Menu;
 
 interface BillsHeadersPageProps {
   dispatch: Dispatch<any>;
@@ -61,7 +65,7 @@ interface BillsHeadersPageProps {
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: [modelCode, 'hivp.invoicesArchiveUpload', 'htc.common', 'hivp.batchCheck'],
 })
 @withProps(
   () => {
@@ -87,9 +91,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
       const res = await Promise.all([
         getCurrentEmployeeInfo({ tenantId }),
         queryMapIdpValue({
-          // displayOptions: 'HIVP.DISPLAY_OPTIONS',
           invoiceState: 'HMDM.INVOICE_STATE',
-          // abnormalSign: 'HIVP.ABNORMAL_SIGN',
           accountState: 'HIVP.ACCOUNT_STATE',
           interfaceDocsState: 'HIVP.INTERFACE_DOCS_STATE',
         }),
@@ -152,52 +154,57 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
     const { queryMoreDisplay } = this.state;
     if (queryDataSet) {
       const queryMoreArray: JSX.Element[] = [];
-      queryMoreArray.push(<Select key="recordState" name="recordState" colSpan={1} />);
-      queryMoreArray.push(<Select key="entryPoolSource" name="entryPoolSource" colSpan={1} />);
+      queryMoreArray.push(<Select key="recordState" name="recordState" colSpan={2} />);
+      queryMoreArray.push(<Select key="entryPoolSource" name="entryPoolSource" colSpan={2} />);
       queryMoreArray.push(<Lov key="ticketCollectorObj" name="ticketCollectorObj" colSpan={2} />);
-      queryMoreArray.push(<TextField key="invoiceCode" name="invoiceCode" />);
-      queryMoreArray.push(<TextField key="invoiceNo" name="invoiceNo" />);
-      queryMoreArray.push(<Currency key="amount" name="amount" />);
-      queryMoreArray.push(<TextField key="salerName" name="salerName" colSpan={2} newLine />);
+      queryMoreArray.push(<TextField key="invoiceCode" name="invoiceCode" colSpan={2} />);
+      queryMoreArray.push(<TextField key="invoiceNo" name="invoiceNo" colSpan={2} />);
+      queryMoreArray.push(<Currency key="amount" name="amount" colSpan={2} />);
+      queryMoreArray.push(<TextField key="salerName" name="salerName" colSpan={2} />);
       queryMoreArray.push(<TextField key="buyerName" name="buyerName" colSpan={2} />);
 
       return (
-        <>
-          <Form columns={6} dataSet={queryDataSet}>
-            <Lov
-              name="companyObj"
-              colSpan={2}
-              onChange={(value) => this.handleCompanyChange(value)}
-            />
-            <Output name="employeeDesc" colSpan={2} />
-            <Select
-              name="billType"
-              colSpan={2}
-              renderer={({ value, text }) => value && `${value} - ${text}`}
-            />
-            <DatePicker name="invoiceDateFrom" />
-            <DatePicker name="invoiceDateTo" />
-            <DatePicker name="ticketCollectorDateFrom" />
-            <DatePicker name="ticketCollectorDateTo" />
-            <DatePicker name="entryPoolDatetimeFrom" />
-            <DatePicker name="entryPoolDatetimeTo" />
-            <DatePicker name="entryAccountDateFrom" />
-            <DatePicker name="entryAccountDateTo" />
-            <Select key="invoiceStates" name="invoiceStates" colSpan={4} />
-            queryMoreArray.push(
-            <Select key="entryAccountStates" name="entryAccountStates" colSpan={2} />
-            ); queryMoreArray.push(
-            <Select key="receiptsStates" name="receiptsStates" colSpan={2} />
-            );
-            {queryMoreDisplay && queryMoreArray}
-          </Form>
-          <Row type="flex" justify="space-between">
-            <Col span={18}>{buttons}</Col>
-            <Col span={6} style={{ textAlign: 'end', marginBottom: '2px' }}>
-              <Button onClick={() => this.setState({ queryMoreDisplay: !queryMoreDisplay })}>
-                {queryMoreDisplay
-                  ? intl.get('hzero.common.button.collected').d('收起查询')
-                  : intl.get('hzero.common.button.viewMore').d('更多查询')}
+        <div style={{ marginBottom: '0.1rem' }}>
+          <Row>
+            <Col span={20}>
+              <Form columns={6} dataSet={queryDataSet}>
+                <Lov
+                  name="companyObj"
+                  colSpan={2}
+                  onChange={(value) => this.handleCompanyChange(value)}
+                />
+                <TextField name="employeeDesc" colSpan={2} />
+                <Select
+                  name="billType"
+                  colSpan={2}
+                  renderer={({ value, text }) => value && `${value} - ${text}`}
+                />
+                <DatePicker name="invoiceDate" colSpan={2} />
+                <DatePicker name="ticketCollectorDate" colSpan={2} />
+                <DatePicker name="entryAccountDate" colSpan={2} />
+                <DatePicker name="entryPoolDatetime" colSpan={2} />
+                <Select key="entryAccountStates" name="entryAccountStates" colSpan={2} />
+                <Select key="receiptsStates" name="receiptsStates" colSpan={2} />
+                <Select key="invoiceStates" name="invoiceStates" colSpan={6} />
+                {queryMoreDisplay && queryMoreArray}
+              </Form>
+            </Col>
+            <Col span={4} style={{ textAlign: 'end' }}>
+              <Button
+                funcType={FuncType.link}
+                onClick={() => this.setState({ queryMoreDisplay: !queryMoreDisplay })}
+              >
+                {queryMoreDisplay ? (
+                  <span>
+                    {intl.get('hzero.common.button.option').d('更多')}
+                    <Icon type="expand_more" />
+                  </span>
+                ) : (
+                  <span>
+                    {intl.get('hzero.common.button.option').d('更多')}
+                    <Icon type="expand_less" />
+                  </span>
+                )}
               </Button>
               <Button
                 onClick={() => {
@@ -205,7 +212,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
                   queryDataSet.create();
                 }}
               >
-                {intl.get('hzero.c7nProUI.Table.reset_button').d('重置')}
+                {intl.get('hzero.common.button.reset').d('重置')}
               </Button>
               <Button
                 color={ButtonColor.primary}
@@ -213,14 +220,81 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
                   dataSet.query();
                 }}
               >
-                {intl.get('hzero.c7nProUI.Table.query_button').d('查询')}
+                {intl.get('hzero.common.status.search').d('查询')}
               </Button>
             </Col>
           </Row>
-        </>
+          {buttons}
+        </div>
       );
     }
     return <></>;
+  }
+
+  @Bind()
+  async handleCreate(modal) {
+    const validate = await this.props.headerDS.validate(false, false);
+    if (validate) {
+      const res = await this.props.headerDS.submit();
+      if (res && res.content) {
+        modal.close();
+      }
+    }
+  }
+
+  @Bind()
+  handleCancel(record, modal) {
+    this.props.headerDS.remove(record);
+    modal.close();
+  }
+
+  @Bind()
+  async saveAndCreate(modal) {
+    const validate = await this.props.headerDS.validate(false, false);
+    if (validate) {
+      const res = await this.props.headerDS.submit();
+      if (res && res.content) {
+        modal.close();
+        this.handleAddBill();
+      }
+    }
+  }
+
+  @Bind()
+  handleBillTypeChange(modal, record) {
+    const billType = record.get('billType');
+    const billTypeData = record.getField('billType').getLookupData(billType);
+    const billTypeTag = billTypeData.tag;
+    const billTagArray = billTypeTag.split(',');
+    const fieldArray: JSX.Element[] = [
+      <Select name="billType" onChange={() => this.handleBillTypeChange(modal, record)} />,
+    ];
+    billTagArray.forEach((item) => {
+      billPoolConfig.forEach((field) => {
+        if (item === field.name) {
+          switch (field.type) {
+            case 'string':
+              fieldArray.push(<TextField name={field.name} />);
+              break;
+            case 'date':
+              fieldArray.push(<DatePicker name={field.name} />);
+              break;
+            case 'currency':
+              fieldArray.push(<Currency name={field.name} />);
+              break;
+            default:
+              break;
+          }
+        }
+      });
+    });
+    modal.update({
+      children: (
+        <Form record={record} labelTooltip={Tooltip.overflow}>
+          {fieldArray}
+        </Form>
+      ),
+    });
   }
 
   /**
@@ -240,9 +314,35 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
         employeeId: curInfo.employeeId,
         employeeNum: curInfo.employeeNum,
       };
-      this.props.headerDS.create(newLine, 0);
+      const record = this.props.headerDS.create(newLine, 0);
+      const modal = Modal.open({
+        title: '新增票据',
+        children: (
+          <Form record={record} labelTooltip={Tooltip.overflow}>
+            <Select name="billType" onChange={() => this.handleBillTypeChange(modal, record)} />
+            <TextField name="invoiceCode" />
+            <TextField name="invoiceNo" />
+            <DatePicker name="invoiceDate" />
+            <Currency name="totalAmount" />
+            <Currency name="invoiceAmount" />
+            <Currency name="taxAmount" />
+          </Form>
+        ),
+        footer: (
+          <div>
+            <Button color={ButtonColor.primary} onClick={() => this.handleCreate(modal)}>
+              {intl.get('hzero.common.button.save').d('保存')}
+            </Button>
+            <Button onClick={() => this.handleCancel(record, modal)}>
+              {intl.get('hzero.common.button.cancel').d('取消')}
+            </Button>
+            <Button onClick={() => this.saveAndCreate(modal)}>
+              {intl.get(`${modelCode}.button.saveAndadd`).d('保存并新增')}
+            </Button>
+          </div>
+        ),
+      });
     }
-    // this.props.headerDS.create({}, 0);
   }
 
   // 跳转通用参数
@@ -341,7 +441,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
       notification.warning({
         description: '',
         message: intl
-          .get(`${modelCode}.view.checkdFlag`)
+          .get(`${modelCode}.notice.checkSaveMessage`)
           .d('存在未查验的票据，请查验补全或删除后再进行保存'),
       });
       return;
@@ -431,12 +531,17 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
   @Bind()
   handleGotoDetailPage(record) {
     const billPoolHeaderId = record.get('billPoolHeaderId');
+    const billType = record.get('billType');
     const { dispatch } = this.props;
-    const pathname = `/htc-front-ivp/bills/detail/${billPoolHeaderId}`;
+    const pathname = `/htc-front-ivp/bills/detail/${billPoolHeaderId}/${billType}`;
+    localStorage.setItem('currentBillrecord', JSON.stringify(record.data)); // 添加跳转record缓存
     dispatch(
-      routerRedux.push({
-        pathname,
-      })
+      routerRedux.push(
+        {
+          pathname,
+        },
+        { currentInvoicerecord: JSON.stringify(record.data) }
+      )
     );
   }
 
@@ -483,7 +588,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
     const billPoolHeaderId = record.get('billPoolHeaderId');
     if (!billPoolHeaderId) return;
     const comParams = {
-      pathname: `/htc-front-ivp/bills/doc-related/${sourceCode}/${billPoolHeaderId}`,
+      pathname: `/htc-front-ivp/invoice/doc-related/${sourceCode}/${billPoolHeaderId}`,
       otherSearch: { backPath: '/htc-front-ivp/bills/list' },
     };
     this.goToByHeaderParams(record, comParams);
@@ -497,11 +602,24 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
   handleGotoHistory(record) {
     const billPoolHeaderId = record.get('billPoolHeaderId');
     if (!billPoolHeaderId) return;
-    const comParams = {
-      pathname: `/htc-front-ivp/bills/bill-history/${sourceCode}/${billPoolHeaderId}`,
-      otherSearch: { backPath: '/htc-front-ivp/bills/list' },
+    const historyProps = {
+      sourceCode,
+      sourceHeaderId: billPoolHeaderId,
+      record: record.toData(),
     };
-    this.goToByHeaderParams(record, comParams);
+    const modal = Modal.open({
+      title: intl.get('hzero.common.status.history').d('历史记录'),
+      drawer: true,
+      width: 480,
+      bodyStyle: { overflow: 'hidden' },
+      closable: true,
+      children: <InvoiceHistory {...historyProps} />,
+      footer: (
+        <Button color={ButtonColor.primary} onClick={() => modal.close()}>
+          {intl.get('hzero.common.button.close').d('关闭')}
+        </Button>
+      ),
+    });
   }
 
   /**
@@ -577,7 +695,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
           onClick: () => this.handleComplete(record),
           disabled: record.get('billType') !== 'BLOCK_CHAIN',
           permissionCode: 'completed',
-          permissionMeaning: '按钮-查验补全',
+          permissionMeaning: intl.get(`${modelCode}.button.completed`).d('查验补全'),
           title: intl.get(`${modelCode}.button.completed`).d('查验补全'),
         }),
         len: 6,
@@ -589,11 +707,11 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
           onClick: () => this.handleGotoDetailPage(record),
           disabled: !record.get('billPoolHeaderId'),
           permissionCode: 'view-detail',
-          permissionMeaning: '按钮-查看详情',
-          title: intl.get(`${modelCode}.button.viewDetail`).d('查看详情'),
+          permissionMeaning: intl.get('hzero.common.button.detail'),
+          title: intl.get('hzero.common.button.detail').d('查看详情'),
         }),
         len: 6,
-        title: intl.get(`${modelCode}.button.viewDetail`).d('查看详情'),
+        title: intl.get('hzero.common.button.detail').d('查看详情'),
       },
       {
         key: 'relateDoc',
@@ -601,7 +719,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
           onClick: () => this.handleGotoDocRelated(record),
           disabled: !record.get('billPoolHeaderId'),
           permissionCode: 'relate-doc',
-          permissionMeaning: '按钮-单据关联',
+          permissionMeaning: intl.get(`${modelCode}.button.relateDoc`),
           title: intl.get(`${modelCode}.button.relateDoc`).d('单据关联'),
         }),
         len: 6,
@@ -613,11 +731,11 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
           onClick: () => this.handleGotoHistory(record),
           disabled: !record.get('billPoolHeaderId'),
           permissionCode: 'history',
-          permissionMeaning: '按钮-历史记录',
-          title: intl.get(`${modelCode}.button.history`).d('历史记录'),
+          permissionMeaning: intl.get('hzero.common.button.history'),
+          title: intl.get('hzero.common.button.history').d('历史记录'),
         }),
         len: 6,
-        title: intl.get(`${modelCode}.button.history`).d('历史记录'),
+        title: intl.get('hzero.common.button.history').d('历史记录'),
       },
       {
         key: 'archiveUpload',
@@ -625,7 +743,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
           onClick: () => this.handleGotoArchiveUpload(record),
           disabled: !record.get('billPoolHeaderId'),
           permissionCode: 'archive-upload',
-          permissionMeaning: '按钮-上传档案',
+          permissionMeaning: intl.get(`${modelCode}.button.archiveUpload`),
           title: intl.get(`${modelCode}.button.archiveUpload`).d('上传档案'),
         }),
         len: 6,
@@ -650,11 +768,11 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
         onClick: () => this.handleGotoArchiveView(record),
         disabled: !record.get('billPoolHeaderId'),
         permissionCode: 'archive-view',
-        permissionMeaning: '按钮-查看档案',
-        title: intl.get(`${modelCode}.button.archiveView`).d('查看档案'),
+        permissionMeaning: intl.get('hivp.invoicesArchiveUpload.path.viewArchives'),
+        title: intl.get('hivp.invoicesArchiveUpload.path.viewArchives').d('查看档案'),
       }),
       len: 6,
-      title: intl.get(`${modelCode}.button.archiveView`).d('查看档案'),
+      title: intl.get('hivp.invoicesArchiveUpload.path.viewArchives').d('查看档案'),
     };
     if (record.get('fileUrl')) {
       operators.push(archiveViewBtn);
@@ -678,7 +796,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
         })}
         <Dropdown overlay={btnMenu}>
           <a>
-            {intl.get('hzero.common.button.action').d('操作')}
+            {intl.get('hzero.common.table.column.option').d('操作')}
             <Icon type="arrow_drop_down" />
           </a>
         </Dropdown>
@@ -687,75 +805,135 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
   }
 
   get columns(): ColumnProps[] {
-    const editAble = (record) =>
-      !record.get('recordType') &&
-      !(
-        record.get('recordState') === 'ARCHIVED' ||
-        record.get('receiptsState') === '1' ||
-        record.get('entryAccountState') === '1'
-      );
+    // const editAble = (record) =>
+    //   !record.get('recordType') &&
+    //   !(
+    //     record.get('recordState') === 'ARCHIVED' ||
+    //     record.get('receiptsState') === '1' ||
+    //     record.get('entryAccountState') === '1'
+    //   );
     return [
-      { name: 'billType', editor: (record) => editAble(record), width: 200 },
-      { name: 'invoiceState', width: 110 },
-      { name: 'invoiceCode', editor: (record) => editAble(record), width: 180 },
-      { name: 'invoiceNo', editor: (record) => editAble(record), width: 150 },
-      { name: 'invoiceDate', editor: (record) => editAble(record), width: 150 },
+      {
+        name: 'billType',
+        width: 200,
+        renderer: ({ text, record }) => (
+          <a onClick={() => this.handleGotoDetailPage(record)}>{text}</a>
+        ),
+      },
+      {
+        name: 'invoiceCode',
+        width: 180,
+        renderer: ({ value, record }) => {
+          const invoiceState = record?.get('invoiceState');
+          const invoiceStateTxt = record?.getField('invoiceState')?.getText(invoiceState);
+          let color = '';
+          let textColor = '';
+          switch (invoiceState) {
+            case '0':
+              color = '#D6FFD7';
+              textColor = '#19A633';
+              break;
+            case '1':
+              color = '#FFECC4';
+              textColor = '#FF9D23';
+              break;
+            case '2':
+              color = '#F0F0F0';
+              textColor = '#959595';
+              break;
+            case '3':
+              color = '#FFDFCA';
+              textColor = '#FB6D3B';
+              break;
+            case '4':
+              color = '#FFDFCA';
+              textColor = '#FB6D3B';
+              break;
+            case '5':
+              color = '#FFDCD4';
+              textColor = '#FF5F57';
+              break;
+            case '6':
+              color = '#FFDCD4';
+              textColor = '#FF5F57';
+              break;
+            default:
+              color = '';
+              textColor = '';
+              break;
+          }
+          return (
+            <>
+              <Tag color={color} style={{ color: textColor }}>
+                {invoiceStateTxt}
+              </Tag>
+              &nbsp;
+              <span>{value}</span>
+            </>
+          );
+        },
+      },
+      { name: 'invoiceNo', width: 150 },
+      { name: 'invoiceDate', width: 150 },
       {
         name: 'totalAmount',
         width: 150,
-        editor: (record) => editAble(record),
-        align: ColumnAlign.right,
       },
       {
         name: 'invoiceAmount',
-        editor: (record) => editAble(record),
         width: 150,
-        align: ColumnAlign.right,
       },
       {
         name: 'taxAmount',
         width: 150,
-        editor: (record) => editAble(record),
-        align: ColumnAlign.right,
       },
+      { name: 'fare' },
       {
         name: 'aviationDevelopmentFund',
-        editor: (record) => editAble(record),
         width: 150,
-        align: ColumnAlign.right,
       },
-      { name: 'invoiceTotalAmount', width: 150, align: ColumnAlign.right },
-      { name: 'checkCode', editor: (record) => editAble(record), width: 180 },
-      { name: 'salerName', width: 260, editor: (record) => editAble(record) },
-      { name: 'salerTaxNo', width: 180, editor: (record) => editAble(record) },
-      { name: 'buyerName', width: 260, editor: (record) => editAble(record) },
-      { name: 'buyerTaxNo', width: 180, editor: (record) => editAble(record) },
-      { name: 'entrance', width: 130, editor: (record) => editAble(record) },
-      { name: 'destination', width: 130, editor: (record) => editAble(record) },
-      { name: 'trainAndFlight', width: 130, editor: (record) => editAble(record) },
-      { name: 'seatType', width: 130, editor: (record) => editAble(record) },
+      { name: 'fuelSurcharge' },
+      { name: 'otherTaxes' },
+      { name: 'total' },
+      { name: 'checkCode', width: 180 },
+      { name: 'salerName', width: 260 },
+      { name: 'salerTaxNo', width: 180 },
+      { name: 'buyerName', width: 260 },
+      { name: 'buyerTaxNo', width: 180 },
+      { name: 'entrance', width: 130 },
+      { name: 'destination', width: 130 },
+      { name: 'trainAndFlight', width: 130 },
+      { name: 'seatType', width: 130 },
       {
         name: 'boardingTime',
         width: 160,
-        editor: (record) => editAble(record),
         renderer: ({ value, text }) => value && text !== '无效日期' && text,
       },
       {
         name: 'alightingTime',
         width: 160,
-        editor: (record) => editAble(record),
         renderer: ({ value, text }) => value && text !== '无效日期' && text,
       },
-      { name: 'remark', width: 200, editor: true },
+      {
+        name: 'remark',
+        width: 200,
+        editor: () => <TextField onBlur={() => this.props.headerDS.submit()} />,
+      },
       { name: 'ticketCollectorObj', editor: true, width: 280 },
       {
         name: 'internationalTelCode',
-        editor: (record) => record.get('employeeTypeCode') === 'PRESET',
+        editor: (record) =>
+          record.get('employeeTypeCode') === 'PRESET' && (
+            <Select onChange={() => this.props.headerDS.submit()} />
+          ),
         width: 130,
       },
       {
         name: 'employeeIdentify',
-        editor: (record) => record.get('employeeTypeCode') === 'PRESET',
+        editor: (record) =>
+          record.get('employeeTypeCode') === 'PRESET' && (
+            <TextField onBlur={() => this.props.headerDS.submit()} />
+          ),
         width: 130,
       },
       { name: 'ticketCollectorDate', width: 110 },
@@ -768,17 +946,49 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
       { name: 'entryPoolDatetime', width: 160 },
       { name: 'taxBureauManageState', width: 120 },
       { name: 'billPoolHeaderId', renderer: ({ value }) => <span>{value}</span> },
-      { name: 'fileUrl', width: 300 },
+      {
+        name: 'fileUrl',
+        width: 300,
+        renderer: ({ value, record }) => (
+          <a onClick={() => this.handleGotoArchiveView(record)}>{value}</a>
+        ),
+      },
       { name: 'fileName', width: 220 },
       {
         name: 'operation',
-        header: intl.get('hzero.common.action').d('操作'),
-        width: 160,
-        renderer: ({ record }) => this.optionsRender(record),
+        header: intl.get('hzero.common.table.column.option').d('操作'),
+        width: 100,
+        command: ({ record }): Commands[] => {
+          return [
+            <a onClick={() => this.handleGotoHistory(record)}>
+              {intl.get('hzero.common.button.history').d('历史记录')}
+            </a>,
+          ];
+        },
+        // renderer: ({ record }) => this.optionsRender(record),
         lock: ColumnLock.right,
         align: ColumnAlign.center,
       },
     ];
+  }
+
+  // 批量上传
+  @Bind()
+  batchUpload() {
+    const { curCompanyId } = this.state;
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.push({
+        pathname: `/htc-front-ivp/bills/batch-upload/${sourceCode}/${curCompanyId}`,
+        search: querystring.stringify({
+          invoiceInfo: encodeURIComponent(
+            JSON.stringify({
+              backPath: '/htc-front-ivp/bills/list',
+            })
+          ),
+        }),
+      })
+    );
   }
 
   /**
@@ -789,14 +999,14 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
     const { curCompanyId } = this.state;
     const HeaderButtons = observer((props: any) => {
       const isDisabled = props.dataSet!.selected.length === 0;
+      const { condition } = props;
       return (
         <PermissionButton
           type="c7n-pro"
           key={props.key}
           onClick={props.onClick}
           disabled={isDisabled}
-          funcType={FuncType.flat}
-          color={ButtonColor.primary}
+          funcType={condition === 'batchDelete' ? FuncType.flat : FuncType.link}
           permissionList={[
             {
               code: `${permissionPath}.button.${props.permissionCode}`,
@@ -809,35 +1019,21 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
         </PermissionButton>
       );
     });
-    return [
-      <PermissionButton
-        type="c7n-pro"
-        key="addBill"
-        onClick={() => this.handleAddBill()}
-        disabled={!curCompanyId}
-        permissionList={[
-          {
-            code: `${permissionPath}.button.add-bill`,
-            type: 'button',
-            meaning: '按钮-票据新增',
-          },
-        ]}
-      >
-        {intl.get(`${modelCode}.button.addBill`).d('票据新增')}
-      </PermissionButton>,
+    const topBtns = [
       <HeaderButtons
         key="filed"
         onClick={() => this.handleGotoBillArchive()}
         dataSet={this.props.headerDS}
-        title={intl.get(`${modelCode}.button.filed`).d('档案归档')}
+        title={intl.get(`${modelCode}.button.archives`).d('档案归档')}
         permissionCode="filed"
-        permissionMeaning="按钮-档案归档"
+        permissionMeaning={intl.get(`${modelCode}.button.archives`).d('档案归档')}
       />,
       <PermissionButton
         type="c7n-pro"
         key="fileDownload"
         onClick={() => this.handleGotoFileDownload()}
         disabled={!curCompanyId}
+        funcType={FuncType.link}
         permissionList={[
           {
             code: `${permissionPath}.button.file-download`,
@@ -848,35 +1044,83 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
       >
         {intl.get(`${modelCode}.button.fileDownload`).d('档案下载')}
       </PermissionButton>,
+    ];
+    const btnMenu = (
+      <Menu>
+        {topBtns.map((action) => {
+          return <MenuItem>{action}</MenuItem>;
+        })}
+      </Menu>
+    );
+    return [
+      <PermissionButton
+        type="c7n-pro"
+        key="addBill"
+        onClick={() => this.handleAddBill()}
+        disabled={!curCompanyId}
+        icon="add"
+        permissionList={[
+          {
+            code: `${permissionPath}.button.add-bill`,
+            type: 'button',
+            meaning: intl.get('hzero.common.button.add'),
+          },
+        ]}
+      >
+        {intl.get('hzero.common.button.add').d('新增')}
+      </PermissionButton>,
+      <PermissionButton
+        type="c7n-pro"
+        key="archiveUpload"
+        onClick={() => this.batchUpload()}
+        color={ButtonColor.default}
+        disabled={!curCompanyId}
+        permissionList={[
+          {
+            code: `${permissionPath}.button.archive-upload`,
+            type: 'button',
+            meaning: intl.get(`${modelCode}.button.bulkArchiveUpload`).d('批量上传档案'),
+          },
+        ]}
+      >
+        {intl.get(`${modelCode}.button.bulkArchiveUpload`).d('批量上传档案')}
+      </PermissionButton>,
+      <Dropdown overlay={btnMenu}>
+        <Button>
+          {intl.get('hzero.common.view.archives').d('档案')}
+          <Icon type="arrow_drop_down" />
+        </Button>
+      </Dropdown>,
       <HeaderButtons
         key="deleteHeaders"
         onClick={() => this.handleDeleteHeaders()}
         dataSet={this.props.headerDS}
-        title={intl.get(`${modelCode}.button.deleteHeaders`).d('删除')}
+        title={intl.get('hzero.common.button.delete').d('删除')}
         permissionCode="delete"
-        permissionMeaning="按钮-删除"
+        permissionMeaning={intl.get('hzero.common.button.delete').d('删除')}
+        condition="batchDelete"
       />,
-      <PermissionButton
-        type="c7n-pro"
-        key="save"
-        onClick={() => this.handleSaveBill()}
-        permissionList={[
-          {
-            code: `${permissionPath}.button.save`,
-            type: 'button',
-            meaning: '按钮-保存',
-          },
-        ]}
-      >
-        {intl.get(`${modelCode}.button.save`).d('保存')}
-      </PermissionButton>,
+      // <PermissionButton
+      //   type="c7n-pro"
+      //   key="save"
+      //   onClick={() => this.handleSaveBill()}
+      //   permissionList={[
+      //     {
+      //       code: `${permissionPath}.button.save`,
+      //       type: 'button',
+      //       meaning: '按钮-保存',
+      //     },
+      //   ]}
+      // >
+      //   {intl.get(`${modelCode}.button.save`).d('保存')}
+      // </PermissionButton>,
     ];
   }
 
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('票据池')}>
+        <Header title={intl.get(`${modelCode}.title.ticketPool`).d('票据池')}>
           <ExcelExport
             requestUrl={`${API_PREFIX}/v1/${tenantId}/bill-pool-header-infos/export`}
             queryParams={() => this.handleGetQueryParams()}

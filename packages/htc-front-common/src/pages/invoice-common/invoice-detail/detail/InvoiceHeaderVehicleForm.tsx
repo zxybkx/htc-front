@@ -1,5 +1,5 @@
-/*
- * @Descripttion:全发票明细头-机动车发票信息
+/**
+ * @Description:全发票明细头-机动车发票信息
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 16:19:48
@@ -7,7 +7,7 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { FunctionComponent } from 'react';
-import { DataSet, Form, TextField, TextArea, Currency } from 'choerodon-ui/pro';
+import { DataSet, Form, Output } from 'choerodon-ui/pro';
 
 interface Props {
   dataSet: DataSet;
@@ -16,58 +16,58 @@ const InvoiceHeaderVehicleForm: FunctionComponent<Props> = (props: Props) => {
   const { dataSet } = props;
   return (
     <>
-      <Form dataSet={dataSet} columns={6}>
-        <TextField name="idNo" colSpan={6} />
+      <Form dataSet={dataSet} columns={3}>
+        <Output name="idNo" />
         {/* --- */}
-        <TextField name="produceArea" colSpan={2} />
-        <TextField name="qualifiedNo" colSpan={2} />
-        <TextField name="commodityInspectionNo" colSpan={2} />
+        <Output name="produceArea" />
+        <Output name="qualifiedNo" />
+        <Output name="commodityInspectionNo" />
         {/* --- */}
-        <TextField name="engineNo" colSpan={1} />
-        <TextField name="vehicleIdentificationNo" colSpan={2} />
-        <TextField name="taxPaymentCertificateNo" colSpan={2} />
-        <TextField name="taxAuthorityCode" colSpan={1} />
+        <Output name="engineNo" />
+        <Output name="vehicleIdentificationNo" />
+        <Output name="taxPaymentCertificateNo" />
+        <Output name="taxAuthorityCode" />
         {/* --- */}
-        <TextField name="limitedPeopleCount" colSpan={1} />
-        <TextField name="taxAuthorityName" colSpan={2} />
-        <TextField name="certificateOfImport" colSpan={2} />
-        <TextField name="taxRate" colSpan={1} />
+        <Output name="limitedPeopleCount" />
+        <Output name="taxAuthorityName" />
+        <Output name="certificateOfImport" />
+        <Output name="taxRate" />
         {/* --- */}
-        <TextField name="tonnage" colSpan={1} />
-        <TextField name="salerPhone" colSpan={2} />
-        <TextField name="salerAddress" colSpan={3} />
+        <Output name="tonnage" />
+        <Output name="salerPhone" />
+        <Output name="salerAddress" />
         {/* --- */}
-        <TextField name="salerBankName" colSpan={3} />
-        <TextField name="salerBankAccount" colSpan={3} />
+        <Output name="salerBankName" />
+        <Output name="salerBankAccount" />
         {/* --- */}
-        <TextField name="licensePlate" colSpan={2} />
-        <TextField name="registrationNo" colSpan={2} />
-        <Currency name="carPrice" colSpan={2} />
+        <Output name="licensePlate" />
+        <Output name="registrationNo" />
+        <Output name="carPrice" />
         {/* --- */}
-        <TextField name="transferredVehicleOffice" colSpan={2} />
-        <TextField name="buyerUnitOrIndividual" colSpan={2} />
-        <TextField name="buyerUnitCodeOrIdNo" colSpan={2} />
+        <Output name="transferredVehicleOffice" />
+        <Output name="buyerUnitOrIndividual" />
+        <Output name="buyerUnitCodeOrIdNo" />
         {/* --- */}
-        <TextField name="buyerPhone" colSpan={2} />
-        <TextField name="buyerUnitOrIndividualAddress" colSpan={2} />
-        <TextField name="sellerUnitOrIndividual" colSpan={2} />
+        <Output name="buyerPhone" />
+        <Output name="buyerUnitOrIndividualAddress" />
+        <Output name="sellerUnitOrIndividual" />
         {/* --- */}
-        <TextField name="sellerPhone" colSpan={2} />
-        <TextField name="sellerUnitOrIndividualAddress" colSpan={2} />
-        <TextField name="sellerUnitCodeOrIdNo" colSpan={2} />
+        <Output name="sellerPhone" />
+        <Output name="sellerUnitOrIndividualAddress" />
+        <Output name="sellerUnitCodeOrIdNo" />
         {/* --- */}
-        <TextArea name="businessUnitPhone" colSpan={2} rowSpan={2} />
-        <TextField name="businessUnitAddress" colSpan={2} />
-        <TextField name="businessUnit" colSpan={2} />
-        <TextField name="businessUnitTaxNo" colSpan={2} />
-        <TextField name="businessUnitBankAndAccount" colSpan={2} />
+        <Output name="businessUnitPhone" rowSpan={2} />
+        <Output name="businessUnitAddress" />
+        <Output name="businessUnit" />
+        <Output name="businessUnitTaxNo" />
+        <Output name="businessUnitBankAndAccount" />
         {/* --- */}
-        <TextField name="lemonMarket" colSpan={2} />
-        <TextField name="lemonMarketTaxNo" colSpan={2} />
-        <TextField name="lemonMarketPhone" colSpan={2} />
+        <Output name="lemonMarket" />
+        <Output name="lemonMarketTaxNo" />
+        <Output name="lemonMarketPhone" />
         {/* --- */}
-        <TextField name="lemonMarketAddress" colSpan={3} />
-        <TextField name="lemonMarketBankAndAccount" colSpan={3} />
+        <Output name="lemonMarketAddress" />
+        <Output name="lemonMarketBankAndAccount" />
       </Form>
     </>
   );

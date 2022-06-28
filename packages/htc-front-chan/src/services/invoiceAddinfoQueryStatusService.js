@@ -1,5 +1,5 @@
-/*
- * @Descripttion:开票附加信息状态查询-操作按钮
+/**
+ * @Description:开票附加信息状态查询-操作按钮
  * @version: 1.0
  * @Author: yu.huishan@hand-china.com
  * @Date: 2021-10-12 16:19:48
@@ -7,9 +7,9 @@
  * @Copyright: Copyright (c) 2021, Hand
  */
 import request from 'utils/request';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 
-const { IOP_API } = commonConfig;
+const IOP_API = commonConfig.IOP_API || '';
 
 /**
  * 票面预览

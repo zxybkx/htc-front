@@ -1,88 +1,165 @@
-/*
- * @Descripttion:全发票明细头-机动车发票信息
+/**
+ * @Description:全发票明细头-机动车发票信息
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 16:19:48
- * @LastEditTime: 2021-03-04 11:10:47
+ * @LastEditTime: 2021-09-34 17:23:47
  * @Copyright: Copyright (c) 2020, Hand
  */
-import React, { FunctionComponent } from 'react';
-import { DataSet, Form, Output, Table } from 'choerodon-ui/pro';
+import React, { Component } from 'react';
+import { DataSet, Form, Output } from 'choerodon-ui/pro';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-// import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import intl from 'utils/intl';
-import { isNullOrUndefined } from 'util';
+import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
+import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
 import AgreementCompanyLinesDS from '../stores/AgreementCompanyLinesDS';
 import AgreementClauseLinesDS from '../stores/AgreementClauseLinesDS';
 
 const modelCode = 'hmdm.agreement-clause';
 
-interface Props {
+interface AgreementLinesProps {
   agreementParams: any;
 }
-const AgreementLinesForm: FunctionComponent<Props> = (props: Props) => {
-  const { agreementParams } = props;
+
+export default class AgreementLinesForm extends Component<AgreementLinesProps> {
   // 公司
-  const companyDS = new DataSet({
-    autoQuery: !isNullOrUndefined(agreementParams.agreementId),
-    ...AgreementCompanyLinesDS(agreementParams),
+  companyDS = new DataSet({
+    autoQuery: false,
+    ...AgreementCompanyLinesDS(this.props.agreementParams),
   });
+
   // 协议条款
-  const clauseDS = new DataSet({
-    autoQuery: !isNullOrUndefined(agreementParams.agreementId),
-    ...AgreementClauseLinesDS(agreementParams),
+  clauseDS = new DataSet({
+    autoQuery: false,
+    ...AgreementClauseLinesDS(this.props.agreementParams),
   });
+
+  componentDidMount() {
+    this.companyDS.query();
+    this.clauseDS.query();
+  }
 
   /**
    * [协议条款]列信息列
    */
-  const clauseColumns: ColumnProps[] = [
-    {
-      name: 'orderSeq',
-      header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
-      width: 80,
-      renderer: ({ record }) => {
-        return record ? clauseDS.indexOf(record) + 1 : '';
+  get clauseColumns(): ColumnProps[] {
+    return [
+      {
+        name: 'orderSeq',
+        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        width: 80,
+        renderer: ({ record }) => {
+          return record ? this.clauseDS.indexOf(record) + 1 : '';
+        },
       },
-    },
-    { name: 'expensesTypeCode', width: 170 },
-    { name: 'expensesTypeMeaning', width: 170 },
-    { name: 'termDescription', width: 200 },
-    { name: 'customerBillingModelCode', width: 150 },
-    { name: 'billingCode' },
-    { name: 'solutionPackageNumber' },
-    { name: 'usedQuantity' },
-    { name: 'remainingQuantity' },
-    { name: 'billingStartDate', width: 160 },
-    { name: 'billingEndDate', width: 160 },
-    // { name: 'billingPrice', width: 160, align: ColumnAlign.right },
-    // { name: 'invoiceMethodCode', width: 200 },
-    { name: 'lastUpdateDate' },
-  ];
-  return (
-    <>
-      <Form key="AgreementForm" dataSet={companyDS} columns={3}>
-        <Output name="companyCode" />
-        <Output name="companyName" />
-        <Output name="administrator" />
-        <Output name="administratorMailbox" />
-        <Output name="administratorPhone" />
-        <Output name="checkChannelCode" />
-        <Output name="inChannelCode" />
-        <Output name="outChannelCode" />
-        <Output name="authorizationStartDate" />
-        <Output name="authorizationTypeCode" />
-        <Output name="authorizationCode" />
-        <Output name="authorizationEndDate" />
-      </Form>
-      <Table
-        key="AgreementTable"
-        dataSet={clauseDS}
-        columns={clauseColumns}
-        style={{ height: 300 }}
-      />
-    </>
-  );
-};
+      {
+        name: 'expensesTypeInfo',
+        width: 170,
+        aggregation: true,
+        align: ColumnAlign.left,
+        children: [
+          {
+            name: 'expensesTypeCode',
+            title: '',
+            renderer: ({ value }) => value || '-',
+          },
+          {
+            name: 'expensesTypeMeaning',
+            title: '',
+            renderer: ({ value }) => value || '-',
+          },
+        ],
+      },
+      {
+        name: 'termDescription',
+        width: 200,
+        renderer: ({ value }) => value || '-',
+      },
+      {
+        name: 'customerBillingModelCode',
+        width: 150,
+        renderer: ({ value, text }) => (value ? text : '-'),
+      },
+      {
+        name: 'billingCode',
+        renderer: ({ value, text }) => (value ? text : '-'),
+      },
+      {
+        name: 'numberInfo',
+        aggregation: true,
+        align: ColumnAlign.left,
+        children: [
+          {
+            name: 'solutionPackageNumber',
+            renderer: ({ value }) => value || '-',
+          },
+          {
+            name: 'usedQuantity',
+            renderer: ({ value }) => value || '-',
+          },
+          {
+            name: 'remainingQuantity',
+            renderer: ({ value }) => value || '-',
+          },
+        ],
+      },
+      {
+        name: 'dateInfo',
+        aggregation: true,
+        width: 200,
+        align: ColumnAlign.left,
+        children: [
+          {
+            name: 'billingStartDate',
+            renderer: ({ value, text }) => (value ? text : '-'),
+          },
+          {
+            name: 'billingEndDate',
+            renderer: ({ value, text }) => (value ? text : '-'),
+          },
+        ],
+      },
+      {
+        name: 'lastUpdateDate',
+        renderer: ({ value, text }) => (value ? text : '-'),
+      },
+    ];
+  }
 
-export default AgreementLinesForm;
+  render() {
+    return (
+      <>
+        <Form key="AgreementForm" dataSet={this.companyDS} columns={3}>
+          <Output name="companyCode" renderer={({ value }) => value || '-'} />
+          <Output name="companyName" renderer={({ value }) => value || '-'} />
+          <Output name="administrator" renderer={({ value }) => value || '-'} />
+          <Output name="administratorMailbox" renderer={({ value }) => value || '-'} />
+          <Output name="administratorPhone" renderer={({ value }) => value || '-'} />
+          <Output name="checkChannelCode" renderer={({ value, text }) => (value ? text : '-')} />
+          <Output name="inChannelCode" renderer={({ value, text }) => (value ? text : '-')} />
+          <Output name="outChannelCode" renderer={({ value, text }) => (value ? text : '-')} />
+          <Output
+            name="authorizationStartDate"
+            renderer={({ value, text }) => (value ? text : '-')}
+          />
+          <Output
+            name="authorizationTypeCode"
+            renderer={({ value, text }) => (value ? text : '-')}
+          />
+          <Output name="authorizationCode" renderer={({ value }) => value || '-'} />
+          <Output
+            name="authorizationEndDate"
+            renderer={({ value, text }) => (value ? text : '-')}
+          />
+        </Form>
+        <AggregationTable
+          key="AgreementTable"
+          aggregation
+          dataSet={this.clauseDS}
+          columns={this.clauseColumns}
+          style={{ height: 330 }}
+        />
+      </>
+    );
+  }
+}

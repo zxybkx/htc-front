@@ -1,11 +1,19 @@
+/**
+ * @Description: 全发票明细
+ * @version: 1.0
+ * @Author: yang.wang04@hand-china.com
+ * @Date: 2020-07-20 16:19:48
+ * @LastEditTime: 2020-09-24 10:06:17
+ * @Copyright: Copyright (c) 2020, Hand
+ */
 import React, { Component } from 'react';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import { Bind } from 'lodash-decorators';
 import { Dispatch } from 'redux';
-import { routerRedux } from 'dva/router';
-import { ColumnLock, ColumnAlign, TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
+import { RouteComponentProps } from 'react-router-dom';
+import { ColumnAlign, ColumnLock, TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import { DataSet, Table, Button } from 'choerodon-ui/pro';
+import { Button, DataSet, Table } from 'choerodon-ui/pro';
 import { Icon } from 'choerodon-ui';
 import { Commands } from 'choerodon-ui/pro/lib/table/Table';
 import intl from 'utils/intl';
@@ -15,7 +23,7 @@ import InvoiceFullListDS from '../stores/InvoiceFullListDS';
 
 const modelCode = 'hcan.invoice-full';
 
-interface InvoiceFullListPageProps {
+interface InvoiceFullListPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   tableDS: DataSet;
 }
@@ -34,24 +42,28 @@ interface InvoiceFullListPageProps {
   { cacheState: true }
 )
 export default class InvoiceFullListPage extends Component<InvoiceFullListPageProps> {
-  // tableDS = new DataSet({
-  //   autoQuery: true,
-  //   ...InvoiceFullListDS(),
-  // });
-
+  /**
+   * 跳转详情
+   * @params {object} record-行记录
+   */
   @Bind()
   handleGoToDetail(record) {
     const invoiceHeaderId = record.get('invoiceHeaderId');
     const invoiceType = record.get('invoiceType');
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const pathname = `/htc-front-chan/invoice-full/detail/${invoiceHeaderId}/${invoiceType}`;
-    dispatch(
-      routerRedux.push({
-        pathname,
-      })
-    );
+    history.push(pathname);
+    // dispatch(
+    //   routerRedux.push({
+    //     pathname,
+    //   })
+    // );
   }
 
+  /**
+   * 返回表格行
+   * @returns {*[]}
+   */
   get columns(): ColumnProps[] {
     return [
       { name: 'invoiceHeaderId', renderer: ({ value }) => <span>{value}</span>, width: 80 },

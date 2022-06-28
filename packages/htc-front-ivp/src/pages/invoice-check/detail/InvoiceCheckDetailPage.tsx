@@ -9,7 +9,7 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
-import InvoiceDetailPage from '@common/pages/invoice-common/invoice-detail/detail/InvoiceDetailPage';
+import InvoiceDetailPage from '@htccommon/pages/invoice-common/invoice-detail/detail/InvoiceDetailPage';
 
 interface RouterInfo {
   invoiceHeaderId: any;

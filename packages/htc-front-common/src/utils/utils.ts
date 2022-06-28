@@ -1,4 +1,4 @@
-/*
+/**
  * @Description:公用方法
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
@@ -6,6 +6,7 @@
  * @LastEditTime: 2021-03-16 17:49:20
  * @Copyright: Copyright (c) 2020, Hand
  */
+
 /**
  * @name: getPresentMenu
  * @description: 获取当前菜单的信息
@@ -43,3 +44,13 @@ export function base64toBlob(data) {
   }
   return new Blob(byteArrays);
 }
+
+/**
+ * @name: phoneReg
+ * @description: 手机正则校验
+ * @return RegExp
+ */
+const phoneReg = new RegExp(
+  /^134[0-8]\d{7}$|^13[^4]\d{8}$|^14[5-9]\d{8}$|^15[^4]\d{8}$|^16[6]\d{8}$|^17[0-8]\d{8}$|^18[\d]{9}$|^19[1,8,9]\d{8}$/
+);
+export { phoneReg };

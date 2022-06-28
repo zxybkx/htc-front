@@ -1,10 +1,10 @@
 /**
- * @Description:账单推送历史记录
+ * @Description: 账单推送历史记录
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-09-13 16:23:22
- * @LastEditTime:
- * @Copyright: Copyright (c) 2020, Hand
+ * @LastEditTime: 2022-06-21 13:42
+ * @Copyright: Copyright (c) 2021, Hand
  */
 import React, { Component } from 'react';
 import { DataSet, Table } from 'choerodon-ui/pro';
@@ -14,7 +14,7 @@ import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
-import { routerRedux } from 'dva/router';
+import { RouteComponentProps } from 'react-router-dom';
 import queryString from 'query-string';
 import intl from 'utils/intl';
 import withProps from 'utils/withProps';
@@ -22,7 +22,7 @@ import BillPushHistoryDS from '../stores/BillPushHistoryDS';
 
 const modelCode = 'chan.bill-push-history';
 
-interface BillPushHistoryPageProps {
+interface BillPushHistoryPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   tableDS: DataSet;
 }
@@ -39,20 +39,34 @@ interface BillPushHistoryPageProps {
   { cacheState: true }
 )
 export default class BillPushHistoryPage extends Component<BillPushHistoryPageProps> {
+  /**
+   * 详情跳转
+   * @params {string} fileUrl-行的fileUrl
+   */
   @Bind()
   handleGotoBillPage(fileUrl) {
-    const { dispatch } = this.props;
-    const pathname = '/htc-front-chan/bill-push-history/billViewPage';
-    dispatch(
-      routerRedux.push({
-        pathname,
-        search: queryString.stringify({
-          fileUrlInfo: encodeURIComponent(JSON.stringify({ fileUrl })),
-        }),
-      })
-    );
+    const { history } = this.props;
+    const pathname = '/htc-front-chan/bill-push-history/bill-view-page';
+    history.push({
+      pathname,
+      search: queryString.stringify({
+        fileUrlInfo: encodeURIComponent(JSON.stringify({ fileUrl })),
+      }),
+    });
+    // dispatch(
+    //   routerRedux.push({
+    //     pathname,
+    //     search: queryString.stringify({
+    //       fileUrlInfo: encodeURIComponent(JSON.stringify({ fileUrl })),
+    //     }),
+    //   })
+    // );
   }
 
+  /**
+   * 返回表格行
+   * @returns {*[]}
+   */
   get columns(): ColumnProps[] {
     return [
       {

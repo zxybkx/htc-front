@@ -1,0 +1,116 @@
+.header {
+  background-color: #fff;
+  height: 0.8rem;
+  margin-top: 0.06rem;
+  padding-top: 0.08rem;
+
+  :global {
+    .c7n-pro-form .c7n-pro-output {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 1.5rem;
+    }
+    .c7n-pro-form.c7n-pro-form-horizontal table tbody tr td {
+      padding-bottom: 0;
+    }
+  }
+}
+
+.companyList {
+  height: ~'calc(100% - 200px)';
+  overflow-y: auto;
+  overflow-x: hidden;
+  :global {
+    .c7n-pro-table-row .c7n-pro-table-cell-inner-row-height-fixed {
+      white-space: normal;
+      word-wrap: break-word;
+    }
+    .c7n-pro-table-wrapper .c7n-pro-table.c7n-pro-table-bordered {
+      border: none !important;
+    }
+    .c7n-pro-table-wrapper
+      .c7n-pro-table
+      .c7n-pro-table-content
+      .c7n-pro-table-row
+      .c7n-pro-table-cell {
+      border: none !important;
+    }
+  }
+}
+
+.topTitle {
+  margin-bottom: 0.1rem;
+  .topName {
+    font-size: 16px;
+    color: #262626;
+    background: #f0f0f0;
+    padding: 5px 5px;
+    border-radius: 4px;
+  }
+  button {
+    margin-left: 0.2rem;
+    margin-bottom: 0.05rem;
+  }
+  .icon {
+    margin-left: 0.1rem;
+    margin-bottom: 0.05rem;
+    color: #4490ff;
+  }
+}
+
+.tabsTitle {
+  height: ~'calc(100%)-100';
+  :global {
+    .c7n-tabs-nav .c7n-tabs-tab-active {
+      color: #357be1;
+    }
+    .c7n-tabs-ink-bar {
+      background-color: #357be1;
+    }
+    .c7n-tabs-nav .c7n-tabs-tab:hover {
+      color: #357be1;
+    }
+  }
+}
+
+.tableTh {
+  :global {
+    .c7n-pro-table-cell {
+      padding: 0 !important;
+    }
+  }
+}
+
+.headerCell {
+  // 画三角形
+  border-top: 43px #f7f7f7 solid;
+  border-left: 226px #f7f7f7 solid;
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    width: 1px;
+    height: 238px;
+    top: -118px;
+    left: -118px;
+    background-color: #d5dae0;
+    display: block;
+    transform: rotate(-68deg);
+  }
+}
+
+//.leftTitle {
+//  position: absolute;
+//  top: -60px;
+//  left: -100px;
+//  width: 60px;
+//  color: #666666;
+//}
+//.before {
+//  position: absolute;
+//  top: -24px;
+//  left: -215px;
+//  width: 60px;
+//  color: #666666;
+//}

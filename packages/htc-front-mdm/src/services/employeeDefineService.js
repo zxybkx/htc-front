@@ -1,14 +1,14 @@
 /**
- * service - 员工维护
- * @Author:Mawenqi <wenqi.ma@hand-china.com>
+ * @Description: 员工维护
+ * @Author: Mawenqi <wenqi.ma@hand-china.com>
  * @Date: 2020-06-29
  * @LastEditeTime: 2020-06-29
  * @Copyright: Copyright (c) 2020, Hand
  */
 import request from 'utils/request';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 
-const HMDM_API = commonConfig.MDM_API;
+const HMDM_API = commonConfig.MDM_API || '';
 
 /**
  * 员工信息维护批量创建或更新
@@ -28,7 +28,7 @@ export async function saveAndCreateAccount(params) {
 /**
  * 修改员工手机号创建子账户
  * @async
- * @function saveAndCreateAccount
+ * @function saveMobileAndCreateAccount
  * @returns {object} fetch Promise
  */
 export async function saveMobileAndCreateAccount(params) {
@@ -42,7 +42,7 @@ export async function saveMobileAndCreateAccount(params) {
 /**
  * 员工信息禁用
  * @async
- * @function saveAndCreateAccount
+ * @function batchForbiddenEmployee
  * @returns {object} fetch Promise
  */
 export async function batchForbiddenEmployee(params) {

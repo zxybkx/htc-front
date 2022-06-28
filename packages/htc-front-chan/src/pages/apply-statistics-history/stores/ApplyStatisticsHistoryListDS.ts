@@ -1,17 +1,22 @@
-import commonConfig from '@common/config/commonConfig';
+/**
+ * @Description: 发票申请统计历史记录
+ * @version: 1.0
+ * @Author: yang.wang04@hand-china.com
+ * @Date: 2020-09-14 09:10:12
+ * @LastEditTime: 2021-10-28 15:22:10
+ * @Copyright: Copyright (c) 2020, Hand
+ */
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
-// import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import moment from 'moment';
-import { isUndefined } from 'util';
 
 const modelCode = 'hcan.apply-statistics-history';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.CHAN_API || '';
-  // const tenantId = getCurrentOrganizationId();
 
   return {
     transport: {
@@ -103,16 +108,17 @@ export default (): DataSetProps => {
         type: FieldType.object,
         lovCode: 'HMDM.COMPANY_INFO_SITE',
         ignore: FieldIgnore.always,
-        dynamicProps: {
-          lovPara: ({ record }) => {
-            if (!isUndefined(record.get('tenantId'))) {
-              return { organizationId: record.get('tenantId') };
-            }
-          },
-          disabled: ({ record }) => {
-            return isUndefined(record.get('tenantId'));
-          },
-        },
+        cascadeMap: { organizationId: 'tenantId' },
+        // computedProps: {
+        //   lovPara: ({ record }) => {
+        //     if (!isUndefined(record.get('tenantId'))) {
+        //       return { organizationId: record.get('tenantId') };
+        //     }
+        //   },
+        //   disabled: ({ record }) => {
+        //     return isUndefined(record.get('tenantId'));
+        //   },
+        // },
       },
       {
         name: 'companyCode',

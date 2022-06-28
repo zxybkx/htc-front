@@ -1,0 +1,28 @@
+.main {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  .label {
+    width: 426px;
+    margin-left: 148px;
+    display: block;
+    background: #dbeeff;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.85);
+    padding: 0 12px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+    &::before {
+      display: inline-block;
+      margin-right: 0.02rem;
+      color: #d50000;
+      line-height: 1;
+      content: '*';
+    }
+  }
+  .form {
+    width: 576px;
+  }
+}

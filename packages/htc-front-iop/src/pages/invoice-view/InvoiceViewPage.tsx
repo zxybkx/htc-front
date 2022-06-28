@@ -1,32 +1,39 @@
+/**
+ * @Description:发票预览
+ * @version: 1.0
+ * @Author: yang.wang04@hand-china.com
+ * @Date: 2020-12-15 16:31:57
+ * @LastEditTime: 2021-03-10 17:57:04
+ * @Copyright: Copyright (c) 2020, Hand
+ */
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
 import intl from 'utils/intl';
-import { routerRedux } from 'dva/router';
 import { observer } from 'mobx-react-lite';
 import { Button as PermissionButton } from 'components/Permission';
 import formatterCollections from 'utils/intl/formatterCollections';
-import { getPresentMenu } from '@common/utils/utils';
-import { DataSet, Button, Spin, notification } from 'choerodon-ui/pro';
-import { Row, Col } from 'choerodon-ui';
+import { getPresentMenu } from '@htccommon/utils/utils';
+import { Button, DataSet, notification, Spin } from 'choerodon-ui/pro';
+import { Col, Row } from 'choerodon-ui';
 import { Bind } from 'lodash-decorators';
 import Viewer from 'react-viewer';
 import { FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import moment from 'moment';
 import 'react-viewer/dist/index.css';
 import { HZERO_FILE } from 'utils/config';
-import { getCurrentOrganizationId, getAccessToken, getResponse } from 'utils/utils';
+import { getAccessToken, getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { urlTojpg } from '@src/services/invoiceOrderService';
 import InvoiceViewDS from './stores/InvoiceViewDS';
 
-const modelCode = 'hiop.invoice-view';
 const tenantId = getCurrentOrganizationId();
 const permissionPath = `${getPresentMenu().name}.ps`;
 
 interface RouterInfo {
   sourceType: string;
+  invoiceSourceType: string;
   headerId: string;
   employeeId: string;
 }
@@ -36,7 +43,7 @@ interface InvoiceViewPageProps extends RouteComponentProps<RouterInfo> {
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: ['hiop.invoiceView', 'hiop.invoiceWorkbench'],
 })
 @connect()
 export default class InvoiceViewPage extends Component<InvoiceViewPageProps> {
@@ -53,28 +60,36 @@ export default class InvoiceViewPage extends Component<InvoiceViewPageProps> {
     ...InvoiceViewDS(this.props.match.params),
   });
 
+  /**
+   * 获取图片数据
+   */
   @Bind()
   async getState() {
     const recordType = this.queryDS.current && this.queryDS.current.get('downloadFileType');
     let curImgUrl = this.queryDS.current && this.queryDS.current.get('downloadUrl');
-    const curUrlDescription = this.queryDS.current && this.queryDS.current.get('downloadUrlDescription');
+    const curUrlDescription =
+      this.queryDS.current && this.queryDS.current.get('downloadUrlDescription');
     const companyCode = this.queryDS.current && this.queryDS.current.get('companyCode');
     const employeeNumber = this.queryDS.current && this.queryDS.current.get('employeeNumber');
     const billingType = this.queryDS.current && this.queryDS.current.get('billingType');
-    if(billingType!==3){
+    if (billingType !== 3) {
       // 当为空白废时不提示 1->蓝字发票 2->红字发票 3->空白废 4->蓝废 5->红废
       if (curUrlDescription) {
         return notification.error({
           description: '',
           placement: 'bottomRight',
-          message: intl.get(`${modelCode}.view.preview`).d('获取局端文件异常，请联系系统管理员'),
+          message: intl
+            .get('hiop.invoiceView.notification.error.getFile')
+            .d('获取局端文件异常，请联系系统管理员'),
         });
       }
       if (!curImgUrl) {
         return notification.warning({
           description: '',
           placement: 'bottomRight',
-          message: intl.get(`${modelCode}.view.preview`).d('获取局端文件中，请稍后重试'),
+          message: intl
+            .get('hiop.invoiceView.notification.message.fileLoading')
+            .d('获取局端文件中，请稍后重试'),
         });
       }
     }
@@ -119,22 +134,32 @@ export default class InvoiceViewPage extends Component<InvoiceViewPageProps> {
     });
   }
 
-  // 上一张
+  /**
+   * 上一张回调
+   */
   handleShowLast = () => {
     this.queryDS.pre();
     this.getState();
   };
 
-  // 上一张
+  /**
+   * 下一张回调
+   */
   handleShowNext = () => {
     this.queryDS.next();
     this.getState();
   };
 
+  /**
+   * 设置大图元素展示状态
+   */
   setViewerVisible = () => {
     this.setState({ viewerVisible: false });
   };
 
+  /**
+   * 渲染图片
+   */
   renderArchives = () => {
     const { curImgUrl, recordType, viewerVisible, fileName } = this.state;
     if (curImgUrl) {
@@ -188,45 +213,51 @@ export default class InvoiceViewPage extends Component<InvoiceViewPageProps> {
     return <div />;
   };
 
-  // 红冲申请
+  /**
+   * 红冲申请
+   */
   handleInvoiceRed = () => {
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const invoicingOrderHeaderId = this.queryDS.current!.get('invoicingOrderHeaderId');
     const companyId = this.queryDS.current!.get('companyId');
-    dispatch(
-      routerRedux.push({
-        pathname: `/htc-front-iop/invoice-req/invoiceRedFlush/REQUEST/${invoicingOrderHeaderId}/${companyId}`,
-      })
+    history.push(
+      `/htc-front-iop/invoice-req/invoice-red-flush/REQUEST/${invoicingOrderHeaderId}/${companyId}`
     );
   };
 
-  // 作废申请
+  /**
+   * 作废申请
+   */
   handleInvoiceVoid = () => {
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const invoiceVariety = this.queryDS.current!.get('invoiceVariety');
     const invoicingOrderHeaderId = this.queryDS.current!.get('invoicingOrderHeaderId');
     const companyId = this.queryDS.current!.get('companyId');
     if (invoiceVariety === '51' || invoiceVariety === '52') {
       notification.warning({
-        message: intl.get(`${modelCode}.view.submitInvalid`).d('非纸质发票不可进行作废操作'),
+        message: intl
+          .get('hiop.invoiceView.notification.message.submitInvalid')
+          .d('非纸质发票不可进行作废操作'),
         description: '',
       });
     } else {
-      dispatch(
-        routerRedux.push({
-          pathname: `/htc-front-iop/invoice-req/invoice-void/REQUEST/${invoicingOrderHeaderId}/${companyId}`,
-        })
+      history.push(
+        `/htc-front-iop/invoice-req/invoice-void/REQUEST/${invoicingOrderHeaderId}/${companyId}`
       );
     }
   };
 
+  /**
+   * 返回表格头按钮
+   * @return {*[]}
+   */
   renderHeaderButtons = () => {
-    const { sourceType } = this.props.match.params;
+    const { sourceType, invoiceSourceType } = this.props.match.params;
     const lastRec = this.queryDS.currentIndex < 0 ? 0 : this.queryDS.currentIndex;
     const headerBtns: JSX.Element[] = [];
     const VoidButtons = observer((props: any) => {
       const invoiceDate = props.dataSet.current && props.dataSet.current!.get('invoiceDate');
-      const invoiceSourceType =
+      const invoiceSourceTypeFormDS =
         props.dataSet.current && props.dataSet.current!.get('invoiceSourceType');
       const invoiceVariety = props.dataSet.current && props.dataSet.current!.get('invoiceVariety');
       const date = invoiceDate && invoiceDate.substring(0, 7);
@@ -234,9 +265,8 @@ export default class InvoiceViewPage extends Component<InvoiceViewPageProps> {
       let isDisabled = true;
       if (
         date === currentDate &&
-        invoiceVariety !== '51' &&
-        invoiceVariety !== '52' &&
-        (invoiceSourceType === 'APPLY' || invoiceSourceType === 'RED_MARK')
+        !['51', '52'].includes(invoiceVariety) &&
+        ['APPLY', 'RED_MARK'].includes(invoiceSourceTypeFormDS)
       ) {
         isDisabled = false;
       }
@@ -260,9 +290,9 @@ export default class InvoiceViewPage extends Component<InvoiceViewPageProps> {
       );
     });
     const RedButtons = observer((props: any) => {
-      const invoiceSourceType =
+      const invoiceSourceTypeFormDS =
         props.dataSet.current && props.dataSet.current!.get('invoiceSourceType');
-      const isDisabled = invoiceSourceType === 'RED_MARK';
+      const isDisabled = invoiceSourceTypeFormDS === 'RED_MARK';
       return (
         <PermissionButton
           type="c7n-pro"
@@ -288,7 +318,7 @@ export default class InvoiceViewPage extends Component<InvoiceViewPageProps> {
           onClick={() => this.handleShowNext()}
           disabled={!this.queryDS.length || this.queryDS.currentIndex + 1 === this.queryDS.length}
         >
-          {intl.get(`${modelCode}.button.next`).d('下一张')}({this.queryDS.currentIndex + 2})
+          {intl.get('hiop.invoiceView.button.next').d('下一张')}({this.queryDS.currentIndex + 2})
         </Button>
       );
       headerBtns.push(
@@ -298,29 +328,33 @@ export default class InvoiceViewPage extends Component<InvoiceViewPageProps> {
       );
       headerBtns.push(
         <Button onClick={() => this.handleShowLast()} disabled={lastRec < 1}>
-          {intl.get(`${modelCode}.button.last`).d('上一张')}({lastRec})
+          {intl.get('hiop.invoiceView.button.last').d('上一张')}({lastRec})
         </Button>
       );
-      headerBtns.push(
-        <RedButtons
-          key="invoiceViewRedFlush"
-          onClick={() => this.handleInvoiceRed()}
-          dataSet={this.queryDS}
-          title={intl.get(`${modelCode}.button.invoiceRedFlush`).d('红冲申请')}
-          permissionCode="invoice-view-red"
-          permissionMeaning="按钮-红冲申请"
-        />
-      );
-      headerBtns.push(
-        <VoidButtons
-          key="invoiceViewVoid"
-          onClick={() => this.handleInvoiceVoid()}
-          dataSet={this.queryDS}
-          title={intl.get(`${modelCode}.button.invoiceVoid`).d('作废申请')}
-          permissionCode="invoice-view-void"
-          permissionMeaning="按钮-作废申请"
-        />
-      );
+      if (!['8', '10'].includes(invoiceSourceType)) {
+        headerBtns.push(
+          <VoidButtons
+            key="invoiceViewVoid"
+            onClick={() => this.handleInvoiceVoid()}
+            dataSet={this.queryDS}
+            title={intl.get('hiop.invoiceView.button.invoiceVoid').d('作废申请')}
+            permissionCode="invoice-view-void"
+            permissionMeaning="按钮-作废申请"
+          />
+        );
+      }
+      if (!['7', '8', '10'].includes(invoiceSourceType)) {
+        headerBtns.push(
+          <RedButtons
+            key="invoiceViewRedFlush"
+            onClick={() => this.handleInvoiceRed()}
+            dataSet={this.queryDS}
+            title={intl.get('hiop.invoiceView.button.invoiceRedFlush').d('红冲申请')}
+            permissionCode="invoice-view-red"
+            permissionMeaning="按钮-红冲申请"
+          />
+        );
+      }
     }
     return headerBtns;
   };
@@ -330,7 +364,7 @@ export default class InvoiceViewPage extends Component<InvoiceViewPageProps> {
     return (
       <>
         <Header
-          title={intl.get(`${modelCode}.title`).d('发票预览')}
+          title={intl.get('hiop.invoiceView.title.invoiceView').d('发票预览')}
           backPath={backPath || this.props.history.goBack}
         >
           {this.renderHeaderButtons()}

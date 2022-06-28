@@ -88,8 +88,8 @@
     "paths": {
       "components/*": ["./node_modules/hzero-front/lib/components/*",  "../../node_modules/hzero-front/lib/components/*", "./../../../node_modules/hzero-front/lib/components/*", "./../../../../../node_modules/hzero-front/lib/components/*"],
       "utils/*": ["./node_modules/hzero-front/lib/utils/*", "../../node_modules/hzero-front/lib/utils/*", "./../../../node_modules/hzero-front/lib/utils/*", "./../../../../../node_modules/hzero-front/lib/utils/*"],
-      
-      "@common/*": ["./packages/htc-front-common/lib/*", "../htc-front-common/lib/*"],
+
+      "@htccommon/*": ["./packages/htc-front-common/lib/*", "../htc-front-common/lib/*"],
       "@src/*": ["./src/*", "./node_modules/hzero-front/lib/*"]
     }
   },

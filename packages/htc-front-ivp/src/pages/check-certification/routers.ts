@@ -21,6 +21,16 @@ const config: RoutersConfig = [
         path: '/htc-front-ivp/check-certification/certifiableInvoice/detail',
         component: () => import('./detail/CertifiedDetailPage'),
       },
+      {
+        //  申请抵扣统计
+        path: '/htc-front-ivp/check-certification/applyDeduction',
+        component: () => import('./detail/ApplyDeductionReport'),
+      },
+      {
+        //  认证结果统计
+        path: '/htc-front-ivp/check-certification/certificationResults',
+        component: () => import('./detail/CertificationResultsReport'),
+      },
     ],
   },
 ];

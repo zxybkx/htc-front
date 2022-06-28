@@ -1,18 +1,18 @@
 /**
- * companyList - 公司列表
+ * Description: 公司列表
  * @Author: jesse.chen <jun.chen01@hand-china.com>
  * @Date: 2020-06-29
  * @LastEditeTime: 2020-06-29
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
-import { FieldType, DataSetSelection, FieldIgnore } from 'choerodon-ui/pro/lib/data-set/enum';
+import { DataSetSelection, FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import moment from 'moment';
+import commonConfig from '@htccommon/config/commonConfig';
 
 const modelCode = 'hmdm.company-list';
 
@@ -59,6 +59,11 @@ export default (): DataSetProps => {
         };
       },
     },
+    events: {
+      submitSuccess: ({ dataSet }) => {
+        dataSet.query();
+      },
+    },
     pageSize: 10,
     selection: DataSetSelection.multiple,
     primaryKey: 'companyId',
@@ -68,10 +73,22 @@ export default (): DataSetProps => {
         type: FieldType.number,
       },
       {
+        name: 'companyInfo',
+        label: intl.get(`${modelCode}.view.companyCode`).d('公司信息'),
+        type: FieldType.object,
+        ignore: FieldIgnore.always,
+      },
+      {
         name: 'companyCode',
         label: intl.get(`${modelCode}.view.companyCode`).d('公司代码'),
         type: FieldType.string,
         required: true,
+      },
+      {
+        name: 'companyNameInfo',
+        label: intl.get(`${modelCode}.view.companyNameInfo`).d('公司名称'),
+        type: FieldType.object,
+        ignore: FieldIgnore.always,
       },
       {
         name: 'companyName',
@@ -104,6 +121,12 @@ export default (): DataSetProps => {
         required: true,
       },
       {
+        name: 'competentTaxAuthoritiesInfo',
+        label: intl.get(`${modelCode}.view.competentTaxAuthorities`).d('主管税务机关代码/名称'),
+        type: FieldType.object,
+        ignore: FieldIgnore.always,
+      },
+      {
         name: 'competentTaxAuthoritiesObject',
         label: intl.get(`${modelCode}.view.competentTaxAuthorities`).d('主管税务机关代码'),
         type: FieldType.object,
@@ -124,12 +147,18 @@ export default (): DataSetProps => {
       },
       {
         name: 'enabledFlag',
-        label: intl.get(`${modelCode}.view.enabledFlag`).d('是否启用'),
+        label: intl.get(`${modelCode}.view.enabledFlag`).d('公司状态'),
         type: FieldType.number,
         falseValue: 0,
         trueValue: 1,
         defaultValue: 1,
         lookupCode: 'HPFM.ENABLED_FLAG',
+      },
+      {
+        name: 'dateInfo',
+        label: intl.get(`${modelCode}.view.startDate`).d('创建日期/修改日期'),
+        type: FieldType.object,
+        ignore: FieldIgnore.always,
       },
       {
         name: 'startDate',
@@ -170,6 +199,11 @@ export default (): DataSetProps => {
         name: 'companyId',
         type: FieldType.number,
         bind: `companyNameObject.companyId`,
+      },
+      {
+        name: 'taxpayerNumber',
+        label: intl.get(`${modelCode}.view.taxpayerNumber`).d('纳税识别号'),
+        type: FieldType.string,
       },
       {
         name: 'enabledFlag',

@@ -1,19 +1,17 @@
-/*
- * @Descripttion:发票头
+/**
+ * @Description: 数据权限分配
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 11:54:42
  * @LastEditTime: 2021-03-08 13:57:25
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
-import { FieldType, FieldIgnore } from 'choerodon-ui/pro/lib/data-set/enum';
+import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
-
-const modelCode = 'hiop.permisssion-assign';
 
 export default (companyId): DataSetProps => {
   const API_PREFIX = commonConfig.IOP_API || '';
@@ -51,53 +49,53 @@ export default (companyId): DataSetProps => {
       },
       {
         name: 'companyName',
-        label: intl.get(`${modelCode}.view.companyName`).d('所属公司'),
+        label: intl.get('htc.common.label.companyName').d('所属公司'),
         type: FieldType.string,
       },
       {
         name: 'employeeName',
-        label: intl.get(`${modelCode}.view.employeeName`).d('登录员工'),
+        label: intl.get('htc.common.modal.employeeDesc').d('登录员工'),
         type: FieldType.string,
       },
       {
         name: 'creationName',
-        label: intl.get(`${modelCode}.view.creationName`).d('创建人'),
+        label: intl.get('hiop.invoiceWorkbench.modal.founder').d('创建人'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'auditName',
-        label: intl.get(`${modelCode}.view.auditName`).d('审核人'),
+        label: intl.get('hiop.invoiceWorkbench.modal.submitterName').d('审核人'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'issuerame',
-        label: intl.get(`${modelCode}.view.issuerame`).d('开票人'),
+        label: intl.get('hiop.invoiceWorkbench.modal.issuerName').d('开票人'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'payeeName',
-        label: intl.get(`${modelCode}.view.payeeName`).d('收款人'),
+        label: intl.get('hiop.invoiceWorkbench.modal.payeeName').d('收款人'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'reviewer',
-        label: intl.get(`${modelCode}.view.reviewer`).d('复核'),
+        label: intl.get('hiop.invoiceWorkbench.modal.reviewerName').d('复核'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'whiteList',
-        label: intl.get(`${modelCode}.view.whiteList`).d('白名单'),
+        label: intl.get('hiop.permission.modal.whiteList').d('白名单'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'invoicePermissions',
-        label: intl.get(`${modelCode}.view.assign`).d('分配'),
+        label: intl.get('hiop.permission.modal.assign').d('分配'),
         type: FieldType.object,
         lovCode: 'HMDM.EMPLOYEE_NAME',
         // ignore: FieldIgnore.always,

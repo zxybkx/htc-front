@@ -1,5 +1,5 @@
-/*
- * @Descripttion:
+/**
+ * @Description: 开票规则页面
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:24:32

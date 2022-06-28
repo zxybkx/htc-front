@@ -6,7 +6,7 @@
  * @LastEditTime:
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
@@ -16,14 +16,16 @@ import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import moment from 'moment';
 import { DataSet } from 'choerodon-ui/pro';
 
-const modelCode = 'hivp.check-certification';
+const modelCode = 'hivp.checkCertification';
 
 const validTaxAmountValidator = (value, name, record) => {
   if (value && name && record) {
     // 发票税额
     const taxAmount = record.getField('taxAmount')?.getValue() || 0;
     if (value < 0 || value > taxAmount) {
-      return '有效税额必须大于0且小于发票税额';
+      return intl
+        .get(`${modelCode}.notice.taxAmountMessageNotice`)
+        .d('有效税额必须大于0且小于发票税额');
     }
   }
   return undefined;
@@ -147,13 +149,13 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceType',
-        label: intl.get(`${modelCode}.view.invoiceType`).d('发票类型'),
+        label: intl.get('htc.common.view.invoiceType').d('发票类型'),
         type: FieldType.string,
         lookupCode: 'HIVC.INVOICE_TYPE',
       },
       {
         name: 'invoiceCode',
-        label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
+        label: intl.get('htc.common.view.invoiceCode').d('发票代码'),
         type: FieldType.string,
         required: true,
       },
@@ -165,29 +167,29 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceDate',
-        label: intl.get(`${modelCode}.view.invoiceDate`).d('开票日期'),
+        label: intl.get('htc.common.view.invoiceDate').d('开票日期'),
         type: FieldType.date,
         required: true,
         transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'buyerTaxNo',
-        label: intl.get(`${modelCode}.view.buyerTaxNo`).d('购方纳税识别号'),
+        label: intl.get('htc.common.view.buyerTaxNo').d('购方税号'),
         type: FieldType.string,
       },
       {
         name: 'salerName',
-        label: intl.get(`${modelCode}.view.salerName`).d('销方名称'),
+        label: intl.get('htc.common.view.salerName').d('销方名称'),
         type: FieldType.string,
       },
       {
         name: 'salerTaxNo',
-        label: intl.get(`${modelCode}.view.salerTaxNo`).d('销方纳税识别号'),
+        label: intl.get('htc.common.view.salerTaxNo').d('销方税号'),
         type: FieldType.string,
       },
       {
         name: 'invoiceAmount',
-        label: intl.get(`${modelCode}.view.invoiceAmount`).d('发票金额'),
+        label: intl.get('htc.common.view.invoiceAmount').d('发票金额'),
         type: FieldType.currency,
         required: true,
       },
@@ -198,30 +200,31 @@ export default (): DataSetProps => {
       },
       {
         name: 'validTaxAmount',
-        label: intl.get(`${modelCode}.view.validTaxAmount`).d('有效税额'),
+        label: intl.get('hivp.bill.view.EffectiveTax').d('有效税额'),
         type: FieldType.currency,
         validator: (value, name, record) =>
           new Promise((reject) => reject(validTaxAmountValidator(value, name, record))),
       },
       {
         name: 'invoiceState',
-        label: intl.get(`${modelCode}.view.invoiceState`).d('发票状态'),
+        label: intl.get('hivp.batchCheck.view.invoiceState').d('发票状态'),
         type: FieldType.string,
         lookupCode: 'HMDM.INVOICE_STATE',
       },
       {
         name: 'isPoolFlag',
-        label: intl.get(`${modelCode}.view.invoiceState`).d('是否已入池'),
+        label: intl.get(`${modelCode}.view.enteredThePool`).d('是否已入池'),
         type: FieldType.string,
+        lookupCode: 'HTC.HIVP.ISPOOL_FLAG',
       },
       {
         name: 'checkDate',
-        label: intl.get(`${modelCode}.view.checkDate`).d('勾选时间'),
+        label: intl.get(`${modelCode}.view.checkTime`).d('勾选时间'),
         type: FieldType.string,
       },
       {
         name: 'authenticationState',
-        label: intl.get(`${modelCode}.view.authenticationState`).d('认证状态'),
+        label: intl.get(`${modelCode}.view.currentCertState`).d('认证状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.CERTIFICATION_STATE',
       },
@@ -239,7 +242,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'taxBureauManageState',
-        label: intl.get(`${modelCode}.view.taxBureauManageState`).d('管理状态'),
+        label: intl.get('hivp.bill.view.taxBureauManageState').d('管理状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.SAT_MANAGEMENT_STATE',
       },
@@ -257,7 +260,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'entryAccountState',
-        label: intl.get(`${modelCode}.view.entryAccountState`).d('入账状态'),
+        label: intl.get('hivp.bill.view.entryAccountState').d('入账状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.ACCOUNT_STATE',
       },
@@ -286,22 +289,22 @@ export default (): DataSetProps => {
       // },
       {
         name: 'batchNumber',
-        label: intl.get(`${modelCode}.view.batchNumber`).d('批次号'),
+        label: intl.get('hiop.redInvoiceInfo.modal.batchNo').d('批次号'),
         type: FieldType.string,
       },
       {
         name: 'failedDetail',
-        label: intl.get(`${modelCode}.view.failedDetail`).d('失败原因'),
+        label: intl.get('hivp.taxRefund.view.message.sync.cause').d('失败原因'),
         type: FieldType.string,
       },
       {
         name: 'requestTime',
-        label: intl.get(`${modelCode}.view.requestTime`).d('请求时间'),
+        label: intl.get('hiop.redInvoiceInfo.modal.requestTime').d('请求时间'),
         type: FieldType.string,
       },
       {
         name: 'completedTime',
-        label: intl.get(`${modelCode}.view.completedTime`).d('完成时间'),
+        label: intl.get('hiop.redInvoiceInfo.modal.completeTime').d('完成时间'),
         type: FieldType.string,
       },
     ],
@@ -309,7 +312,7 @@ export default (): DataSetProps => {
       fields: [
         {
           name: 'companyObj',
-          label: intl.get(`${modelCode}.view.companyObj`).d('所属公司'),
+          label: intl.get('htc.common.modal.CompanyName').d('所属公司'),
           type: FieldType.object,
           ignore: FieldIgnore.always,
         },
@@ -320,13 +323,13 @@ export default (): DataSetProps => {
         },
         {
           name: 'companyCode',
-          label: intl.get(`${modelCode}.view.companyCode`).d('公司代码'),
+          label: intl.get('htc.common.modal.companyCode').d('公司代码'),
           type: FieldType.string,
           bind: 'companyObj.companyCode',
         },
         {
           name: 'employeeNumber',
-          label: intl.get(`${modelCode}.view.employeeNumber`).d('员工编号'),
+          label: intl.get('hiop.redInvoiceInfo.modal.employeeNum').d('员工编号'),
           type: FieldType.string,
           bind: 'companyObj.employeeNum',
         },
@@ -337,17 +340,16 @@ export default (): DataSetProps => {
         },
         {
           name: 'currentPeriod',
-          label: intl.get(`${modelCode}.view.currentPeriod`).d('当前所属期'),
+          label: intl.get('hivp.taxRefund.view.tjyf').d('当前所属期'),
           type: FieldType.string,
           readOnly: true,
           required: true,
-          ignore: FieldIgnore.always,
         },
         {
           name: 'currentOperationalDeadline',
           label: intl.get(`${modelCode}.view.currentOperationalDeadline`).d('当前可操作截止时间'),
           labelWidth: '130',
-          type: FieldType.dateTime,
+          type: FieldType.string,
           transformRequest: (value) => moment(value).format('YYYY-MM-DD'),
           readOnly: true,
           ignore: FieldIgnore.always,
@@ -361,7 +363,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'currentCertState',
-          label: intl.get(`${modelCode}.view.currentCertState`).d('当前认证状态'),
+          label: intl.get('hivp.taxRefund.view.currentCertState').d('当前认证状态'),
           type: FieldType.string,
           lookupCode: 'HIVP.CHECK_CONFIRM_STATE',
           readOnly: true,
@@ -375,7 +377,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'invoiceCategory',
-          label: intl.get(`${modelCode}.view.invoiceCategory`).d('发票类别'),
+          label: intl.get('htc.common.view.invoiceType').d('发票类别'),
           type: FieldType.string,
           defaultValue: '01',
           lookupCode: 'HIVC.INVOICE_CATEGORY',
@@ -383,7 +385,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'invoiceCode',
-          label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
+          label: intl.get('htc.common.view.invoiceCode').d('发票代码'),
           type: FieldType.string,
         },
         {
@@ -394,14 +396,14 @@ export default (): DataSetProps => {
         },
         {
           name: 'invoiceDateFrom',
-          label: intl.get(`${modelCode}.view.invoiceCode`).d('开票日期从'),
+          label: intl.get('hivp.bill.view.invoiceDateFrom').d('开票日期从'),
           type: FieldType.date,
           max: 'invoiceDateTo',
           transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'invoiceDateTo',
-          label: intl.get(`${modelCode}.view.invoiceCode`).d('开票日期至'),
+          label: intl.get('hivp.bill.view.invoiceDateTo').d('开票日期至'),
           type: FieldType.date,
           min: 'invoiceDateFrom',
           transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
@@ -414,20 +416,20 @@ export default (): DataSetProps => {
         },
         {
           name: 'invoiceState',
-          label: intl.get(`${modelCode}.view.invoiceCode`).d('发票状态'),
+          label: intl.get('hivp.batchCheck.view.invoiceStatus').d('发票状态'),
           type: FieldType.string,
           defaultValue: '0',
           lookupCode: 'HMDM.INVOICE_STATE',
         },
         {
           name: 'invoiceType',
-          label: intl.get(`${modelCode}.view.invoiceCode`).d('发票类型'),
+          label: intl.get('htc.common.view.invoiceType').d('发票类型'),
           type: FieldType.string,
           lookupCode: 'HIVC.INVOICE_TYPE',
         },
         {
           name: 'number',
-          label: intl.get(`${modelCode}.view.number`).d('本次勾选'),
+          label: intl.get(`${modelCode}.view.CheckThisTime`).d('本次勾选'),
           type: FieldType.number,
           ignore: FieldIgnore.always,
           readOnly: true,
@@ -435,7 +437,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'amount',
-          label: intl.get(`${modelCode}.view.amount`).d('本次勾选金额'),
+          label: intl.get(`${modelCode}.view.TheAmountSelected`).d('本次勾选金额'),
           type: FieldType.currency,
           ignore: FieldIgnore.always,
           readOnly: true,
@@ -443,7 +445,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'taxAmount',
-          label: intl.get(`${modelCode}.view.taxAmount`).d('本次勾选税额'),
+          label: intl.get(`${modelCode}.view.taxselectedAmount`).d('本次勾选税额'),
           type: FieldType.currency,
           ignore: FieldIgnore.always,
           readOnly: true,
@@ -451,7 +453,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'validTaxAmount',
-          label: intl.get(`${modelCode}.view.validTaxAmount`).d('本次勾选有效税额'),
+          label: intl.get(`${modelCode}.view.checkEffectiveTaxAmount`).d('本次勾选有效税额'),
           type: FieldType.currency,
           ignore: FieldIgnore.always,
           readOnly: true,
@@ -460,8 +462,14 @@ export default (): DataSetProps => {
         },
         {
           name: 'authorityCode',
-          label: intl.get(`${modelCode}.view.authorityCode`).d('主管税务机关代码'),
+          label: intl.get('hiop.taxInfo.modal.taxAuthorityCode').d('主管税务机关代码'),
           type: FieldType.string,
+        },
+        {
+          name: 'isPoolFlag',
+          label: intl.get(`${modelCode}.view.enteredThePool`).d('是否已入池'),
+          type: FieldType.string,
+          lookupCode: 'HTC.HIVP.ISPOOL_FLAG',
         },
       ],
     }),

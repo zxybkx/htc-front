@@ -1,8 +1,15 @@
+/**
+ * @Description: 开票附加信息状态查询
+ * @Author: huishan.yu <huishan.yu@hand-china.com>
+ * @Date: 2021-09-06 10:26:45
+ * @LastEditors: huishan.yu
+ * @LastEditTime: 2021-09-06 16:56:45
+ * @Copyright: Copyright (c) 2020, Hand
+ */
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import intl from 'utils/intl';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
-import { isUndefined } from 'util';
 import { AxiosRequestConfig } from 'axios';
 import { getCurrentOrganizationId } from 'utils/utils';
 import moment from 'moment';
@@ -183,16 +190,17 @@ export default (): DataSetProps => {
         lovCode: 'HMDM.COMPANY_INFO_SITE',
         ignore: FieldIgnore.always,
         required: true,
-        dynamicProps: {
-          lovPara: ({ record }) => {
-            if (!isUndefined(record.get('tenantId'))) {
-              return { organizationId: record.get('tenantId') };
-            }
-          },
-          disabled: ({ record }) => {
-            return isUndefined(record.get('tenantId'));
-          },
-        },
+        cascadeMap: { organizationId: 'tenantId' },
+        // computedProps: {
+        //   lovPara: ({ record }) => {
+        //     if (!isUndefined(record.get('tenantId'))) {
+        //       return { organizationId: record.get('tenantId') };
+        //     }
+        //   },
+        //   disabled: ({ record }) => {
+        //     return isUndefined(record.get('tenantId'));
+        //   },
+        // },
       },
       {
         name: 'companyId',
@@ -249,6 +257,11 @@ export default (): DataSetProps => {
       {
         name: 'invoiceNo',
         label: intl.get(`${modelCode}.view.batchNo`).d('发票号码'),
+        type: FieldType.string,
+      },
+      {
+        name: 'refreshFlag',
+        label: intl.get(`${modelCode}.view.status`).d('状态查询'),
         type: FieldType.string,
       },
     ],

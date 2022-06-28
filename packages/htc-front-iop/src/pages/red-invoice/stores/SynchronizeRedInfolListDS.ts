@@ -3,21 +3,19 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-06-25 15:49:32
- * @LastEditTime:
+ * @LastEditTime: 2022-06-15 14:43:32
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
-import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
+import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import moment from 'moment';
 
-const modelCode = 'hiop.redInvoice';
-
 export default (): DataSetProps => {
-  const HIOP_API = `${commonConfig.IOP_API}`;
+  const HIOP_API = commonConfig.IOP_API || '';
   const organizationId = getCurrentOrganizationId();
   return {
     transport: {
@@ -36,92 +34,92 @@ export default (): DataSetProps => {
     },
     pageSize: 10,
     selection: false,
-    primaryKey: 'redInvoiceRequisitionOperationId',
+    primaryKey: 'redInvoiceApplynOptId',
     events: {},
     fields: [
       {
         name: 'batchNo',
-        label: intl.get(`${modelCode}.view.batchNo`).d('批次号'),
+        label: intl.get('hiop.redInvoiceInfo.modal.batchNo').d('批次号'),
         type: FieldType.string,
       },
       {
-        name: 'redInvoiceRequisitionOperationId',
+        name: 'redInvoiceApplynOptId',
         type: FieldType.number,
       },
       {
         name: 'businessNoticeNum',
-        label: intl.get(`${modelCode}.view.businessNoticeNum`).d('业务通知流水号'),
+        label: intl.get('hiop.redInvoiceInfo.modal.businessNoticeNum').d('业务通知流水号'),
         type: FieldType.string,
       },
       {
         name: 'state',
-        label: intl.get(`${modelCode}.view.state`).d('状态'),
+        label: intl.get('hiop.redInvoiceInfo.modal.state').d('状态'),
         type: FieldType.string,
         lookupCode: 'HIOP.STATUS_OF_GET_RED_REQNO',
       },
       {
         name: 'stateDescription',
-        label: intl.get(`${modelCode}.view.stateDescription`).d('状态描述'),
+        label: intl.get('hiop.invoiceWorkbench.modal.exceptionDesc').d('状态描述'),
         type: FieldType.string,
       },
       {
         name: 'redInvoiceDateFrom',
-        label: intl.get(`${modelCode}.view.redInvoiceDateFrom`).d('填开日期起'),
+        label: intl.get('hiop.redInvoiceInfo.modal.redInvoiceDateFrom').d('填开日期起'),
         transformResponse: (value) => value && moment(value, 'YYYY-MM-DD'),
         type: FieldType.string,
       },
       {
         name: 'redInvoiceDateTo',
-        label: intl.get(`${modelCode}.view.redInvoiceDateTo`).d('填开日期止'),
+        label: intl.get('hiop.redInvoiceInfo.modal.redInvoiceDateTo').d('填开日期止'),
         transformResponse: (value) => value && moment(value, 'YYYY-MM-DD'),
         type: FieldType.string,
       },
       {
         name: 'overdueStatus',
-        label: intl.get(`${modelCode}.view.overdueStatus`).d('逾期状态'),
+        label: intl.get('hiop.redInvoiceInfo.modal.overdueStatus').d('逾期状态'),
         type: FieldType.string,
         lookupCode: 'HIOP.LATE_STATUS',
       },
       {
         name: 'redInfoSerialNumber',
-        label: intl.get(`${modelCode}.view.redInfoSerialNumber`).d('信息表编号'),
+        label: intl.get('hiop.redInvoiceInfo.modal.redInfoSerialNumber').d('信息表编号'),
         type: FieldType.string,
       },
       {
         name: 'purchasersTaxNumber',
-        label: intl.get(`${modelCode}.view.purchasersTaxNumber`).d('购方税号'),
+        label: intl.get('hiop.redInvoiceInfo.modal.purchasersTaxNumber').d('购方税号'),
         type: FieldType.string,
       },
       {
         name: 'salesTaxNumber',
-        label: intl.get(`${modelCode}.view.salesTaxNumber`).d('销方税号'),
+        label: intl.get('hiop.redInvoiceInfo.modal.salesTaxNumber').d('销方税号'),
         type: FieldType.string,
       },
       {
         name: 'invoiceType',
-        label: intl.get(`${modelCode}.view.invoiceType`).d('发票种类'),
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
         type: FieldType.string,
         lookupCode: 'HIOP.SPECIAL_VAT_INVOICE_TYPE',
       },
       {
         name: 'downloadRange',
-        label: intl.get(`${modelCode}.view.downloadRange`).d('信息表下载范围'),
+        label: intl.get('hiop.redInvoiceInfo.modal.downloadRange').d('信息表下载范围'),
         type: FieldType.string,
         lookupCode: 'HIOP.RED_DOWNLOAD_SCOPE',
       },
       {
         name: 'requestTime',
-        label: intl.get(`${modelCode}.view.requestTime`).d('请求时间'),
+        label: intl.get('hiop.redInvoiceInfo.modal.requestTime').d('请求时间'),
         type: FieldType.string,
       },
       {
         name: 'completeTime',
-        label: intl.get(`${modelCode}.view.completeTime`).d('完成时间'),
+        label: intl.get('hiop.redInvoiceInfo.modal.completeTime').d('完成时间'),
         type: FieldType.string,
       },
       {
         name: 'employeeName',
-        label: intl.get(`${modelCode}.view.employeeName`).d('请求员工'),
+        label: intl.get('hiop.redInvoiceInfo.modal.employeeName').d('请求员工'),
         type: FieldType.string,
       },
     ],
@@ -137,12 +135,12 @@ const HeaderDS = (): DataSetProps => {
       },
       {
         name: 'companyName',
-        label: intl.get(`${modelCode}.view.companyName`).d('公司'),
+        label: intl.get('hiop.redInvoiceInfo.modal.companyName').d('公司'),
         type: FieldType.string,
       },
       {
         name: 'companyCode',
-        label: intl.get(`${modelCode}.view.companyCode`).d('公司代码'),
+        label: intl.get('htc.common.modal.companyCode').d('公司代码'),
         type: FieldType.string,
       },
       {
@@ -151,33 +149,39 @@ const HeaderDS = (): DataSetProps => {
       },
       {
         name: 'employeeDesc',
-        label: intl.get(`${modelCode}.view.employeeDesc`).d('登录员工'),
+        label: intl.get('htc.common.modal.employeeDesc').d('登录员工'),
         type: FieldType.string,
       },
       {
         name: 'employeeNum',
-        label: intl.get(`${modelCode}.view.employeeNum`).d('员工编号'),
         type: FieldType.string,
       },
       {
-        name: 'fromDate',
-        label: intl.get(`${modelCode}.view.fromDate`).d('填开时间起'),
+        name: 'fillDate',
+        label: intl.get('hiop.redInvoiceInfo.modal.redInvoiceDate').d('填开时间'),
         type: FieldType.dateTime,
-        max: 'untilDate',
-        defaultValue: moment(),
+        range: ['fromDate', 'untilDate'],
+        defaultValue: {
+          fromDate: moment(),
+          untilDate: moment(),
+        },
+        ignore: FieldIgnore.always,
+      },
+      {
+        name: 'fromDate',
+        type: FieldType.dateTime,
+        bind: 'fillDate.fromDate',
         transformRequest: (value) => value && moment(value).format('YYYYMMDD'),
       },
       {
         name: 'untilDate',
-        label: intl.get(`${modelCode}.view.untilDate`).d('填开时间止'),
         type: FieldType.dateTime,
-        min: 'fromDate',
-        defaultValue: moment(),
+        bind: 'fillDate.untilDate',
         transformRequest: (value) => value && moment(value).format('YYYYMMDD'),
       },
       {
         name: 'overdueStatus',
-        label: intl.get(`${modelCode}.view.overdueStatus`).d('逾期状态'),
+        label: intl.get('hiop.redInvoiceInfo.modal.overdueStatus').d('逾期状态'),
         type: FieldType.string,
         lookupCode: 'HIOP.LATE_STATUS',
         defaultValue: 'N',
@@ -185,22 +189,22 @@ const HeaderDS = (): DataSetProps => {
       },
       {
         name: 'informationSheetNumber',
-        label: intl.get(`${modelCode}.view.informationSheetNumber`).d('信息表编号'),
+        label: intl.get('hiop.redInvoiceInfo.modal.redInfoSerialNumber').d('信息表编号'),
         type: FieldType.string,
       },
       {
         name: 'purchasersTaxNumber',
-        label: intl.get(`${modelCode}.view.purchasersTaxNumber`).d('购方税号'),
+        label: intl.get('hiop.redInvoiceInfo.modal.purchasersTaxNumber').d('购方税号'),
         type: FieldType.string,
       },
       {
         name: 'salesTaxNumber',
-        label: intl.get(`${modelCode}.view.salesTaxNumber`).d('销方税号'),
+        label: intl.get('hiop.redInvoiceInfo.modal.salesTaxNumber').d('销方税号'),
         type: FieldType.string,
       },
       {
         name: 'invoiceType',
-        label: intl.get(`${modelCode}.view.invoiceType`).d('发票种类'),
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
         type: FieldType.string,
         lookupCode: 'HIOP.SPECIAL_VAT_INVOICE_TYPE',
         defaultValue: '0',
@@ -208,7 +212,7 @@ const HeaderDS = (): DataSetProps => {
       },
       {
         name: 'informationSheetDownloadRange',
-        label: intl.get(`${modelCode}.view.informationSheetDownloadRange`).d('信息表下载范围'),
+        label: intl.get('hiop.redInvoiceInfo.modal.downloadRange').d('信息表下载范围'),
         type: FieldType.string,
         lookupCode: 'HIOP.RED_DOWNLOAD_SCOPE',
         defaultValue: 0,

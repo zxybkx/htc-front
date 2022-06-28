@@ -1,9 +1,9 @@
-/*
- * @Descripttion:发票池-底账
+/**
+ * @Description:发票池-底账
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
- * @LastEditTime: 2021-03-04 15:54:47
+ * @LastEditTime: 2021-11-03 10:37:47
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -11,6 +11,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
 import { Bind } from 'lodash-decorators';
 import { Header, Content } from 'components/Page';
+import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import { DataSet, CheckBox, Form, Table, Output, notification } from 'choerodon-ui/pro';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
@@ -18,11 +19,12 @@ import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { Button as PermissionButton } from 'components/Permission';
-import { getPresentMenu } from '@common/utils/utils';
+import { getPresentMenu } from '@htccommon/utils/utils';
 import { pushToCustomer, pushToCollector } from '@src/services/invoicesService';
 import LayoutPushDS from '../stores/LayoutPushDS';
+import styles from './layoutPush.less';
 
-const modelCode = 'hivp.invoices.layoutPush';
+const modelCode = 'hivp.invoicesLayoutPush';
 const tenantId = getCurrentOrganizationId();
 const permissionPath = `${getPresentMenu().name}.ps`;
 
@@ -31,7 +33,14 @@ interface LayoutPushPageProps extends RouteComponentProps {
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: [
+    modelCode,
+    'hivp.invoicesFileArchive',
+    'htc.common',
+    'hivp.bill',
+    'hivp.batchCheck',
+    'hivp.checkCertification',
+  ],
 })
 export default class LayoutPushPage extends Component<LayoutPushPageProps> {
   state = {
@@ -78,7 +87,9 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
     if (selectedList.length === 0) {
       notification.info({
         description: '',
-        message: intl.get(`${modelCode}.view.selected`).d('请勾选需要处理的数据'),
+        message: intl
+          .get('hivp.invoicesFileArchive.view.selectedMessage')
+          .d('请勾选需要处理的数据'),
       });
       return;
     }
@@ -119,7 +130,9 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
     if (selectedList.length === 0) {
       notification.info({
         description: '',
-        message: intl.get(`${modelCode}.view.selected`).d('请勾选需要处理的数据'),
+        message: intl
+          .get('hivp.invoicesFileArchive.view.selectedMessage')
+          .d('请勾选需要处理的数据'),
       });
       return;
     }
@@ -185,17 +198,12 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
       <>
         <Header
           backPath="/htc-front-ivp/invoices/list"
-          title={intl.get(`${modelCode}.title`).d('版式推送')}
+          title={intl.get(`${modelCode}.view.title`).d('版式推送')}
         >
-          {/* <Button onClick={() => this.handlePushToCollector()}>
-            {intl.get(`${modelCode}.button.pushToCollector`).d('推送收票员工')}
-          </Button> */}
-          {/* <Button onClick={() => this.handlePushToCustomer()}>
-            {intl.get(`${modelCode}.button.pushToCustomer`).d('推送客户')}
-          </Button> */}
           <PermissionButton
             type="c7n-pro"
             onClick={() => this.handlePushToCollector()}
+            color={ButtonColor.primary}
             permissionList={[
               {
                 code: `${permissionPath}.button.layout-push-collector`,
@@ -220,24 +228,24 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
             {intl.get(`${modelCode}.button.pushToCustomer`).d('推送客户')}
           </PermissionButton>
         </Header>
-        <Content>
-          <Form columns={6}>
+        <div className={styles.header}>
+          <Form columns={2} style={{ marginTop: 15 }}>
             <Output
-              label={intl.get(`${modelCode}.loginEmp`).d('登录员工')}
+              label={intl.get('htc.common.modal.employeeDesc').d('登录员工')}
               value={employeeDesc}
-              colSpan={2}
             />
-            <Output
-              label={intl.get(`${modelCode}.empEmail`).d('员工邮箱')}
-              value={email}
-              colSpan={2}
-            />
+            <Output label={intl.get('hzero.common.email').d('员工邮箱')} value={email} />
+          </Form>
+        </div>
+        <Content>
+          <Form columns={5}>
             <CheckBox
-              label={intl.get(`${modelCode}.ccSelf`).d('邮件抄送自己')}
+              label={intl.get(`${modelCode}.view.ccSelf`).d('邮件抄送自己')}
               onChange={(value) => this.setState({ emailCcYourself: value })}
             />
             <CheckBox
-              label={intl.get(`${modelCode}.sendOrigin`).d('发送原交付方式')}
+              label={intl.get(`${modelCode}.view.sendOrigin`).d('发送原交付方式')}
+              labelWidth={120}
               onChange={(value) => this.setState({ sendOriginalMethod: value })}
             />
           </Form>

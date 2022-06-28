@@ -1,4 +1,4 @@
-/*
+/**
  * @Description:发票池路由
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
@@ -62,6 +62,16 @@ const config: RoutersConfig = [
         //  档案上传
         path: '/htc-front-ivp/invoices/archive-upload/:sourceCode/:sourceHeaderId',
         component: () => import('../archive-upload/detail/ArchiveUploadPage'),
+      },
+      {
+        //  批量上传
+        path: '/htc-front-ivp/invoices/batch-upload/:sourceCode/:companyId',
+        component: () => import('../batch-upload/detail/BatchUploadPage'),
+      },
+      {
+        //  档案信息
+        path: '/htc-front-ivp/invoices/archive-information/:sourceCode/:sourceHeaderId',
+        component: () => import('../archive-information/detail/archiveInformationPage'),
       },
       {
         //  档案查看

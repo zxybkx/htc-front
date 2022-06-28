@@ -2,22 +2,31 @@ import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
+import { Bind } from 'lodash-decorators';
 import { Header, Content } from 'components/Page';
 import intl from 'utils/intl';
-import { DataSet, Form, Output } from 'choerodon-ui/pro';
+import { DataSet, Form, Output, Button } from 'choerodon-ui/pro';
 import { Row, Col } from 'choerodon-ui';
 import Viewer from 'react-viewer';
 import 'react-viewer/dist/index.css';
 import { HZERO_FILE } from 'utils/config';
-import { getCurrentOrganizationId, getAccessToken, getResponse } from 'utils/utils';
+import {
+  getCurrentOrganizationId,
+  getAccessToken,
+  getResponse,
+  isTenantRoleLevel,
+} from 'utils/utils';
 import { urlTojpg } from '@src/services/invoicesService';
 import SubPageBillHeadersDS from '@src/pages/bill-pool/stores/SubPageBillHeadersDS';
 import SubPageInvoicesHeadersDS from '@src/pages/invoices/stores/SubPageInvoicesHeadersDS';
+import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
+import { downloadFile, DownloadFileParams } from 'hzero-front/lib/services/api';
+import formatterCollections from 'utils/intl/formatterCollections';
 import ArchiveViewDS from '../stores/ArchiveViewDS';
 
-const modelCode = 'hivp.invoices.archiveView';
+const modelCode = 'hivp.invoicesArchiveUpload';
 const tenantId = getCurrentOrganizationId();
-
+const bucketName = 'hivp';
 interface RouterInfo {
   sourceCode: string;
   sourceHeaderId: any;
@@ -27,6 +36,9 @@ interface ArchiveViewPageProps extends RouteComponentProps<RouterInfo> {
 }
 
 @connect()
+@formatterCollections({
+  code: [modelCode, 'htc.common'],
+})
 export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
   state = {
     recordType: '',
@@ -121,6 +133,25 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
     });
   };
 
+  // 下载
+  @Bind()
+  handledDownload() {
+    const fileUrl = this.queryDS.current && this.queryDS.current.get('fileUrl');
+    const queryParams = [
+      { name: 'url', value: encodeURIComponent(fileUrl) },
+      { name: 'bucketName', value: bucketName },
+    ];
+    const api = `${HZERO_FILE}/v1/${isTenantRoleLevel() ? `${tenantId}/` : ''}files/download`;
+    // @ts-ignore
+    downloadFile({
+      requestUrl: api,
+      queryParams,
+    } as DownloadFileParams).then((result) => {
+      // 获取返回信息，不做处理
+      getResponse(result, null);
+    });
+  }
+
   setViewerVisible = () => {
     this.setState({ viewerVisible: false });
   };
@@ -128,7 +159,6 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
   renderArchives = () => {
     const { curImgUrl, recordType, viewerVisible, fileName } = this.state;
     if (curImgUrl) {
-      const bucketName = 'hivp';
       const tokenUrl = `${HZERO_FILE}/v1/${tenantId}/file-preview/by-url?url=${encodeURIComponent(
         curImgUrl
       )}&bucketName=${bucketName}&access_token=${getAccessToken()}`;
@@ -182,7 +212,11 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
     const { backPath } = this.state;
     return (
       <>
-        <Header backPath={backPath} title={intl.get(`${modelCode}.title`).d('档案查看')} />
+        <Header backPath={backPath} title={intl.get(`${modelCode}.view.file`).d('档案查看')}>
+          <Button color={ButtonColor.primary} onClick={() => this.handledDownload()}>
+            {intl.get('hzero.common.button.download').d('下载')}
+          </Button>
+        </Header>
         <Content>
           <Row>
             <Col span={24} style={{ textAlign: 'center' }}>

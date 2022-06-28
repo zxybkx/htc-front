@@ -6,30 +6,28 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import { Bind } from 'lodash-decorators';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
 import queryString from 'query-string';
-import {
-  ColumnLock,
-  ColumnAlign,
-  TableButtonType,
-  TableEditMode,
-  TableCommandType,
-} from 'choerodon-ui/pro/lib/table/enum';
+import commonConfig from '@htccommon/config/commonConfig';
+import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import { DataSet, Table, Button, Modal, Tooltip } from 'choerodon-ui/pro'; // Lov
-import { routerRedux } from 'dva/router';
+import { Button, DataSet, Form, Lov, Modal, Switch, TextField } from 'choerodon-ui/pro';
+import { Tag } from 'choerodon-ui';
+import { RouteComponentProps } from 'react-router-dom';
 import { openTab } from 'utils/menuTab';
+import { observer } from 'mobx-react-lite';
+import { FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import intl from 'utils/intl';
-import commonConfig from '@common/config/commonConfig';
-import { enableRender } from 'utils/renderer';
+import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import notification from 'utils/notification';
 import ExcelExport from 'components/ExcelExport';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { responseDecryptionKey } from '@src/services/companyListService';
+import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
 import CompanyListDS from '../stores/CompanyListDS';
 
 const modelCode = 'hmdm.company-list';
@@ -37,7 +35,7 @@ const modalKey = Modal.key();
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.MDM_API || '';
 
-interface CompanyListPageProps {
+interface CompanyListPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
 }
 
@@ -48,14 +46,49 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
     ...CompanyListDS(),
   });
 
-  // tenantId = getCurrentOrganizationId();
+  @Bind()
+  create() {
+    this.openModal(this.tableDS.create({}, 0), true);
+  }
+
+  /**
+   * 删除公司回调
+   */
+  @Bind()
+  handleDelete() {
+    const record = this.tableDS.selected;
+    this.tableDS.delete(record);
+  }
 
   /**
    * 返回表格操作按钮组
    * @returns {*[]}
    */
   get buttons(): Buttons[] {
-    return [TableButtonType.add, TableButtonType.delete];
+    const DeleteButtons = observer((props: any) => {
+      const isDisabled = props.dataSet!.selected.length === 0;
+      return (
+        <Button
+          key={props.key}
+          onClick={props.onClick}
+          disabled={isDisabled}
+          funcType={FuncType.flat}
+        >
+          {props.title}
+        </Button>
+      );
+    });
+    return [
+      <Button icon="add" onClick={this.create}>
+        {intl.get(`${modelCode}.add`).d('新增')}
+      </Button>,
+      <DeleteButtons
+        key="delete"
+        onClick={() => this.handleDelete()}
+        dataSet={this.tableDS}
+        title={intl.get(`${modelCode}.button.delete`).d('删除')}
+      />,
+    ];
   }
 
   /**
@@ -86,7 +119,6 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
 
   /**
    * 禁用/启用
-   *
    * @param {*} [params={}]
    * @memberof FileAggregate
    */
@@ -110,24 +142,21 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
     }
   }
 
-  // 跳转到明细页面
+  /**
+   * 跳转到明细页面
+   * @param {object} record-行记录
+   */
   @Bind()
-  handleGoToDetail(records) {
-    const { dispatch } = this.props;
-    // const { companyId, taxpayerNumber, companyCode, companyName, outChannelCode } = records;
-    const { companyId } = records;
+  handleGoToDetail(record) {
+    const { history } = this.props;
+    const companyId = record.get('companyId');
     const pathname = `/htc-front-mdm/company/detail/${companyId}`;
-    dispatch(
-      routerRedux.push({
-        pathname,
-        // search: queryString.stringify({
-        //   taxpayerNumber,
-        //   companyCode,
-        //   companyName,
-        //   outChannelCode,
-        // }),
-      })
-    );
+    history.push(pathname);
+    // dispatch(
+    //   routerRedux.push({
+    //     pathname,
+    //   })
+    // );
   }
 
   /**
@@ -170,7 +199,9 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
     return exportParam;
   }
 
-  // 获取秘钥
+  /**
+   * 获取秘钥
+   */
   @Bind()
   async handleGetDecryption(companyId) {
     const res = await responseDecryptionKey({ tenantId, companyId });
@@ -182,83 +213,152 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
     }
   }
 
+  /**
+   * 新增/编辑公司Modal
+   * @params {object}  record-行记录
+   * @params {boolean} isNew true-新建 false-编辑
+   */
+  @Bind()
+  openModal(record, isNew) {
+    Modal.open({
+      title: isNew ? '新增公司' : '编辑公司',
+      drawer: true,
+      width: 480,
+      children: (
+        <Form record={record} labelTooltip={Tooltip.overflow}>
+          <TextField name="companyCode" />
+          <TextField name="companyName" />
+          <TextField name="companyShortName" />
+          <TextField name="taxpayerNumber" />
+          <TextField name="companyAddressPhone" />
+          <TextField name="bankNumber" />
+          <Lov name="competentTaxAuthoritiesObject" />
+          <Switch name="enabledFlag" />
+        </Form>
+      ),
+      onOk: () => this.tableDS.submit(),
+      onCancel: () => {
+        if (isNew) {
+          this.tableDS.remove(record);
+        } else {
+          this.tableDS.reset();
+        }
+      },
+    });
+  }
+
+  /**
+   * 编辑回调
+   * @params {object}  record-行记录
+   */
+  @Bind()
+  handleEdit(record) {
+    this.openModal(record, false);
+  }
+
+  /**
+   * 返回表格行
+   * @params {*[]}
+   */
   get columns(): ColumnProps[] {
     return [
       {
-        name: 'companyCode',
-        editor: true,
+        name: 'companyInfo',
         width: 110,
-        lock: ColumnLock.left,
+        aggregation: true,
+        align: ColumnAlign.left,
+        children: [
+          {
+            name: 'enabledFlag',
+            title: '',
+            renderer: ({ text, value }) => (
+              <Tag color={value === 0 ? '#dadada' : '#87d068'}>{text}</Tag>
+            ),
+          },
+          {
+            name: 'companyCode',
+            // tooltip: Tooltip.overflow,
+            title: '',
+            renderer: ({ value, record }) => (
+              <a onClick={() => this.handleGoToDetail(record)}>{value}</a>
+            ),
+          },
+        ],
       },
       {
-        name: 'companyName',
-        width: 280,
-        editor: true,
-        renderer: ({ value }) => {
-          return (
-            <Tooltip placement="topLeft" title={value}>
-              <span>{value}</span>
-            </Tooltip>
-          );
-        },
+        name: 'companyNameInfo',
+        align: ColumnAlign.left,
+        aggregation: true,
+        children: [
+          {
+            name: 'companyName',
+            title: '',
+          },
+          {
+            name: 'companyShortName',
+            header: () => <span style={{ color: '#8C8C8C' }}>简称：</span>,
+            renderer: ({ value }) => <span style={{ color: '#8C8C8C' }}>{value}</span>,
+          },
+        ],
       },
       {
-        name: 'companyShortName',
-        width: 140,
-        editor: true,
+        name: 'taxpayerNumber',
+        tooltip: Tooltip.overflow,
       },
-      { name: 'taxpayerNumber', width: 180, editor: true },
       {
         name: 'companyAddressPhone',
-        width: 350,
-        editor: true,
-        renderer: ({ value }) => {
-          return (
-            <Tooltip placement="topLeft" title={value}>
-              <span>{value}</span>
-            </Tooltip>
-          );
-        },
+        // tooltip: Tooltip.overflow,
       },
       {
         name: 'bankNumber',
-        width: 260,
-        editor: true,
-        renderer: ({ value }) => {
-          return (
-            <Tooltip placement="topLeft" title={value}>
-              <span>{value}</span>
-            </Tooltip>
-          );
-        },
+        // tooltip: Tooltip.overflow,
       },
-      { name: 'competentTaxAuthoritiesObject', width: 140, editor: true },
-      { name: 'competentTaxAuthoritiesMeaning', width: 140 },
-      { name: 'enabledFlag', width: 90, renderer: ({ value }) => enableRender(value) },
-      // { name: 'startDate', width: 110, editor: true },
-      // { name: 'endDate', width: 110, editor: true },
-      { name: 'creationDate', width: 160 },
-      { name: 'lastUpdateDate', width: 160 },
+      {
+        name: 'competentTaxAuthoritiesInfo',
+        aggregation: true,
+        align: ColumnAlign.left,
+        children: [
+          {
+            name: 'competentTaxAuthoritiesObject',
+            // tooltip: Tooltip.overflow,
+            title: '',
+          },
+          { name: 'competentTaxAuthoritiesMeaning', title: '' },
+        ],
+      },
+      {
+        name: 'dateInfo',
+        aggregation: true,
+        align: ColumnAlign.left,
+        children: [
+          { name: 'creationDate', title: '' },
+          { name: 'lastUpdateDate', title: '' },
+        ],
+      },
       {
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
-        width: 250,
+        width: 180,
         command: ({ record }): Commands[] => {
           const curFlag = record.get('enabledFlag');
           const records = record.toData();
           return [
-            <Button key="disable" onClick={() => this.handleEnableFlag(records)}>
-              {curFlag === 0
-                ? intl.get('hzero.common.status.enableFlag').d('启用')
-                : intl.get('hzero.common.status.disable').d('禁用')}
-            </Button>,
-            TableCommandType.edit,
-            <Button key="detail" onClick={() => this.handleGoToDetail(records)}>
-              {intl.get(`${modelCode}.button.detail`).d('明细')}
-            </Button>,
-            <Button key="decryption" onClick={() => this.handleGetDecryption(records.companyId)}>
-              {intl.get(`${modelCode}.button.getDecryption`).d('获取秘钥')}
-            </Button>,
+            <span className="action-link" key="action">
+              <a
+                onClick={() => this.handleEnableFlag(records)}
+                style={{ color: curFlag === 0 ? 'green' : 'gray' }}
+              >
+                {curFlag === 0
+                  ? intl.get('hzero.common.status.enableFlag').d('启用')
+                  : intl.get('hzero.common.status.disable').d('禁用')}
+              </a>
+              <a onClick={() => this.handleEdit(record)}>
+                {intl.get(`${modelCode}.button.edit`).d('编辑')}
+              </a>
+              <a onClick={() => this.handleGetDecryption(records.companyId)}>
+                {intl.get(`${modelCode}.button.getDecryption`).d('获取秘钥')}
+              </a>
+            </span>,
           ];
         },
         lock: ColumnLock.right,
@@ -273,6 +373,11 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
   @Bind()
   handleGetQueryParams() {
     const queryParams = this.tableDS.queryDataSet!.map((data) => data.toData()) || {};
+    for (const key in queryParams[0]) {
+      if (queryParams[0][key] === '' || queryParams[0][key] === null) {
+        delete queryParams[0][key];
+      }
+    }
     const exportParams = { ...queryParams[0] } || {};
     return exportParams;
   }
@@ -307,11 +412,11 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
           </Button>
         </Header>
         <Content>
-          <Table
+          <AggregationTable
             queryFieldsLimit={3}
+            aggregation
             dataSet={this.tableDS}
             columns={this.columns}
-            editMode={TableEditMode.inline}
             buttons={this.buttons}
             style={{ height: 400 }}
           />

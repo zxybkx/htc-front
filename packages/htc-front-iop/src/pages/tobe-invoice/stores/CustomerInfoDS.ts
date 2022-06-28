@@ -3,23 +3,43 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-06-22 14:15:22
- * @LastEditTime:
- * @Copyright: Copyright (c) 2020, Hand
+ * @LastEditTime: 2021-11-23 15:32:15
+ * @Copyright: Copyright (c) 2021, Hand
  */
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { AxiosRequestConfig } from 'axios';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import intl from 'utils/intl';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import { getCurrentOrganizationId } from 'utils/utils';
+import { EMAIL } from 'utils/regExp';
+import { phoneReg } from '@htccommon/utils/utils';
 
-const modelCode = 'hiop.tobe-invoice';
+/**
+ * 必填校验规则
+ * @params {object} record-行记录
+ * @returns {boolean}
+ */
+const requiredByRequestType = (record) => {
+  const businessType = record.get('businessType');
+  return !['SALES_INVOICE_SUBSCRIBE', 'PURCHASE_INVOICE_SUBSCRIBE'].includes(businessType);
+};
 
-export default (urlParams): DataSetProps => {
+/**
+ * 必填校验规则
+ * @params {object} record-行记录
+ * @returns {boolean}
+ */
+const requiredByRequestTypeAndInvoiceType = (record) => {
+  const invoiceType = record.get('invoiceType');
+  return requiredByRequestType(record) && invoiceType === '0';
+};
+
+export default (dsProps): DataSetProps => {
   // const API_PREFIX = `${commonConfig.IOP_API}-28090` || '';
   const API_PREFIX = commonConfig.IOP_API || '';
   const tenantId = getCurrentOrganizationId();
-  const { companyId, companyCode, employeeNumber } = urlParams || {};
+  const { companyId, companyCode, employeeNumber } = dsProps || {};
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -63,104 +83,154 @@ export default (urlParams): DataSetProps => {
         type: FieldType.string,
       },
       {
+        name: 'employeeId',
+        type: FieldType.number,
+      },
+      {
         name: 'receiptNumber',
-        label: intl.get(`${modelCode}.view.receiptNumber`).d('收票方编码'),
+        label: intl.get('hiop.tobeInvoice.modal.receiptNumber').d('收票方编码'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'receiptName',
-        label: intl.get(`${modelCode}.view.receiptName`).d('收票方名称'),
+        label: intl.get('hiop.invoiceReq.modal.receiptName').d('收票方名称'),
         type: FieldType.string,
-        required: true,
+        computedProps: {
+          required: ({ record }) => requiredByRequestType(record),
+        },
       },
       {
         name: 'receiptTaxNo',
-        label: intl.get(`${modelCode}.view.receiptTaxNo`).d('收票方税号'),
+        label: intl.get('hiop.invoiceReq.modal.receiptTaxNo').d('收票方税号'),
         type: FieldType.string,
-        required: true,
+        computedProps: {
+          required: ({ record }) => requiredByRequestType(record),
+        },
       },
       {
         name: 'customerAddressPhone',
-        label: intl.get(`${modelCode}.view.customerAddressPhone`).d('地址、电话'),
+        label: intl.get('htc.common.modal.companyAddressPhone').d('地址、电话'),
         type: FieldType.string,
-        required: true,
+        computedProps: {
+          required: ({ record }) => requiredByRequestTypeAndInvoiceType(record),
+        },
       },
       {
         name: 'receiptEnterpriseType',
-        label: intl.get(`${modelCode}.view.receiptEnterpriseType`).d('收票方企业类型'),
+        label: intl.get('hiop.invoiceReq.modal.receiptEnterpriseType').d('收票方企业类型'),
         type: FieldType.string,
         labelWidth: '120',
         lookupCode: 'HIOP.BUSINESS_TYPE',
-        required: true,
+        computedProps: {
+          required: ({ record }) => requiredByRequestType(record),
+        },
+        defaultValue: '01',
       },
       {
         name: 'bankNumber',
-        label: intl.get(`${modelCode}.view.bankNumber`).d('开户行及账号'),
+        label: intl.get('htc.common.modal.bankNumber').d('开户行及账号'),
         type: FieldType.string,
-        required: true,
+        computedProps: {
+          required: ({ record }) => requiredByRequestTypeAndInvoiceType(record),
+        },
+      },
+      {
+        name: 'invoiceTypeObj',
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
+        type: FieldType.object,
+        lovCode: 'HIOP.RULE_INVOICE_TYPE',
+        lovPara: { requestType: 'INVOICE_PREPARE' },
+        cascadeMap: { companyId: 'companyId', employeeId: 'employeeId' },
+        computedProps: {
+          required: ({ record }) => requiredByRequestType(record),
+        },
+        ignore: FieldIgnore.always,
       },
       {
         name: 'invoiceType',
-        label: intl.get(`${modelCode}.view.invoiceType`).d('开票种类'),
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
         type: FieldType.string,
-        lookupCode: 'HMDM.INVOICE_TYPE',
-        required: true,
+        bind: 'invoiceTypeObj.value',
+      },
+      {
+        name: 'invoiceTypeMeaning',
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
+        type: FieldType.string,
+        bind: 'invoiceTypeObj.meaning',
+      },
+      {
+        name: 'invoiceTypeTag',
+        type: FieldType.string,
+        bind: 'invoiceTypeObj.tag',
+        ignore: FieldIgnore.always,
       },
       {
         name: 'requestTypeObj',
-        label: intl.get(`${modelCode}.view.requestType`).d('业务类型'),
+        label: intl.get('hiop.invoiceWorkbench.modal.requestTypeObj').d('业务类型'),
         type: FieldType.object,
         lovCode: 'HIOP.RULE_BUSINESS_TYPE',
+        lovPara: { requestType: 'INVOICE_PREPARE' },
         cascadeMap: { companyId: 'companyId', employeeId: 'employeeId' },
         ignore: FieldIgnore.always,
       },
       {
         name: 'businessType',
-        label: intl.get(`${modelCode}.view.businessType`).d('业务类型'),
+        label: intl.get('hiop.invoiceWorkbench.modal.requestTypeObj').d('业务类型'),
         type: FieldType.string,
         bind: 'requestTypeObj.value',
-        required: true,
       },
       {
-        name: 'requestTypeMeaning',
-        label: intl.get(`${modelCode}.view.requestTypeMeaning`).d('业务类型'),
+        name: 'businessTypeMeaning',
+        label: intl.get('hiop.invoiceWorkbench.modal.requestTypeObj').d('业务类型'),
         type: FieldType.string,
         bind: 'requestTypeObj.meaning',
       },
       {
         name: 'billFlag',
-        label: intl.get(`${modelCode}.view.billFlag`).d('购货清单标志'),
+        label: intl.get('hiop.invoiceWorkbench.modal.shopListFlag').d('购货清单标志'),
         type: FieldType.string,
         lookupCode: 'HIOP.PURCHASE_LIST_MARK ',
         required: true,
       },
       {
         name: 'paperTicketReceiverName',
-        label: intl.get(`${modelCode}.view.paperTicketReceiverName`).d('纸票收件人'),
+        label: intl.get('hiop.invoiceWorkbench.modal.paperTicketReceiverName').d('纸票收件人'),
         type: FieldType.string,
       },
       {
         name: 'paperTicketReceiverAddress',
-        label: intl.get(`${modelCode}.view.paperTicketReceiverAddress`).d('纸票收件地址'),
+        label: intl.get('hiop.tobeInvoice.modal.paperTicketReceiverAddress').d('纸票收件地址'),
         type: FieldType.string,
       },
       {
         name: 'paperTicketReceiverPhone',
-        label: intl.get(`${modelCode}.view.paperTicketReceiverPhone`).d('纸票收件电话'),
+        label: intl.get('hiop.tobeInvoice.modal.paperTicketReceiverPhone').d('纸票收件电话'),
         type: FieldType.string,
+        pattern: phoneReg,
       },
       {
         name: 'electronicType',
-        label: intl.get(`${modelCode}.view.electronicType`).d('电票交付方式'),
+        label: intl.get('hiop.invoiceWorkbench.modal.electronicReceiverInfo').d('电票交付方式'),
         type: FieldType.string,
         lookupCode: 'HIOP.DELIVERY_WAY',
       },
       {
         name: 'electronicReceiverInfo',
-        label: intl.get(`${modelCode}.view.electronicReceiverInfo`).d('电票交付邮件或电话'),
+        label: intl.get('hiop.tobeInvoice.modal.electronicReceiverInfo').d('电票交付邮件或电话'),
         type: FieldType.string,
         labelWidth: '150',
+        computedProps: {
+          pattern: ({ record }) => {
+            if (record.get('electronicReceiverInfo')) {
+              if (record.get('electronicReceiverInfo').indexOf('@') > -1) {
+                return EMAIL;
+              } else {
+                return phoneReg;
+              }
+            }
+          },
+        },
       },
     ],
   };

@@ -23,6 +23,7 @@ import InvoiceRequestHistoryRouterConfig from '../pages/invoice-request-history/
 import InvoiceAuthenticationHistoryRouterConfig from '../pages/invoice-authentication-history/routers';
 import billPushHistoryRouterConfig from '../pages/bill-push-history/routers';
 import InvoiceAddinfoQueryRouterConfig from '../pages/invoice-addinfo-query-status/routers';
+import linkGenerationHistoryRouterConfig from '../pages/link-generation-history/routers';
 
 const config: RoutersConfig = [
   ...InvoiceCheckQueryRouterConfig,
@@ -40,6 +41,7 @@ const config: RoutersConfig = [
   ...InvoiceAuthenticationHistoryRouterConfig,
   ...billPushHistoryRouterConfig,
   ...InvoiceAddinfoQueryRouterConfig,
+  ...linkGenerationHistoryRouterConfig,
 ];
 
 export default config;

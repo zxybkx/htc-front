@@ -1,25 +1,23 @@
 /*
- * @Descripttion:发票池-单据关联
+ * @Description:发票池-单据关联
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
  * @LastEditTime: 2020-10-27 10:22:49
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
-// import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import moment from 'moment';
 
-const modelCode = 'hivp.invoices.fileArchive';
+const modelCode = 'hivp.invoicesArchiveUpload';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
-  // const tenantId = getCurrentOrganizationId();
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -38,7 +36,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'invoicePoolHeaderId',
-        label: intl.get(`${modelCode}.view.invoicePoolHeaderId`).d('记录ID'),
+        label: intl.get('hivp.bill.view.billPoolHeaderId').d('记录ID'),
         type: FieldType.number,
       },
       {
@@ -57,47 +55,47 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceCode',
-        label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
+        label: intl.get('htc.common.view.invoiceCode').d('发票代码'),
         type: FieldType.string,
         // required: true,
       },
       {
         name: 'invoiceNo',
-        label: intl.get(`${modelCode}.view.invoiceNo`).d('发票号码'),
+        label: intl.get('htc.common.view.invoiceNo').d('发票号码'),
         type: FieldType.string,
         // required: true,
       },
       {
         name: 'invoiceDate',
-        label: intl.get(`${modelCode}.view.invoiceDate`).d('开票日期'),
+        label: intl.get('htc.common.view.invoiceDate').d('开票日期'),
         type: FieldType.date,
         // required: true,
         transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'invoiceAmount',
-        label: intl.get(`${modelCode}.view.invoiceAmount`).d('发票金额'),
+        label: intl.get('htc.common.view.invoiceAmount').d('发票金额'),
         type: FieldType.currency,
         // required: true,
       },
       {
         name: 'invoiceType',
-        label: intl.get(`${modelCode}.view.invoiceType`).d('发票类型'),
+        label: intl.get('htc.common.view.invoiceType').d('发票类型'),
         type: FieldType.string,
       },
       {
         name: 'invoiceTypeMeaning',
-        label: intl.get(`${modelCode}.view.invoiceType`).d('发票类型'),
+        label: intl.get('htc.common.view.invoiceType').d('发票类型'),
         type: FieldType.string,
       },
       {
         name: 'recordType',
-        label: intl.get(`${modelCode}.view.recordType`).d('档案类型'),
+        label: intl.get('htc.common.view.recordType').d('档案类型'),
         type: FieldType.string,
       },
       {
         name: 'recordTypeMeaning',
-        label: intl.get(`${modelCode}.view.recordType`).d('档案类型'),
+        label: intl.get('htc.common.view.recordType').d('档案类型'),
         type: FieldType.string,
       },
       {
@@ -153,13 +151,13 @@ export default (): DataSetProps => {
     queryFields: [
       {
         name: 'invoiceCode',
-        label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
+        label: intl.get('htc.common.view.invoiceCode').d('发票代码'),
         type: FieldType.string,
         // required: true,
       },
       {
         name: 'invoiceNo',
-        label: intl.get(`${modelCode}.view.invoiceNo`).d('发票号码'),
+        label: intl.get('htc.common.view.invoiceNo').d('发票号码'),
         type: FieldType.string,
         // required: true,
       },

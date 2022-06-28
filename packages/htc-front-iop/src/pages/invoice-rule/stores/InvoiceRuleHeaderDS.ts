@@ -1,4 +1,4 @@
-/*
+/**
  * @Description:开票规则头
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
@@ -6,16 +6,30 @@
  * @LastEditTime: 2021-08-26 11:13:27
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { DataSet } from 'choerodon-ui/pro';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
-import { PHONE } from 'utils/regExp';
+import { phoneReg } from '@htccommon/utils/utils';
 
-const modelCode = 'hiop.tax-info';
+/**
+ * 待开票导入单价合并允差校验规则
+ * @params {number} value-当前值
+ * @params {string} name-标签名
+ * @params {object} record-行记录
+ * @returns {string/undefined}
+ */
+const priceValidator = (value, name, record) => {
+  if ((value || value === 0) && name && record) {
+    if (value <= 0 || value >= 100) {
+      return intl.get('hiop.invoiceRule.validate.price').d('请输入0-100之间的数字');
+    }
+  }
+  return undefined;
+};
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IOP_API || '';
@@ -75,6 +89,10 @@ export default (): DataSetProps => {
         if (name === 'invoiceApplyFlag') {
           record.set({ invoiceRequestListObj: '' });
         }
+        // 限制待开票数据权限变更
+        if (name === 'invoicePrepareFlag') {
+          record.set({ invoicePrepareListObj: '' });
+        }
         // 启用动态备注生成规则变更
         if (name === 'enableRulesFlag') {
           record.set({
@@ -106,7 +124,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'codeTableVersions',
-        label: intl.get(`${modelCode}.view.codeTableVersions`).d('编码表版本号'),
+        label: intl.get('hiop.invoiceRule.modal.codeTableVersions').d('编码表版本号'),
         type: FieldType.string,
         lookupCode: 'HIOP.OUT_GLOBAL_OPTIONS',
         defaultValue: 'CODE_TABLE_VERSIONS',
@@ -114,7 +132,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'productType',
-        label: intl.get(`${modelCode}.view.productType`).d('产品类型'),
+        label: intl.get('hiop.invoiceRule.modal.productType').d('产品类型'),
         type: FieldType.string,
         lookupCode: 'HIOP.OUT_GLOBAL_OPTIONS',
         defaultValue: 'PRODUCT_TYPE',
@@ -122,7 +140,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceStyleCode',
-        label: intl.get(`${modelCode}.view.invoiceStyleCode`).d('票样代码'),
+        label: intl.get('hiop.invoiceRule.modal.invoiceStyleCode').d('票样代码'),
         type: FieldType.string,
         lookupCode: 'HIOP.OUT_GLOBAL_OPTIONS',
         defaultValue: 'INVOICE_STYLE_CODE',
@@ -130,7 +148,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'purchaseInvoiceFlag',
-        label: intl.get(`${modelCode}.view.purchaseInvoiceFlag`).d('默认收购发票'),
+        label: intl.get('hiop.invoiceRule.modal.purchaseInvoiceFlag').d('默认收购发票'),
         type: FieldType.boolean,
         trueValue: 'Y',
         falseValue: '',
@@ -138,7 +156,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'defaultInvoiceTypeObj',
-        label: intl.get(`${modelCode}.view.defaultInvoiceType`).d('默认开票种类'),
+        label: intl.get('hiop.invoiceRule.modal.defaultInvoiceTypeObj').d('默认开票种类'),
         type: FieldType.object,
         lovCode: 'HIOP.COMPANY_INVOICE_TYPE',
         cascadeMap: { companyId: 'companyId' },
@@ -157,14 +175,14 @@ export default (): DataSetProps => {
       },
       {
         name: 'limitInvoiceCode',
-        label: intl.get(`${modelCode}.view.limitInvoiceCode`).d('超限开票类型'),
+        label: intl.get('hiop.invoiceRule.modal.limitInvoiceCode').d('超限开票类型'),
         type: FieldType.string,
         lookupCode: 'HIOP.INVOICE_MAX_AMOUNT_LIMIT',
         // required: true,
       },
       {
         name: 'defaultPayeeObj',
-        label: intl.get(`${modelCode}.view.defaultPayee`).d('默认收款人'),
+        label: intl.get('hiop.invoiceRule.modal.defaultPayeeObj').d('默认收款人'),
         type: FieldType.object,
         lovCode: 'HMDM.EMPLOYEE_NAME',
         ignore: FieldIgnore.always,
@@ -188,7 +206,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'drawerPayeeFlag',
-        label: intl.get(`${modelCode}.view.drawerPayeeFlag`).d('开票人默认为收款人'),
+        label: intl.get('hiop.invoiceRule.modal.drawerPayeeFlag').d('开票人默认为收款人'),
         type: FieldType.boolean,
         trueValue: 'Y',
         falseValue: 'N',
@@ -197,15 +215,46 @@ export default (): DataSetProps => {
       },
       {
         name: 'drawerRulesCode',
-        label: intl.get(`${modelCode}.view.drawerRulesCode`).d('开票人取值规则'),
+        label: intl.get('hiop.invoiceRule.modal.drawerRulesCode').d('开票人取值规则'),
         type: FieldType.string,
         required: true,
         lookupCode: 'HIOP.INVOICER_RULE',
         labelWidth: '110',
       },
       {
+        name: 'mergeRules',
+        label: intl.get('hiop.invoiceRule.modal.mergeRules').d('业务字段合并规则'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.BUSINESS_FIELD_MERGE_RULES',
+        multiple: ',',
+      },
+      {
+        name: 'prepareAutoMerge',
+        label: intl.get('hiop.invoiceRule.modal.prepareAutoMerge').d('待开票同批次导入自动合并'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP_AUTOMERGE_BATCH_IMPORT_TOBEBILLED',
+        multiple: ',',
+      },
+      {
+        name: 'sourceNumberMerges',
+        label: intl
+          .get('hiop.invoiceRule.modal.sourceNumberMerges')
+          .d('开票申请单同批次导入自动合并'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP_AUTOMERGE_BATCH_IMPORT_APPLY',
+        multiple: ',',
+      },
+      {
+        name: 'unitPriceTolerance',
+        label: intl.get('hiop.invoiceRule.modal.unitPriceTolerance').d('待开票导入单价合并允差'),
+        type: FieldType.number,
+        precision: 8,
+        validator: (value, name, record) =>
+          new Promise((reject) => reject(priceValidator(value, name, record))),
+      },
+      {
         name: 'globalDrawerObj',
-        label: intl.get(`${modelCode}.view.globalDrawer`).d('设置全局统一开票人'),
+        label: intl.get('hiop.invoiceRule.modal.globalDrawerObj').d('设置全局统一开票人'),
         type: FieldType.object,
         lovCode: 'HMDM.EMPLOYEE_NAME',
         ignore: FieldIgnore.always,
@@ -233,14 +282,14 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoicePrintMethod',
-        label: intl.get(`${modelCode}.view.invoicePrintMethod`).d('发票打印方式'),
+        label: intl.get('hiop.invoiceRule.modal.invoicePrintMethod').d('发票打印方式'),
         type: FieldType.string,
         lookupCode: 'HIOP.INVOICE_PRINT_METHOD',
         defaultValue: '1',
       },
       {
         name: 'defaultReviewerObj',
-        label: intl.get(`${modelCode}.view.defaultReviewer`).d('默认复核人'),
+        label: intl.get('hiop.invoiceRule.modal.defaultReviewerObj').d('默认复核人'),
         type: FieldType.object,
         lovCode: 'HMDM.EMPLOYEE_NAME',
         ignore: FieldIgnore.always,
@@ -264,28 +313,36 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceCompletionNotice',
-        label: intl.get(`${modelCode}.view.invoiceCompletionNotice`).d('开票完成通知'),
+        label: intl.get('hiop.invoiceRule.modal.invoiceCompletionNotice').d('开票完成通知'),
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.INVOICING_COMPLETION_NOTICE',
         multiple: ',',
       },
       {
         name: 'invoiceExceptionNotice',
-        label: intl.get(`${modelCode}.view.invoiceExceptionNotice`).d('开票异常通知'),
+        label: intl.get('hiop.invoiceRule.modal.invoiceExceptionNotice').d('开票异常通知'),
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.INVOICING_EXCEPTION_NOTIFICATION',
         multiple: ',',
       },
       {
         name: 'autoApprovalRules',
-        label: intl.get(`${modelCode}.view.autoApprovalRules`).d('自动审核'),
+        label: intl.get('hiop.invoiceRule.modal.autoApprovalRules').d('自动审核'),
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.RULES_OF_AUTOMATIC_APPROVAL',
         multiple: ',',
       },
       {
+        name: 'qrCodeInvalid',
+        label: intl.get('hiop.invoiceRule.modal.qrCodeInvalid').d('二维码失效时间'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP_QR_CODE_INVALID',
+      },
+      {
         name: 'distributionInvoiceFlag',
-        label: intl.get(`${modelCode}.view.distributionInvoiceFlag`).d('自动分配申请单发票权限'),
+        label: intl
+          .get('hiop.invoiceRule.modal.distributionInvoiceFlag')
+          .d('自动分配申请单发票权限'),
         type: FieldType.boolean,
         trueValue: 'Y',
         falseValue: 'N',
@@ -294,7 +351,9 @@ export default (): DataSetProps => {
       },
       {
         name: 'distinguishReviewerFlag',
-        label: intl.get(`${modelCode}.view.distinguishReviewerFlag`).d('新建单据不区分审核人权限'),
+        label: intl
+          .get('hiop.invoiceRule.modal.distinguishReviewerFlag')
+          .d('新建单据不区分审核人权限'),
         type: FieldType.boolean,
         trueValue: 'Y',
         falseValue: 'N',
@@ -303,51 +362,57 @@ export default (): DataSetProps => {
       },
       {
         name: 'businessFieldSplits',
-        label: intl.get(`${modelCode}.view.businessFieldSplits`).d('启用业务字段拆单规则'),
+        label: intl.get('hiop.invoiceRule.modal.businessFieldSplits').d('业务字段拆单规则'),
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.BUSINESS_FIELD_SPLITTING_RULES',
         multiple: ',',
       },
       {
-        name: 'mergeFlag',
-        label: intl.get(`${modelCode}.view.mergeFlag`).d('申请单来源单号不同允许合并'),
-        type: FieldType.boolean,
-        trueValue: 'Y',
-        falseValue: 'N',
-        defaultValue: 'N',
-        labelWidth: '155',
-      },
-      {
-        name: 'applyCodePriceFlag',
-        label: intl.get(`${modelCode}.view.applyCodePriceFlag`).d('申请单上同编码/单价行合并'),
-        type: FieldType.boolean,
-        trueValue: 'Y',
-        falseValue: 'N',
-        defaultValue: 'N',
-        // labelWidth: '175',
-      },
-      {
         name: 'inventoryRemindLimit',
-        label: intl.get(`${modelCode}.view.inventoryRemindLimit`).d('发票库存数量提醒'),
+        label: intl.get('hiop.invoiceRule.modal.inventoryRemindLimit').d('数量提醒'),
         type: FieldType.number,
       },
       {
         name: 'inventoryRemindEmail',
-        label: intl.get(`${modelCode}.view.inventoryRemindEmail`).d('发票库存邮件提醒'),
+        label: intl.get('hiop.invoiceRule.modal.inventoryRemindEmail').d('邮件提醒'),
         type: FieldType.email,
       },
       {
         name: 'inventoryRemindPhone',
-        label: intl.get(`${modelCode}.view.inventoryRemindPhone`).d('发票库存短信提醒'),
+        label: intl.get('hiop.invoiceRule.modal.inventoryRemindPhone').d('短信提醒'),
         type: FieldType.string,
-        pattern: PHONE,
+        pattern: phoneReg,
         defaultValidationMessages: {
           patternMismatch: '手机格式不正确', // 正则不匹配的报错信息
         },
       },
       {
+        name: 'offLineAmountLimit',
+        label: intl.get('hiop.invoiceRule.modal.offLineAmountLimit').d('离线剩余限额小于'),
+        type: FieldType.currency,
+      },
+      {
+        name: 'offLineTimeLimit',
+        label: intl.get('hiop.invoiceRule.modal.offLineTimeLimit').d('离线剩余时限小于'),
+        type: FieldType.number,
+      },
+      {
+        name: 'offLineRemindPhone',
+        label: intl.get('hiop.invoiceRule.modal.inventoryRemindPhone').d('短信提醒'),
+        type: FieldType.string,
+        pattern: phoneReg,
+        defaultValidationMessages: {
+          patternMismatch: '手机格式不正确', // 正则不匹配的报错信息
+        },
+      },
+      {
+        name: 'offLineRemindEmail',
+        label: intl.get('hiop.invoiceRule.modal.inventoryRemindEmail').d('邮件提醒'),
+        type: FieldType.email,
+      },
+      {
         name: 'invoiceWorkbenchFlag',
-        label: intl.get(`${modelCode}.view.invoiceWorkbenchFlag`).d('限制发票订单数据权限'),
+        label: intl.get('hiop.invoiceRule.modal.invoiceWorkbenchFlag').d('限制发票订单数据权限'),
         type: FieldType.boolean,
         trueValue: 'Y',
         falseValue: 'N',
@@ -355,7 +420,9 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceWorkbenchListObj',
-        label: intl.get(`${modelCode}.view.invoiceWorkbenchListObj`).d('发票订单数据权限白名单'),
+        label: intl
+          .get('hiop.invoiceRule.modal.invoiceWorkbenchListObj')
+          .d('发票订单数据权限白名单'),
         type: FieldType.object,
         lovCode: 'HMDM.EMPLOYEE_NAME',
         ignore: FieldIgnore.always,
@@ -381,7 +448,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceApplyFlag',
-        label: intl.get(`${modelCode}.view.invoiceApplyFlag`).d('限制发票申请单数据权限'),
+        label: intl.get('hiop.invoiceRule.modal.invoiceApplyFlag').d('限制发票申请单数据权限'),
         type: FieldType.boolean,
         trueValue: 'Y',
         falseValue: 'N',
@@ -390,7 +457,9 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceRequestListObj',
-        label: intl.get(`${modelCode}.view.invoiceRequestListObj`).d('发票申请单数据权限白名单'),
+        label: intl
+          .get('hiop.invoiceRule.modal.invoiceRequestListObj')
+          .d('发票申请单数据权限白名单'),
         type: FieldType.object,
         lovCode: 'HMDM.EMPLOYEE_NAME',
         ignore: FieldIgnore.always,
@@ -415,8 +484,42 @@ export default (): DataSetProps => {
         multiple: ',',
       },
       {
+        name: 'invoicePrepareFlag',
+        label: intl.get('hiop.invoiceRule.modal.invoicePrepareFlag').d('限制待开票数据权限'),
+        type: FieldType.boolean,
+        trueValue: 'Y',
+        falseValue: 'N',
+        defaultValue: 'N',
+        labelWidth: '155',
+      },
+      {
+        name: 'invoicePrepareListObj',
+        label: intl.get('hiop.invoiceRule.modal.invoicePrepareListObj').d('待开票数据权限白名单'),
+        type: FieldType.object,
+        lovCode: 'HMDM.EMPLOYEE_NAME',
+        ignore: FieldIgnore.always,
+        lovPara: { tenantId },
+        cascadeMap: { companyId: 'companyId' },
+        multiple: true,
+        computedProps: {
+          disabled: ({ record }) => !(record.get('invoicePrepareFlag') === 'Y'),
+        },
+      },
+      {
+        name: 'invoicePrepareListIds',
+        type: FieldType.number,
+        bind: 'invoicePrepareListObj.employeeId',
+        multiple: ',',
+      },
+      {
+        name: 'invoicePrepareMeaning',
+        type: FieldType.string,
+        bind: `invoicePrepareListObj.employeeName`,
+        multiple: ',',
+      },
+      {
         name: 'enableRulesFlag',
-        label: intl.get(`${modelCode}.view.enableRulesFlag`).d('启用动态备注生成规则'),
+        label: intl.get('hiop.invoiceRule.modal.enableRulesFlag').d('启用动态备注生成规则'),
         type: FieldType.boolean,
         trueValue: 'Y',
         falseValue: 'N',
@@ -424,7 +527,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'enableApplyOneFlag',
-        label: intl.get(`${modelCode}.view.enableApplyOneFlag`).d('申请来源1'),
+        label: intl.get('hiop.invoiceRule.modal.enableApplyOneFlag').d('申请来源1'),
         type: FieldType.boolean,
         trueValue: 'Y',
         falseValue: 'N',
@@ -436,7 +539,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'dynamicPrefixOne',
-        label: intl.get(`${modelCode}.view.dynamicPrefixOne`).d('动态备注规则-前缀1'),
+        label: intl.get('hiop.invoiceRule.modal.dynamicPrefixOne').d('前缀1'),
         type: FieldType.string,
         computedProps: {
           disabled: ({ record }) => !(record.get('enableRulesFlag') === 'Y'),
@@ -444,7 +547,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'enableApplyTwoFlag',
-        label: intl.get(`${modelCode}.view.enableApplyTwoFlag`).d('申请来源2'),
+        label: intl.get('hiop.invoiceRule.modal.enableApplyTwoFlag').d('申请来源2'),
         type: FieldType.boolean,
         trueValue: 'Y',
         falseValue: 'N',
@@ -456,7 +559,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'dynamicPrefixTwo',
-        label: intl.get(`${modelCode}.view.dynamicPrefixTwo`).d('动态备注规则-前缀2'),
+        label: intl.get('hiop.invoiceRule.modal.dynamicPrefixTwo').d('前缀2'),
         type: FieldType.string,
         computedProps: {
           disabled: ({ record }) => !(record.get('enableRulesFlag') === 'Y'),
@@ -464,7 +567,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'enableApplyThreeFlag',
-        label: intl.get(`${modelCode}.view.enableApplyThreeFlag`).d('申请来源3'),
+        label: intl.get('hiop.invoiceRule.modal.enableApplyThreeFlag').d('申请来源3'),
         type: FieldType.boolean,
         trueValue: 'Y',
         falseValue: 'N',
@@ -476,7 +579,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'dynamicPrefixThree',
-        label: intl.get(`${modelCode}.view.dynamicPrefixThree`).d('动态备注规则-前缀3'),
+        label: intl.get('hiop.invoiceRule.modal.dynamicPrefixThree').d('前缀3'),
         type: FieldType.string,
         computedProps: {
           disabled: ({ record }) => !(record.get('enableRulesFlag') === 'Y'),
@@ -484,7 +587,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'enableApplyFourFlag',
-        label: intl.get(`${modelCode}.view.enableApplyFourFlag`).d('申请来源4'),
+        label: intl.get('hiop.invoiceRule.modal.enableApplyFourFlag').d('申请来源4'),
         type: FieldType.boolean,
         trueValue: 'Y',
         falseValue: 'N',
@@ -496,7 +599,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'dynamicPrefixFour',
-        label: intl.get(`${modelCode}.view.dynamicPrefixFour`).d('动态备注规则-前缀4'),
+        label: intl.get('hiop.invoiceRule.modal.dynamicPrefixFour').d('前缀4'),
         type: FieldType.string,
         computedProps: {
           disabled: ({ record }) => !(record.get('enableRulesFlag') === 'Y'),
@@ -504,7 +607,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'enabledFlag',
-        label: intl.get(`${modelCode}.view.enabledFlag`).d('是否启用'),
+        label: intl.get('hiop.invoiceRule.modal.enabledFlag').d('是否启用'),
         type: FieldType.boolean,
         trueValue: 1,
         falseValue: 0,
@@ -524,7 +627,7 @@ export default (): DataSetProps => {
       fields: [
         {
           name: 'companyObj',
-          label: intl.get(`${modelCode}.view.companyObj`).d('公司名称'),
+          label: intl.get('htc.common.label.companyName').d('所属公司'),
           type: FieldType.object,
           lovCode: 'HIOP.CURRENT_EMPLOYEE_OUT',
           lovPara: { tenantId },
@@ -538,24 +641,23 @@ export default (): DataSetProps => {
         },
         {
           name: 'companyName',
-          label: intl.get(`${modelCode}.view.companyName`).d('公司'),
           type: FieldType.string,
           bind: 'companyObj.companyName',
           ignore: FieldIgnore.always,
         },
         {
           name: 'companyCode',
-          label: intl.get(`${modelCode}.view.companyCode`).d('公司代码'),
           type: FieldType.string,
           bind: 'companyObj.companyCode',
           ignore: FieldIgnore.always,
         },
         {
           name: 'taxpayerNumber',
-          label: intl.get(`${modelCode}.view.taxpayerNumber`).d('纳税人识别号'),
+          label: intl.get('htc.common.modal.taxpayerNumber').d('纳税人识别号'),
           type: FieldType.string,
           bind: 'companyObj.taxpayerNumber',
           ignore: FieldIgnore.always,
+          readOnly: true,
         },
         {
           name: 'employeeId',
@@ -565,20 +667,19 @@ export default (): DataSetProps => {
         },
         {
           name: 'employeeDesc',
-          label: intl.get(`${modelCode}.view.employeeDesc`).d('当前员工'),
+          label: intl.get('htc.common.modal.employeeDesc').d('登录员工'),
           type: FieldType.string,
           ignore: FieldIgnore.always,
+          readOnly: true,
         },
         {
           name: 'employeeNum',
-          label: intl.get(`${modelCode}.view.employeeNum`).d('员工编号'),
           type: FieldType.string,
           bind: 'companyObj.employeeNum',
           ignore: FieldIgnore.always,
         },
         {
           name: 'mobile',
-          label: intl.get(`${modelCode}.view.mobile`).d('员工手机号'),
           type: FieldType.string,
           bind: 'companyObj.mobile',
           ignore: FieldIgnore.always,

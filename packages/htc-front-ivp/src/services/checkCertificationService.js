@@ -6,11 +6,11 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import request from 'utils/request';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 
 const HIVP_API = commonConfig.IVP_API || '';
-// const HIVP_API = `${commonConfig.IVP_API}-28090`;
-const { MDM_API, HSSP_API } = commonConfig;
+const MDM_API = commonConfig.MDM_API || '';
+const HSSP_API = commonConfig.HSSP_API || '';
 
 /**
  * 更新企业档案
@@ -225,5 +225,56 @@ export async function batchCheck(params) {
   return request(`${HIVP_API}/v1/${tenantId}/batch-check/batch-Check`, {
     method: 'POST',
     query: otherParams,
+  });
+}
+
+/**
+ * 全部勾选/全部撤销
+ */
+export async function getTaskPassword(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/enterprise-file-infos`, {
+    method: 'GET',
+    query: otherParams,
+  });
+}
+
+/**
+ * 勾选认证-下载申报抵扣统计表
+ */
+export async function deductionReportDownload(params) {
+  const { tenantId, pageData, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/invoice-operation/deduction-apply-report/download`, {
+    method: 'POST',
+    query: otherParams,
+    body: pageData,
+    responseType: 'text',
+  });
+}
+
+/**
+ * 勾选认证-下载认证结果统计表
+ */
+export async function statisticReportDownload(params) {
+  const { tenantId, pageData, ...otherParams } = params;
+  return request(
+    `${HIVP_API}/v1/${tenantId}/invoice-operation/certified-result-statistic-report/download`,
+    {
+      method: 'POST',
+      query: otherParams,
+      body: pageData,
+      responseType: 'text',
+    }
+  );
+}
+
+/**
+ * 保存公司信息
+ */
+export async function enterpriseSave(params) {
+  const { tenantId, list } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/enterprise-file-infos/batch-save`, {
+    method: 'POST',
+    body: list,
   });
 }

@@ -1,0 +1,33 @@
+.table {
+  :global {
+    .c7n-pro-table-toolbar-button-group {
+      float: left !important;
+    }
+  }
+}
+.flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.containTable:extend(.flex) {
+  height: 54px;
+  .title {
+    margin: 0;
+    margin-right: 16px;
+  }
+}
+.tableTitleRight:extend(.flex) {
+  padding: 8px 0 8px 16px;
+  background: #eff6ff;
+  border-radius: 4px;
+  p {
+    color: #5a6677;
+    margin: 0;
+  }
+  span {
+    color: blue;
+    opacity: 1;
+    margin-right: 24px;
+  }
+}

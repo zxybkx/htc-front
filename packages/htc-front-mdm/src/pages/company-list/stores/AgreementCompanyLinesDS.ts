@@ -1,17 +1,17 @@
-/*
- * @Descripttion:公司协议信息-租户协议公司
+/**
+ * @Description:公司协议信息-租户协议公司
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-08-07 10:19:48
  * @LastEditTime: 2020-11-26 11:10:23
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import { getCurrentOrganizationId } from 'utils/utils';
+import commonConfig from '@htccommon/config/commonConfig';
 
 const modelCode = 'hmdm.agreement-company';
 

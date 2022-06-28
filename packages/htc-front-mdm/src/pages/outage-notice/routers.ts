@@ -1,5 +1,5 @@
-/*
- * @module -outageNotice :
+/**
+ * @@Description: 停机信息维护路由
  * @Author: huishan.yu<huishan.yu@hand-china.com>
  * @Date: 2021-09-17 10:16:53
  * @LastEditors: huishan.yu
@@ -15,7 +15,7 @@ const config: RoutersConfig = [
     components: [
       {
         path: '/htc-front-mdm/outage-notice/detail',
-        component: () => import('./detail/outageNoticePage'),
+        component: () => import('./detail/OutageNoticePage'),
       },
     ],
   },

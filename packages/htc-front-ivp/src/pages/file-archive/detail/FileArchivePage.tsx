@@ -4,33 +4,37 @@ import { Bind } from 'lodash-decorators';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import intl from 'utils/intl';
 import {
-  DataSet,
-  CheckBox,
-  Form,
   Button,
-  Table,
-  Output,
-  MonthPicker,
+  DataSet,
   DatePicker,
+  Form,
+  MonthPicker,
+  Output,
+  Select,
+  Switch,
+  Table,
 } from 'choerodon-ui/pro';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Commands } from 'choerodon-ui/pro/lib/table/Table';
-import { ColumnLock, ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
+import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import notification from 'utils/notification';
 import { DEFAULT_DATE_FORMAT } from 'hzero-front/lib/utils/constants';
 import moment from 'moment';
 import querystring from 'querystring';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
-import { updateEntryAccount, batchArchiveFiles } from '@src/services/invoicesService';
+import { batchArchiveFiles, updateEntryAccount } from '@src/services/invoicesService';
 import { Button as PermissionButton } from 'components/Permission';
-import { getPresentMenu } from '@common/utils/utils';
+import { getPresentMenu } from '@htccommon/utils/utils';
+import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
+import formatterCollections from 'utils/intl/formatterCollections';
 import FileArchiveHeaderDS from '../stores/FileArchiveHeaderDS';
 import FileArchiveDS from '../stores/FileArchiveDS';
+import styles from './fileArchive.less';
 
-const modelCode = 'hivp.invoices.fileArchive';
+const modelCode = 'hivp.invoicesFileArchive';
 const tenantId = getCurrentOrganizationId();
 const permissionPath = `${getPresentMenu().name}.ps`;
 
@@ -41,10 +45,19 @@ interface RouterInfo {
 interface FileArchivePageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
-
+@formatterCollections({
+  code: [modelCode, 'hivp.invoicesArchiveUpload', 'hivp.bill', 'htc.common', 'hivp.batchCheck'],
+})
 @connect()
 export default class FileArchivePage extends Component<FileArchivePageProps> {
-  state = { updateEnteredFlag: 0, companyId: '', companyCode: '', employeeNo: '', backPath: '' };
+  state = {
+    updateEnteredFlag: 0,
+    companyId: '',
+    companyCode: '',
+    employeeNo: '',
+    backPath: '',
+    archiveValue: undefined,
+  };
 
   headerDS = new DataSet({
     autoQuery: false,
@@ -93,7 +106,15 @@ export default class FileArchivePage extends Component<FileArchivePageProps> {
     if (selectedList.length === 0) {
       notification.info({
         description: '',
-        message: intl.get(`${modelCode}.view.selected`).d('请勾选需要处理的数据'),
+        message: intl.get(`${modelCode}.view.selectedMessage`).d('请勾选需要处理的数据'),
+      });
+      return;
+    }
+    const validate = await this.headerDS.validate(false, false);
+    if (!validate) {
+      notification.warning({
+        description: '',
+        message: intl.get('hzero.common.notification.invalid').d('校验不通过！'),
       });
       return;
     }
@@ -101,7 +122,7 @@ export default class FileArchivePage extends Component<FileArchivePageProps> {
     const params = {
       tenantId,
       sourceCode,
-      entryAccountDate: moment(entryAccountDate).format(DEFAULT_DATE_FORMAT),
+      entryAccountDate: entryAccountDate && moment(entryAccountDate).format(DEFAULT_DATE_FORMAT),
       invoicePoolHeaderIds: selectedRowKeys.join(','),
     };
     const res = getResponse(await updateEntryAccount(params));
@@ -129,18 +150,19 @@ export default class FileArchivePage extends Component<FileArchivePageProps> {
     if (selectedList.length === 0) {
       notification.info({
         description: '',
-        message: intl.get(`${modelCode}.view.selected`).d('请勾选需要处理的数据'),
+        message: intl.get(`${modelCode}.view.selectedMessage`).d('请勾选需要处理的数据'),
       });
       return;
     }
-    let archiveDate = this.headerDS.current!.get('archiveDate');
-    const entryPeriodFlag = this.headerDS.current!.get('entryPeriodFlag');
-    const curPeriodFlag = this.headerDS.current!.get('curPeriodFlag');
-    if (entryPeriodFlag === 1) {
-      archiveDate = null;
-    } else if (curPeriodFlag === 1) {
-      archiveDate = moment();
+    const validate = await this.headerDS.validate(false, false);
+    if (!validate) {
+      notification.warning({
+        description: '',
+        message: intl.get('hzero.common.notification.invalid').d('校验不通过！'),
+      });
+      return;
     }
+    const archiveDate = this.headerDS.current!.get('archiveDate');
     const params = {
       tenantId,
       sourceCode,
@@ -214,9 +236,10 @@ export default class FileArchivePage extends Component<FileArchivePageProps> {
             <Button
               key="viewArchive"
               disabled={!record.get('fileUrl')}
+              funcType={FuncType.link}
               onClick={() => this.handleGotoArchiveView(record)}
             >
-              {intl.get(`${modelCode}.button.viewArchive`).d('查看档案')}
+              {intl.get('hivp.invoicesArchiveUpload.view.file').d('查看档案')}
             </Button>,
           ];
         },
@@ -226,23 +249,29 @@ export default class FileArchivePage extends Component<FileArchivePageProps> {
     ];
   }
 
+  @Bind()
+  handleArchiveChange(value) {
+    this.setState({ archiveValue: value });
+  }
+
   render() {
-    const { updateEnteredFlag, backPath } = this.state;
+    const { updateEnteredFlag, backPath, archiveValue } = this.state;
     return (
       <>
-        <Header backPath={backPath} title={intl.get(`${modelCode}.title`).d('档案归档')}>
+        <Header backPath={backPath} title={intl.get('hivp.bill.button.archives').d('档案归档')}>
           <PermissionButton
             type="c7n-pro"
             onClick={() => this.handleBatchArchive()}
+            color={ButtonColor.primary}
             permissionList={[
               {
                 code: `${permissionPath}.button.filed-batch-archive`,
                 type: 'button',
-                meaning: '按钮-档案归档-批量归档档案',
+                meaning: '按钮-档案归档-归档',
               },
             ]}
           >
-            {intl.get(`${modelCode}.button.batchArchive`).d('批量归档档案')}
+            {intl.get('hivp.invoicesArchiveUpload.button.filed').d('归档')}
           </PermissionButton>
           <PermissionButton
             type="c7n-pro"
@@ -252,25 +281,28 @@ export default class FileArchivePage extends Component<FileArchivePageProps> {
               {
                 code: `${permissionPath}.button.filed-update-entry-account`,
                 type: 'button',
-                meaning: '按钮-档案归档-更新入账状态/期间',
+                meaning: '按钮-档案归档-更新',
               },
             ]}
           >
-            {intl.get(`${modelCode}.button.updateEntryAccount`).d('更新入账状态/期间')}
+            {intl.get(`${modelCode}.button.updateEntryAccount`).d('更新')}
           </PermissionButton>
         </Header>
+        <div className={styles.header}>
+          <Form columns={2} style={{ marginTop: 15 }} dataSet={this.headerDS}>
+            <Output name="companyDesc" />
+            <Output name="curDate" />
+          </Form>
+        </div>
         <Content>
-          <Form dataSet={this.headerDS} columns={5}>
-            <Output name="companyDesc" colSpan={2} />
-            <Output name="curDate" colSpan={3} />
-            <CheckBox
+          <Form dataSet={this.headerDS} columns={4}>
+            <Switch
               name="updateEnteredFlag"
               onChange={(value) => this.setState({ updateEnteredFlag: value })}
             />
             <DatePicker name="entryAccountDate" />
-            <CheckBox name="entryPeriodFlag" />
-            <CheckBox name="curPeriodFlag" />
-            <MonthPicker name="archiveDate" />
+            <Select name="archiveMethod" onChange={this.handleArchiveChange} />
+            {archiveValue === '2' && <MonthPicker name="archiveDate" />}
           </Form>
           <Table dataSet={this.tableDS} columns={this.columns} style={{ height: 400 }} />
         </Content>

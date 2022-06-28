@@ -1,4 +1,12 @@
-import commonConfig from '@common/config/commonConfig';
+/**
+ * @Description: 全发票明细
+ * @version: 1.0
+ * @Author: yang.wang04@hand-china.com
+ * @Date: 2020-07-20 16:19:48
+ * @LastEditTime: 2020-09-24 10:06:17
+ * @Copyright: Copyright (c) 2020, Hand
+ */
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
@@ -106,7 +114,7 @@ export default (): DataSetProps => {
       {
         name: 'taxAmount',
         label: intl.get(`${modelCode}.view.taxAmount`).d('发票税额'),
-        type: FieldType.string,
+        type: FieldType.currency,
       },
       {
         name: 'totalAmount',

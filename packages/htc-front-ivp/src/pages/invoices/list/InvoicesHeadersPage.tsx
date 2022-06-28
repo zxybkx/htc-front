@@ -1,9 +1,9 @@
-/*
- * @Descripttion:发票池-头
+/**
+ * @Description:发票池-头
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
- * @LastEditTime: 2021-03-04 15:58:49
+ * @LastEditTime: 2021-10-28 15:22:10
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -11,25 +11,24 @@ import { Dispatch } from 'redux';
 import { routerRedux } from 'dva/router';
 import { Bind } from 'lodash-decorators';
 import { observer } from 'mobx-react-lite';
-import moment from 'moment';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import {
-  DataSet,
-  Table,
   Button,
-  Form,
-  Lov,
-  Output,
-  DatePicker,
-  Select,
-  TextField,
   Currency,
-  Menu,
+  DataSet,
+  DatePicker,
   Dropdown,
+  Form,
   Icon,
+  Lov,
+  Menu,
+  Modal,
+  Select,
+  Table,
+  TextField,
 } from 'choerodon-ui/pro';
-import { Row, Col } from 'choerodon-ui';
-import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
+import { Col, Row, Tag } from 'choerodon-ui';
+import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import formatterCollections from 'utils/intl/formatterCollections';
@@ -42,23 +41,26 @@ import { isNullOrUndefined } from 'util';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { queryMapIdpValue } from 'hzero-front/lib/services/api';
 import ExcelExport from 'components/ExcelExport';
-import commonConfig from '@common/config/commonConfig';
-import { getCurrentEmployeeInfo, getTenantAgreementCompany } from '@common/services/commonService';
+import commonConfig from '@htccommon/config/commonConfig';
+import { getCurrentEmployeeInfo, getTenantAgreementCompany } from '@htccommon/services/commonService';
 import {
+  invoiceCheck,
   invoiceCheckExist,
-  invoiceCheckComplete,
   invoiceCheckState,
   invoiceUpdateState,
+  poolAdd,
 } from '@src/services/invoicesService';
 import { Button as PermissionButton } from 'components/Permission';
-import { getPresentMenu } from '@common/utils/utils';
+import { getPresentMenu } from '@htccommon/utils/utils';
 import InvoicesHeadersDS from '../stores/InvoicesHeadersDS';
+import InvoiceHistory from '../../invoice-history/detail/InvoiceHistoryPage';
 
 const modelCode = 'hivp.invoices';
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.IVP_API || '';
 const permissionPath = `${getPresentMenu().name}.ps`;
 const sourceCode = 'INVOICE_POOL';
+const { Item: MenuItem } = Menu;
 
 interface InvoicesHeadersPageProps {
   dispatch: Dispatch<any>;
@@ -67,7 +69,19 @@ interface InvoicesHeadersPageProps {
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: [
+    modelCode,
+    'hivp.bill',
+    'hivp.invoicesLayoutPush',
+    'htc.common',
+    'hcan.invoiceDetail',
+    'hivc.select',
+    'hivp.batchCheck',
+    'hiop.invoiceWorkbench',
+    'hivp.checkCertification',
+    'hiop.invoiceReq',
+    'hivp.invoicesArchiveUpload',
+  ],
 })
 @withProps(
   () => {
@@ -193,43 +207,49 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       queryMoreArray.push(<TextField key="buyerName" name="buyerName" colSpan={2} />);
 
       return (
-        <>
-          <Form columns={6} dataSet={queryDataSet}>
-            <Lov
-              name="companyObj"
-              colSpan={2}
-              onChange={(value) => this.handleCompanychange(value)}
-              clearButton={false}
-            />
-            <Output name="employeeDesc" colSpan={2} />
-            <Select
-              name="invoiceType"
-              colSpan={2}
-              renderer={({ value, text }) => value && `${value} - ${text}`}
-            />
-            <DatePicker name="invoiceDateFrom" />
-            <DatePicker name="invoiceDateTo" />
-            <DatePicker name="ticketCollectorDateFrom" />
-            <DatePicker name="ticketCollectorDateTo" />
-            <DatePicker name="entryAccountDateFrom" />
-            <DatePicker name="entryAccountDateTo" />
-            <DatePicker name="entryPoolDatetimeFrom" />
-            <DatePicker name="entryPoolDatetimeTo" />
-            <DatePicker name="warehousingDateFrom" />
-            <DatePicker name="warehousingDateTo" />
-            <DatePicker name="checkDateFrom" />
-            <DatePicker name="checkDateTo" />
-            <Select key="displayOptions" name="displayOptions" colSpan={3} />
-            <Select key="invoiceStateStr" name="invoiceStateStr" colSpan={3} />
-            {queryMoreDisplay && queryMoreArray}
-          </Form>
-          <Row type="flex" justify="space-between">
-            <Col span={18}>{buttons}</Col>
-            <Col span={6} style={{ textAlign: 'end', marginBottom: '2px' }}>
-              <Button onClick={() => this.setState({ queryMoreDisplay: !queryMoreDisplay })}>
-                {queryMoreDisplay
-                  ? intl.get('hzero.common.button.collected').d('收起查询')
-                  : intl.get('hzero.common.button.viewMore').d('更多查询')}
+        <div style={{ marginBottom: '0.1rem' }}>
+          <Row>
+            <Col span={20}>
+              <Form columns={6} dataSet={queryDataSet}>
+                <Lov
+                  name="companyObj"
+                  colSpan={2}
+                  onChange={(value) => this.handleCompanychange(value)}
+                  clearButton={false}
+                />
+                <TextField name="employeeDesc" colSpan={2} />
+                <Select
+                  name="invoiceType"
+                  colSpan={2}
+                  renderer={({ value, text }) => value && `${value} - ${text}`}
+                />
+                <DatePicker name="invoiceDate" colSpan={2} />
+                <DatePicker name="ticketCollectorDate" colSpan={2} />
+                <DatePicker name="entryAccountDate" colSpan={2} />
+                <DatePicker name="entryPoolDatetime" colSpan={2} />
+                <DatePicker name="warehousingDate" colSpan={2} />
+                <DatePicker name="checkDate" colSpan={2} />
+                <Select key="displayOptions" name="displayOptions" colSpan={2} />
+                <Select key="invoiceStateStr" name="invoiceStateStr" colSpan={4} />
+                {queryMoreDisplay && queryMoreArray}
+              </Form>
+            </Col>
+            <Col span={4} style={{ textAlign: 'end' }}>
+              <Button
+                funcType={FuncType.link}
+                onClick={() => this.setState({ queryMoreDisplay: !queryMoreDisplay })}
+              >
+                {queryMoreDisplay ? (
+                  <span>
+                    {intl.get('hzero.common.button.option').d('更多')}
+                    <Icon type="expand_more" />
+                  </span>
+                ) : (
+                  <span>
+                    {intl.get('hzero.common.button.option').d('更多')}
+                    <Icon type="expand_less" />
+                  </span>
+                )}
               </Button>
               <Button
                 onClick={() => {
@@ -237,22 +257,33 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
                   queryDataSet.create();
                 }}
               >
-                {intl.get('hzero.c7nProUI.Table.reset_button').d('重置')}
+                {intl.get('hzero.hzeroTheme.page.reset').d('重置')}
               </Button>
-              <Button
-                color={ButtonColor.primary}
-                onClick={() => {
-                  dataSet.query();
-                }}
-              >
-                {intl.get('hzero.c7nProUI.Table.query_button').d('查询')}
+              <Button color={ButtonColor.primary} onClick={() => dataSet.query()}>
+                {intl.get('hzero.common.button.search').d('查询')}
               </Button>
             </Col>
           </Row>
-        </>
+          {buttons}
+        </div>
       );
     }
     return <></>;
+  }
+
+  @Bind()
+  async handleCreate(record, modal) {
+    const validate = await this.props.headerDS.validate(false, false);
+    if (validate) {
+      this.handleComplete(record);
+      modal.close();
+    }
+  }
+
+  @Bind()
+  handleCancel(record, modal) {
+    this.props.headerDS.remove(record);
+    modal.close();
   }
 
   /**
@@ -261,20 +292,29 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
    */
   @Bind()
   handleAddIvc() {
-    // const { queryDataSet } = this.props.headerDS;
-    // if (queryDataSet) {
-    //   const curInfo = queryDataSet.current!.toData();
-    //   const newLine = {
-    //     companyId: curInfo.companyId,
-    //     companyCode: curInfo.companyCode,
-    //     companyName: curInfo.companyName,
-    //     taxpayerNumber: curInfo.taxpayerNumber,
-    //     employeeId: curInfo.employeeId,
-    //     employeeNum: curInfo.employeeNum,
-    //   };
-    //   this.props.headerDS.create(newLine, 0);
-    // }
-    this.props.headerDS.create({}, 0);
+    const record = this.props.headerDS.create({}, 0);
+    const modal = Modal.open({
+      title: intl.get('hzero.common.button.add').d('新增发票'),
+      children: (
+        <Form record={record}>
+          <TextField name="invoiceCode" />
+          <TextField name="invoiceNo" />
+          <DatePicker name="invoiceDate" />
+          <TextField name="checkCode" />
+          <Currency name="invoiceAmount" />
+        </Form>
+      ),
+      footer: (
+        <div>
+          <Button onClick={() => this.handleCancel(record, modal)}>
+            {intl.get(`hzero.common.button.cancel`).d('取消')}
+          </Button>
+          <Button color={ButtonColor.primary} onClick={() => this.handleCreate(record, modal)}>
+            {intl.get(`hivp.bill.button.completed`).d('查验补全')}
+          </Button>
+        </div>
+      ),
+    });
   }
 
   // 跳转通用参数
@@ -436,7 +476,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       notification.warning({
         description: '',
         message: intl
-          .get(`${modelCode}.view.checkdFlag`)
+          .get(`${modelCode}.view.checkdFlag1`)
           .d('当前发票已入账或已关联单据，不允许删除'),
       });
       return;
@@ -454,7 +494,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       notification.warning({
         description: '',
         message: intl
-          .get(`${modelCode}.view.checkdFlag`)
+          .get(`${modelCode}.view.checkdFlag2`)
           .d('存在未查验的发票，请查验补全或删除后再进行保存'),
       });
       return;
@@ -474,15 +514,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
     this.setState({
       spinProps: { spinning: true, indicator: <span className="custom-spin-dot" /> },
     });
-    const {
-      invoiceCode,
-      invoiceNo,
-      invoiceDate,
-      checkCode,
-      invoiceAmount,
-      buyerTaxNo,
-      invoicePoolHeaderId,
-    } = record.toData();
+    const { invoiceCode, invoiceNo, invoicePoolHeaderId } = record.toData();
     const {
       companyId,
       companyCode,
@@ -509,6 +541,8 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       });
       return;
     }
+    const data = record.toData();
+    const { checkCode, ...otherData } = data;
     const params = {
       tenantId,
       companyId,
@@ -517,19 +551,29 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       employeeId,
       employeeNum,
       taxpayerNumber,
-      invoiceCode,
-      invoiceAmount,
-      invoiceDate: moment(invoiceDate).format('YYYYMMDD'),
-      invoiceNumber: invoiceNo,
-      taxpayerIdentificationNumber: buyerTaxNo,
-      checkNumber: checkCode && checkCode.substr(checkCode.length - 6),
+      list: {
+        ...otherData,
+        checkNumber: checkCode && checkCode.substr(checkCode.length - 6),
+        invoiceNumber: invoiceNo,
+      },
     };
-    const res = await invoiceCheckComplete(params);
+    const res = await poolAdd(params);
     this.setState({ spinProps: { spinning: false } });
     if (res && res.status === 'H1014') {
+      const { fileSize, failTotalSize, successSize, existsSet } = res.data;
+      // const message = `本次查验${fileSize}条，成功${successSize}条，失败${failTotalSize}条，查验失败:[${existsSet.join(
+      //   ','
+      // )}]`;
+      const message = intl.get(`${modelCode}.notice.checkResult`, {
+        fileSize,
+        successSize,
+        failTotalSize,
+        existsSetRe: existsSet.join(','),
+      });
       notification.success({
-        description: '',
-        message: res.message,
+        description: message,
+        message: '',
+        duration: 5,
       });
       this.props.headerDS.query();
     } else {
@@ -553,6 +597,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       invoiceHeaderId = record.get('invoiceHeaderId');
     }
     const { dispatch } = this.props;
+    localStorage.setItem('currentInvoicerecord', JSON.stringify(record.data)); // 添加跳转record缓存
     const pathname = `/htc-front-ivp/invoices/detail/${invoiceHeaderId}/${invoiceType}/${entryPoolSource}/${companyCode}`;
     dispatch(
       routerRedux.push({
@@ -641,14 +686,26 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
    * @returns
    */
   @Bind()
-  handleGotoHistory(record) {
+  async handleGotoHistory(record) {
     const invoicePoolHeaderId = record.get('invoicePoolHeaderId');
-    if (!invoicePoolHeaderId) return;
-    const comParams = {
-      pathname: `/htc-front-ivp/invoices/invoice-history/${sourceCode}/${invoicePoolHeaderId}`,
-      otherSearch: { backPath: '/htc-front-ivp/invoices/list' },
+    const historyProps = {
+      sourceCode,
+      sourceHeaderId: invoicePoolHeaderId,
+      record: record.toData(),
     };
-    this.goToByHeaderParams(record, comParams);
+    const modal = Modal.open({
+      title: intl.get(`hzero.common.status.history`).d('历史记录'),
+      drawer: true,
+      width: 480,
+      bodyStyle: { overflow: 'hidden' },
+      closable: true,
+      children: <InvoiceHistory {...historyProps} />,
+      footer: (
+        <Button color={ButtonColor.primary} onClick={() => modal.close()}>
+          {intl.get(`hzero.common.button.closeOther`).d('关闭')}
+        </Button>
+      ),
+    });
   }
 
   /**
@@ -697,169 +754,6 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
     return exportParams;
   }
 
-  @Bind()
-  optionsRender(record) {
-    const renderPermissionButton = (params) => (
-      <PermissionButton
-        type="c7n-pro"
-        funcType={FuncType.flat}
-        onClick={params.onClick}
-        color={ButtonColor.primary}
-        disabled={params.disabled || false}
-        permissionList={[
-          {
-            code: `${permissionPath}.button.${params.permissionCode}`,
-            type: 'button',
-            meaning: `${params.permissionMeaning}`,
-          },
-        ]}
-      >
-        {params.title}
-      </PermissionButton>
-    );
-    const operators = [
-      // {
-      //   key: 'viewLines',
-      //   ele: renderPermissionButton({
-      //     onClick: () => this.handleGotoViewLines(record),
-      //     disabled: !record.get('invoicePoolHeaderId'),
-      //     permissionCode: 'view-lines',
-      //     permissionMeaning: '按钮-行查看',
-      //     title: intl.get(`${modelCode}.button.viewLines`).d('行查看'),
-      //   }),
-      //   len: 5,
-      //   title: intl.get(`${modelCode}.button.viewLines`).d('行查看'),
-      // },
-      {
-        key: 'completed',
-        // ele: (
-        //   <a onClick={() => this.handleComplete(record)}>
-        //     {intl.get(`${modelCode}.button.completed`).d('查验补全')}
-        //   </a>
-        // ),
-        ele: renderPermissionButton({
-          onClick: () => this.handleComplete(record),
-          permissionCode: 'completed',
-          permissionMeaning: '按钮-查验补全',
-          title: intl.get(`${modelCode}.button.completed`).d('查验补全'),
-        }),
-        len: 6,
-        title: intl.get(`${modelCode}.button.completed`).d('查验补全'),
-      },
-      {
-        key: 'viewDetail',
-        ele: renderPermissionButton({
-          onClick: () => this.handleGotoDetailPage(record),
-          // disabled: !(record.get('invoiceHeaderId') && record.get('invoiceType') && !record.get('EXTERNAL_IMPORT')),
-          disabled:
-            (!record.get('invoiceHeaderId') &&
-              record.get('entryPoolSource') !== 'EXTERNAL_IMPORT') ||
-            (!record.get('invoiceType') && record.get('entryPoolSource') !== 'EXTERNAL_IMPORT'),
-          permissionCode: 'view-detail',
-          permissionMeaning: '按钮-查看详情',
-          title: intl.get(`${modelCode}.button.viewDetail`).d('查看详情'),
-        }),
-        len: 6,
-        title: intl.get(`${modelCode}.button.viewDetail`).d('查看详情'),
-      },
-      {
-        key: 'relateDoc',
-        ele: renderPermissionButton({
-          onClick: () => this.handleGotoDocRelated(record),
-          disabled: !record.get('invoicePoolHeaderId'),
-          permissionCode: 'relate-doc',
-          permissionMeaning: '按钮-单据关联',
-          title: intl.get(`${modelCode}.button.relateDoc`).d('单据关联'),
-        }),
-        len: 6,
-        title: intl.get(`${modelCode}.button.relateDoc`).d('单据关联'),
-      },
-      {
-        key: 'history',
-        ele: renderPermissionButton({
-          onClick: () => this.handleGotoHistory(record),
-          disabled: !record.get('invoicePoolHeaderId'),
-          permissionCode: 'history',
-          permissionMeaning: '按钮-历史记录',
-          title: intl.get(`${modelCode}.button.history`).d('历史记录'),
-        }),
-        len: 6,
-        title: intl.get(`${modelCode}.button.history`).d('历史记录'),
-      },
-      {
-        key: 'archiveUpload',
-        ele: renderPermissionButton({
-          onClick: () => this.handleGotoArchiveUpload(record),
-          disabled: !record.get('invoicePoolHeaderId'),
-          permissionCode: 'archive-upload',
-          permissionMeaning: '按钮-上传档案',
-          title: intl.get(`${modelCode}.button.archiveUpload`).d('上传档案'),
-        }),
-        len: 6,
-        title: intl.get(`${modelCode}.button.archiveUpload`).d('上传档案'),
-      },
-    ];
-    const archiveViewBtn = {
-      key: 'archiveView',
-      ele: renderPermissionButton({
-        onClick: () => this.handleGotoArchiveView(record),
-        disabled: !record.get('invoicePoolHeaderId'),
-        permissionCode: 'archive-view',
-        permissionMeaning: '按钮-查看档案',
-        title: intl.get(`${modelCode}.button.archiveView`).d('查看档案'),
-      }),
-      len: 6,
-      title: intl.get(`${modelCode}.button.archiveView`).d('查看档案'),
-    };
-    if (record.get('fileUrl')) {
-      operators.push(archiveViewBtn);
-    }
-    const updateStateBtn = {
-      key: 'updateState',
-      ele: renderPermissionButton({
-        onClick: () => this.handleUpdateState(record),
-        disabled: !record.get('invoicePoolHeaderId'),
-        permissionCode: 'update-state',
-        permissionMeaning: '按钮-状态更新',
-        title: intl.get(`${modelCode}.button.updateState`).d('状态更新'),
-      }),
-      len: 6,
-      title: intl.get(`${modelCode}.button.updateState`).d('状态更新'),
-    };
-    const invoiceDate = record.get('invoiceDate');
-    const beforeYearFlag = moment().subtract(1, 'years').isAfter(invoiceDate, 'day');
-    if (!beforeYearFlag && record.get('invoicePoolHeaderId')) {
-      operators.push(updateStateBtn);
-    }
-    // const newOperators = operators.filter(Boolean);
-    // return operatorRender(newOperators, record, { limit: 2 });
-    const btnMenu = (
-      <Menu>
-        {operators.map((action) => {
-          const { key } = action;
-          return <Menu.Item key={key}>{action.ele}</Menu.Item>;
-        })}
-      </Menu>
-    );
-    return (
-      <span className="action-link">
-        {renderPermissionButton({
-          onClick: () => this.handleGotoViewLines(record),
-          disabled: !record.get('invoicePoolHeaderId'),
-          permissionCode: 'view-lines',
-          permissionMeaning: '按钮-行查看',
-          title: intl.get(`${modelCode}.button.viewLines`).d('行查看'),
-        })}
-        <Dropdown overlay={btnMenu}>
-          <a>
-            {intl.get('hzero.common.button.action').d('操作')}
-            <Icon type="arrow_drop_down" />
-          </a>
-        </Dropdown>
-      </span>
-    );
-  }
-
   // 渲染列脚
   @Bind()
   renderColumnFooter(dataSet, name) {
@@ -877,13 +771,64 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
           return `${i},`;
         });
       });
-    return `合计：${total || 0}`;
+    return `${intl.get(`hivp.invoices.view.total`).d('合计')}：${total || 0}`;
   }
 
   get columns(): ColumnProps[] {
     return [
-      { name: 'invoiceType', width: 200 },
-      { name: 'invoiceState' },
+      {
+        name: 'invoiceType',
+        width: 230,
+        renderer: ({ text, record }) => {
+          const invoiceState = record?.get('invoiceState');
+          const invoiceStateTxt = record?.getField('invoiceState')?.getText(invoiceState);
+          let color = '';
+          let textColor = '';
+          switch (invoiceState) {
+            case '0':
+              color = '#D6FFD7';
+              textColor = '#19A633';
+              break;
+            case '1':
+              color = '#FFECC4';
+              textColor = '#FF9D23';
+              break;
+            case '2':
+              color = '#F0F0F0';
+              textColor = '#959595';
+              break;
+            case '3':
+              color = '#FFDFCA';
+              textColor = '#FB6D3B';
+              break;
+            case '4':
+              color = '#FFDFCA';
+              textColor = '#FB6D3B';
+              break;
+            case '5':
+              color = '#FFDCD4';
+              textColor = '#FF5F57';
+              break;
+            case '6':
+              color = '#FFDCD4';
+              textColor = '#FF5F57';
+              break;
+            default:
+              color = '';
+              textColor = '';
+              break;
+          }
+          return (
+            <>
+              <Tag color={color} style={{ color: textColor }}>
+                {invoiceStateTxt}
+              </Tag>
+              &nbsp;
+              <a onClick={() => this.handleGotoDetailPage(record)}>{text}</a>
+            </>
+          );
+        },
+      },
       { name: 'invoiceCode', editor: (record) => !record.get('invoicePoolHeaderId'), width: 150 },
       { name: 'invoiceNo', editor: (record) => !record.get('invoicePoolHeaderId'), width: 150 },
       { name: 'invoiceDate', editor: (record) => !record.get('invoicePoolHeaderId'), width: 150 },
@@ -908,7 +853,11 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       },
       { name: 'validTaxAmount', width: 150, align: ColumnAlign.right },
       { name: 'checkCode', editor: (record) => !record.get('invoicePoolHeaderId'), width: 180 },
-      { name: 'annotation', editor: true, width: 200 },
+      {
+        name: 'annotation',
+        editor: () => <TextField onBlur={() => this.props.headerDS.submit()} />,
+        width: 200,
+      },
       { name: 'salerName', width: 260 },
       { name: 'salerTaxNo', width: 180 },
       { name: 'buyerName', width: 260 },
@@ -920,15 +869,25 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       { name: 'authenticationType' },
       { name: 'originalEntryDate', width: 150 },
       { name: 'remark', width: 200 },
-      { name: 'ticketCollectorObj', editor: true, width: 280 },
+      {
+        name: 'ticketCollectorObj',
+        editor: true,
+        width: 280,
+      },
       {
         name: 'internationalTelCode',
-        editor: (record) => record.get('employeeTypeCode') === 'PRESET',
+        editor: (record) =>
+          record.get('employeeTypeCode') === 'PRESET' && (
+            <Select onChange={() => this.props.headerDS.submit()} />
+          ),
         width: 130,
       },
       {
         name: 'employeeIdentify',
-        editor: (record) => record.get('employeeTypeCode') === 'PRESET',
+        editor: (record) =>
+          record.get('employeeTypeCode') === 'PRESET' && (
+            <TextField onBlur={() => this.props.headerDS.submit()} />
+          ),
         width: 130,
       },
       { name: 'ticketCollectorDate', width: 110 },
@@ -939,20 +898,108 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       { name: 'entryAccountDate', width: 120 },
       { name: 'entryPoolDatetime', width: 160 },
       { name: 'taxBureauManageState', width: 120 },
-      { name: 'abnormalSign', editor: true, width: 240 },
+      {
+        name: 'abnormalSign',
+        editor: <TextField onBlur={() => this.props.headerDS.submit()} />,
+        width: 240,
+      },
       { name: 'inOutType' },
       { name: 'invoicePoolHeaderId', renderer: ({ value }) => <span>{value}</span> },
-      { name: 'fileUrl', width: 300 },
+      {
+        name: 'fileUrl',
+        width: 300,
+        renderer: ({ value, record }) => (
+          <a onClick={() => this.handleGotoArchiveView(record)}>{value}</a>
+        ),
+      },
       { name: 'fileName', width: 220 },
       {
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
-        width: 180,
-        renderer: ({ record }) => this.optionsRender(record),
+        width: 100,
+        command: ({ record }): Commands[] => {
+          return [
+            <a onClick={() => this.handleGotoHistory(record)}>
+              {intl.get(`hzero.common.status.history`).d('历史记录')}
+            </a>,
+          ];
+        },
         lock: ColumnLock.right,
         align: ColumnAlign.center,
       },
     ];
+  }
+
+  // 批量上传
+  @Bind()
+  batchUpload() {
+    const { curCompanyId } = this.state;
+    const { dispatch } = this.props;
+    dispatch(
+      routerRedux.push({
+        pathname: `/htc-front-ivp/invoices/batch-upload/${sourceCode}/${curCompanyId}`,
+        search: querystring.stringify({
+          invoiceInfo: encodeURIComponent(
+            JSON.stringify({
+              backPath: '/htc-front-ivp/invoices/list',
+            })
+          ),
+        }),
+      })
+    );
+  }
+
+  // 查验补全
+  @Bind()
+  async handleBatchComplete() {
+    const { queryDataSet } = this.props.headerDS;
+    const selectedList = this.props.headerDS.selected.map((record) => record.toData());
+    if (queryDataSet) {
+      const curQueryInfo = queryDataSet.current!.toData();
+      const _selectedList = selectedList.map((record) => {
+        const { checkCode, invoiceNo, ...otherData } = record;
+        const _record = {
+          checkNumber: checkCode && checkCode.substr(checkCode.length - 6),
+          invoiceNumber: invoiceNo,
+          ...otherData,
+        };
+        return _record;
+      });
+      const params = {
+        tenantId,
+        companyCode: curQueryInfo.companyCode,
+        companyName: curQueryInfo.companyName,
+        companyId: curQueryInfo.companyId,
+        employeeId: curQueryInfo.employeeId,
+        employeeNum: curQueryInfo.employeeNum,
+        taxpayerNumber: curQueryInfo.taxpayerNumber,
+        list: _selectedList,
+      };
+      const res = await invoiceCheck(params);
+      if (res && res.status === 'H1014') {
+        const { fileSize, failTotalSize, successSize, existsSet } = res.data;
+        // const message = `本次查验${fileSize}条，成功${successSize}条，失败${failTotalSize}条，查验失败:[${existsSet.join(
+        //   ','
+        // )}]`;
+        const message = intl.get(`${modelCode}.notice.checkResult`, {
+          fileSize,
+          successSize,
+          failTotalSize,
+          existsSetRe: existsSet.join(','),
+        });
+        notification.success({
+          description: message,
+          message: '',
+          duration: 5,
+        });
+        this.props.headerDS.query();
+      } else {
+        notification.error({
+          description: '',
+          message: res.message,
+        });
+      }
+    }
   }
 
   /**
@@ -963,25 +1010,14 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
     const { curCompanyId } = this.state;
     const HeaderButtons = observer((props: any) => {
       const isDisabled = props.dataSet!.selected.length === 0;
-      // return (
-      //   <Button
-      //     key={props.key}
-      //     onClick={props.onClick}
-      //     disabled={isDisabled}
-      //     funcType={FuncType.flat}
-      //     color={ButtonColor.primary}
-      //   >
-      //     {props.title}
-      //   </Button>
-      // );
+      const { condition } = props;
       return (
         <PermissionButton
           type="c7n-pro"
           key={props.key}
           onClick={props.onClick}
           disabled={isDisabled}
-          funcType={FuncType.flat}
-          color={ButtonColor.primary}
+          funcType={condition === 'batchDelete' ? FuncType.flat : FuncType.link}
           permissionList={[
             {
               code: `${permissionPath}.button.${props.permissionCode}`,
@@ -994,27 +1030,29 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
         </PermissionButton>
       );
     });
-    return [
-      <PermissionButton
-        type="c7n-pro"
-        key="addIvc"
-        onClick={() => this.handleAddIvc()}
-        disabled={!curCompanyId}
-        permissionList={[
-          {
-            code: `${permissionPath}.button.add-invoice`,
-            type: 'button',
-            meaning: '按钮-发票新增',
-          },
-        ]}
-      >
-        {intl.get(`${modelCode}.button.addIvc`).d('发票新增')}
-      </PermissionButton>,
+    const topBtns = [
+      <HeaderButtons
+        key="completed"
+        onClick={() => this.handleBatchComplete()}
+        dataSet={this.props.headerDS}
+        title={intl.get(`hivp.bill.button.completed`).d('查验补全')}
+        permissionCode="completed"
+        permissionMeaning="按钮-查验补全"
+      />,
+      <HeaderButtons
+        key="checkState"
+        onClick={() => this.handleCheckState()}
+        dataSet={this.props.headerDS}
+        title={intl.get(`${modelCode}.button.checkState`).d('检查状态')}
+        permissionCode="check-state"
+        permissionMeaning="按钮-检查状态"
+      />,
       <PermissionButton
         type="c7n-pro"
         key="getOriginalAcc"
         onClick={() => this.handleGotoOriginalAccount()}
         disabled={!curCompanyId}
+        funcType={FuncType.link}
         permissionList={[
           {
             code: `${permissionPath}.button.get-original-acc`,
@@ -1025,27 +1063,12 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       >
         {intl.get(`${modelCode}.button.getOriginalAcc`).d('获取底账')}
       </PermissionButton>,
-      <HeaderButtons
-        key="layoutPush"
-        onClick={() => this.handleGotoLayoutPush()}
-        dataSet={this.props.headerDS}
-        title={intl.get(`${modelCode}.button.layoutPush`).d('版式推送')}
-        permissionCode="layout-push"
-        permissionMeaning="按钮-版式推送"
-      />,
-      <HeaderButtons
-        key="filed"
-        onClick={() => this.handleGotoFileArchive()}
-        dataSet={this.props.headerDS}
-        title={intl.get(`${modelCode}.button.filed`).d('档案归档')}
-        permissionCode="filed"
-        permissionMeaning="按钮-档案归档"
-      />,
       <PermissionButton
         type="c7n-pro"
         key="fileDownload"
         onClick={() => this.handleGotoFileDownload()}
         disabled={!curCompanyId}
+        funcType={FuncType.link}
         permissionList={[
           {
             code: `${permissionPath}.button.file-download`,
@@ -1054,48 +1077,87 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
           },
         ]}
       >
-        {intl.get(`${modelCode}.button.fileDownload`).d('档案下载')}
+        {intl.get(`hivp.bill.button.fileDownload`).d('档案下载')}
       </PermissionButton>,
       <HeaderButtons
-        key="checkState"
-        onClick={() => this.handleCheckState()}
+        key="filed"
+        onClick={() => this.handleGotoFileArchive()}
         dataSet={this.props.headerDS}
-        title={intl.get(`${modelCode}.button.checkState`).d('检查状态')}
-        permissionCode="check-state"
-        permissionMeaning="按钮-检查状态"
+        title={intl.get(`hivp.bill.button.archives`).d('档案归档')}
+        permissionCode="filed"
+        permissionMeaning="按钮-档案归档"
       />,
+      <HeaderButtons
+        key="layoutPush"
+        onClick={() => this.handleGotoLayoutPush()}
+        dataSet={this.props.headerDS}
+        title={intl.get(`hivp.invoicesLayoutPush.view.title`).d('版式推送')}
+        permissionCode="layout-push"
+        permissionMeaning="按钮-版式推送"
+      />,
+    ];
+    const btnMenu = (
+      <Menu>
+        {topBtns.map((action) => {
+          return <MenuItem>{action}</MenuItem>;
+        })}
+      </Menu>
+    );
+    return [
+      <PermissionButton
+        type="c7n-pro"
+        key="addIvc"
+        onClick={() => this.handleAddIvc()}
+        disabled={!curCompanyId}
+        icon="add"
+        permissionList={[
+          {
+            code: `${permissionPath}.button.add-invoice`,
+            type: 'button',
+            meaning: '按钮-发票新增',
+          },
+        ]}
+      >
+        {intl.get(`hzero.common.button.add`).d('新增')}
+      </PermissionButton>,
+      <PermissionButton
+        type="c7n-pro"
+        key="archiveUpload"
+        onClick={() => this.batchUpload()}
+        color={ButtonColor.default}
+        disabled={!curCompanyId}
+        permissionList={[
+          {
+            code: `${permissionPath}.button.archive-upload`,
+            type: 'button',
+            meaning: '按钮-批量上传档案',
+          },
+        ]}
+      >
+        {intl.get(`hivp.bill.button.bulkArchiveUpload`).d('批量上传档案')}
+      </PermissionButton>,
+      <Dropdown overlay={btnMenu}>
+        <Button>
+          {intl.get(`${modelCode}.more.op`).d('更多操作')}
+          <Icon type="arrow_drop_down" />
+        </Button>
+      </Dropdown>,
       <HeaderButtons
         key="deleteHeaders"
         onClick={() => this.handleDeleteHeaders()}
         dataSet={this.props.headerDS}
-        title={intl.get(`${modelCode}.button.deleteHeaders`).d('删除')}
+        title={intl.get(`hzero.common.button.delete`).d('删除')}
         permissionCode="delete"
         permissionMeaning="按钮-删除"
+        condition="batchDelete"
       />,
-      // <Button key="save" onClick={() => this.handleSaveIvc()}>
-      //   {intl.get(`${modelCode}.button.save`).d('保存')}
-      // </Button>,
-      <PermissionButton
-        type="c7n-pro"
-        key="save"
-        onClick={() => this.handleSaveIvc()}
-        permissionList={[
-          {
-            code: `${permissionPath}.button.save`,
-            type: 'button',
-            meaning: '按钮-保存',
-          },
-        ]}
-      >
-        {intl.get(`${modelCode}.button.save`).d('保存')}
-      </PermissionButton>,
     ];
   }
 
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('发票池')}>
+        <Header title={intl.get(`${modelCode}.view.title`).d('发票池')}>
           <ExcelExport
             requestUrl={`${API_PREFIX}/v1/${tenantId}/invoice-pool-main/export-invoice`}
             queryParams={() => this.handleGetQueryParams()}
@@ -1107,7 +1169,6 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
             dataSet={this.props.headerDS}
             columns={this.columns}
             queryBar={this.renderQueryBar}
-            // editMode={TableEditMode.inline}
             spin={this.state.spinProps}
             style={{ height: 400 }}
           />

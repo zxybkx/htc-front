@@ -2,16 +2,21 @@
  * service - 开票订单工作台
  * @Author:xinyan.zhou
  * @Date: 2020-12-15
- * @LastEditeTime:
+ * @LastEditeTime: 2022-3-15
  * @Copyright: Copyright (c) 2020, Hand
  */
 import request from 'utils/request';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 
-const HIOP_API = commonConfig.IOP_API;
-const HCAN_API = commonConfig.CHAN_API;
+const HIOP_API = commonConfig.IOP_API || '';
+const HCAN_API = commonConfig.CHAN_API || '';
+
 /**
  * 新建开票订单
+ * @async
+ * @function orderNew
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function orderNew(params) {
   const { tenantId, ...otherPrams } = params;
@@ -23,6 +28,10 @@ export async function orderNew(params) {
 
 /**
  * 获取员工可用发票类型
+ * @async
+ * @function employeeInvoiceType
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function employeeInvoiceType(params) {
   const { tenantId, ...otherPrams } = params;
@@ -34,10 +43,33 @@ export async function employeeInvoiceType(params) {
 
 /**
  * 开票订单保存
+ * @async
+ * @function batchSave
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function batchSave(params) {
   const { tenantId, ...otherParams } = params;
   return request(`${HIOP_API}/v1/${tenantId}/invoicing-order-headers/batch-save`, {
+    method: 'POST',
+    query: {
+      employeeId: otherParams.curEmployeeId,
+      discountSplitFlag: otherParams.discountSplitFlag,
+    },
+    body: [otherParams],
+  });
+}
+
+/**
+ * 开票订单复制
+ * @async
+ * @function orderCopy
+ * @params {object} params
+ * @returns {object} fetch Promise
+ */
+export async function orderCopy(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIOP_API}/v1/${tenantId}/invoicing-order-headers/copy`, {
     method: 'POST',
     query: { employeeId: otherParams.curEmployeeId },
     body: [otherParams],
@@ -46,6 +78,10 @@ export async function batchSave(params) {
 
 /**
  * 审核提交
+ * @async
+ * @function review
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function review(params) {
   const { tenantId, ...otherParams } = params;
@@ -58,6 +94,10 @@ export async function review(params) {
 
 /**
  * 公司详细信息
+ * @async
+ * @function companyDetailInfo
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function companyDetailInfo(params) {
   const { tenantId, companyCode } = params;
@@ -68,7 +108,10 @@ export async function companyDetailInfo(params) {
 
 /**
  * 默认发票交付信息
- *
+ * @async
+ * @function defaultInvoiceInfo
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function defaultInvoiceInfo(params) {
   const { tenantId, ...otherParams } = params;
@@ -79,17 +122,11 @@ export async function defaultInvoiceInfo(params) {
 }
 
 /**
- *开票订单头信息
- */
-// export async function invoicingOrderHeaders(params) {
-//   const { tenantId, invoicingOrderHeaderId } = params;
-//   return request(`${HIOP_API}/v1/${tenantId}/invoicing-order-headers/${invoicingOrderHeaderId}`, {
-//     method: 'GET',
-//   });
-// }
-
-/**
  * 刷新状态
+ * @async
+ * @function refresh
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function refresh(params) {
   const { tenantId, refreshOrderHeaderList, companyId, employeeId } = params;
@@ -102,6 +139,10 @@ export async function refresh(params) {
 
 /**
  * 批量提交
+ * @async
+ * @function batchSubmit
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function batchSubmit(params) {
   const { tenantId, submitOrderHeaderList, ...otherPrams } = params;
@@ -114,6 +155,10 @@ export async function batchSubmit(params) {
 
 /**
  * 批量取消
+ * @async
+ * @function batchCancelSubmitOrder
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function batchCancelSubmitOrder(params) {
   const { tenantId, cancelOrderHeaderList, ...otherPrams } = params;
@@ -129,6 +174,10 @@ export async function batchCancelSubmitOrder(params) {
 
 /**
  * 批量删除
+ * @async
+ * @function batchRemove
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function batchRemove(params) {
   const { tenantId, invoicingOrderHeaderList } = params;
@@ -140,6 +189,10 @@ export async function batchRemove(params) {
 
 /**
  * 单条删除
+ * @async
+ * @function lineRemove
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function lineRemove(params) {
   const { tenantId, invoicingOrderHeaderList } = params;
@@ -151,6 +204,10 @@ export async function lineRemove(params) {
 
 /**
  * 导出打印文件
+ * @async
+ * @function batchExport
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function batchExport(params) {
   const { tenantId, exportOrderHeaderList, ...otherParams } = params;
@@ -164,6 +221,10 @@ export async function batchExport(params) {
 
 /**
  * 导出打印文件base64数组
+ * @async
+ * @function batchExportNoZip
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function batchExportNoZip(params) {
   const { tenantId, exportOrderHeaderList, ...otherParams } = params;
@@ -179,6 +240,10 @@ export async function batchExportNoZip(params) {
 
 /**
  * 行打印文件
+ * @async
+ * @function exportPrintFile
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function exportPrintFile(params) {
   const { tenantId, exportOrderHeader } = params;
@@ -191,6 +256,10 @@ export async function exportPrintFile(params) {
 
 /**
  * 获取创建人数据
+ * @async
+ * @function employeeList
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function employeeList(params) {
   const { tenantId, companyId } = params;
@@ -202,6 +271,10 @@ export async function employeeList(params) {
 
 /**
  * 获取业务类型
+ * @async
+ * @function employeePurchaseMark
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function employeePurchaseMark(params) {
   const { tenantId, companyId, employeeId } = params;
@@ -217,6 +290,7 @@ export async function employeePurchaseMark(params) {
  * 档案查看-ofd电子发票URL转JPG
  * @async
  * @function urlTojpg
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function urlTojpg(params) {
@@ -230,7 +304,8 @@ export async function urlTojpg(params) {
 /**
  * 下载注册表文件
  * @async
- * @function fileDownloadPath
+ * @function getRegistry
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function getRegistry(params) {
@@ -244,7 +319,8 @@ export async function getRegistry(params) {
 /**
  * 本地exe文件路径
  * @async
- * @function fileDownloadPath
+ * @function getFilePath
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function getFilePath(params) {
@@ -259,7 +335,8 @@ export async function getFilePath(params) {
 /**
  * 更新打印次数
  * @async
- * @function update-export-print-num
+ * @function updatePrintNum
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function updatePrintNum(params) {
@@ -278,6 +355,7 @@ export async function updatePrintNum(params) {
  * 申请单发票作废
  * @async
  * @function batchInvalid
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function batchInvalid(params) {

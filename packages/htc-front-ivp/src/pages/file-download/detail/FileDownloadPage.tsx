@@ -2,23 +2,26 @@ import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import intl from 'utils/intl';
 import { Bind } from 'lodash-decorators';
-import { DataSet, Form, Button, Table, Output } from 'choerodon-ui/pro';
+import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
+import { Button, DataSet, Form, Modal, Output, Table } from 'choerodon-ui/pro';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { DEFAULT_DATE_FORMAT } from 'hzero-front/lib/utils/constants';
 import moment from 'moment';
-import { base64toBlob } from '@common/utils/utils';
+import { base64toBlob } from '@htccommon/utils/utils';
 import { archivesDownload } from '@src/services/invoicesService';
 import { getCurrentOrganizationId } from 'utils/utils';
 import notification from 'utils/notification';
+import formatterCollections from 'utils/intl/formatterCollections';
 import FileDownloadDS from '../stores/FileDownloadDS';
 import FileDownloadDetailDS from '../stores/FileDownloadDetailDS';
+import styles from './FileDownload.less';
 
-const modelCode = 'hivp.invoices.fileDownload';
+const modelCode = 'hivp.invoicesFileDownload';
 const tenantId = getCurrentOrganizationId();
 
 interface RouterInfo {
@@ -30,6 +33,9 @@ interface FileDownloadPageProps extends RouteComponentProps<RouterInfo> {
 }
 
 @connect()
+@formatterCollections({
+  code: [modelCode, 'htc.common', 'hiop.invoiceRule', 'hivp.batchCheck', 'hivp.bill'],
+})
 export default class FileDownloadPage extends Component<FileDownloadPageProps> {
   state = { companyDesc: '', backPath: '', companyCode: '', employeeNumber: '' };
 
@@ -90,7 +96,7 @@ export default class FileDownloadPage extends Component<FileDownloadPageProps> {
           } catch (e) {
             notification.error({
               description: '',
-              message: intl.get(`${modelCode}.view.ieUploadInfo`).d('下载失败'),
+              message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
             });
           }
         } else {
@@ -138,9 +144,9 @@ export default class FileDownloadPage extends Component<FileDownloadPageProps> {
         width: 100,
         command: ({ record }): Commands[] => {
           return [
-            <Button key="completed" onClick={() => this.handledDownload(record)}>
-              {intl.get(`${modelCode}.button.download`).d('下载')}
-            </Button>,
+            <a onClick={() => this.handledDownload(record)}>
+              {intl.get('hzero.common.button.download').d('下载')}
+            </a>,
           ];
         },
         lock: ColumnLock.right,
@@ -167,33 +173,61 @@ export default class FileDownloadPage extends Component<FileDownloadPageProps> {
     ];
   }
 
+  @Bind()
+  openModal() {
+    const modal = Modal.open({
+      title: intl.get(`${modelCode}.view.title`).d('档案发票明细信息'),
+      drawer: true,
+      width: 700,
+      closable: true,
+      children: <Table dataSet={this.detailDS} columns={this.detailColumns} />,
+      footer: (
+        <Button onClick={() => modal.close()} color={ButtonColor.primary}>
+          {intl.get('hzero.common.model.button.close').d('关闭')}
+        </Button>
+      ),
+    });
+  }
+
+  // @Bind()
+  // handleRow() {
+  //   return {
+  //     onClick: () => this.openModal(),
+  //   };
+  // }
+
   render() {
     const { companyDesc, backPath } = this.state;
     return (
       <>
-        <Header backPath={backPath} title={intl.get(`${modelCode}.title`).d('档案下载')} />
-        <Content>
+        <Header
+          backPath={backPath}
+          title={intl.get('hivp.bill.button.fileDownload').d('档案下载')}
+        />
+        <div className={styles.header}>
           <Form columns={5}>
             <Output
-              label={intl.get(`${modelCode}.view.companyDesc`).d('所属公司')}
+              label={intl.get('htc.common.modal.companyName').d('所属公司')}
               value={companyDesc}
               colSpan={2}
             />
             <Output
-              label={intl.get(`${modelCode}.view.curDate`).d('当前日期')}
+              label={intl.get('hivp.batchCheck.view.currentTime').d('当前日期')}
               value={moment().format(DEFAULT_DATE_FORMAT)}
             />
           </Form>
+        </div>
+        <Content>
           <Table
             dataSet={this.tableDS}
             columns={this.columns}
-            queryFieldsLimit={4}
             style={{ height: 200 }}
+            // onRow={() => this.handleRow()}
           />
           <Table
             dataSet={this.detailDS}
             columns={this.detailColumns}
-            header={intl.get(`${modelCode}.view.detailTableTitle`).d('档案发票明细信息')}
+            header={intl.get(`${modelCode}.view.title`).d('档案发票明细信息')}
             style={{ height: 200 }}
           />
         </Content>

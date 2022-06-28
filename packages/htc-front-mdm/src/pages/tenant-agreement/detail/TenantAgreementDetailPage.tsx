@@ -1,5 +1,5 @@
 /**
- * tenantAgreement - 租户协议维护详情
+ * @Description: 租户协议维护详情
  * @Author: jesse.chen <jun.chen01@hand-china.com>
  * @Date: 2020-07-09
  * @LastEditeTime: 2021-06-10
@@ -8,23 +8,22 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Bind } from 'lodash-decorators';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
-import { DataSet, Table, Spin, Form, Output, Button, message, Modal } from 'choerodon-ui/pro';
+import { Button, DataSet, Form, message, Modal, Output, Spin, Table } from 'choerodon-ui/pro';
 import { Tabs } from 'choerodon-ui';
 import { TabsType } from 'choerodon-ui/lib/tabs/enum';
-import { ColumnLock, ColumnAlign, TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
+import { ColumnAlign, ColumnLock, TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Dispatch } from 'redux';
 import intl from 'utils/intl';
-import { refreshToken, deviceStatusQuery } from '@src/services/companyListService';
-import agreementClauseDS from '../stores/agreementClauseDS';
-import companyInfoDS from '../stores/companyInfoDS';
-import companyProtocolDS from '../stores/companyProtocolDS';
-import agreementDetailDS from '../stores/agreementDetailDS';
-import billInfoDS from '../stores/billInfoDS';
+import { deviceStatusQuery, refreshToken } from '@src/services/companyListService';
+import agreementClauseDS from '../stores/AgreementClauseDS';
+import companyInfoDS from '../stores/CompanyInfoDS';
+import companyProtocolDS from '../stores/CompanyProtocolDS';
+import agreementDetailDS from '../stores/AgreementDetailDS';
+import billInfoDS from '../stores/BillInfoDS';
 
 const modelCode = 'hpln.index-plan';
 const { TabPane } = Tabs;
@@ -93,6 +92,9 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
     }
   }
 
+  /**
+   * 刷新页面
+   */
   @Bind()
   async refreshPage() {
     const { agreementId } = this.props.match.params;
@@ -143,6 +145,7 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
 
   /**
    * 令牌刷新
+   * @params {object} record-行记录
    */
   @Bind()
   async handleRefreshToken(record) {
@@ -153,7 +156,10 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
     message.info(`${intl.get(`${modelCode}.button.refToken`).d('令牌刷新')}:${res}`);
   }
 
-  // 设备在线查询
+  /**
+   * 设备在线查询
+   * @params {object} record-行记录
+   */
   @Bind()
   async handleDeviceStatusQuery(record) {
     const { tenantId, companyCode } = record.toData();
@@ -296,17 +302,6 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
     ];
   }
 
-  // 生成账单
-  @Bind()
-  handleCreateBill() {
-    const { dispatch } = this.props;
-    dispatch(
-      routerRedux.push({
-        pathname: '/htc-front-mdm/tenant-agreement/createPDF',
-      })
-    );
-  }
-
   /**
    * [账单信息]列
    */
@@ -364,7 +359,9 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
     return [TableButtonType.add, TableButtonType.save, TableButtonType.delete];
   }
 
-  // 新增公司协议行
+  /**
+   * 新增公司协议行
+   */
   @Bind()
   handleAddLine() {
     const agreementCompanyId = this.companyInfoColDS.current!.get('agreementCompanyId');
@@ -390,14 +387,7 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
    * @returns {*[]}
    */
   get billInfoButt(): Buttons[] {
-    return [
-      // <Button icon="playlist_add" key="add" onClick={() => this.handleAddLine()}>
-      //   {intl.get('hzero.common.button.add ').d('新增')}
-      // </Button>,
-      TableButtonType.add,
-      TableButtonType.save,
-      TableButtonType.delete,
-    ];
+    return [TableButtonType.add, TableButtonType.save, TableButtonType.delete];
   }
 
   render() {

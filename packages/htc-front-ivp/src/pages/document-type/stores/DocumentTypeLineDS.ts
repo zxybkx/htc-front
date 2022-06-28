@@ -1,24 +1,25 @@
 /*
- * @Descripttion:单据类型维护行
+ * @Description:单据类型维护行
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-15 15:10:12
  * @LastEditTime: 2021-03-16 17:47:51
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
-import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
+import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import moment from 'moment';
 
-const modelCode = 'hivp.document-type';
+const modelCode = 'hivp.documentType';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
+  console.log('API_PREFIX', API_PREFIX);
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -43,6 +44,11 @@ export default (): DataSetProps => {
         };
       },
     },
+    events: {
+      submitSuccess: ({ dataSet }) => {
+        dataSet.query();
+      },
+    },
     pageSize: 5,
     selection: false,
     primaryKey: 'docTypeLineId',
@@ -57,8 +63,14 @@ export default (): DataSetProps => {
       },
       {
         name: 'orderSeq',
-        label: intl.get(`${modelCode}.view.orderSeq`).d('排序号'),
+        label: intl.get('hzero.common.view.serialNumber').d('排序号'),
         type: FieldType.string,
+      },
+      {
+        name: 'companyInfo',
+        label: intl.get(`${modelCode}.view.companyInfo`).d('单据代码'),
+        type: FieldType.object,
+        ignore: FieldIgnore.always,
       },
       {
         name: 'systemCode',
@@ -82,15 +94,6 @@ export default (): DataSetProps => {
         type: FieldType.string,
         required: true,
       },
-      // {
-      //   name: 'employeeId',
-      //   type: FieldType.number,
-      // },
-      // {
-      //   name: 'employeeDescription',
-      //   label: intl.get(`${modelCode}.view.employeeDescription`).d('添加员工'),
-      //   type: FieldType.string,
-      // },
       {
         name: 'salesSourceCode',
         label: intl.get(`${modelCode}.view.salesSourceCode`).d('销项来源单号'),
@@ -99,14 +102,21 @@ export default (): DataSetProps => {
         multiple: ',',
       },
       {
+        name: 'dateInfo',
+        label: intl.get(`${modelCode}.view.dateInfo`).d('有效期'),
+        type: FieldType.object,
+        ignore: FieldIgnore.always,
+      },
+      {
         name: 'startDate',
-        label: intl.get(`${modelCode}.view.startDate`).d('添加时间'),
+        label: intl.get(`${modelCode}.view.addtDate`).d('添加时间'),
         type: FieldType.dateTime,
         defaultValue: moment(),
+        readOnly: true,
       },
       {
         name: 'enabledFlag',
-        label: intl.get(`${modelCode}.view.enabledFlag`).d('是否启用'),
+        label: intl.get('hiop.invoiceRule.modal.enabledFlag').d('是否启用'),
         type: FieldType.number,
         falseValue: 0,
         trueValue: 1,
@@ -117,6 +127,7 @@ export default (): DataSetProps => {
         name: 'endDate',
         label: intl.get(`${modelCode}.view.endDate`).d('禁用时间'),
         type: FieldType.dateTime,
+        readOnly: true,
       },
     ],
   };

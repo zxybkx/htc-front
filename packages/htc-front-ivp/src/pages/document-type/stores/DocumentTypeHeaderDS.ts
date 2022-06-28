@@ -1,25 +1,25 @@
 /*
- * @Descripttion:单据类型维护头
+ * @Description:单据类型维护头
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-15 15:10:12
  * @LastEditTime: 2020-11-25 16:43:26
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
-import { getCurrentOrganizationId, getCurrentTenant } from 'utils/utils';
-import { FieldType, FieldIgnore } from 'choerodon-ui/pro/lib/data-set/enum';
+import { getCurrentOrganizationId } from 'utils/utils';
+import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import moment from 'moment';
-// import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 
-const modelCode = 'hivp.document-type';
+const modelCode = 'hivp.documentType';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
+  console.log('API_PREFIX', API_PREFIX);
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -44,7 +44,7 @@ export default (): DataSetProps => {
         };
       },
     },
-    pageSize: 5,
+    paging: false,
     selection: false,
     primaryKey: 'docTypeHeaderId',
     fields: [
@@ -54,8 +54,14 @@ export default (): DataSetProps => {
       },
       {
         name: 'orderSeq',
-        label: intl.get(`${modelCode}.view.orderSeq`).d('排序号'),
+        label: intl.get('hzero.common.view.serialNumber').d('排序号'),
         type: FieldType.string,
+      },
+      {
+        name: 'tenantInfo',
+        label: intl.get('htc.common.view.tenantInfo').d('租户信息'),
+        type: FieldType.object,
+        ignore: FieldIgnore.always,
       },
       {
         name: 'systemCode',
@@ -69,24 +75,16 @@ export default (): DataSetProps => {
         type: FieldType.string,
         required: true,
       },
-      // {
-      //   name: 'employeeId',
-      //   type: FieldType.number,
-      // },
-      // {
-      //   name: 'employeeDescription',
-      //   label: intl.get(`${modelCode}.view.employeeDescription`).d('添加员工'),
-      //   type: FieldType.string,
-      // },
       {
         name: 'startDate',
-        label: intl.get(`${modelCode}.view.startDate`).d('添加时间'),
+        label: intl.get(`${modelCode}.view.addtDate`).d('添加时间'),
         type: FieldType.dateTime,
         defaultValue: moment(),
+        readOnly: true,
       },
       {
         name: 'enabledFlag',
-        label: intl.get(`${modelCode}.view.enabledFlag`).d('是否启用'),
+        label: intl.get('hiop.invoiceRule.modal.enabledFlag').d('是否启用'),
         type: FieldType.number,
         falseValue: 0,
         trueValue: 1,
@@ -97,25 +95,26 @@ export default (): DataSetProps => {
         name: 'endDate',
         label: intl.get(`${modelCode}.view.endDate`).d('禁用时间'),
         type: FieldType.dateTime,
-      },
-    ],
-    queryFields: [
-      {
-        name: 'roleCode',
-        label: intl.get(`${modelCode}.view.roleCode`).d('租户代码'),
-        type: FieldType.string,
-        ignore: FieldIgnore.always,
-        defaultValue: getCurrentTenant().tenantNum,
-        readOnly: true,
-      },
-      {
-        name: 'roleName',
-        label: intl.get(`${modelCode}.view.roleName`).d('租户名称'),
-        type: FieldType.string,
-        ignore: FieldIgnore.always,
-        defaultValue: getCurrentTenant().tenantName,
         readOnly: true,
       },
     ],
+    // queryFields: [
+    //   {
+    //     name: 'roleCode',
+    //     label: intl.get(`${modelCode}.view.roleCode`).d('租户代码'),
+    //     type: FieldType.string,
+    //     ignore: FieldIgnore.always,
+    //     defaultValue: getCurrentTenant().tenantNum,
+    //     readOnly: true,
+    //   },
+    //   {
+    //     name: 'roleName',
+    //     label: intl.get(`${modelCode}.view.roleName`).d('租户名称'),
+    //     type: FieldType.string,
+    //     ignore: FieldIgnore.always,
+    //     defaultValue: getCurrentTenant().tenantName,
+    //     readOnly: true,
+    //   },
+    // ],
   };
 };

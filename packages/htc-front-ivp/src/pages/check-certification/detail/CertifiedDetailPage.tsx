@@ -15,15 +15,16 @@ import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import intl from 'utils/intl';
 import ExcelExport from 'components/ExcelExport';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { getTaxAuthorityCode, findCertifiedInvoice } from '@src/services/checkCertificationService';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import moment from 'moment';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
+import formatterCollections from 'utils/intl/formatterCollections';
 import CertifiedDetailListDS from '../stores/CertifiedDetailListDS';
 
-const modelCode = 'hivp.check-certification';
+const modelCode = 'hivp.checkCertification';
 const tenantId = getCurrentOrganizationId();
 
 // const API_PREFIX = `${commonConfig.IVP_API}-28090`;
@@ -33,7 +34,9 @@ interface CertifiedDetailPageProps {
   dispatch: Dispatch<any>;
   location: any;
 }
-
+@formatterCollections({
+  code: [modelCode, 'hcan.invoiceDetail'],
+})
 export default class CertifiedDetailPage extends Component<CertifiedDetailPageProps> {
   state = {
     companyId: '',
@@ -144,7 +147,7 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
   get columns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('hcan.invoiceDetail.view.orderSeq').d('序号'),
         width: 60,
         renderer: ({ record }) => {
           return record ? this.tableDS.indexOf(record) + 1 : '';
@@ -184,7 +187,7 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
       <>
         <Header
           backPath="/htc-front-ivp/check-certification/list"
-          title={intl.get(`${modelCode}.title`).d('已认证详情(实时)')}
+          title={intl.get(`${modelCode}.view.title`).d('已认证详情(实时)')}
         >
           <ExcelExport
             requestUrl={`${API_PREFIX}/v1/${tenantId}/invoice-operation/certified-detail-export`}

@@ -1,4 +1,4 @@
-/*
+/**
  * @routes -开票附加信息状态查询 :
  * @Author: huishan.yu <huishan.yu@hand-china.com>
  * @Date: 2021-09-06 10:26:45

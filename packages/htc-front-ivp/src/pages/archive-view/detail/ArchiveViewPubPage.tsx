@@ -6,16 +6,16 @@ import { Header, Content } from 'components/Page';
 import intl from 'utils/intl';
 import { DataSet, Button, Form, Output, Spin } from 'choerodon-ui/pro';
 import { Row, Col } from 'choerodon-ui';
-import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import notification from 'utils/notification';
 import Viewer from 'react-viewer';
 import 'react-viewer/dist/index.css';
 import { HZERO_FILE } from 'utils/config';
 import { getAccessToken } from 'utils/utils';
-import ArchiveOfdPage from '@common/pages/invoice-common/ofd-view/index';
+import ArchiveOfdPage from '@htccommon/pages/invoice-common/ofd-view/index';
+import formatterCollections from 'utils/intl/formatterCollections';
 import ArchiveViewPubDS from '../stores/ArchiveViewPubDS';
 
-const modelCode = 'hivp.invoices.archiveView';
+const modelCode = 'hivp.invoicesArchiveUpload';
 
 interface RouterInfo {
   invoicePoolHeaderId: any;
@@ -23,7 +23,9 @@ interface RouterInfo {
 interface ArchiveViewPubPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
-
+@formatterCollections({
+  code: [modelCode, 'htc.common', 'hivp.bill'],
+})
 @connect()
 export default class ArchiveViewPubPage extends Component<ArchiveViewPubPageProps> {
   state = {
@@ -182,19 +184,19 @@ export default class ArchiveViewPubPage extends Component<ArchiveViewPubPageProp
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('档案查看')}>
+        <Header title={intl.get(`${modelCode}.view.file`).d('档案查看')}>
           <Button
             onClick={() => this.handledDownload()}
-            color={ButtonColor.dark}
+            // color={ButtonColor.dark}
             disabled={!this.queryDS.length}
           >
-            {intl.get(`${modelCode}.button.download`).d('下载')}
+            {intl.get('hzero.common.button.download').d('下载')}
           </Button>
           <Button onClick={() => this.handleShowNext()} disabled={!this.queryDS.length}>
             {intl.get(`${modelCode}.button.next`).d('下一张')}
           </Button>
           <Button onClick={() => this.handleShowLast()} disabled={!this.queryDS.length}>
-            {intl.get(`${modelCode}.button.last`).d('上一张')}
+            {intl.get(`${modelCode}.button.previous`).d('上一张')}
           </Button>
         </Header>
         <Content>

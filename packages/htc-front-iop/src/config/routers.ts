@@ -16,6 +16,8 @@ import invoiceReqRouterConfig from '../pages/invoice-req/routers';
 import permissionAssignRouterConfig from '../pages/permission-assign/routers';
 import customerInfoRouterConfig from '../pages/customer-info/routers';
 import tobeInvoiceRouterConfig from '../pages/tobe-invoice/routers';
+import invoiceOperationMaintenanceRouterConfig from '../pages/invoice-operation-maintenance/routers';
+import taxRateStatisticsReportRouterConfig from '../pages/tax-rate-statistics-report/routers';
 
 const config: RoutersConfig = [
   // Insert New Router
@@ -28,6 +30,8 @@ const config: RoutersConfig = [
   ...permissionAssignRouterConfig,
   ...customerInfoRouterConfig,
   ...tobeInvoiceRouterConfig,
+  ...invoiceOperationMaintenanceRouterConfig,
+  ...taxRateStatisticsReportRouterConfig,
 ];
 
 export default config;

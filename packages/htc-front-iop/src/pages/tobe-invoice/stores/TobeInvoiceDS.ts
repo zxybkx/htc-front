@@ -1,22 +1,27 @@
-/*
+/**
  * @Description:待开票数据勾选
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-06-03 16:24:22
- * @LastEditTime:
- * @Copyright: Copyright (c) 2020, Hand
+ * @LastEditTime: 2022-06-15 10:37:22
+ * @Copyright: Copyright (c) 2021, Hand
  */
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { AxiosRequestConfig } from 'axios';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { DataSet } from 'choerodon-ui/pro';
 import intl from 'utils/intl';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import moment from 'moment';
 import { getCurrentOrganizationId } from 'utils/utils';
 
-const modelCode = 'hiop.tobe-invoice';
-
+/**
+ * 金额校验
+ * @params {number} value-当前值
+ * @params {string} name-标签名
+ * @params {object} record-行记录
+ * @returns {string|undefined}
+ */
 const amountValidator = (value, name, record) => {
   if (value && name && record) {
     const documentLineType = record.get('documentLineType'); // 行类型
@@ -29,24 +34,34 @@ const amountValidator = (value, name, record) => {
     const quantity = record.getField('quantity')?.getValue() || 0; // 数量
     const calcu = uprojectAmount - udiscountAmount - udeduction;
     if (Math.abs(uprojectAmount) > Math.abs(amount)) {
-      return '开票金额不能大于金额';
+      return intl.get('hiop.tobeInvoice.validate.uprojectAmount').d('开票金额不能大于金额');
     }
     if (Math.abs(uquantity) > Math.abs(quantity)) {
-      return '开票数量不能大于数量';
+      return intl.get('hiop.tobeInvoice.validate.uquantity').d('开票数量不能大于数量');
     }
     if (Math.abs(udiscountAmount) > Math.abs(discountAmount)) {
-      return '开票折扣金额不能大于折扣额';
+      return intl.get('hiop.tobeInvoice.validate.udiscountAmount').d('开票折扣金额不能大于折扣额');
     }
     if (documentLineType === '1' && calcu <= 0) {
-      return '开票金额-开票折扣金额-开票扣除额必须大于0';
+      return intl
+        .get('hiop.tobeInvoice.validate.calcuOver')
+        .d('开票金额-开票折扣金额-开票扣除额必须大于0');
     }
     if (documentLineType === '2' && calcu >= 0) {
-      return '开票金额-开票折扣金额-开票扣除额必须小于0';
+      return intl
+        .get('hiop.tobeInvoice.validate.calcuLess')
+        .d('开票金额-开票折扣金额-开票扣除额必须小于0');
     }
   }
   return undefined;
 };
 
+/**
+ * 只读判断
+ * @params {object} record-行记录
+ * @params {string} name-标签名
+ * @returns {boolean}
+ */
 const judgeReadOnly = (record, name) => {
   const documentLineType = record.get('documentLineType'); // 行类型
   const uprojectAmount = Number(record.get('uprojectAmount')) || 0; // 开票金额
@@ -80,6 +95,7 @@ export default (): DataSetProps => {
   // const API_PREFIX = `${commonConfig.IOP_API}-31183` || '';
   const API_PREFIX = commonConfig.IOP_API || '';
   const tenantId = getCurrentOrganizationId();
+  const dayEnd = moment().endOf('day');
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -91,11 +107,14 @@ export default (): DataSetProps => {
         };
         return axiosConfig;
       },
-      submit: ({ data, params }) => {
+      submit: ({ data, params, dataSet }) => {
+        const { queryDataSet }: any = dataSet;
+        const companyCode = queryDataSet && queryDataSet.current!.get('companyCode');
+        const employeeNumber = queryDataSet && queryDataSet.current!.get('employeeNumber');
         return {
           url: `${API_PREFIX}/v1/${tenantId}/prepare-invoice-infos/batch-save`,
           data,
-          params,
+          params: { ...params, companyCode, employeeNumber },
           method: 'POST',
         };
       },
@@ -167,54 +186,56 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'state',
-        label: intl.get(`${modelCode}.view.invoiceSourceType`).d('状态'),
+        label: intl.get('hiop.redInvoiceInfo.modal.state').d('状态'),
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.TOBE_INVOICED_LINE_STATUS',
       },
       {
-        name: 'documentHeadNumber',
-        label: intl.get(`${modelCode}.view.documentHeadNumber`).d('单据号'),
+        name: 'sourceHeadNumber',
+        label: intl.get('hiop.tobeInvoice.modal.sourceHeadNumber').d('来源单据号'),
         type: FieldType.string,
       },
       {
-        name: 'documentLineNumber',
-        label: intl.get(`${modelCode}.view.documentLineNumber`).d('单据行号'),
+        name: 'sourceLineNumber',
+        label: intl.get('hiop.tobeInvoice.modal.sourceLineNumber').d('来源单据行号'),
         type: FieldType.string,
       },
       {
         name: 'documentDate',
-        label: intl.get(`${modelCode}.view.documentDate`).d('单据日期'),
+        label: intl.get('hiop.tobeInvoice.modal.documentDate').d('单据日期'),
         type: FieldType.string,
       },
       {
         name: 'businessDate',
-        label: intl.get(`${modelCode}.view.businessDate`).d('业务日期'),
+        label: intl.get('hiop.tobeInvoice.modal.businessDate').d('业务日期'),
         type: FieldType.string,
       },
       {
         name: 'documentLineType',
-        label: intl.get(`${modelCode}.view.documentLineType`).d('行类型'),
+        label: intl.get('hiop.tobeInvoice.modal.documentLineType').d('行类型'),
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.TOBE_INVOICED_LINE_TYPE',
       },
       {
         name: 'projectNumber',
-        label: intl.get(`${modelCode}.view.projectNumber`).d('物料编码（自行编码）'),
+        label: intl
+          .get('hiop.tobeInvoice.modal.materialCode-selfCoding)')
+          .d('物料编码（自行编码）'),
         type: FieldType.string,
       },
       {
         name: 'materialDescription',
-        label: intl.get(`${modelCode}.view.materialDescription`).d('物料描述'),
+        label: intl.get('hiop.tobeInvoice.modal.materialDescription').d('物料描述'),
         type: FieldType.string,
       },
       {
         name: 'uprojectUnit',
-        label: intl.get(`${modelCode}.view.uprojectUnit`).d('开票单位'),
+        label: intl.get('hiop.tobeInvoice.modal.uprojectUnit').d('开票单位'),
         type: FieldType.string,
       },
       {
         name: 'uquantity',
-        label: intl.get(`${modelCode}.view.uquantity`).d('开票数量'),
+        label: intl.get('hiop.tobeInvoice.modal.uquantity').d('开票数量'),
         type: FieldType.number,
         max: 'quantity',
         computedProps: {
@@ -227,7 +248,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'uprojectAmount',
-        label: intl.get(`${modelCode}.view.uprojectAmount`).d('开票金额'),
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceAmount').d('开票金额'),
         type: FieldType.currency,
         validator: (value, name, record) =>
           new Promise((reject) => reject(amountValidator(value, name, record))),
@@ -238,7 +259,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'udiscountAmount',
-        label: intl.get(`${modelCode}.view.udiscountAmount`).d('开票折扣金额'),
+        label: intl.get('hiop.tobeInvoice.modal.udiscountAmount').d('开票折扣金额'),
         type: FieldType.currency,
         validator: (value, name, record) =>
           new Promise((reject) => reject(amountValidator(value, name, record))),
@@ -249,7 +270,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'udeduction',
-        label: intl.get(`${modelCode}.view.udeduction`).d('开票扣除额'),
+        label: intl.get('hiop.tobeInvoice.modal.udeduction').d('开票扣除额'),
         type: FieldType.currency,
         validator: (value, name, record) =>
           new Promise((reject) => reject(amountValidator(value, name, record))),
@@ -259,7 +280,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'uprojectUnitPrice',
-        label: intl.get(`${modelCode}.view.uprojectUnitPrice`).d('开票单价'),
+        label: intl.get('hiop.tobeInvoice.modal.uprojectUnitPrice').d('开票单价'),
         type: FieldType.currency,
         min: 0,
         max: 'projectUnitPrice',
@@ -271,7 +292,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'utaxAmount',
-        label: intl.get(`${modelCode}.view.utaxAmount`).d('开票税额'),
+        label: intl.get('hiop.tobeInvoice.modal.utaxAmount').d('开票税额'),
         type: FieldType.currency,
         computedProps: {
           readOnly: ({ record, name }) => judgeReadOnly(record, name),
@@ -279,115 +300,125 @@ export default (): DataSetProps => {
       },
       {
         name: 'projectName',
-        label: intl.get(`${modelCode}.view.projectName`).d('项目名称'),
+        label: intl.get('hiop.invoiceWorkbench.modal.projectNameSuffix').d('项目名称'),
         type: FieldType.string,
       },
       {
         name: 'model',
-        label: intl.get(`${modelCode}.view.model`).d('规格型号'),
+        label: intl.get('hiop.invoiceWorkbench.modal.model').d('规格型号'),
         type: FieldType.string,
       },
       {
         name: 'taxIncludedFlag',
-        label: intl.get(`${modelCode}.view.taxIncludedFlag`).d('含税标识'),
+        label: intl.get('hiop.tobeInvoice.modal.taxIncludedFlag').d('含税标识'),
         type: FieldType.string,
         lookupCode: 'HIOP.TAX_MARK',
       },
       {
         name: 'quantity',
-        label: intl.get(`${modelCode}.view.quantity`).d('数量'),
+        label: intl.get('hiop.invoiceWorkbench.modal.quantity').d('数量'),
         type: FieldType.number,
         precision: 8,
       },
       {
         name: 'projectUnitPrice',
-        label: intl.get(`${modelCode}.view.projectUnitPrice`).d('单价'),
+        label: intl.get('hiop.invoiceWorkbench.modal.price').d('单价'),
         type: FieldType.currency,
         precision: 8,
       },
       {
         name: 'amount',
-        label: intl.get(`${modelCode}.view.amount`).d('金额'),
+        label: intl.get('hiop.invoiceWorkbench.modal.amount').d('金额'),
         type: FieldType.currency,
       },
       {
         name: 'projectUnit',
-        label: intl.get(`${modelCode}.view.projectUnit`).d('单位'),
+        label: intl.get('hiop.invoiceWorkbench.modal.projectUnit').d('单位'),
         type: FieldType.string,
       },
       {
         name: 'taxRate',
-        label: intl.get(`${modelCode}.view.taxRate`).d('税率'),
+        label: intl.get('hiop.invoiceWorkbench.modal.taxRate').d('税率'),
         type: FieldType.string,
       },
       {
         name: 'taxAmount',
-        label: intl.get(`${modelCode}.view.taxAmount`).d('税额'),
+        label: intl.get('hiop.invoiceWorkbench.modal.taxAmount').d('税额'),
         type: FieldType.currency,
       },
       {
         name: 'discountAmount',
-        label: intl.get(`${modelCode}.view.discountAmount`).d('折扣额'),
+        label: intl.get('hiop.tobeInvoice.modal.discountAmount').d('折扣额'),
         type: FieldType.currency,
       },
       {
         name: 'deduction',
-        label: intl.get(`${modelCode}.view.deduction`).d('扣除额'),
+        label: intl.get('hiop.invoiceWorkbench.modal.deduction').d('扣除额'),
         type: FieldType.currency,
       },
       {
         name: 'receiptNumber',
-        label: intl.get(`${modelCode}.view.receiptNumber`).d('收票方编码'),
+        label: intl.get('hiop.tobeInvoice.modal.receiptNumber').d('收票方编码'),
         type: FieldType.string,
       },
       {
         name: 'receiptName',
-        label: intl.get(`${modelCode}.view.receiptName`).d('收票方名称'),
+        label: intl.get('hiop.invoiceReq.modal.receiptName').d('收票方名称'),
         type: FieldType.string,
       },
       {
         name: 'remark',
-        label: intl.get(`${modelCode}.view.remark`).d('备注'),
+        label: intl.get('hiop.invoiceReq.modal.remark').d('备注'),
         type: FieldType.string,
       },
       {
         name: 'salesMan',
-        label: intl.get(`${modelCode}.view.salesMan`).d('业务员'),
+        label: intl.get('hiop.invoiceReq.modal.salesMan').d('业务员'),
         type: FieldType.string,
       },
       {
         name: 'erpSalesOrderNumber',
-        label: intl.get(`${modelCode}.view.erpSalesOrderNumber`).d('销售订单号'),
+        label: intl.get('hiop.invoiceReq.modal.erpSalesOrderNumber').d('销售订单号'),
         type: FieldType.string,
       },
       {
         name: 'erpSalesOrderLineNumber',
-        label: intl.get(`${modelCode}.view.erpSalesOrderLineNumber`).d('销售订单行号'),
+        label: intl.get('hiop.invoiceReq.modal.erpSalesOrderLineNumber').d('销售订单行号'),
         type: FieldType.string,
       },
       {
         name: 'erpDeliveryNumber',
-        label: intl.get(`${modelCode}.view.erpDeliveryNumber`).d('交货单号'),
+        label: intl.get('hiop.invoiceReq.modal.erpDeliveryNumber').d('交货单号'),
         type: FieldType.string,
       },
       {
         name: 'erpDeliveryLineNumber',
-        label: intl.get(`${modelCode}.view.erpDeliveryLineNumber`).d('交货单行号'),
+        label: intl.get('hiop.invoiceReq.modal.erpDeliveryLineNumber').d('交货单行号'),
         type: FieldType.string,
       },
       {
-        name: 'erpInvoiceNumber',
-        label: intl.get(`${modelCode}.view.erpInvoiceNumber`).d('系统发票号'),
+        name: 'sourceNumber1',
+        label: intl.get('hiop.invoiceReq.modal.sourceDocumentNumber1').d('来源单据号1'),
         type: FieldType.string,
       },
       {
-        name: 'erpInvoiceLineNumber',
-        label: intl.get(`${modelCode}.view.erpInvoiceLineNumber`).d('系统发票行号'),
+        name: 'sourceLineNumber1',
+        label: intl.get('hiop.invoiceReq.modal.sourceLineNumber1').d('来源单据行号1'),
         type: FieldType.string,
       },
       {
         name: 'importDate',
-        label: intl.get(`${modelCode}.view.importDate`).d('导入日期'),
+        label: intl.get('hiop.invoiceReq.modal.importDate').d('导入日期'),
+        type: FieldType.string,
+      },
+      {
+        name: 'batchNo',
+        label: intl.get('hiop.invoiceReq.modal.batchNo').d('待开票批次号'),
+        type: FieldType.string,
+      },
+      {
+        name: 'invoiceInfo',
+        label: intl.get('hiop.invoiceReq.modal.invoiceNums').d('发票信息'),
         type: FieldType.string,
       },
     ],
@@ -404,7 +435,7 @@ export default (): DataSetProps => {
       fields: [
         {
           name: 'companyObj',
-          label: intl.get(`${modelCode}.view.companyObj`).d('所属公司'),
+          label: intl.get('htc.common.label.companyName').d('所属公司'),
           type: FieldType.object,
           lovCode: 'HIOP.CURRENT_EMPLOYEE_OUT',
           lovPara: { tenantId },
@@ -413,7 +444,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'companyId',
-          type: FieldType.string,
+          type: FieldType.number,
           bind: 'companyObj.companyId',
         },
         {
@@ -441,7 +472,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'employeeDesc',
-          label: intl.get(`${modelCode}.view.employeeDesc`).d('登录员工'),
+          label: intl.get('htc.common.modal.employeeDesc').d('登录员工'),
           type: FieldType.string,
           readOnly: true,
           ignore: FieldIgnore.always,
@@ -454,103 +485,134 @@ export default (): DataSetProps => {
         },
         {
           name: 'taxpayerNumber',
-          label: intl.get(`${modelCode}.view.taxpayerNumber`).d('纳税人识别号'),
+          label: intl.get('htc.common.modal.taxpayerNumber').d('纳税人识别号'),
           type: FieldType.string,
           readOnly: true,
           bind: 'companyObj.taxpayerNumber',
         },
         {
           name: 'addressPhone',
-          label: intl.get(`${modelCode}.view.addressPhone`).d('地址、电话'),
+          label: intl.get('htc.common.modal.companyAddressPhone').d('地址、电话'),
           type: FieldType.string,
           bind: 'companyObj.companyAddressPhone',
           readOnly: true,
         },
         {
           name: 'bankNumber',
-          label: intl.get(`${modelCode}.view.bankNumber`).d('开户行及账号'),
+          label: intl.get('htc.common.modal.bankNumber').d('开户行及账号'),
           type: FieldType.string,
           bind: 'companyObj.bankNumber',
           readOnly: true,
         },
         {
-          name: 'importDateFrom',
-          label: intl.get(`${modelCode}.view.importDateFrom`).d('导入时间从'),
+          name: 'importDate',
+          label: intl.get('hiop.tobeInvoice.modal.importDate').d('导入时间'),
+          range: ['importDateFrom', 'importDateTo'],
           type: FieldType.date,
-          defaultValue: moment().startOf('month'),
+          defaultValue: {
+            importDateFrom: moment().startOf('month'),
+            importDateTo: dayEnd,
+          },
+          ignore: FieldIgnore.always,
           required: true,
+        },
+        {
+          name: 'importDateFrom',
+          type: FieldType.date,
+          bind: 'importDate.importDateFrom',
         },
         {
           name: 'importDateTo',
-          label: intl.get(`${modelCode}.view.importDateTo`).d('导入时间至'),
           type: FieldType.date,
-          defaultValue: moment().endOf('day'),
-          required: true,
+          bind: 'importDate.importDateTo',
+        },
+        {
+          name: 'documentDate',
+          label: intl.get('hiop.tobeInvoice.modal.documentDate').d('单据日期'),
+          type: FieldType.date,
+          range: ['documentDateFrom', 'documentDateTo'],
+          // defaultValue: {
+          //   documentDateFrom: moment().startOf('day'),
+          //   documentDateTo: dayEnd,
+          // },
+          ignore: FieldIgnore.always,
+          // required: true,
         },
         {
           name: 'documentDateFrom',
-          label: intl.get(`${modelCode}.view.documentDateFrom`).d('单据日期从'),
           type: FieldType.date,
-          defaultValue: moment().startOf('day'),
-          required: true,
+          bind: 'documentDate.documentDateFrom',
         },
         {
           name: 'documentDateTo',
-          label: intl.get(`${modelCode}.view.documentDateTo`).d('单据日期至'),
           type: FieldType.date,
-          defaultValue: moment().endOf('day'),
-          required: true,
+          bind: 'documentDate.documentDateTo',
         },
         {
-          name: 'documentHeadNumber',
-          label: intl.get(`${modelCode}.view.documentHeadNumber`).d('单据号'),
+          name: 'sourceHeadNumber',
+          label: intl.get('hiop.tobeInvoice.modal.sourceHeadNumber').d('来源单据号'),
           type: FieldType.string,
         },
         {
           name: 'receiptName',
-          label: intl.get(`${modelCode}.view.receiptName`).d('收票方名称'),
+          label: intl.get('hiop.invoiceReq.modal.receiptName').d('收票方名称'),
           type: FieldType.string,
         },
         {
           name: 'projectNumber',
-          label: intl.get(`${modelCode}.view.projectNumber`).d('物料编码'),
+          label: intl.get('hiop.tobeInvoice.modal.projectNumber').d('物料编码'),
           type: FieldType.string,
         },
         {
           name: 'materialDescription',
-          label: intl.get(`${modelCode}.view.materialDescription`).d('物料描述'),
+          label: intl.get('hiop.tobeInvoice.modal.materialDescription').d('物料描述'),
           type: FieldType.string,
         },
         {
           name: 'erpSalesOrderNumber',
-          label: intl.get(`${modelCode}.view.erpSalesOrderNumber`).d('销售订单号'),
+          label: intl.get('hiop.tobeInvoice.modal.erpSalesOrderNumber').d('销售订单号'),
           type: FieldType.string,
         },
         {
           name: 'erpDeliveryNumber',
-          label: intl.get(`${modelCode}.view.erpDeliveryNumber`).d('发货单号'),
+          label: intl.get('hiop.tobeInvoice.modal.erpDeliveryNumber').d('发货单号'),
           type: FieldType.string,
         },
         {
-          name: 'erpInvoiceNumber',
-          label: intl.get(`${modelCode}.view.erpInvoiceNumber`).d('系统发票号'),
+          name: 'sourceNumber1',
+          label: intl.get('hiop.tobeInvoice.modal.sourceNumber1').d('来源单据号1'),
           type: FieldType.string,
         },
         {
           name: 'state',
-          label: intl.get(`${modelCode}.view.state`).d('状态'),
+          label: intl.get('hiop.redInvoiceInfo.modal.state').d('状态'),
           type: FieldType.string,
           lookupCode: 'HTC.HIOP.TOBE_INVOICED_LINE_STATUS',
           multiple: ',',
-          defaultValue: ['1', '3', '7'],
+          defaultValue: ['1', '2', '3', '5', '6', '7', '8', '10', '11'],
         },
         {
           name: 'documentLineType',
-          label: intl.get(`${modelCode}.view.documentLineType`).d('行类型'),
+          label: intl.get('hiop.tobeInvoice.modal.documentLineType').d('行类型'),
           type: FieldType.string,
           lookupCode: 'HTC.HIOP.TOBE_INVOICED_LINE_TYPE',
           multiple: ',',
           defaultValue: ['1', '2', '3', '4'],
+        },
+        {
+          name: 'batchNo',
+          label: intl.get('hiop.tobeInvoice.modal.batchNo').d('待开票批次号'),
+          type: FieldType.string,
+        },
+        {
+          name: 'invoiceNo',
+          label: intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码'),
+          type: FieldType.string,
+        },
+        {
+          name: 'invoiceCode',
+          label: intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码'),
+          type: FieldType.string,
         },
       ],
     }),

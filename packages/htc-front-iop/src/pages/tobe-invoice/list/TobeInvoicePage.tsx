@@ -1,14 +1,13 @@
-/*
+/**
  * @Description:待开票数据勾选
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-06-03 16:27:22
- * @LastEditTime:
- * @Copyright: Copyright (c) 2020, Hand
+ * @LastEditTime: 2021-11-23 15:32:15
+ * @Copyright: Copyright (c) 2021, Hand
  */
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
-import { routerRedux } from 'dva/router';
 import { connect } from 'dva';
 import { Content, Header } from 'components/Page';
 import withProps from 'utils/withProps';
@@ -17,49 +16,66 @@ import { Button as PermissionButton } from 'components/Permission';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import intl from 'utils/intl';
+import { RouteComponentProps } from 'react-router-dom';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { Bind } from 'lodash-decorators';
 import ExcelExport from 'components/ExcelExport';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import {
   Button,
+  Currency,
   DataSet,
   DateTimePicker,
+  Dropdown,
   Form,
+  Icon,
   Lov,
-  Output,
+  Menu,
+  Modal,
   Select,
   Table,
   TextField,
-  Currency,
 } from 'choerodon-ui/pro';
-import { Col, Row } from 'choerodon-ui';
-import { getPresentMenu } from '@common/utils/utils';
+import { Col, Row, Tag } from 'choerodon-ui';
+import { getPresentMenu } from '@htccommon/utils/utils';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { operatorRender } from 'utils/renderer';
 import notification from 'utils/notification';
 import { observer } from 'mobx-react-lite';
-import { getCurrentEmployeeInfoOut } from '@common/services/commonService';
+import { getCurrentEmployeeInfoOut } from '@htccommon/services/commonService';
 import {
-  invoiceMerge,
-  invoiceSplit,
   cancelMerge,
+  invoiceMerge,
   invoiceSave,
+  invoiceSplit,
   withdraw,
 } from '@src/services/tobeInvoiceService';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import TobeInvoiceDS from '../stores/TobeInvoiceDS';
+import CommodityEdit from '../detail/CommodityEditPage';
+import CustomerEdit from '../detail/CustomerEditPage';
+import History from '../detail/HistoryModaL';
 
-const modelCode = 'hiop.tobe-invoice';
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.IOP_API || '';
 const permissionPath = `${getPresentMenu().name}.ps`;
+const { Item: MenuItem } = Menu;
 
-interface InvoiceWorkbenchPageProps {
+interface InvoiceWorkbenchPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   tobeInvoiceDS: DataSet;
 }
 
+@formatterCollections({
+  code: [
+    'hiop.tobeInvoice',
+    'hiop.invoiceWorkbench',
+    'htc.common',
+    'hiop.redInvoiceInfo',
+    'hiop.invoiceReq',
+  ],
+})
 @withProps(
   () => {
     const tobeInvoiceDS = new DataSet({
@@ -74,6 +90,7 @@ interface InvoiceWorkbenchPageProps {
 export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps> {
   state = {
     curCompanyId: undefined,
+    queryMoreDisplay: false,
   };
 
   async componentDidMount() {
@@ -93,6 +110,9 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     }
   }
 
+  /**
+   * 公司改变回调
+   */
   @Bind()
   async handleCompanyChange(value) {
     if (value) {
@@ -101,56 +121,74 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     }
   }
 
+  /**
+   * 自定义查询条
+   * @returns {ReactNode}
+   */
   @Bind()
   renderQueryBar(props) {
     const { queryDataSet, buttons, dataSet } = props;
+    const { queryMoreDisplay } = this.state;
     if (queryDataSet) {
+      const queryMoreArray: JSX.Element[] = [];
+      queryMoreArray.push(<Select name="state" colSpan={2} />);
+      queryMoreArray.push(<Select name="documentLineType" />);
+      queryMoreArray.push(<TextField name="projectNumber" />);
+      queryMoreArray.push(<TextField name="materialDescription" />);
+      queryMoreArray.push(<TextField name="erpSalesOrderNumber" />);
+      queryMoreArray.push(<TextField name="erpDeliveryNumber" />);
+      queryMoreArray.push(<TextField name="sourceNumber1" />);
+      queryMoreArray.push(<TextField name="batchNo" />);
+      queryMoreArray.push(<TextField name="invoiceCode" />);
+      queryMoreArray.push(<TextField name="invoiceNo" />);
       return (
-        <>
-          <Form columns={4} dataSet={queryDataSet}>
-            <Lov
-              name="companyObj"
-              colSpan={2}
-              onChange={(value) => this.handleCompanyChange(value)}
-            />
-            <Output name="employeeDesc" colSpan={1} />
-            <Output name="taxpayerNumber" colSpan={1} />
-            {/*---*/}
-            <Output name="addressPhone" colSpan={2} />
-            <Output name="bankNumber" colSpan={2} />
-            {/*---*/}
-            <DateTimePicker name="importDateFrom" />
-            <DateTimePicker name="importDateTo" />
-            <DateTimePicker name="documentDateFrom" />
-            <DateTimePicker name="documentDateTo" />
-            {/*---*/}
-            <TextField name="documentHeadNumber" />
-            <TextField name="projectNumber" />
-            <TextField name="materialDescription" />
-            <TextField name="erpSalesOrderNumber" />
-            {/*---*/}
-            <TextField name="receiptName" colSpan={2} />
-            <TextField name="erpDeliveryNumber" />
-            <TextField name="erpInvoiceNumber" />
-            {/*---*/}
-            <Select name="state" colSpan={2} />
-            <Select name="documentLineType" colSpan={2} />
-          </Form>
-          <Row type="flex" justify="space-between">
-            <Col span={20}>{buttons}</Col>
-            <Col span={4} style={{ textAlign: 'end', marginBottom: '2px' }}>
+        <div style={{ marginBottom: '0.1rem' }}>
+          <Row>
+            <Col span={20}>
+              <Form columns={3} dataSet={queryDataSet}>
+                <Lov name="companyObj" onChange={(value) => this.handleCompanyChange(value)} />
+                <TextField name="taxpayerNumber" />
+                <TextField name="receiptName" />
+                {/*---*/}
+                <DateTimePicker name="importDate" />
+                <DateTimePicker name="documentDate" />
+                <TextField name="sourceHeadNumber" />
+                {queryMoreDisplay && queryMoreArray}
+              </Form>
+            </Col>
+            <Col span={4} style={{ textAlign: 'end' }}>
+              <Button
+                funcType={FuncType.link}
+                onClick={() => this.setState({ queryMoreDisplay: !queryMoreDisplay })}
+              >
+                <span>
+                  {intl.get('hzero.common.button.option').d('更多')}
+                  {queryMoreDisplay ? <Icon type="expand_more" /> : <Icon type="expand_less" />}
+                </span>
+              </Button>
+              <Button
+                onClick={() => {
+                  queryDataSet.reset();
+                  queryDataSet.create();
+                }}
+              >
+                {intl.get('hzero.common.button.reset').d('重置')}
+              </Button>
               <Button color={ButtonColor.primary} onClick={() => dataSet.query()}>
-                {intl.get(`${modelCode}.button.query`).d('查询')}
+                {intl.get('hzero.common.button.search').d('查询')}
               </Button>
             </Col>
           </Row>
-        </>
+          {buttons}
+        </div>
       );
     }
     return <></>;
   }
 
-  // 导出
+  /**
+   * 导出
+   */
   @Bind()
   exportParams() {
     const queryParams = this.props.tobeInvoiceDS.queryDataSet!.map((data) => data.toData()) || {};
@@ -162,49 +200,74 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     return { ..._queryParams } || {};
   }
 
-  // 编辑商品
+  /**
+   * 编辑商品
+   * @params {object} record-行记录
+   */
   @Bind()
   editCommodity(record) {
-    const { dispatch } = this.props;
-    const { curCompanyId } = this.state;
     const { queryDataSet } = this.props.tobeInvoiceDS;
     const recordData = record.toData();
     if (queryDataSet) {
-      const companyCode = queryDataSet.current!.get('companyCode');
+      const companyId = record.get('companyId');
+      const companyCode = record.get('companyCode');
       const employeeNumber = queryDataSet.current!.get('employeeNumber');
-      dispatch(
-        routerRedux.push({
-          pathname: `/htc-front-iop/tobe-invoice/commodity-edit/${curCompanyId}/${companyCode}/${employeeNumber}`,
-          search: queryString.stringify({
-            invoiceInfo: encodeURIComponent(JSON.stringify({ recordData })),
-          }),
-        })
-      );
+      const commodityProps = {
+        companyId,
+        companyCode,
+        employeeNumber,
+        recordData,
+        dataSet: this.props.tobeInvoiceDS,
+      };
+      const modal = Modal.open({
+        title: intl.get('hiop.invoiceWorkbench.title.commodityInfo').d('商品信息'),
+        drawer: true,
+        width: 480,
+        bodyStyle: { overflow: 'hidden' },
+        closable: true,
+        children: <CommodityEdit {...commodityProps} onCloseModal={() => modal.close()} />,
+        footer: null,
+      });
     }
   }
 
-  // 编辑客户
+  /**
+   * 编辑客户
+   * @params {object} record-行记录
+   */
   @Bind()
   editCustomer(record) {
-    const { dispatch } = this.props;
     const { queryDataSet } = this.props.tobeInvoiceDS;
-    const { curCompanyId } = this.state;
     const recordData = record.toData();
     if (queryDataSet) {
-      const companyCode = queryDataSet.current!.get('companyCode');
+      const companyId = record.get('companyId');
+      const companyCode = record.get('companyCode');
+      const employeeId = record.get('employeeId');
       const employeeNumber = queryDataSet.current!.get('employeeNumber');
-      dispatch(
-        routerRedux.push({
-          pathname: `/htc-front-iop/tobe-invoice/customer-edit/${curCompanyId}/${companyCode}/${employeeNumber}`,
-          search: queryString.stringify({
-            invoiceInfo: encodeURIComponent(JSON.stringify({ recordData })),
-          }),
-        })
-      );
+      const customerProps = {
+        companyId,
+        companyCode,
+        employeeId,
+        employeeNumber,
+        recordData,
+        dataSet: this.props.tobeInvoiceDS,
+      };
+      const modal = Modal.open({
+        title: intl.get('hiop.tobeInvoice.title.billingInfo').d('开票信息'),
+        drawer: true,
+        width: 480,
+        bodyStyle: { overflow: 'hidden' },
+        closable: true,
+        children: <CustomerEdit {...customerProps} onCloseModal={() => modal.close()} />,
+        footer: null,
+      });
     }
   }
 
-  // 撤回
+  /**
+   * 撤回
+   * @params {object} record-行记录
+   */
   @Bind()
   async handleWithdraw(record) {
     const data = record.toData();
@@ -229,7 +292,7 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
       if (res.status === '1000') {
         notification.success({
           description: '',
-          message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
+          message: intl.get('hzero.common.notification.success').d('操作成功'),
         });
         await this.props.tobeInvoiceDS.query();
         return true;
@@ -243,30 +306,49 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     }
   }
 
-  // 查看申请单
+  /**
+   * 查看申请单
+   * @params {object} record-行记录
+   */
   @Bind()
   viewRepInvoice(record) {
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const { curCompanyId } = this.state;
     const requisitionHeaderId = record.get('requisitionHeaderId');
-    dispatch(
-      routerRedux.push({
-        pathname: `/htc-front-iop/tobe-invoice/req-detail/TOBE/${curCompanyId}/${requisitionHeaderId}`,
-        search: queryString.stringify({
-          invoiceInfo: encodeURIComponent(
-            JSON.stringify({
-              backPath: '/htc-front-iop/tobe-invoice/list',
-            })
-          ),
-        }),
-      })
-    );
+    history.push({
+      pathname: `/htc-front-iop/tobe-invoice/req-detail/TOBE/${curCompanyId}/${requisitionHeaderId}`,
+      search: queryString.stringify({
+        invoiceInfo: encodeURIComponent(
+          JSON.stringify({
+            backPath: '/htc-front-iop/tobe-invoice/list',
+          })
+        ),
+      }),
+    });
+    // dispatch(
+    //   routerRedux.push({
+    //     pathname: `/htc-front-iop/tobe-invoice/req-detail/TOBE/${curCompanyId}/${requisitionHeaderId}`,
+    //     search: queryString.stringify({
+    //       invoiceInfo: encodeURIComponent(
+    //         JSON.stringify({
+    //           backPath: '/htc-front-iop/tobe-invoice/list',
+    //         })
+    //       ),
+    //     }),
+    //   })
+    // );
   }
 
-  // 恢复
+  /**
+   * 恢复
+   * @params {object} record-行记录
+   */
   @Bind()
   async handleRestore(record) {
     const recordData = record.toData();
+    const { queryDataSet } = this.props.tobeInvoiceDS;
+    const companyCode = queryDataSet && queryDataSet.current!.get('companyCode');
+    const employeeNumber = queryDataSet && queryDataSet.current!.get('employeeNumber');
     const selectedList = [
       {
         ...recordData,
@@ -276,13 +358,15 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     ];
     const params = {
       tenantId,
+      companyCode,
+      employeeNumber,
       selectedList,
     };
     const res = getResponse(await invoiceSave(params));
     if (res) {
       notification.success({
         description: '',
-        message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
       });
       await this.props.tobeInvoiceDS.query();
     } else {
@@ -293,6 +377,37 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     }
   }
 
+  /**
+   * 历史记录
+   * @params {object} record-行记录
+   */
+  @Bind()
+  viewHistory(record) {
+    const historyProps = {
+      batchNo: record.get('batchNo'),
+      sourceHeadNumber: record.get('sourceHeadNumber'),
+      sourceLineNumber: record.get('sourceLineNumber'),
+      prepareInvoiceId: record.get('prepareInvoiceId'),
+    };
+    const modal = Modal.open({
+      title: '历史记录',
+      drawer: true,
+      width: 480,
+      bodyStyle: { overflow: 'hidden' },
+      closable: true,
+      children: <History {...historyProps} />,
+      footer: (
+        <Button color={ButtonColor.primary} onClick={() => modal.close()}>
+          {intl.get('hzero.common.button.close').d('关闭')}
+        </Button>
+      ),
+    });
+  }
+
+  /**
+   * 返回操作列
+   * @params {object} record-行记录
+   */
   @Bind()
   operationsRender(record) {
     const state = record.get('state');
@@ -303,9 +418,10 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     const renderPermissionButton = (params) => (
       <PermissionButton
         type="c7n-pro"
-        funcType={FuncType.flat}
+        funcType={FuncType.link}
         onClick={params.onClick}
         color={ButtonColor.primary}
+        style={{ color: 'rgba(56,137,255,0.8)' }}
         permissionList={[
           {
             code: `${permissionPath}.button.${params.permissionCode}`,
@@ -317,17 +433,29 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
         {params.title}
       </PermissionButton>
     );
-    const operators: any = [];
+    const operators: any = [
+      {
+        key: 'viewHistory',
+        ele: renderPermissionButton({
+          onClick: () => this.viewHistory(record),
+          permissionCode: 'view-history',
+          permissionMeaning: '按钮-历史记录',
+          title: intl.get('hiop.tobeInvoice.button.viewHistory').d('历史记录'),
+        }),
+        len: 6,
+        title: intl.get('hiop.tobeInvoice.button.viewHistory').d('历史记录'),
+      },
+    ];
     const editCommodityBtn = {
       key: 'editCommodity',
       ele: renderPermissionButton({
         onClick: () => this.editCommodity(record),
         permissionCode: 'edit-commodity',
         permissionMeaning: '按钮-编辑商品',
-        title: intl.get(`${modelCode}.editCommodity`).d('编辑商品'),
+        title: intl.get('hiop.tobeInvoice.button.editCommodity').d('编辑商品'),
       }),
       len: 6,
-      title: intl.get(`${modelCode}.editCommodity`).d('编辑商品'),
+      title: intl.get('hiop.tobeInvoice.button.editCommodity').d('编辑商品'),
     };
     const editCustomerBtn = {
       key: 'editCustomer',
@@ -335,10 +463,10 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
         onClick: () => this.editCustomer(record),
         permissionCode: 'edit-customer',
         permissionMeaning: '按钮-编辑客户',
-        title: intl.get(`${modelCode}.editCustomer`).d('编辑客户'),
+        title: intl.get('hiop.tobeInvoice.button.editCustomer').d('编辑客户'),
       }),
       len: 6,
-      title: intl.get(`${modelCode}.editCustomer`).d('编辑客户'),
+      title: intl.get('hiop.tobeInvoice.button.editCustomer').d('编辑客户'),
     };
     const withdrawBtn = {
       key: 'handleWithdraw',
@@ -346,10 +474,10 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
         onClick: () => this.handleWithdraw(record),
         permissionCode: 'withdraw',
         permissionMeaning: '按钮-撤回',
-        title: intl.get(`${modelCode}.handleWithdraw`).d('撤回'),
+        title: intl.get('hiop.tobeInvoice.button.handleWithdraw').d('撤回'),
       }),
       len: 6,
-      title: intl.get(`${modelCode}.handleWithdraw`).d('撤回'),
+      title: intl.get('hiop.tobeInvoice.button.handleWithdraw').d('撤回'),
     };
     const viewRepInvoiceBtn = {
       key: 'viewRepInvoice',
@@ -357,10 +485,10 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
         onClick: () => this.viewRepInvoice(record),
         permissionCode: 'view-rep-invoice',
         permissionMeaning: '按钮-查看申请单',
-        title: intl.get(`${modelCode}.viewRepInvoice`).d('查看申请单'),
+        title: intl.get('hiop.tobeInvoice.button.viewRepInvoice').d('查看申请单'),
       }),
       len: 6,
-      title: intl.get(`${modelCode}.viewRepInvoice`).d('查看申请单'),
+      title: intl.get('hiop.tobeInvoice.button.viewRepInvoice').d('查看申请单'),
     };
     const restoreBtn = {
       key: 'restore',
@@ -368,17 +496,17 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
         onClick: () => this.handleRestore(record),
         permissionCode: 'restore',
         permissionMeaning: '按钮-恢复',
-        title: intl.get(`${modelCode}.restore`).d('恢复'),
+        title: intl.get('hiop.tobeInvoice.button.restore').d('恢复'),
       }),
       len: 6,
-      title: intl.get(`${modelCode}.restore`).d('恢复'),
+      title: intl.get('hiop.tobeInvoice.button.restore').d('恢复'),
     };
     // 导入行、已合并、被拆分行、部分勾选、已拆分、已撤回
     if (['1', '3', '5', '6', '7', '10', '11'].includes(state)) {
       operators.push(editCommodityBtn, editCustomerBtn);
     }
     // 已生成
-    if (state === '2') {
+    if (['2', '8'].includes(state)) {
       operators.push(withdrawBtn, viewRepInvoiceBtn);
     }
     // 已删除
@@ -396,10 +524,14 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     ) {
       return <span>-</span>;
     } else {
-      return operatorRender(newOperators, record, { limit: 1 });
+      return operatorRender(newOperators, record, { limit: 2 });
     }
   }
 
+  /**
+   * 返回表格行
+   * @returns {*[]}
+   */
   get columns(): ColumnProps[] {
     // 状态为‘已删除、已生成、已开具’的数据不允许修改
     const adjustEditAble = (record) => !['2', '8', '9'].includes(record.get('state'));
@@ -409,7 +541,7 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     const adjustUdiscountAmount = (record) =>
       adjustEditAble(record) && record.get('documentLineType') === '4';
     // 状态=【导入行】、【已合并】、【被拆分行】、【部分勾选】、【已拆分】可以修改开票单位
-    const adjustUunitAble = (record) => ['1', '3', '5', '6', '7'].includes(record.get('state'));
+    // const adjustUunitAble = (record) => ['1', '3', '5', '6', '7'].includes(record.get('state'));
     // 金额>0且状态=【导入行】、【已合并】、【被拆分行】、【部分勾选】、【已拆分】且【行类型】=“赠品行”的行，可以允许在待开票列表界面上将【行类型】由“赠品行”修改为“折扣行”
     const _adjustLineTypeEditAble = (record) =>
       record.get('documentLineType') === '3' &&
@@ -440,21 +572,75 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     };
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
-        width: 60,
-        renderer: ({ record, dataSet }) => {
-          return dataSet && record ? dataSet.indexOf(record) + 1 : '';
+        name: 'sourceHeadNumber',
+        width: 270,
+        renderer: ({ text, record }) => {
+          const state = record?.get('state');
+          const stateTxt = record?.getField('state')?.getText(state);
+          let color = '';
+          let textColor = '';
+          switch (state) {
+            case '1':
+              color = '#DBEEFF';
+              textColor = '#3889FF';
+              break;
+            case '2':
+              color = '#D6FFD7';
+              textColor = '#19A633';
+              break;
+            case '3':
+              color = '#D6FFD7';
+              textColor = '#19A633';
+              break;
+            case '5':
+              color = '#FFECC4';
+              textColor = '#FF9D23';
+              break;
+            case '6':
+              color = '#FFECC4';
+              textColor = '#FF9D23';
+              break;
+            case '7':
+              color = '#D6FFD7';
+              textColor = '#19A633';
+              break;
+            case '8':
+              color = '#D6FFD7';
+              textColor = '#19A633';
+              break;
+            case '9':
+              color = '#FFDCD4';
+              textColor = '#FF5F57';
+              break;
+            case '10':
+              color = '#F0F0F0';
+              textColor = '#959595';
+              break;
+            case '11':
+              color = '#D6FFD7';
+              textColor = '#19A633';
+              break;
+            default:
+              color = '';
+              textColor = '';
+              break;
+          }
+          return (
+            <>
+              <Tag color={color} style={{ color: textColor }}>
+                {stateTxt}
+              </Tag>
+              <span>{text}</span>
+            </>
+          );
         },
       },
-      { name: 'state' },
-      { name: 'documentHeadNumber', width: 200 },
-      { name: 'documentLineNumber' },
+      { name: 'sourceLineNumber' },
       { name: 'documentDate', width: 180 },
       { name: 'businessDate', width: 120 },
       { name: 'documentLineType', editor: (record) => renderLineType(record) },
       { name: 'projectNumber', width: 150 },
-      { name: 'materialDescription', width: 200 },
-      { name: 'uprojectUnit', editor: (record) => adjustUunitAble(record) },
+      // { name: 'uprojectUnit', editor: (record) => adjustUunitAble(record) },
       { name: 'uquantity', editor: (record) => adjustEditAble(record) },
       {
         name: 'uprojectUnitPrice',
@@ -484,18 +670,20 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
       { name: 'receiptNumber' },
       { name: 'receiptName' },
       { name: 'remark' },
+      { name: 'invoiceInfo' },
       { name: 'salesMan' },
       { name: 'erpSalesOrderNumber' },
       { name: 'erpSalesOrderLineNumber' },
       { name: 'erpDeliveryNumber' },
       { name: 'erpDeliveryLineNumber' },
-      { name: 'erpInvoiceNumber' },
-      { name: 'erpInvoiceLineNumber' },
+      { name: 'sourceNumber1' },
+      { name: 'sourceLineNumber1' },
+      { name: 'batchNo' },
       { name: 'importDate', width: 180 },
       {
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
-        width: 110,
+        width: 190,
         renderer: ({ record }) => this.operationsRender(record),
         lock: ColumnLock.right,
         align: ColumnAlign.center,
@@ -503,7 +691,11 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     ];
   }
 
-  // 合并、拆分调接口
+  /**
+   * 合并、拆分调接口
+   * @params {number} type 0-合并 1-拆分
+   * @params {[]} list-选择的表格行
+   */
   @Bind()
   async sendRequest(type, list) {
     const { curCompanyId } = this.state;
@@ -522,7 +714,7 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
       if (res.status === '1000') {
         notification.success({
           description: '',
-          message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
+          message: intl.get('hzero.common.notification.success').d('操作成功'),
         });
         await this.props.tobeInvoiceDS.query();
         return true;
@@ -536,7 +728,10 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     }
   }
 
-  // 合并、拆分
+  /**
+   * 合并、拆分回调
+   * @params {number} type 0-合并 1-拆分
+   */
   @Bind()
   async commonFuc(type) {
     const selectedList = this.props.tobeInvoiceDS.selected.map((record) => record.toData());
@@ -544,7 +739,6 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     let message = '';
     if (type === 0) message = '合并';
     if (type === 1) message = '拆分';
-    if (type === 2) message = '生成申请';
     let notiMess = '';
     new Promise((resolve) => {
       if (selectedList.some((item) => ['2', '4', '8', '9'].includes(item.state))) {
@@ -582,12 +776,16 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
         notification.warning({
           description: '',
           duration: 8,
-          message: intl.get(`${modelCode}.view.message`).d(notiMess),
+          message: intl
+            .get('hiop.tobeInvoice.notification.message.mergeAndSplit', { notiMess })
+            .d(notiMess),
         });
       });
   }
 
-  // 生成申请
+  /**
+   * 生成申请
+   */
   @Bind()
   async generateApplication() {
     const selectedList = this.props.tobeInvoiceDS.selected.map((record) => record.toData());
@@ -598,8 +796,9 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
       notification.warning({
         description: '',
         duration: 8,
-        message:
-          '存在状态为已生成、被合并行、已开具、已删除或行类型为折扣行的数据，不允许生成申请！',
+        message: intl
+          .get('hiop.tobeInvoice.notification.message.generateApplication')
+          .d('存在状态为已生成、被合并行、已开具、已删除或行类型为折扣行的数据，不允许生成申请！'),
       });
       return;
     }
@@ -616,32 +815,38 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
       notification.warning({
         description: '',
         duration: 8,
-        message:
-          '存在状态为被拆分行或部分勾选且行中【开票数量、开票金额、折扣金额、扣除额】均为0的数据，不允许生成申请！',
+        message: intl
+          .get('hiop.tobeInvoice.notification.message.unState')
+          .d(
+            '存在状态为被拆分行或部分勾选且行中【开票数量、开票金额、折扣金额、扣除额】均为0的数据，不允许生成申请！'
+          ),
       });
       return;
     }
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const { curCompanyId } = this.state;
     const ids = selectedList.map((rec) => rec.prepareInvoiceId).join(',');
-    dispatch(
-      routerRedux.push({
-        pathname: `/htc-front-iop/tobe-invoice/generate-application/${curCompanyId}/${ids}`,
-      })
-    );
+    history.push(`/htc-front-iop/tobe-invoice/generate-application/${curCompanyId}/${ids}`);
+    // dispatch(
+    //   routerRedux.push({
+    //     pathname: `/htc-front-iop/tobe-invoice/generate-application/${curCompanyId}/${ids}`,
+    //   })
+    // );
   }
 
-  // 数据权限分配
+  /**
+   * 数据权限分配
+   */
   @Bind()
   handlePermission() {
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const { curCompanyId } = this.state;
     const selectedList = this.props.tobeInvoiceDS.selected.map((record) => record.toData());
     if (selectedList.some((item) => item.state === '9')) {
       notification.warning({
         description: '',
         message: intl
-          .get(`${modelCode}.view.merge`)
+          .get('hiop.tobeInvoice.notification.message.permission')
           .d('存在状态为已删除的数据，不允许数据权限分配！'),
       });
       return;
@@ -649,21 +854,26 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     const prepareInvoiceId = this.props.tobeInvoiceDS.selected
       .map((rec) => rec.get('prepareInvoiceId'))
       .join(',');
-    dispatch(
-      routerRedux.push({
-        pathname: `/htc-front-iop/permission-assign/PREPARE/${curCompanyId}/${prepareInvoiceId}`,
-      })
-    );
+    history.push(`/htc-front-iop/permission-assign/PREPARE/${curCompanyId}/${prepareInvoiceId}`);
+    // dispatch(
+    //   routerRedux.push({
+    //     pathname: `/htc-front-iop/permission-assign/PREPARE/${curCompanyId}/${prepareInvoiceId}`,
+    //   })
+    // );
   }
 
-  // 取消合并
+  /**
+   * 取消合并
+   */
   @Bind()
   async cancelMerge() {
     const selectedList = this.props.tobeInvoiceDS.selected.map((record) => record.toData());
     if (selectedList.some((item) => item.state !== '3')) {
       notification.warning({
         description: '',
-        message: intl.get(`${modelCode}.view.merge`).d('状态为已合并的数据，才允许取消合并！'),
+        message: intl
+          .get('hiop.tobeInvoice.notification.message.merge')
+          .d('状态为已合并的数据，才允许取消合并！'),
       });
       return;
     }
@@ -683,7 +893,7 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
       if (res.status === '1000') {
         notification.success({
           description: '',
-          message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
+          message: intl.get('hzero.common.notification.success').d('操作成功'),
         });
         await this.props.tobeInvoiceDS.query();
       } else {
@@ -695,15 +905,20 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     }
   }
 
-  // 删除
+  /**
+   * 删除待开票
+   */
   @Bind()
-  async batchDelete() {
+  async batchDeleteTobeInvoice() {
     const selectedList = this.props.tobeInvoiceDS.selected.map((record) => record.toData());
+    const { queryDataSet } = this.props.tobeInvoiceDS;
+    const companyCode = queryDataSet && queryDataSet.current!.get('companyCode');
+    const employeeNumber = queryDataSet && queryDataSet.current!.get('employeeNumber');
     if (selectedList.some((item) => !['1', '7', '10'].includes(item.state))) {
       notification.warning({
         description: '',
         message: intl
-          .get(`${modelCode}.view.merge`)
+          .get('hiop.tobeInvoice.notification.message.batchDelete')
           .d('状态为导入行、已拆分或已撤回的数据，才允许删除！'),
       });
       return;
@@ -719,12 +934,14 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     const params = {
       tenantId,
       selectedList: _selectedList,
+      companyCode,
+      employeeNumber,
     };
     const res = getResponse(await invoiceSave(params));
     if (res) {
       notification.success({
         description: '',
-        message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
       });
       await this.props.tobeInvoiceDS.query();
     } else {
@@ -735,9 +952,11 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     }
   }
 
-  // 保存
+  /**
+   * 保存待开票
+   */
   @Bind()
-  batchSave() {
+  batchSaveTobeInvoice() {
     const submitList = this.props.tobeInvoiceDS.filter((record) => record.dirty);
     if (submitList.length !== 0) {
       if (
@@ -762,7 +981,7 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
       ) {
         notification.warning({
           description: '',
-          message: intl.get(`${modelCode}.view.merge`).d('请使用拆分功能！'),
+          message: intl.get('hiop.tobeInvoice.notification.message.save').d('请使用拆分功能！'),
         });
         return;
       }
@@ -770,24 +989,28 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     } else {
       notification.warning({
         description: '',
-        message: intl.get(`${modelCode}.view.merge`).d('请先修改数据！'),
+        message: intl.get('htc.common.notification.noChange').d('请先修改数据！'),
       });
     }
   }
 
+  /**
+   * 返回表格头按钮
+   * @returns {*[]}
+   */
   get buttons(): Buttons[] {
     const { curCompanyId } = this.state;
     const BatchButtons = observer((props: any) => {
       let isDisabled = props.dataSet!.selected.length === 0;
       if (props.condition === 'mergeLine') isDisabled = props.dataSet!.selected.length < 2;
+      const { condition } = props;
       return (
         <PermissionButton
           type="c7n-pro"
           key={props.key}
           onClick={props.onClick}
           disabled={isDisabled}
-          funcType={FuncType.flat}
-          color={ButtonColor.primary}
+          funcType={['mergeLine', 'cancel'].includes(condition) ? FuncType.link : FuncType.flat}
           permissionList={[
             {
               code: `${permissionPath}.button.${props.permissionCode}`,
@@ -800,13 +1023,13 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
         </PermissionButton>
       );
     });
-    return [
+    const topBtns = [
       <BatchButtons
         key="mergeLine"
         condition="mergeLine"
         onClick={() => this.commonFuc(0)}
         dataSet={this.props.tobeInvoiceDS}
-        title={intl.get(`${modelCode}.batchMerge`).d('合并')}
+        title={intl.get('hiop.invoiceReq.button.batchMerge').d('合并数据')}
         permissionCode="batch-merge"
         permissionMeaning="按钮-批量合并"
       />,
@@ -814,15 +1037,31 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
         key="cancelMerge"
         onClick={() => this.cancelMerge()}
         dataSet={this.props.tobeInvoiceDS}
-        title={intl.get(`${modelCode}.cancelMerge`).d('取消合并')}
+        title={intl.get('hiop.invoiceReq.button.mergeCancel').d('取消合并')}
         permissionCode="batch-cancel-merge"
         permissionMeaning="按钮-取消合并"
+        condition="cancel"
       />,
+    ];
+    const btnMenu = (
+      <Menu>
+        {topBtns.map((action) => (
+          <MenuItem>{action}</MenuItem>
+        ))}
+      </Menu>
+    );
+    return [
+      <Dropdown overlay={btnMenu}>
+        <Button color={ButtonColor.primary}>
+          {intl.get('hiop.invoiceReq.button.merge').d('合并')}
+          <Icon type="arrow_drop_down" />
+        </Button>
+      </Dropdown>,
       <BatchButtons
         key="split"
         onClick={() => this.commonFuc(1)}
         dataSet={this.props.tobeInvoiceDS}
-        title={intl.get(`${modelCode}.merge`).d('拆分')}
+        title={intl.get('hiop.tobeInvoice.button.split').d('拆分')}
         permissionCode="batch-split"
         permissionMeaning="按钮-批量拆分"
       />,
@@ -830,7 +1069,7 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
         key="generateApplication"
         onClick={() => this.generateApplication()}
         dataSet={this.props.tobeInvoiceDS}
-        title={intl.get(`${modelCode}.merge`).d('生成申请')}
+        title={intl.get('hiop.tobeInvoice.button.generateApply').d('生成申请')}
         permissionCode="generate-application"
         permissionMeaning="按钮-生成申请"
       />,
@@ -838,23 +1077,16 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
         key="dataPermission"
         onClick={() => this.handlePermission()}
         dataSet={this.props.tobeInvoiceDS}
-        title={intl.get(`${modelCode}.dataPermission`).d('数据权限分配')}
+        title={intl.get('hiop.invoiceWorkbench.button.dataPermission').d('数据权限分配')}
         permissionCode="data-permission"
         permissionMeaning="按钮-数据权限分配"
-      />,
-      <BatchButtons
-        key="batchDelete"
-        onClick={() => this.batchDelete()}
-        dataSet={this.props.tobeInvoiceDS}
-        title={intl.get(`${modelCode}.batchDelete`).d('删除')}
-        permissionCode="batch-delete"
-        permissionMeaning="按钮-删除"
       />,
       <PermissionButton
         type="c7n-pro"
         key="batchSave"
         disabled={!curCompanyId}
-        onClick={() => this.batchSave()}
+        onClick={() => this.batchSaveTobeInvoice()}
+        color={ButtonColor.default}
         permissionList={[
           {
             code: `${permissionPath}.batch-save`,
@@ -863,15 +1095,23 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
           },
         ]}
       >
-        {intl.get(`${modelCode}.batchSave`).d('保存')}
+        {intl.get('hzero.common.button.save').d('保存')}
       </PermissionButton>,
+      <BatchButtons
+        key="batchDelete"
+        onClick={() => this.batchDeleteTobeInvoice()}
+        dataSet={this.props.tobeInvoiceDS}
+        title={intl.get('hzero.common.button.delete').d('删除')}
+        permissionCode="batch-delete"
+        permissionMeaning="按钮-删除"
+      />,
     ];
   }
 
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('待开票数据勾选')}>
+        <Header title={intl.get('hiop.tobeInvoice.title.tobeInvoice').d('待开票数据勾选')}>
           <ExcelExport
             requestUrl={`${API_PREFIX}/v1/${tenantId}/prepare-invoice-infos/export`}
             queryParams={() => this.exportParams()}

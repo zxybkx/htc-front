@@ -1,37 +1,37 @@
 /**
- * page - 租户协议维护页面
+ * @Description: 租户协议维护页面
  * @Author: jesse.chen <jun.chen01@hand-china.com>
  * @Date: 2020-07-09
  * @LastEditeTime: 2020-07-09
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import { Bind } from 'lodash-decorators';
 import ExcelExport from 'components/ExcelExport';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
 import { isUndefined } from 'util';
+import commonConfig from '@htccommon/config/commonConfig';
 import {
-  ColumnLock,
   ColumnAlign,
+  ColumnLock,
   TableButtonType,
-  TableEditMode,
   TableCommandType,
+  TableEditMode,
 } from 'choerodon-ui/pro/lib/table/enum';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import { DataSet, Table, Button } from 'choerodon-ui/pro';
+import { Button, DataSet, Table } from 'choerodon-ui/pro';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import intl from 'utils/intl';
-import { routerRedux } from 'dva/router';
-import commonConfig from '@common/config/commonConfig';
+import { RouteComponentProps } from 'react-router-dom';
 import { openTab } from 'utils/menuTab';
-import tenantAgreementDS from '../stores/tenantAgreementDS';
+import tenantAgreementDS from '../stores/TenantAgreementDS';
 
 const modelCode = 'hmdm.tenant-agreement';
 const API_PREFIX = commonConfig.MDM_API || '';
 
-interface TenantAgreementPageProps {
+interface TenantAgreementPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
 }
 
@@ -52,18 +52,20 @@ export default class TenantAgreementPage extends Component<TenantAgreementPagePr
 
   /**
    * 进入详情
+   * @params {object} record-行记录
    */
   @Bind()
   async handleShowDetial(record) {
     const agreementId = record.get('agreementId');
     const tenantId = record.get('tenantId');
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const pathname = `/htc-front-mdm/tenant-agreement/detail/${tenantId}/${agreementId}`;
-    dispatch(
-      routerRedux.push({
-        pathname,
-      })
-    );
+    history.push(pathname);
+    // dispatch(
+    //   routerRedux.push({
+    //     pathname,
+    //   })
+    // );
   }
 
   /**
@@ -83,6 +85,10 @@ export default class TenantAgreementPage extends Component<TenantAgreementPagePr
     return exportParam;
   }
 
+  /**
+   * 返回表格行
+   * @returns {*[]}
+   */
   get columns(): ColumnProps[] {
     return [
       { name: 'tenantObject', width: 200, editor: true },
@@ -108,7 +114,7 @@ export default class TenantAgreementPage extends Component<TenantAgreementPagePr
       {
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
-        width: 120,
+        width: 140,
         command: ({ record }): Commands[] => {
           const agreementId = record.get('agreementId');
           return [
@@ -128,7 +134,9 @@ export default class TenantAgreementPage extends Component<TenantAgreementPagePr
     ];
   }
 
-  // 导出
+  /**
+   * 导出
+   */
   @Bind()
   exportParams() {
     const queryParams = this.tableDS.queryDataSet!.map((data) => data.toData()) || {};
@@ -140,6 +148,9 @@ export default class TenantAgreementPage extends Component<TenantAgreementPagePr
     return { ..._queryParams } || {};
   }
 
+  /**
+   * 导入
+   */
   @Bind()
   async handleBatchExport() {
     const code = 'HMDM.TENANT_AGREEMENT';

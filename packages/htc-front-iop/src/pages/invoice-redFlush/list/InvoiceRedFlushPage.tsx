@@ -7,22 +7,21 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
-import { Content } from 'components/Page';
+import { Header } from 'components/Page';
 import intl from 'utils/intl';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { RouteComponentProps } from 'react-router-dom';
 import { Bind } from 'lodash-decorators';
 import notification from 'utils/notification';
-import { PageHeaderWrapper } from 'hzero-boot/lib/components/Page';
 import { Button as PermissionButton } from 'components/Permission';
-import { getPresentMenu } from '@common/utils/utils';
+import { getPresentMenu } from '@htccommon/utils/utils';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
-import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
+import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { observer } from 'mobx-react-lite';
 import moment from 'moment';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import { getCurrentEmployeeInfo } from '@common/services/commonService';
+import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
-import { routerRedux } from 'dva/router';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
 import {
@@ -31,26 +30,24 @@ import {
   DataSet,
   Form,
   Icon,
-  Modal,
-  Output,
-  Radio,
-  Select,
-  Table,
-  TextArea,
-  TextField,
   Lov,
   message,
+  Modal,
+  Output,
+  Select,
+  Table,
+  TextField,
 } from 'choerodon-ui/pro';
 import { Card, Col, Row } from 'choerodon-ui';
-import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
-import { SelectionMode, TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
+import { FuncType } from 'choerodon-ui/pro/lib/button/enum';
+import { ColumnAlign, ColumnLock, SelectionMode } from 'choerodon-ui/pro/lib/table/enum';
 import { batchInvalid, batchSave, review } from '@src/services/invoiceOrderService';
 import { isEmpty } from 'lodash';
 import InvoiceRedFlushHeaderDS from '../stores/InvoiceRedFlushHeaderDS';
 import InvoiceRedFlushLineDS from '../stores/InvoiceRedFlushLineDS';
 import RedInvoiceInfoLinesDS from '../stores/RedInvoiceInfoLineDS';
+import styles from '../../invoice-workbench/invoiceWorkbench.module.less';
 
-const modelCode = 'hiop.invoice-redFlush';
 const tenantId = getCurrentOrganizationId();
 const permissionPath = `${getPresentMenu().name}.ps`;
 
@@ -59,6 +56,15 @@ interface InvoiceVoidPageProps extends RouteComponentProps {
   match: any;
 }
 
+@formatterCollections({
+  code: [
+    'hiop.invoiceWorkbench',
+    'htc.common',
+    'hiop.invoiceReq',
+    'hiop.invoiceRedFlush',
+    'hiop.customerInfo',
+  ],
+})
 @connect()
 export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps> {
   invoiceRedFlushLineDS = new DataSet({
@@ -80,13 +86,16 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     invoiceVariety: '',
     redFinished: false,
     empInfo: {} as any,
-    // isInput: false,
     listFlag: null,
     taxIncludedFlag: null,
     redRemainAmount: 0,
     originTotalAmount: 0,
+    showMore: false,
   };
 
+  /**
+   * 查询行
+   */
   @Bind()
   queryLines() {
     this.invoiceRedFlushLineDS.query().then((lineRes) => {
@@ -95,7 +104,9 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         this.invoiceRedFlushHeaderDS.current!.set({ readonly: true });
         notification.warning({
           description: '',
-          message: intl.get('hzero.common.notification.info').d('该蓝票已经存在未完成的红冲订单！'),
+          message: intl
+            .get('hiop.invoiceRedFlush.notification.queryInfo')
+            .d('该蓝票已经存在未完成的红冲订单！'),
         });
       } else {
         const { taxIncludedFlag, redRemainAmount, originTotalAmount } = lineRes[0];
@@ -130,12 +141,20 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
             this.queryLines();
           }
           this.setState({ invoiceVariety, listFlag });
+          this.invoiceRedFlushHeaderDS.current!.set('redInvoice', '蓝字发票');
         }
       });
       this.setState({ empInfo: currentEmployee });
     }
   }
 
+  /**
+   * 计算金额
+   * @params {number} value-当前值
+   * @params {object} record-行记录
+   * @params {string} name-标签名
+   * @params {number} type 1-金额 2-税额
+   */
   @Bind()
   handleAmount(value, record, name, type) {
     if (value > 0) {
@@ -153,15 +172,23 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     }
   }
 
+  /**
+   * 返回表格行
+   * @returns {*[]}
+   */
   get columns(): ColumnProps[] {
     const { listFlag } = this.state;
     const judgeEdit = (record) => Number(listFlag) !== 1 || !record.get('invoicingOrderHeaderId');
     const judgeTaxMount = (record) =>
       Number(listFlag) === 1 && record.get('invoicingOrderHeaderId') && !record.get('taxRate');
-    const regExp = /(^[1-9]\d*$)/;
+    const toNonExponential = (num) => {
+      const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
+      return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
+    };
+    const regExp = /(^[0-9]*.[0]*$)/;
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('htc.common.orderSeq').d('序号'),
         width: 60,
         renderer: ({ record, dataSet }) => {
           return dataSet && record ? dataSet.indexOf(record) + 1 : '';
@@ -180,7 +207,8 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         editor: (record) => judgeEdit(record),
         width: 150,
         renderer: ({ value }) =>
-          value && (regExp.test(value) ? value.toFixed(2) : parseFloat(value)),
+          value &&
+          (regExp.test(value) ? Number(value).toFixed(2) : toNonExponential(Number(value))),
       },
       {
         name: 'taxRateObj',
@@ -193,12 +221,12 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         ),
         width: 130,
       },
-      { name: 'taxIncludedFlag', editor: (record) => judgeEdit(record) },
+      { name: 'taxIncludedFlag', editor: true },
       {
         name: 'taxAmount',
         width: 150,
         editor: (record, name) =>
-          judgeTaxMount(record) && (
+          (judgeTaxMount(record) || record.get('invoiceLineNature') === '6') && (
             <Currency onChange={(value) => this.handleAmount(value, record, name, 2)} />
           ),
       },
@@ -218,13 +246,34 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
       },
       { name: 'specialVatManagement', width: 140 },
       { name: 'commodityNumberObj', width: 150, editor: (record) => judgeEdit(record) },
+      {
+        name: 'operation',
+        header: intl.get('hzero.common.action').d('操作'),
+        width: 100,
+        command: ({ record }): Commands[] => {
+          return [
+            <Button
+              key="delete"
+              funcType={FuncType.link}
+              onClick={() => this.invoiceRedFlushLineDS.delete(record)}
+            >
+              {intl.get('hzero.common.button.delete').d('删除')}
+            </Button>,
+          ];
+        },
+        lock: ColumnLock.right,
+        align: ColumnAlign.center,
+      },
     ];
   }
 
-  // 保存
+  /**
+   * 订单保存
+   * @params {number} type 0-保存 1-提交
+   */
   @Bind()
-  async save(type) {
-    const { dispatch } = this.props;
+  async handleSaveRedFlush(type) {
+    const { history } = this.props;
     const { empInfo, redRemainAmount, taxIncludedFlag, originTotalAmount } = this.state;
     const validate = await this.invoiceRedFlushHeaderDS.validate(false, false);
     const lineValidate = await this.invoiceRedFlushLineDS.validate(false, false);
@@ -246,24 +295,18 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     }
     const lineList: any = this.invoiceRedFlushLineDS.toData();
     let totalAmount = 0;
-    if (taxIncludedFlag === 1) {
-      // 含税
-      for (let i = 0; i < lineList.length; i++) {
-        totalAmount += Math.abs(lineList[i].amount);
+    lineList.forEach((item) => {
+      if (item.taxIncludedFlag === '1') {
+        totalAmount += Math.abs(item.amount);
+      } else {
+        totalAmount += Math.abs(item.amount) + Math.abs(item.taxAmount);
       }
-    } else {
-      // 不含税
-      for (let i = 0; i < lineList.length; i++) {
-        totalAmount += Math.abs(lineList[i].amount) + Math.abs(lineList[i].taxAmount);
-      }
-    }
+    });
     const originalAmount = taxIncludedFlag === '1' ? redRemainAmount : originTotalAmount;
     if (totalAmount > originalAmount) {
       notification.error({
         description: '',
-        message: intl
-          .get('hzero.common.notification.amountInvalid')
-          .d(`红冲超限！该发票已红冲${totalAmount}, 剩余红冲金额${originalAmount}`),
+        message: `红冲超限！该发票本次红冲${totalAmount.toFixed(2)}, 剩余红冲金额${originalAmount}`,
       });
       return;
     }
@@ -285,15 +328,11 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     const res = getResponse(type === 0 ? await batchSave(params) : await review(params));
     if (res) {
       if (type === 1) {
-        dispatch(
-          routerRedux.push({
-            pathname: '/htc-front-iop/invoice-workbench/list',
-          })
-        );
+        history.push('/htc-front-iop/invoice-workbench/list');
       } else {
         notification.success({
           description: '',
-          message: intl.get('hzero.common.notification.success').d('保存成功！'),
+          message: intl.get('hzero.common.notification.success.save').d('保存成功！'),
         });
         const { lines, ..._otherData } = res[0];
         this.invoiceRedFlushHeaderDS.loadData([_otherData]);
@@ -302,17 +341,20 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     }
   }
 
-  // 申请单保存
+  /**
+   * 申请单保存
+   * @params {number} type 0-保存 1-提交
+   */
   @Bind()
   async requestSave(type) {
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const { empInfo, redRemainAmount, taxIncludedFlag, originTotalAmount } = this.state;
     const validate = await this.invoiceRedFlushHeaderDS.validate(false, false);
     const lineValidate = await this.invoiceRedFlushLineDS.validate(false, false);
     if (!validate || !lineValidate) {
       notification.error({
         description: '',
-        message: intl.get('hzero.common.notification.invalidate').d('校验不通过！'),
+        message: intl.get('hzero.common.notification.invalid').d('校验不通过！'),
       });
       return;
     }
@@ -327,24 +369,18 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     }
     const lineList: any = this.invoiceRedFlushLineDS.toData();
     let totalAmount = 0;
-    if (taxIncludedFlag === 1) {
-      // 含税
-      for (let i = 0; i < lineList.length; i++) {
-        totalAmount += Math.abs(lineList[i].amount);
+    lineList.forEach((item) => {
+      if (item.taxIncludedFlag === '1') {
+        totalAmount += Math.abs(item.amount);
+      } else {
+        totalAmount += Math.abs(item.amount) + Math.abs(item.taxAmount);
       }
-    } else {
-      // 不含税
-      for (let i = 0; i < lineList.length; i++) {
-        totalAmount += Math.abs(lineList[i].amount) + Math.abs(lineList[i].taxAmount);
-      }
-    }
+    });
     const originalAmount = taxIncludedFlag === '1' ? redRemainAmount : originTotalAmount;
     if (totalAmount > originalAmount) {
       notification.error({
         description: '',
-        message: intl
-          .get('hzero.common.notification.amountInvalid')
-          .d(`红冲超限！该发票已红冲${totalAmount}, 剩余红冲金额${originalAmount}`),
+        message: `红冲超限！该发票本次红冲${totalAmount.toFixed(2)}, 剩余红冲金额${originalAmount}`,
       });
       return;
     }
@@ -373,11 +409,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
           description: '',
           message: intl.get('hzero.common.notification.success').d('操作成功'),
         });
-        dispatch(
-          routerRedux.push({
-            pathname: '/htc-front-iop/invoice-req/list',
-          })
-        );
+        history.push('/htc-front-iop/invoice-req/list');
       } else {
         notification.success({
           description: '',
@@ -390,6 +422,10 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     }
   }
 
+  /**
+   * 红字信息表编号回调
+   * @params {number} value-当前值
+   */
   @Bind()
   redInfoSerialChange(value) {
     if (value) {
@@ -397,19 +433,25 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
       if (validateNumber.test(value)) {
         this.invoiceRedFlushLineDS.setQueryParameter('redInvoiceHeaderId', null);
         this.queryLines();
-        // this.setState({
-        //   isInput: true,
-        // });
       }
     }
   }
 
+  /**
+   * 返回红字信息表格行
+   * @returns {*[]}
+   */
   get redInfoColumns(): ColumnProps[] {
     return [{ name: 'redInfoSerialNumber' }, { name: 'invoiceAmount' }];
   }
 
+  /**
+   * 红字信息表格行点击回调
+   * @params {object} record-行记录
+   * @params {object} modal
+   */
   @Bind()
-  handleRow(record, modal) {
+  handleRowLine(record, modal) {
     return {
       onDoubleClick: () => {
         this.invoiceRedFlushHeaderDS.current!.set(
@@ -422,15 +464,16 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         );
         this.queryLines();
         modal.close();
-        // this.setState({
-        //   isInput: false,
-        // });
       },
     };
   }
 
+  /**
+   * 红字信息表格确定回调
+   * @params {object} modal
+   */
   @Bind()
-  handleOk(modal) {
+  handleOkLine(modal) {
     const selected = this.redInvoiceInfoLinesDS.current!.toData();
     this.invoiceRedFlushLineDS.setQueryParameter(
       'redInvoiceHeaderId',
@@ -439,15 +482,19 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     this.queryLines();
     this.invoiceRedFlushHeaderDS.current!.set('redInfoSerialNumber', selected.redInfoSerialNumber);
     modal.close();
-    // this.setState({
-    //   isInput: false,
-    // });
   }
 
+  /**
+   * 红字信息表搜索图标回调
+   */
   @Bind()
   handleRedInfoSerial() {
+    const headerData = this.invoiceRedFlushHeaderDS.current!.toData();
+    const { blueInvoiceCode, blueInvoiceNo } = headerData;
     const { invoiceVariety } = this.state;
     if (invoiceVariety === '0' || invoiceVariety === '52') {
+      this.redInvoiceInfoLinesDS.setQueryParameter('blueInvoiceCode', blueInvoiceCode);
+      this.redInvoiceInfoLinesDS.setQueryParameter('blueInvoiceNo', blueInvoiceNo);
       this.redInvoiceInfoLinesDS.query();
       const modal = Modal.open({
         key: Modal.key(),
@@ -460,19 +507,17 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
             dataSet={this.redInvoiceInfoLinesDS}
             columns={this.redInfoColumns}
             selectionMode={SelectionMode.click}
-            onRow={({ record }) => this.handleRow(record, modal)}
+            onRow={({ record }) => this.handleRowLine(record, modal)}
           />
         ),
-        onOk: () => this.handleOk(modal),
+        onOk: () => this.handleOkLine(modal),
       });
     }
   }
 
-  @Bind()
-  handleInvoiceVarietyChange(value) {
-    this.setState({ invoiceVariety: value });
-  }
-
+  /**
+   * 渲染Header按钮
+   */
   @Bind()
   renderHeaderBts() {
     const { redFinished, invoiceVariety } = this.state;
@@ -483,7 +528,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         <>
           <PermissionButton
             type="c7n-pro"
-            color={ButtonColor.dark}
+            // color={ButtonColor.dark}
             disabled={redFinished || invoiceVariety === ''}
             onClick={() => this.requestSave(1)}
             permissionList={[
@@ -494,11 +539,11 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
               },
             ]}
           >
-            {intl.get(`${modelCode}.button.submit`).d('提交（红冲申请）')}
+            {intl.get('hiop.invoiceRedFlush.button.reqSubmit').d('提交（红冲申请）')}
           </PermissionButton>
           <PermissionButton
             type="c7n-pro"
-            color={ButtonColor.dark}
+            // color={ButtonColor.dark}
             disabled={redFinished || invoiceVariety === ''}
             onClick={() => this.requestSave(0)}
             permissionList={[
@@ -509,7 +554,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
               },
             ]}
           >
-            {intl.get(`${modelCode}.button.submit`).d('保存（红冲申请）')}
+            {intl.get('hiop.invoiceRedFlush.button.reqSave').d('保存（红冲申请）')}
           </PermissionButton>
         </>
       );
@@ -518,8 +563,8 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         <>
           <PermissionButton
             type="c7n-pro"
-            color={ButtonColor.dark}
-            onClick={() => this.save(0)}
+            // color={ButtonColor.dark}
+            onClick={() => this.handleSaveRedFlush(0)}
             disabled={redFinished || invoiceVariety === ''}
             permissionList={[
               {
@@ -529,12 +574,12 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
               },
             ]}
           >
-            {intl.get(`${modelCode}.save`).d('保存（红冲订单）')}
+            {intl.get('hiop.invoiceRedFlush.button.orderSave').d('保存（红冲订单）')}
           </PermissionButton>
           <PermissionButton
             type="c7n-pro"
-            color={ButtonColor.dark}
-            onClick={() => this.save(1)}
+            // color={ButtonColor.dark}
+            onClick={() => this.handleSaveRedFlush(1)}
             disabled={redFinished || invoiceVariety === ''}
             permissionList={[
               {
@@ -544,15 +589,18 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
               },
             ]}
           >
-            {intl.get(`${modelCode}.submit`).d('红冲审核（提交）')}
+            {intl.get('hiop.invoiceRedFlush.button.orderSubmit').d('红冲审核（提交）')}
           </PermissionButton>
         </>
       );
     }
   }
 
+  /**
+   * 发票红冲新增
+   */
   @Bind()
-  handleAdd() {
+  handleAddRedFlush() {
     const { taxIncludedFlag } = this.state;
     const headerData = this.invoiceRedFlushHeaderDS.current!.toData();
     const {
@@ -583,6 +631,10 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     );
   }
 
+  /**
+   * 返回发票红冲行按钮组
+   * @return {*[]}
+   */
   get lineButton(): Buttons[] {
     const { listFlag } = this.state;
     const AddBtn = observer((props: any) => {
@@ -595,8 +647,8 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
           key={props.key}
           onClick={props.onClick}
           disabled={isDisabled}
-          funcType={FuncType.flat}
-          color={ButtonColor.primary}
+          funcType={FuncType.link}
+          style={{ marginLeft: 10, color: '#3889FF' }}
         >
           {props.title}
         </Button>
@@ -607,183 +659,192 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         dataSet={this.invoiceRedFlushLineDS}
         icon="playlist_add"
         key="add"
-        onClick={() => this.handleAdd()}
-        title={intl.get(`${modelCode}.button.add`).d('新增')}
+        onClick={() => this.handleAddRedFlush()}
+        title={intl.get('hzero.common.button.add').d('新增')}
       />,
-      TableButtonType.delete,
     ];
   }
 
+  /**
+   * 设置发票种类选项数属性
+   * @params {object} record-行记录
+   */
+  @Bind()
+  handleOption({ record }) {
+    return {
+      disabled: ['0', '41', '52'].includes(record.get('value')),
+    };
+  }
+
+  /**
+   * 发票红冲自定义查询条
+   */
+  @Bind()
+  renderQueryBar(props) {
+    const { buttons } = props;
+    return (
+      <div className={styles.containTable}>
+        <div className={styles.containTable}>
+          <h3 style={{ display: 'inline' }}>
+            <b>{intl.get('hiop.invoiceWorkbench.title.commodityInfo').d('商品信息')}</b>
+          </h3>
+          {buttons}
+        </div>
+        <div className={styles.tableTitleRight}>
+          <p>
+            {intl.get('hiop.invoiceWorkbench.label.totalPriceTax').d('合计含税金额：')}
+            <span>{this.invoiceRedFlushHeaderDS.current?.get('totalPriceTaxAmount')}</span>
+          </p>
+          <p>
+            {intl.get('hiop.invoiceWorkbench.label.totalTax').d('合计税额：')}
+            <span>{this.invoiceRedFlushHeaderDS.current?.get('totalTax')}</span>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   render() {
-    const { invoiceVariety } = this.state;
     const { match } = this.props;
+    const { showMore } = this.state;
     const { sourceType } = match.params;
     let backPath = '/htc-front-iop/invoice-workbench/list';
     if (sourceType) {
       backPath = '/htc-front-iop/invoice-req/list';
     }
+    const invoiceInfo = (
+      <Form dataSet={this.invoiceRedFlushHeaderDS} columns={4}>
+        <TextField name="invoiceSourceOrder" />
+        <TextField name="originalInvoiceDate" />
+        <Select name="originalSourceType" />
+        <TextField name="originalInvoiceSourceOrder" />
+        {/*---*/}
+        <Select name="specialRedMark" />
+        <TextField name="referenceNumber" />
+        <Select name="deliveryWay" />
+        <TextField name="electronicReceiverInfo" />
+      </Form>
+    );
     return (
-      <PageHeaderWrapper
-        title={intl.get(`${modelCode}.title`).d('发票红冲')}
-        header={this.renderHeaderBts()}
-        headerProps={{ backPath }}
-      >
-        <Content>
-          <Row>
-            <Col span={18}>
-              <Form dataSet={this.invoiceRedFlushHeaderDS.queryDataSet} columns={5}>
-                <Output name="companyName" colSpan={2} />
-                <Output name="employeeDesc" colSpan={2} />
-                <Output
-                  colSpan={1}
-                  value={moment().format(DEFAULT_DATE_FORMAT)}
-                  label={intl.get(`${modelCode}.view.curDate`).d('当前日期')}
-                />
-              </Form>
-            </Col>
-            <Col span={6}>
-              <Form dataSet={this.invoiceRedFlushHeaderDS}>
-                <TextField
-                  name="redInfoSerialNumber"
-                  colSpan={2}
-                  label={<span style={{ color: 'red' }}>红字信息表编号</span>}
-                  onChange={this.redInfoSerialChange}
-                  suffix={<Icon type="search" onClick={this.handleRedInfoSerial} />}
-                  clearButton
-                />
-              </Form>
-            </Col>
-          </Row>
-          <Form
-            dataSet={this.invoiceRedFlushHeaderDS}
-            excludeUseColonTagList={['Radio']}
-            columns={5}
-          >
-            <Radio name="invoiceVariety" value="0" disabled>
-              专票
-            </Radio>
-            <Radio
-              name="invoiceVariety"
-              value="2"
-              disabled={invoiceVariety !== '2' && invoiceVariety !== '51'}
-              onChange={this.handleInvoiceVarietyChange}
+      <>
+        <Header
+          title={intl.get('hiop.invoiceRedFlush.title.invoiceRedFlush').d('发票红冲')}
+          backPath={backPath}
+        >
+          {this.renderHeaderBts()}
+        </Header>
+        <div style={{ overflow: 'auto' }}>
+          <Card style={{ marginTop: 10 }}>
+            <Form dataSet={this.invoiceRedFlushHeaderDS.queryDataSet} columns={3}>
+              <Output name="companyName" />
+              <Output name="employeeDesc" />
+              <Output
+                value={moment().format(DEFAULT_DATE_FORMAT)}
+                label={intl.get('hiop.invoiceReq.modal.curDate').d('当前日期')}
+              />
+            </Form>
+            <Form dataSet={this.invoiceRedFlushHeaderDS} columns={3}>
+              <TextField
+                name="redInfoSerialNumber"
+                label={
+                  <span style={{ color: 'red' }}>
+                    {intl
+                      .get('hiop.invoiceWorkbench.modal.redInfoSerialNumber')
+                      .d('红字信息表编号')}
+                  </span>
+                }
+                onChange={this.redInfoSerialChange}
+                suffix={<Icon type="search" onClick={this.handleRedInfoSerial} />}
+                clearButton
+              />
+              <Select name="invoiceVariety" onOption={this.handleOption} />
+            </Form>
+          </Card>
+          <Card style={{ marginTop: 10 }}>
+            <Row gutter={8}>
+              <Col span={12}>
+                <div style={{ backgroundColor: '#f6f6f6', padding: '10px 20px 0 20px' }}>
+                  <h3>
+                    <b>{intl.get('hiop.invoiceWorkbench.label.buyer').d('购买方')}</b>
+                  </h3>
+                  <Form columns={2} dataSet={this.invoiceRedFlushHeaderDS}>
+                    <TextField name="buyerName" colSpan={2} />
+                    <TextField name="buyerTaxpayerNumber" />
+                    <Select name="buyerCompanyType" placeholder="企业类型" />
+                    <TextField name="buyerCompanyAddressPhone" colSpan={2} />
+                    <TextField name="buyerBankNumber" colSpan={2} />
+                  </Form>
+                </div>
+              </Col>
+              <Col span={12}>
+                <div style={{ backgroundColor: '#f6f6f6', padding: '10px 20px 0 20px' }}>
+                  <h3>
+                    <b>{intl.get('hiop.invoiceWorkbench.label.seller').d('销售方')}</b>
+                  </h3>
+                  <Form columns={2} dataSet={this.invoiceRedFlushHeaderDS}>
+                    <TextField name="sellerName" colSpan={2} />
+                    <TextField name="sellerTaxpayerNumber" />
+                    <Select name="sellerCompanyType" />
+                    <TextField name="sellerCompanyAddressPhone" colSpan={2} />
+                    <TextField name="sellerBankNumber" colSpan={2} />
+                  </Form>
+                </div>
+              </Col>
+            </Row>
+            <Form
+              columns={6}
+              dataSet={this.invoiceRedFlushHeaderDS}
+              style={{ marginTop: 10 }}
+              excludeUseColonTagList={['Radio', 'Output']}
             >
-              普票
-            </Radio>
-            <Radio name="invoiceVariety" value="41" disabled>
-              卷票
-            </Radio>
-            <Radio
-              name="invoiceVariety"
-              value="51"
-              disabled={invoiceVariety !== '2' && invoiceVariety !== '51'}
-              onChange={this.handleInvoiceVarietyChange}
-            >
-              电子普票
-            </Radio>
-            <Radio name="invoiceVariety" value="52" disabled>
-              电子专票
-            </Radio>
-          </Form>
-          <Row gutter={8}>
-            <Col span={12}>
-              <Card title="购买方">
-                <Form
-                  columns={3}
-                  dataSet={this.invoiceRedFlushHeaderDS}
-                  excludeUseColonTagList={['Output']}
-                >
-                  <TextField name="buyerName" colSpan={3} />
-                  <TextField name="buyerTaxpayerNumber" colSpan={2} />
-                  <Output
-                    colSpan={1}
-                    renderer={() => <Select name="buyerCompanyType" placeholder="企业类型" />}
-                  />
-                  <TextField name="buyerCompanyAddressPhone" colSpan={3} />
-                  <TextField name="buyerBankNumber" colSpan={3} />
-                </Form>
-              </Card>
-            </Col>
-            <Col span={12}>
-              <Card title="销售方">
-                <Form
-                  columns={3}
-                  dataSet={this.invoiceRedFlushHeaderDS}
-                  excludeUseColonTagList={['Output']}
-                >
-                  <TextField name="sellerName" colSpan={3} />
-                  <TextField name="sellerTaxpayerNumber" colSpan={2} />
-                  <Output
-                    colSpan={1}
-                    renderer={() => <Select name="sellerCompanyType" placeholder="企业类型" />}
-                  />
-                  <TextField name="sellerCompanyAddressPhone" colSpan={3} />
-                  <TextField name="sellerBankNumber" colSpan={3} />
-                </Form>
-              </Card>
-            </Col>
-          </Row>
-          <Row gutter={8}>
-            <Col span={12}>
-              <Form
-                columns={3}
-                dataSet={this.invoiceRedFlushHeaderDS}
-                excludeUseColonTagList={['Radio', 'Output']}
-              >
-                <Lov name="payeeNameObj" />
-                <TextField name="issuerName" />
-                <Lov name="reviewerNameObj" />
-                {/*---*/}
-                <Radio name="billingType" value="2" style={{ color: 'blue' }}>
-                  蓝字发票
-                </Radio>
-                <TextField
-                  name="blueInvoiceCode"
-                  label={<span style={{ color: 'blue' }}>发票代码</span>}
-                />
-                <TextField
-                  name="blueInvoiceNo"
-                  label={<span style={{ color: 'blue' }}>发票号码</span>}
-                />
-                {/*---*/}
-                <Output value="合计：" />
-                <Currency name="totalPriceTaxAmount" colSpan={1} />
-                <Currency name="totalTax" colSpan={1} />
-                {/*---*/}
-                <TextArea name="redMarkReason" colSpan={3} style={{ height: 135 }} />
-              </Form>
-            </Col>
-            <Col span={12} style={{ marginTop: 10 }}>
-              <Card title="开票订单">
-                <Form
-                  columns={3}
-                  dataSet={this.invoiceRedFlushHeaderDS}
-                  excludeUseColonTagList={['Output', 'Radio']}
-                >
-                  <TextField name="invoiceSourceOrder" colSpan={2} />
-                  <TextField name="originalInvoiceDate" colSpan={1} />
-                  {/* --- */}
-                  <Select name="originalSourceType" colSpan={2} />
-                  <TextField name="originalInvoiceSourceOrder" colSpan={1} />
-                </Form>
-              </Card>
-              <Form columns={3} dataSet={this.invoiceRedFlushHeaderDS}>
-                <Select name="specialRedMark" colSpan={1} />
-                <TextField name="referenceNumber" colSpan={2} />
-                {/* --- */}
-                <Select name="deliveryWay" />
-                <TextField name="electronicReceiverInfo" colSpan={2} />
-              </Form>
-            </Col>
-          </Row>
-          <Table
-            buttons={this.lineButton}
-            dataSet={this.invoiceRedFlushLineDS}
-            columns={this.columns}
-            style={{ height: 200 }}
-          />
-        </Content>
-      </PageHeaderWrapper>
+              <Lov name="payeeNameObj" />
+              <TextField name="issuerName" />
+              <Lov name="reviewerNameObj" />
+              {/*---*/}
+              <TextField name="redInvoice" />
+              <TextField
+                name="blueInvoiceCode"
+                label={
+                  <span style={{ color: 'blue' }}>
+                    {intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码')}
+                  </span>
+                }
+              />
+              <TextField
+                name="blueInvoiceNo"
+                label={
+                  <span style={{ color: 'blue' }}>
+                    {intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票号码')}
+                  </span>
+                }
+              />
+              {/*---*/}
+              <TextField name="redMarkReason" colSpan={6} />
+            </Form>
+            {!showMore && (
+              <Button block onClick={() => this.setState({ showMore: !showMore })}>
+                {intl.get('hiop.invoiceRedFlush.button.viewMore').d('查看更多信息')}
+              </Button>
+            )}
+            {showMore && invoiceInfo}
+            {showMore && (
+              <Button block onClick={() => this.setState({ showMore: !showMore })}>
+                {intl.get('hiop.invoiceRedFlush.button.putWay').d('收起更多信息')}
+              </Button>
+            )}
+          </Card>
+          <Card style={{ marginTop: 10 }}>
+            <Table
+              buttons={this.lineButton}
+              dataSet={this.invoiceRedFlushLineDS}
+              columns={this.columns}
+              queryBar={this.renderQueryBar}
+              style={{ height: 200 }}
+              showRemovedRow={false}
+            />
+          </Card>
+        </div>
+      </>
     );
   }
 }

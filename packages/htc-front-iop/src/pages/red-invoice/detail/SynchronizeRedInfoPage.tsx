@@ -4,23 +4,23 @@
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-06-25 15:45:14
  * @LastEditTime: 2021-06-26 10:35:14
- * @Copyright: Copyright (c) 2020, Hand
+ * @Copyright: Copyright (c) 2021, Hand
  */
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
 import { Bind } from 'lodash-decorators';
 import { RouteComponentProps } from 'react-router-dom';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import { Button as PermissionButton } from 'components/Permission';
 import {
-  DataSet,
   Button,
-  Form,
-  TextField,
+  DataSet,
   DatePicker,
-  Table,
-  Select,
+  Form,
   notification,
+  Select,
+  Table,
+  TextField,
 } from 'choerodon-ui/pro';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
@@ -29,12 +29,12 @@ import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import intl from 'utils/intl';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { observer } from 'mobx-react-lite';
-import { getPresentMenu } from '@common/utils/utils';
+import { getPresentMenu } from '@htccommon/utils/utils';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
-import { synchronize, refresh, allRefresh } from '@src/services/redInvoiceService';
+import { allRefresh, refresh, synchronize } from '@src/services/redInvoiceService';
+import { Tag } from 'choerodon-ui';
 import SynchronizeRedInfoDS, { HeaderDS } from '../stores/SynchronizeRedInfolListDS';
 
-const modelCode = 'hiop.redInvoice';
 const organizationId = getCurrentOrganizationId();
 const permissionPath = `${getPresentMenu().name}.ps`;
 
@@ -43,7 +43,7 @@ interface RedInvoiceRequisitionListPageProps extends RouteComponentProps {
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: ['hiop.redInvoiceInfo', 'hiop.invoiceWorkbench', 'htc.common', 'hiop.customerInfo'],
 })
 export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceRequisitionListPageProps> {
   synchronizeRedInfoDS = new DataSet({
@@ -68,7 +68,10 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
     }
   }
 
-  // 刷新状态
+  /**
+   * 刷新状态
+   * @params {object} record-行记录
+   */
   @Bind()
   async handleRefreshStatus(record) {
     const { search } = this.props.location;
@@ -87,7 +90,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
         if (res.status === '1000') {
           notification.success({
             description: '',
-            message: intl.get(`${modelCode}.view.handleRefreshStatus`).d(`操作成功`),
+            message: intl.get('hzero.common.notification.success').d(`操作成功`),
           });
           this.synchronizeRedInfoDS.query();
         } else {
@@ -100,22 +103,89 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
     }
   }
 
+  /**
+   * 返回表格行
+   * @return {*[]}
+   */
   get columns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('htc.common.orderSeq').d('序号'),
         width: 60,
         renderer: ({ record, dataSet }) => {
           return dataSet && record ? dataSet.indexOf(record) + 1 : '';
         },
       },
-      { name: 'batchNo', width: 250 },
+      {
+        name: 'batchNo',
+        width: 340,
+        renderer({ value, record }) {
+          const state = record?.get('state');
+          if (state === '0') {
+            return (
+              <div>
+                <Tag color="#FFECC4" style={{ color: '#FF8F07' }}>
+                  {record?.getField('state')?.getText()}
+                </Tag>
+                {value}
+              </div>
+            );
+          } else if (state === '1') {
+            return (
+              <div>
+                <Tag color="#D6FFD7" style={{ color: '#19A633' }}>
+                  {record?.getField('state')?.getText()}
+                </Tag>
+                {value}
+              </div>
+            );
+          } else {
+            return (
+              <div>
+                <Tag color="#FFDCD4" style={{ color: '#FF5F57' }}>
+                  {record?.getField('state')?.getText()}
+                </Tag>
+                {value}
+              </div>
+            );
+          }
+        },
+      },
       { name: 'businessNoticeNum', width: 320 },
       { name: 'state' },
       { name: 'stateDescription', width: 200 },
       { name: 'redInvoiceDateFrom', width: 120 },
       { name: 'redInvoiceDateTo', width: 120 },
-      { name: 'overdueStatus' },
+      {
+        name: 'overdueStatus',
+        renderer({ value, record }) {
+          if (value === 'N') {
+            return (
+              <Tag
+                style={{
+                  background: '#fff',
+                  border: '1px solid #3889FF',
+                  color: '#3889FF',
+                }}
+              >
+                {record?.getField('overdueStatus')?.getText()}
+              </Tag>
+            );
+          } else {
+            return (
+              <Tag
+                style={{
+                  background: '#fff',
+                  border: '1px solid #FF5F57',
+                  color: '#FF5F57',
+                }}
+              >
+                {record?.getField('overdueStatus')?.getText()}
+              </Tag>
+            );
+          }
+        },
+      },
       { name: 'redInfoSerialNumber', width: 180 },
       { name: 'invoiceType' },
       { name: 'purchasersTaxNumber', width: 180 },
@@ -132,10 +202,12 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
           return [
             <Button
               key="refreshStatus"
+              funcType={FuncType.link}
+              style={{ color: '#3889FF' }}
               onClick={() => this.handleRefreshStatus(record)}
               disabled={record.get('state') !== '0'}
             >
-              {intl.get(`${modelCode}.button.refreshStatus`).d('刷新状态')}
+              {intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态')}
             </Button>,
           ];
         },
@@ -145,7 +217,9 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
     ];
   }
 
-  // 一键刷新
+  /**
+   * 一键刷新回调
+   */
   @Bind()
   async oneClickRefresh() {
     const { search } = this.props.location;
@@ -163,7 +237,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
         if (res.status === '1000') {
           notification.success({
             description: '',
-            message: intl.get(`${modelCode}.view.handleRefreshStatus`).d(`操作成功`),
+            message: intl.get('hzero.common.notification.success').d(`操作成功`),
           });
           this.synchronizeRedInfoDS.query();
         } else {
@@ -176,7 +250,9 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
     }
   }
 
-  // 同步
+  /**
+   * 同步回调
+   */
   @Bind()
   async handleSynchronize() {
     const { search } = this.props.location;
@@ -195,7 +271,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
       if (!validateValue) {
         notification.error({
           description: '',
-          message: intl.get('hzero.common.notification.invalid').d('数据校验不通过！'),
+          message: intl.get('zero.common.notification.invalid').d('校验不通过！'),
         });
         return;
       }
@@ -216,7 +292,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
         if (res.status === '1000') {
           notification.success({
             description: '',
-            message: intl.get(`${modelCode}.view.handleSynchronize`).d(`操作成功`),
+            message: intl.get('hzero.common.notification.success').d(`操作成功`),
           });
           this.synchronizeRedInfoDS.query();
         } else {
@@ -260,7 +336,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
         key="oneClickRefresh"
         onClick={() => this.oneClickRefresh()}
         dataSet={this.synchronizeRedInfoDS}
-        title={intl.get(`${modelCode}.button.oneClickRefresh`).d('一键刷新')}
+        title={intl.get('hiop.redInvoiceInfo.button.oneClickRefresh').d('一键刷新')}
         permissionCode="one-click-refresh"
         permissionMeaning="按钮-一键刷新"
       />,
@@ -269,7 +345,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
         style={{ float: 'right' }}
         onClick={() => this.handleSynchronize()}
       >
-        {intl.get('hzero.c7nProUI.Table.SynchronizeRedInfoList').d('同步')}
+        {intl.get('hiop.redInvoiceInfo.button.synchronize').d('同步')}
       </Button>,
     ];
   }
@@ -278,13 +354,12 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
     return (
       <>
         <Header
-          title={intl.get(`${modelCode}.title`).d('同步请求列表')}
+          title={intl.get('hiop.redInvoiceInfo.title.synchronizeList').d('同步请求列表')}
           backPath="/htc-front-iop/red-invoice-info/list"
         />
         <Content>
-          <Form columns={3} dataSet={this.headerDS}>
-            <DatePicker name="fromDate" />
-            <DatePicker name="untilDate" />
+          <Form columns={4} dataSet={this.headerDS}>
+            <DatePicker name="fillDate" />
             <Select name="overdueStatus" />
             <TextField name="informationSheetNumber" />
             <TextField name="purchasersTaxNumber" />

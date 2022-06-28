@@ -9,7 +9,7 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
-import BillPoolDetailPage from '@common/pages/invoice-common/bill-detail/detail/BillPoolDetailPage';
+import BillPoolDetailPage from '@htccommon/pages/invoice-common/bill-detail/detail/BillPoolDetailPage';
 
 interface RouterInfo {
   invoiceHeaderId: any;

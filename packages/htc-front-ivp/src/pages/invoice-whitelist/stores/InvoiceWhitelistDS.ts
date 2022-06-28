@@ -8,13 +8,13 @@
  */
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { AxiosRequestConfig } from 'axios';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { DataSet } from 'choerodon-ui/pro';
 import intl from 'utils/intl';
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import { getCurrentOrganizationId } from 'utils/utils';
 
-const modelCode = 'hivp.invoice-whitelist';
+const modelCode = 'hivp.invoiceWhitelist';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
@@ -54,6 +54,13 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.timeRange`).d('限制入池时间'),
         type: FieldType.number,
       },
+      {
+        name: 'enabledFlag',
+        type: FieldType.boolean,
+        trueValue: 1,
+        falseValue: 0,
+        defaultValue: 0,
+      },
     ],
     queryDataSet: new DataSet({
       fields: [
@@ -67,7 +74,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'taxpayerNumber',
-          label: intl.get(`${modelCode}.view.taxpayerNumber`).d('纳税人识别号'),
+          label: intl.get('htc.common.modal.taxpayerNumber').d('纳税人识别号'),
           type: FieldType.string,
         },
       ],

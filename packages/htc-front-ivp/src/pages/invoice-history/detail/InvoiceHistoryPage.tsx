@@ -1,143 +1,101 @@
 import React, { Component } from 'react';
-import { RouteComponentProps } from 'react-router-dom';
-import { Dispatch } from 'redux';
 import { connect } from 'dva';
-import { Header, Content } from 'components/Page';
+import { DataSet, Spin } from 'choerodon-ui/pro';
+import { Tag, Timeline, Row, Col } from 'choerodon-ui';
+import { isEmpty } from 'lodash';
+import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
-import { DataSet, Table, Form, Output } from 'choerodon-ui/pro';
-import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import { DEFAULT_DATE_FORMAT } from 'utils/constants';
-import moment from 'moment';
-import { getCurrentOrganizationId } from 'utils/utils';
-import { getCurrentEmployeeInfo } from '@common/services/commonService';
-import SubPageBillHeadersDS from '@src/pages/bill-pool/stores/SubPageBillHeadersDS';
-import SubPageInvoicesHeadersDS from '@src/pages/invoices/stores/SubPageInvoicesHeadersDS';
 import InvoiceHistoryDS from '../stores/InvoiceHistoryDS';
+import styles from '../history.less';
 
-const modelCode = 'hivp.invoices.invoiceHistory';
-const tenantId = getCurrentOrganizationId();
-
-interface RouterInfo {
+const { Item: TimelineItem } = Timeline;
+const modelCode = 'hivp.invoicesHistory';
+interface InvoiceHistoryPageProps {
   sourceCode: string;
-  sourceHeaderId: any;
-}
-interface InvoiceHistoryPageProps extends RouteComponentProps<RouterInfo> {
-  dispatch: Dispatch<any>;
+  sourceHeaderId: string;
+  record: any; // 行数据
 }
 
 @connect()
+@formatterCollections({
+  code: [modelCode, 'htc.common', 'hcan.invoiceDetail', 'hivp.bill'],
+})
 export default class InvoiceHistoryPage extends Component<InvoiceHistoryPageProps> {
-  state = { companyDesc: '', backPath: '' };
+  state = {
+    listData: [],
+  };
 
   tableDS = new DataSet({
-    autoQuery: true,
-    ...InvoiceHistoryDS(this.props.match.params),
-  });
-
-  invoiceDS = new DataSet({
     autoQuery: false,
-    ...SubPageInvoicesHeadersDS({
-      invoicePoolHeaderId: this.props.match.params.sourceHeaderId,
-    }),
+    ...InvoiceHistoryDS(this.props),
   });
 
   async componentDidMount() {
-    if (this.props.match.params.sourceCode === 'BILL_POOL') {
-      this.invoiceDS = new DataSet({
-        autoQuery: false,
-        ...SubPageBillHeadersDS({
-          billPoolHeaderId: this.props.match.params.sourceHeaderId,
-        }),
-      });
-    }
-    await this.invoiceDS.query();
-
-    const { search } = this.props.location;
-    const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
-    if (invoiceInfoStr) {
-      const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
-      const empRes = await getCurrentEmployeeInfo({ tenantId, companyId: invoiceInfo.companyId });
-      if (empRes && empRes.content) {
-        const curEmp = empRes.content[0];
-        this.setState({
-          companyDesc: `${curEmp.companyCode}-${curEmp.companyName}`,
-          backPath: invoiceInfo.backPath,
-        });
+    this.tableDS.query().then((res) => {
+      if (res && res.length > 0) {
+        this.setState({ listData: res });
       }
-    }
-  }
-
-  get columns(): ColumnProps[] {
-    return [
-      {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
-        width: 60,
-        renderer: ({ record }) => {
-          return record ? this.tableDS.indexOf(record) + 1 : '';
-        },
-      },
-      {
-        name: 'incidentType',
-        width: 300,
-        renderer: ({ record }) => (
-          <div>
-            {record && record.get('incidentType')}-{record && record.get('incidentTypeMeaning')}
-          </div>
-        ),
-      },
-      {
-        name: 'incidentFrom',
-        width: 300,
-        renderer: ({ record }) => (
-          <div>
-            {record && record.get('incidentFrom')}-{record && record.get('incidentFromMeaning')}
-          </div>
-        ),
-      },
-      { name: 'incidentDetail', width: 450 },
-      { name: 'incidentDate' },
-    ];
+    });
   }
 
   render() {
-    const { sourceCode } = this.props.match.params;
-    const { companyDesc, backPath } = this.state;
+    const { listData } = this.state;
+    const { invoiceCode, invoiceNo, invoiceAmount, salerName } = this.props.record;
+    const _invoiceAmount = Number(invoiceAmount) || 0;
     return (
       <>
-        <Header backPath={backPath} title={intl.get(`${modelCode}.title`).d('历史记录')} />
-        <Content>
-          <Form dataSet={this.invoiceDS} columns={3}>
-            <Output
-              value={companyDesc}
-              label={intl.get(`${modelCode}.view.companyDesc`).d('所属公司')}
-            />
-            <Output
-              value={moment().format(DEFAULT_DATE_FORMAT)}
-              label={intl.get(`${modelCode}.view.curDate`).d('当前日期')}
-            />
-            {/* <Output name="invoiceType" newLine />
-            <Output name="inOutType" /> */}
-            {sourceCode === 'BILL_POOL' ? (
-              <Output name="billType" newLine />
-            ) : (
-              <Output name="invoiceType" newLine />
-            )}
-            {sourceCode === 'BILL_POOL' ? '' : <Output name="inOutType" />}
-            <Output name="invoiceDate" />
-            <Output name="buyerName" newLine />
-            <Output name="invoiceCode" />
-            <Output name="invoiceNo" />
-            <Output name="salerName" />
-            <Output name="invoiceAmount" />
-            <Output name="totalAmount" />
-          </Form>
-          <Table
-            dataSet={this.tableDS}
-            columns={this.columns}
-            queryFieldsLimit={4}
-            style={{ height: 300 }}
-          />
-        </Content>
+        <div className={styles.invoice}>
+          <div style={{ marginLeft: 18, paddingTop: 12 }}>
+            <Tag color="#3889FF">{intl.get('htc.common.view.salerName').d('销方名称')}</Tag>
+            <span style={{ fontWeight: 'bold' }}>{salerName || '-'}</span>
+          </div>
+          <Row className={styles.grid}>
+            <Col span={10}>
+              <span>{intl.get('htc.common.view.invoiceCode').d('发票代码')}：</span>
+              <span className={styles.invoiceInfo}>{invoiceCode}</span>
+            </Col>
+            <Col span={8}>
+              <span>{intl.get('htc.common.view.invoiceNo').d('发票号码')}：</span>
+              <span className={styles.invoiceInfo}>{invoiceNo}</span>
+            </Col>
+            <Col span={6}>
+              <span>{intl.get('htc.common.view.invoiceAmount').d('发票金额')}：</span>
+              <span className={styles.invoiceInfo}>{_invoiceAmount.toFixed(2)}</span>
+            </Col>
+          </Row>
+        </div>
+        <Spin dataSet={this.tableDS} />
+        {listData && !isEmpty(listData) && (
+          <Timeline className={styles.list}>
+            {listData.map((item: any) => {
+              const { incidentDetail } = item;
+              const employeeInfo = incidentDetail.split(/;|；/);
+              const splitName = employeeInfo[0].split(/:|：/);
+              const detail = employeeInfo[1] || employeeInfo[0];
+              const employeeName = splitName[1];
+              return (
+                <TimelineItem>
+                  <div>
+                    <span className={styles.employee}>{employeeName}</span>&emsp;
+                    <span>{item.incidentDate}</span>
+                  </div>
+                  <span className={styles.detail}>{detail}</span>
+                  <div className={styles.info}>
+                    <span>
+                      {intl.get('hcan.invoiceDetail.view.type').d('类型')}：{item.incidentType}-
+                      {item.incidentTypeMeaning}
+                    </span>
+                    <br />
+                    <span style={{ marginTop: '5px' }}>
+                      {intl.get('hzero.common.source').d('来源')}：{item.incidentFrom}-
+                      {item.incidentFromMeaning}
+                    </span>
+                  </div>
+                </TimelineItem>
+              );
+            })}
+          </Timeline>
+        )}
       </>
     );
   }

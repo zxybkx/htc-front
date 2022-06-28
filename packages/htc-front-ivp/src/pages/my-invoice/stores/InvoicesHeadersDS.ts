@@ -1,12 +1,12 @@
 /*
- * @Descripttion:我的发票
+ * @Description:我的发票
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
  * @LastEditTime: 2021-01-28 17:58:48
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { DataSet } from 'choerodon-ui/pro';
@@ -26,8 +26,16 @@ export default (): DataSetProps => {
     transport: {
       read: (config): AxiosRequestConfig => {
         const url = `${API_PREFIX}/v1/${tenantId}/my-invoice/my-invoice-search`;
+        const invoiceStatus = config.data.invoiceStatus ? config.data.invoiceStatus.split(',') : [];
+        const isSubmittedFlag = invoiceStatus.includes('1') ? '1' : '0';
+        const notSubmittedFlag = invoiceStatus.includes('2') ? '1' : '0';
         const axiosConfig: AxiosRequestConfig = {
           ...config,
+          data: {
+            ...config.data,
+            isSubmittedFlag,
+            notSubmittedFlag,
+          },
           url,
           params: {
             ...config.params,
@@ -43,7 +51,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'poolHeaderId',
-        label: intl.get(`${modelCode}.view.poolHeaderId`).d('记录ID'),
+        label: intl.get('hivp.bill.view.billPoolHeaderId').d('记录ID'),
         type: FieldType.number,
       },
       {
@@ -52,126 +60,126 @@ export default (): DataSetProps => {
       },
       {
         name: 'tenantName',
-        label: intl.get(`${modelCode}.view.tenantName`).d('租户名称'),
+        label: intl.get('htc.common.view.tenantName').d('租户名称'),
         type: FieldType.string,
       },
       {
         name: 'companyId',
-        label: intl.get(`${modelCode}.view.companyId`).d('公司ID'),
+        label: intl.get('hivp.batchCheck.view.companyId').d('公司ID'),
         type: FieldType.number,
       },
       {
         name: 'companyCode',
-        label: intl.get(`${modelCode}.view.companyCode`).d('公司代码'),
+        label: intl.get('htc.common.modal.companyCode').d('公司代码'),
         type: FieldType.string,
       },
       {
         name: 'companyName',
-        label: intl.get(`${modelCode}.view.companyName`).d('公司名称'),
+        label: intl.get('hzero.hzeroTheme.page.companyName').d('公司名称'),
         type: FieldType.string,
       },
       {
         name: 'taxpayerNumber',
-        label: intl.get(`${modelCode}.view.taxpayerNumber`).d('公司纳税人识别号'),
+        label: intl.get('htc.common.modal.taxpayerNumber').d('公司纳税人识别号'),
         type: FieldType.string,
       },
 
       {
         name: 'employeeId',
-        label: intl.get(`${modelCode}.view.employeeId`).d('员工id'),
+        label: intl.get('hivp.bill.view.employeeId').d('员工id'),
         type: FieldType.number,
       },
       {
         name: 'employeeNum',
-        label: intl.get(`${modelCode}.view.employeeNum`).d('员工编码'),
+        label: intl.get('hivp.bill').d('员工编码'),
         type: FieldType.string,
       },
       {
         name: 'invoiceTypeMeaning',
-        label: intl.get(`${modelCode}.view.invoiceTypeMeaning`).d('发票类型'),
+        label: intl.get('htc.common.view.invoiceType').d('发票类型'),
         type: FieldType.string,
         // lookupCode: 'HIVC.INVOICE_TYPE',
       },
       {
         name: 'invoiceType',
-        label: intl.get(`${modelCode}.view.invoiceType`).d('发票类型代码'),
+        label: intl.get(`${modelCode}.view.invoiceTypeCode`).d('发票类型代码'),
         type: FieldType.string,
         // lookupCode: 'HIVC.INVOICE_TYPE',
       },
       {
         name: 'invoiceTypeTag',
-        label: intl.get(`${modelCode}.view.invoiceTypeTag`).d('发票类型标记'),
+        label: intl.get('hivp.bill.view.invoiceTypeTag').d('发票类型标记'),
         type: FieldType.string,
       },
       {
         name: 'invoiceState',
-        label: intl.get(`${modelCode}.view.invoiceState`).d('发票状态'),
+        label: intl.get('hivp.batchCheck.view.invoiceState').d('发票状态'),
         type: FieldType.string,
         lookupCode: 'HMDM.INVOICE_STATE',
       },
       {
         name: 'invoiceCode',
-        label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
+        label: intl.get(`htc.common.view.invoiceCode`).d('发票代码'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'invoiceNo',
-        label: intl.get(`${modelCode}.view.invoiceNo`).d('发票号码'),
+        label: intl.get(`htc.common.view.invoiceNo`).d('发票号码'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'invoiceDate',
-        label: intl.get(`${modelCode}.view.invoiceDate`).d('开票日期'),
+        label: intl.get(`htc.common.view.invoiceDate`).d('开票日期'),
         type: FieldType.date,
         required: true,
         transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'invoiceAmount',
-        label: intl.get(`${modelCode}.view.invoiceAmount`).d('发票金额'),
+        label: intl.get(`htc.common.view.invoiceAmount`).d('发票金额'),
         type: FieldType.currency,
         required: true,
       },
       {
         name: 'taxAmount',
-        label: intl.get(`${modelCode}.view.taxAmount`).d('发票税额'),
+        label: intl.get(`htc.common.view.taxAmount`).d('发票税额'),
         type: FieldType.string,
       },
       {
         name: 'totalAmount',
-        label: intl.get(`${modelCode}.view.totalAmount`).d('价税合计'),
+        label: intl.get(`htc.common.view.totalAmount`).d('价税合计'),
         type: FieldType.currency,
       },
       {
         name: 'validTaxAmount',
-        label: intl.get(`${modelCode}.view.validTaxAmount`).d('有效税额'),
+        label: intl.get('hivp.bill.view.EffectiveTax').d('有效税额'),
         type: FieldType.currency,
       },
       {
         name: 'checkCode',
-        label: intl.get(`${modelCode}.view.checkCode`).d('校验码'),
+        label: intl.get('hivp.bill.view.checkCode').d('校验码'),
         type: FieldType.string,
       },
       {
         name: 'salerName',
-        label: intl.get(`${modelCode}.view.salerName`).d('销方名称'),
+        label: intl.get(`htc.common.view.salerName`).d('销方名称'),
         type: FieldType.string,
       },
       {
         name: 'buyerName',
-        label: intl.get(`${modelCode}.view.buyerName`).d('购方名称'),
+        label: intl.get(`htc.common.view.buyerName`).d('购方名称'),
         type: FieldType.string,
       },
       {
         name: 'fileName',
-        label: intl.get(`${modelCode}.view.fileName`).d('档案文件'),
+        label: intl.get(`${modelCode}.view.files`).d('档案文件'),
         type: FieldType.string,
       },
       {
         name: 'fileUrl',
-        label: intl.get(`${modelCode}.view.fileUrl`).d('文件URL'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.fileUrl').d('文件URL'),
         type: FieldType.string,
       },
     ],
@@ -181,12 +189,23 @@ export default (): DataSetProps => {
           if (record && name === 'sourceCode') {
             record.set('invoiceType', '');
           }
+          if (record && name === 'companyObj') {
+            record.set('employeeName', record.data.companyObj.employeeName);
+          }
         },
       },
       fields: [
+        // {
+        //   name: 'employeeName',
+        //   label: intl.get(`${modelCode}.view.employeeName`).d('员工姓名'),
+        //   type: FieldType.string,
+        //   // bind: 'companyObj.employeeName',
+        //   ignore: FieldIgnore.always,
+        //   readOnly: true,
+        // },
         {
           name: 'companyObj',
-          label: intl.get(`${modelCode}.view.companyObj`).d('所属公司'),
+          label: intl.get('htc.common.modal.companyName').d('所属公司'),
           type: FieldType.object,
           lovCode: 'HMDM.CURRENT_EMPLOYEE',
           lovPara: { tenantId },
@@ -210,37 +229,42 @@ export default (): DataSetProps => {
           bind: 'companyObj.employeeNum',
         },
         {
-          name: 'employeeName',
-          label: intl.get(`${modelCode}.view.employeeName`).d('员工姓名'),
+          name: 'sourceCode',
+          label: intl.get(`${modelCode}.view.sourceCode`).d('发票来源'),
           type: FieldType.string,
-          bind: 'companyObj.employeeName',
-          ignore: FieldIgnore.always,
-          readOnly: true,
+          lookupCode: 'HTC.HIOP.INVOICE_SOURCE',
         },
         {
-          name: 'inOutType',
+          name: 'invoiceType',
+          label: intl.get(`htc.common.view.invoiceType`).d('发票类型'),
           type: FieldType.string,
-          defaultValue: 'IN',
+          lookupCode: 'HIVC.INVOICE_TYPE',
+          computedProps: {
+            disabled: ({ record }) => !record.get('sourceCode'),
+            lookupCode: ({ record }) => {
+              const sourceCode = record.get('sourceCode');
+              return sourceCode === 'INVOICE_POOL' ? 'HIVC.INVOICE_TYPE' : 'HIVP.BILL_TYPE';
+            },
+          },
         },
         {
-          name: 'notSubmittedFlag',
-          label: intl.get(`${modelCode}.view.notSubmittedFlag`).d('未报发票'),
-          type: FieldType.boolean,
-          trueValue: '1',
-          falseValue: '0',
-          defaultValue: '1',
+          name: 'invoiceCode',
+          label: intl.get(`htc.common.view.invoiceCode`).d('发票代码'),
+          type: FieldType.string,
         },
         {
-          name: 'isSubmittedFlag',
-          label: intl.get(`${modelCode}.view.isSubmittedFlag`).d('已报发票'),
-          type: FieldType.boolean,
-          trueValue: '1',
-          falseValue: '0',
-          defaultValue: '0',
+          name: 'invoiceNo',
+          label: intl.get(`htc.common.view.invoiceNo`).d('发票号码'),
+          type: FieldType.string,
+        },
+        {
+          name: 'invoiceAmount',
+          label: intl.get(`htc.common.view.invoiceAmount`).d('发票金额'),
+          type: FieldType.number,
         },
         {
           name: 'invoiceDateFrom',
-          label: intl.get(`${modelCode}.view.invoiceDateFrom`).d('开票日期从'),
+          label: intl.get(`hivp.bill.view.invoiceDateFrom`).d('开票日期从'),
           type: FieldType.date,
           max: 'invoiceDateTo',
           defaultValue: halfYearStart,
@@ -248,49 +272,36 @@ export default (): DataSetProps => {
         },
         {
           name: 'invoiceDateTo',
-          label: intl.get(`${modelCode}.view.invoiceDateTo`).d('开票日期至'),
+          label: intl.get(`hivp.bill.view.invoiceDateTo`).d('开票日期至'),
           type: FieldType.date,
           min: 'invoiceDateFrom',
           transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
+          name: 'invoiceStatus',
+          label: intl.get(`${modelCode}.view.invoiceStatus`).d('报销状态'),
+          type: FieldType.string,
+          lookupCode: 'HTC.HIOP.REIMBURSEMENT_STATUS',
+          multiple: ',',
+          defaultValue: ['2'],
+        },
+        {
           name: 'buyerName',
-          label: intl.get(`${modelCode}.view.buyerName`).d('购方名称'),
+          label: intl.get(`htc.common.view.buyerName`).d('购方名称'),
           type: FieldType.string,
         },
         {
           name: 'salerName',
-          label: intl.get(`${modelCode}.view.salerName`).d('销方名称'),
+          label: intl.get(`购方名称.view.salerName`).d('销方名称'),
           type: FieldType.string,
         },
         {
-          name: 'sourceCode',
-          label: intl.get(`${modelCode}.view.sourceCode`).d('发票来源'),
+          name: 'inOutType',
+          label: intl.get(`${modelCode}.view.inOutType`).d('发票源自'),
           type: FieldType.string,
-        },
-        {
-          name: 'invoiceType',
-          label: intl.get(`${modelCode}.view.invoiceType`).d('发票类型'),
-          type: FieldType.string,
-          lookupCode: 'HIVC.INVOICE_TYPE',
-          computedProps: {
-            disabled: ({ record }) => !record.get('sourceCode'),
-          },
-        },
-        {
-          name: 'invoiceCode',
-          label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
-          type: FieldType.string,
-        },
-        {
-          name: 'invoiceNo',
-          label: intl.get(`${modelCode}.view.invoiceNo`).d('发票号码'),
-          type: FieldType.string,
-        },
-        {
-          name: 'invoiceAmount',
-          label: intl.get(`${modelCode}.view.invoiceAmount`).d('发票金额'),
-          type: FieldType.currency,
+          required: true,
+          lookupCode: 'HTC.HIOP.INVOICE_FROM',
+          defaultValue: 'IN',
         },
       ],
     }),

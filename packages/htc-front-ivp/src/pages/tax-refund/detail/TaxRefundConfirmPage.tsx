@@ -29,16 +29,16 @@ import intl from 'utils/intl';
 import { observer } from 'mobx-react-lite';
 import { Col, Row } from 'choerodon-ui';
 import ExcelExport from 'components/ExcelExport';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import notification from 'utils/notification';
-import { getPresentMenu } from '@common/utils/utils';
+import { getPresentMenu } from '@htccommon/utils/utils';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
-import { getCurrentEmployeeInfo } from '@common/services/commonService';
+import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { confirmInvoice } from '@src/services/taxRefundService';
 import TaxRefundComfirmDS from '../stores/TaxRefundComfirmDS';
 
-const modelCode = 'hivp.check-certification';
+const modelCode = 'hivp.checkCertification';
 const tenantId = getCurrentOrganizationId();
 const permissionPath = `${getPresentMenu().name}.ps`;
 
@@ -104,7 +104,9 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
             <TextField
               name="number"
               newLine
-              renderer={(value) => value.text && `${value.text}份`}
+              renderer={(value) =>
+                value.text && `${value.text} ${intl.get(`${modelCode}.view.share`).d('份')}`
+              }
             />
             <Currency name="amount" />
             <Currency name="taxAmount" />
@@ -113,7 +115,7 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
             <Col span={20}>{buttons}</Col>
             <Col span={4} style={{ textAlign: 'end', marginBottom: '2px' }}>
               <Button color={ButtonColor.primary} onClick={() => dataSet.query()}>
-                {intl.get(`${modelCode}.button.save`).d('查询')}
+                {intl.get('hzero.common.button.search').d('查询')}
               </Button>
             </Col>
           </Row>
@@ -126,6 +128,11 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
   @Bind()
   handleGetQueryParams() {
     const queryParams = this.taxRefundComfirmDS.queryDataSet!.map((data) => data.toData()) || {};
+    for (const key in queryParams[0]) {
+      if (queryParams[0][key] === '' || queryParams[0][key] === null) {
+        delete queryParams[0][key];
+      }
+    }
     const exportParams = { ...queryParams[0] } || {};
     return exportParams;
   }
@@ -133,7 +140,7 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
   get columns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('htc.common.orderSeq').d('序号'),
         width: 60,
         renderer: ({ record }) => {
           return record ? this.taxRefundComfirmDS.indexOf(record) + 1 : '';
@@ -202,7 +209,7 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
       if (res && res.status === '1000') {
         notification.success({
           description: '',
-          message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
+          message: intl.get('hzero.common.notification.success').d('操作成功'),
         });
         queryDataSet.current!.set({ number: res.data.invoiceNum });
         queryDataSet.current!.set({ amount: res.data.invoiceAllAmountGross });
@@ -243,7 +250,7 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
         key="confirm"
         onClick={() => this.handleConfirm()}
         dataSet={this.taxRefundComfirmDS}
-        title={intl.get(`${modelCode}.button.confirm`).d('确认')}
+        title={intl.get('hzero.common.button.sure').d('确认')}
         permissionCode="confirm"
         permissionMeaning="按钮-确认"
       />,
@@ -255,7 +262,7 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
       <>
         <Header
           backPath="/htc-front-ivp/tax-refund/list"
-          title={intl.get(`${modelCode}.title`).d('退税确认勾选')}
+          title={intl.get(`${modelCode}.title.refund`).d('退税确认勾选')}
         >
           <ExcelExport
             requestUrl={`${API_PREFIX}/v1/${tenantId}/refund-invoice-operation/confirm-invoice-export`}

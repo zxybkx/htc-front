@@ -1,10 +1,10 @@
-/*
+/**
  * @Description:待开票数据勾选
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-06-03 16:24:22
- * @LastEditTime:
- * @Copyright: Copyright (c) 2020, Hand
+ * @LastEditTime: 2022-06-15 10:23
+ * @Copyright: Copyright (c) 2021, Hand
  */
 import { RoutersConfig } from 'hzero-boot/lib/typings/IRouterConfig';
 
@@ -21,16 +21,6 @@ const config: RoutersConfig = [
       {
         path: '/htc-front-iop/tobe-invoice/generate-application/:companyId/:ids',
         component: () => import('./detail/GenerateApplicationPage'),
-      },
-      // 商品信息
-      {
-        path: '/htc-front-iop/tobe-invoice/commodity-edit/:companyId/:companyCode/:employeeNumber',
-        component: () => import('./detail/CommodityEditPage'),
-      },
-      // 客户信息
-      {
-        path: '/htc-front-iop/tobe-invoice/customer-edit/:companyId/:companyCode/:employeeNumber',
-        component: () => import('./detail/CustomerEditPage'),
       },
       // 查看申请单
       {

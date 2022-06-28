@@ -2,7 +2,7 @@ const paths = require('hzero-webpack-scripts/config/paths');
 const path = require('path');
 
 module.exports = {
-  '@common': path.resolve(paths.appRootPath, 'packages', 'htc-front-common/lib'),
+  '@htccommon': path.resolve(paths.appRootPath, 'packages', 'htc-front-common/lib'),
   'hzero-boot-customize-init-config': path.resolve(
     __dirname,
     '../../packages/htc-front-common/src/config/customize'

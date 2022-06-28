@@ -1,36 +1,35 @@
-/*
+/**
  * @Description:分配商品映射
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-05-19 10:25:54
- * @LastEditTime:
- * @Copyright: Copyright (c) 2020, Hand
+ * @LastEditTime: 2022-06-15 14:00
+ * @Copyright: Copyright (c) 2021, Hand
  */
 import React, { Component } from 'react';
 import { Bind } from 'lodash-decorators';
-import { observer } from 'mobx-react-lite';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import formatterCollections from 'utils/intl/formatterCollections';
-import { Header, Content } from 'components/Page';
-import { FuncType, ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
-import { DataSet, Table, Button } from 'choerodon-ui/pro';
-import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
+import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
+import { Button, DataSet, Table } from 'choerodon-ui/pro';
 import { assignCommodity } from '@src/services/customerService';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import intl from 'utils/intl';
 import notification from 'utils/notification';
-import { RouteComponentProps } from 'react-router-dom';
 import AssignCommodityListDS from '../stores/AssignCommodityListDS';
 
-const modelCode = 'hiop.commodity-info';
 const tenantId = getCurrentOrganizationId();
 
-interface AssignCommodityListDS extends RouteComponentProps {
-  match: any;
+interface AssignCommodityListDS {
+  companyCode: string;
+  taxpayerNumber: string;
+  goodsMappingList: any;
+  customerInformationId: number;
+  onCloseModal: any;
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: ['hiop.customerInfo', 'htc.common'],
 })
 export default class CommodityInfoPage extends Component<AssignCommodityListDS> {
   assignCommodityListDS = new DataSet({
@@ -38,69 +37,42 @@ export default class CommodityInfoPage extends Component<AssignCommodityListDS> 
     ...AssignCommodityListDS(),
   });
 
-  componentDidMount(): void {
-    const { search } = this.props.location;
-    const companyInfoStr = new URLSearchParams(search).get('companyInfo');
-    if (companyInfoStr) {
-      const companyInfo = JSON.parse(decodeURIComponent(companyInfoStr));
-      const { companyCode, taxpayerNumber, customerInformationId } = companyInfo;
-      this.assignCommodityListDS.setQueryParameter('companyCode', companyCode);
-      this.assignCommodityListDS.setQueryParameter('taxpayerNumber', taxpayerNumber);
-      this.assignCommodityListDS.setQueryParameter('customerInformationId', customerInformationId);
-      this.assignCommodityListDS.query();
-    }
+  componentDidMount() {
+    const { companyCode, taxpayerNumber, customerInformationId } = this.props;
+    this.assignCommodityListDS.setQueryParameter('companyCode', companyCode);
+    this.assignCommodityListDS.setQueryParameter('taxpayerNumber', taxpayerNumber);
+    this.assignCommodityListDS.setQueryParameter('customerInformationId', customerInformationId);
+    this.assignCommodityListDS.query();
   }
 
+  /**
+   *分配商品
+   */
   @Bind()
   async assignCommodity() {
     const customerInformationList = this.assignCommodityListDS.selected.map((record) =>
       record.toData()
     );
-    const { search } = this.props.location;
-    const companyInfoStr = new URLSearchParams(search).get('companyInfo');
-    if (companyInfoStr) {
-      const companyInfo = JSON.parse(decodeURIComponent(companyInfoStr));
-      const { goodsMappingList } = companyInfo;
-      const params = {
-        tenantId,
-        goodsMappingList,
-        customerInformationList,
-      };
-      const res = getResponse(await assignCommodity(params));
-      if (res) {
-        notification.success({
-          description: '',
-          message: res.message,
-        });
-      }
+    const { goodsMappingList } = this.props;
+    const params = {
+      tenantId,
+      goodsMappingList,
+      customerInformationList,
+    };
+    const res = getResponse(await assignCommodity(params));
+    if (res) {
+      notification.success({
+        description: '',
+        message: res.message,
+      });
+      this.props.onCloseModal();
     }
   }
 
-  get buttons(): Buttons[] {
-    const ObserverButtons = observer((props: any) => {
-      const isDisabled = props.dataSet!.selected.length === 0;
-      return (
-        <Button
-          key={props.key}
-          onClick={props.onClick}
-          disabled={isDisabled}
-          funcType={FuncType.flat}
-          color={ButtonColor.primary}
-        >
-          {props.title}
-        </Button>
-      );
-    });
-    return [
-      <ObserverButtons
-        key="add"
-        onClick={() => this.assignCommodity()}
-        dataSet={this.assignCommodityListDS}
-        title={intl.get(`${modelCode}.button.add`).d('分配')}
-      />,
-    ];
-  }
-
+  /**
+   * 返回表格行
+   * @returns {*[]}
+   */
   get columns(): ColumnProps[] {
     return [{ name: 'customerCode' }, { name: 'customerName' }, { name: 'customerTaxpayerNumber' }];
   }
@@ -108,18 +80,20 @@ export default class CommodityInfoPage extends Component<AssignCommodityListDS> 
   render() {
     return (
       <>
-        <Header
-          backPath="/htc-front-iop/customer-info/list"
-          title={intl.get(`${modelCode}.title`).d('分配商品映射')}
+        <Table
+          key="assignCommodity"
+          dataSet={this.assignCommodityListDS}
+          columns={this.columns}
+          style={{ height: 450 }}
         />
-        <Content>
-          <Table
-            key="assignCommodity"
-            dataSet={this.assignCommodityListDS}
-            columns={this.columns}
-            buttons={this.buttons}
-          />
-        </Content>
+        <div style={{ position: 'absolute', right: '0.3rem', bottom: '0.3rem' }}>
+          <Button onClick={() => this.props.onCloseModal()}>
+            {intl.get('hzero.common.button.cancel').d('取消')}
+          </Button>
+          <Button onClick={() => this.assignCommodity()} color={ButtonColor.primary}>
+            {intl.get('hiop.customerInfo.button.synchronize').d('分配')}
+          </Button>
+        </div>
       </>
     );
   }

@@ -22,6 +22,9 @@ import {
   Currency,
   DatePicker,
   Lov,
+  Icon,
+  Dropdown,
+  Menu,
 } from 'choerodon-ui/pro';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
@@ -29,19 +32,20 @@ import notification from 'utils/notification';
 import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
 import withProps from 'utils/withProps';
 import { isEmpty } from 'lodash';
-import { getCurrentEmployeeInfo } from '@common/services/commonService';
+import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
 import { handleInvoiceCheckApi, addToInvoicePool } from '@src/services/invoiceCheckService';
 import InvoiceCheckQueryDS from '../stores/InvoiceCheckQueryDS';
+import style from '../invoiceCheck.model.less';
 
-const modelCode = 'hcan.invoice-check';
-
+const modelCode = 'hcan.invoiceCheck';
+const { Item: MenuItem } = Menu;
 interface InvoiceCheckQueryPageProps {
   dispatch: Dispatch<any>;
   queryDS: DataSet;
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: [modelCode, 'hivp.batchCheck', 'hivp.bill', 'htc.common'],
 })
 @withProps(
   () => {
@@ -100,7 +104,7 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
     if (!validateValue) {
       notification.error({
         description: '',
-        message: intl.get('hzero.common.notification.invalid').d('数据校验不通过！'),
+        message: intl.get('hivp.batchCheck.notification.invalid').d('数据校验不通过！'),
       });
       return;
     }
@@ -187,59 +191,69 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
     const ObserverButtons = observer((props: any) => {
       if (props.dataSet.current && props.dataSet.current.get('checkStatus') === '0001') {
         return (
-          <Button key={props.key} onClick={props.onClick}>
+          <a key={props.key} onClick={props.onClick}>
             {props.title}
-          </Button>
+          </a>
         );
       }
       return <></>;
     });
-    return (
-      <>
-        <Header title={intl.get(`${modelCode}.title`).d('手工发票查验')}>
-          <Button key="check" color={ButtonColor.dark} onClick={this.handleInvoiceCheck}>
-            {intl.get(`${modelCode}.button.check`).d('查验')}
-          </Button>
-          {/* {detailFlag && (
-            <Button key="viewDetail" onClick={this.handleGotoDetailPage}>
-              {intl.get(`${modelCode}.button.viewDetail`).d('查看全票面信息')}
-            </Button>
-          )} */}
-          {/* {detailFlag && (
-            <Button key="addPool" onClick={this.handleAddToInvoicePool}>
-              {intl.get(`${modelCode}.button.addPool`).d('添加至发票池')}
-            </Button>
-          )}           */}
+    const menu = (
+      <Menu>
+        <MenuItem>
           <ObserverButtons
             key="viewDetail"
             onClick={this.handleGotoDetailPage}
             dataSet={this.props.queryDS}
-            title={intl.get(`${modelCode}.button.viewDetail`).d('查看全票面信息')}
+            title={intl.get('hcan.invoiceDetail.title.detail').d('查看全票面信息')}
           />
+        </MenuItem>
+        <MenuItem>
           <ObserverButtons
             key="addPool"
             onClick={this.handleAddToInvoicePool}
             dataSet={this.props.queryDS}
             title={intl.get(`${modelCode}.button.addPool`).d('添加至发票池')}
           />
-          <Button key="reset" onClick={this.handleResetQuery}>
-            {intl.get(`hzero.common.button.reset`).d('重置')}
-          </Button>
-        </Header>
-        <Content>
+        </MenuItem>
+      </Menu>
+    );
+    const MenuContainer = observer((props: any) => {
+      if (props.dataSet.current && props.dataSet.current.get('checkStatus') === '0001') {
+        return (
+          <Dropdown overlay={menu}>
+            <Button color={ButtonColor.primary}>
+              {intl.get(`${modelCode}.button.assetChange`).d('添加/查看')}
+              <Icon type="arrow_drop_down" />
+            </Button>
+          </Dropdown>
+        );
+      }
+      return <></>;
+    });
+    return (
+      <>
+        <Header title={intl.get(`${modelCode}.view.title`).d('手工发票查验')} />
+        <Content className={style.main}>
           <Output
             name="desc"
-            value={intl
-              .get(`${modelCode}.view.checkTips`)
-              .d('*查验提示：国税查验平台可以查验发票类型五年内的发票')}
+            renderer={() => {
+              return (
+                <span className={style.label}>
+                  {intl
+                    .get(`${modelCode}.view.checkTips`)
+                    .d('查验提示：国税查验平台可以查验发票类型五年内的发票')}
+                </span>
+              );
+            }}
           />
-          <Form dataSet={this.props.queryDS} columns={2}>
+          <Form dataSet={this.props.queryDS} className={style.form} columns={1}>
             <Lov name="companyObj" />
-            <Output name="employeeNumber" />
             <TextField
               name="taxpayerIdentificationNumber"
               help={intl.get(`${modelCode}.view.editAble`).d('(可修改)')}
             />
+            {/* <TextField name="employeeNumber" readOnly /> */}
             <TextField
               name="invoiceCode"
               help={intl.get(`${modelCode}.view.required`).d('(必填)')}
@@ -266,6 +280,15 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
                 .get(`${modelCode}.view.checkNumDesc`)
                 .d('(增值税普通发票（纸质、电子、卷式）、通行费发票必输)')}
             />
+            <div>
+              <Button key="check" color={ButtonColor.primary} onClick={this.handleInvoiceCheck}>
+                {intl.get('hivp.batchCheck.button.Check').d('查验')}
+              </Button>
+              <MenuContainer dataSet={this.props.queryDS} />
+              <Button key="reset" onClick={this.handleResetQuery}>
+                {intl.get('hzero.common.button.reset').d('重置')}
+              </Button>
+            </div>
           </Form>
         </Content>
       </>

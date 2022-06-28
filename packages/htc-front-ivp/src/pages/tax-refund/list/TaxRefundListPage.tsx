@@ -14,42 +14,48 @@ import { Bind } from 'lodash-decorators';
 import { Content, Header } from 'components/Page';
 import { observer } from 'mobx-react-lite';
 import { API_HOST } from 'utils/config';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import {
   Button,
+  Currency,
   DataSet,
+  DatePicker,
+  Dropdown,
   Form,
   Lov,
+  Menu,
+  Modal as ModalPro,
   Output,
   Password,
-  Spin,
-  Tabs,
-  Table,
-  TextField,
-  Select,
-  DatePicker,
-  Currency,
   Progress,
+  Select,
+  Spin,
+  Table,
+  Tabs,
+  TextField,
   Upload,
 } from 'choerodon-ui/pro';
-import { Row, Col, Modal } from 'choerodon-ui';
+import { Col, Icon, Modal, Row } from 'choerodon-ui';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import intl from 'utils/intl';
-import { TabsType } from 'choerodon-ui/lib/tabs/enum';
 import { Button as PermissionButton } from 'components/Permission';
-import { getPresentMenu } from '@common/utils/utils';
-import { getCurrentOrganizationId, getAccessToken, getResponse } from 'utils/utils';
-import { getCurrentEmployeeInfo, getTenantAgreementCompany } from '@common/services/commonService';
-import { updateEnterpriseFile, getTaxAuthorityCode } from '@src/services/checkCertificationService';
+import { getPresentMenu } from '@htccommon/utils/utils';
+import { getAccessToken, getCurrentOrganizationId, getResponse } from 'utils/utils';
+import { getCurrentEmployeeInfo, getTenantAgreementCompany } from '@htccommon/services/commonService';
 import {
-  submitRefundCheckRequest,
+  getTaskPassword,
+  getTaxAuthorityCode,
+  updateEnterpriseFile,
+} from '@src/services/checkCertificationService';
+import {
+  batchOperationRefundInvoice,
+  downloadFile,
+  getProgress,
   refresh,
   refundInvoiceQuery,
-  getProgress,
-  downloadFile,
-  batchOperationRefundInvoice,
+  submitRefundCheckRequest,
 } from '@src/services/taxRefundService';
 import withProps from 'utils/withProps';
 import moment from 'moment';
@@ -58,21 +64,24 @@ import notification from 'utils/notification';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { ProgressStatus } from 'choerodon-ui/lib/progress/enum';
 import querystring from 'querystring';
-import { split, uniq } from 'lodash';
+import { isEmpty, split, uniq } from 'lodash';
 import { queryIdpValue } from 'hzero-front/lib/services/api';
+import formatterCollections from 'utils/intl/formatterCollections';
 import TaxRefundHeaderDS from '../stores/TaxRefundHeaderDS';
 import CurrentTaxRefundHeaderDS from '../stores/CurrentTaxRefundHeaderDS';
 import BatchTaxRefundHeaderDS from '../stores/BatchTaxRefundHeaderDS';
 import BatchTaxRefundLineDS from '../stores/BatchTaxRefundLineDS';
+import CompanyAndPasswordDS from '../../check-certification/stores/CompanyAndPasswordDS';
+import styles from '../../check-certification/checkcertification.less';
 
-const modelCode = 'hivp.tax-refund';
-const tenantId = getCurrentOrganizationId();
 const { TabPane } = Tabs;
 const permissionPath = `${getPresentMenu().name}.ps`;
 const { Option } = Select;
-const HIVP_API = commonConfig.IVP_API;
+const { Item: MenuItem } = Menu;
 
-// const HIVP_API = `${commonConfig.IVP_API}-31183`;
+const modelCode = 'hivp.taxRefund';
+const tenantId = getCurrentOrganizationId();
+const HIVP_API = commonConfig.IVP_API;
 
 interface TaxRefundPageProps {
   dispatch: Dispatch<any>;
@@ -80,6 +89,7 @@ interface TaxRefundPageProps {
   taxRefundHeaderDS: DataSet;
   currentTaxRefundHeaderDS: DataSet;
   batchTaxRefundHeaderDS: DataSet;
+  companyAndPassword: DataSet;
 }
 
 @connect()
@@ -93,13 +103,27 @@ interface TaxRefundPageProps {
       autoQuery: false,
       ...CurrentTaxRefundHeaderDS(),
     });
+    const companyAndPassword = new DataSet({
+      autoQuery: false,
+      ...CompanyAndPasswordDS(),
+    });
     return {
       taxRefundHeaderDS,
       currentTaxRefundHeaderDS,
+      companyAndPassword,
     };
   },
   { cacheState: true }
 )
+@formatterCollections({
+  code: [
+    modelCode,
+    'hivp.checkCertification',
+    'hiop.invoiceWorkbench',
+    'hiop.invoiceRule',
+    'hiop.invoiceReq',
+  ],
+})
 export default class CheckCertificationPage extends Component<TaxRefundPageProps> {
   state = {
     spinning: true,
@@ -110,11 +134,11 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
     progressStatus: ProgressStatus.active,
     visible: false, // 进度条是否显示
     empInfo: {} as any,
-    taxDiskPassword: '88888888',
     loadingFlag: false,
     hide: true, // 数据汇总表格是否隐藏
     isBatchFreshDisabled: true, // 批量退税刷新是否可点
-    showMore: false,
+    currentTaxRefundMoreDisplay: false,
+    batchTaxMoreDisplay: false,
   };
 
   multipleUpload;
@@ -134,6 +158,18 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
     },
   });
 
+  @Bind()
+  async getTaskPassword(companyObj, dataSet) {
+    const res = await getTaskPassword({
+      tenantId,
+      companyCode: companyObj.companyCode,
+    });
+    if (res && res.content && !isEmpty(res.content)) {
+      const { taxDiskPassword } = res.content[0];
+      dataSet.current!.set({ taxDiskPassword });
+    }
+  }
+
   // 根据所属公司获取数据
   @Bind()
   async getDataFromCompany(companyObj) {
@@ -148,11 +184,16 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
       queryDataSet.current!.set({ companyObj });
       curTaxDs.current!.set({ companyObj });
       batchDs.current!.set({ companyObj });
-      queryDataSet.current!.set({ inChannelCode });
+      // queryDataSet.current!.set({ inChannelCode });
+      this.props.companyAndPassword.current!.set({ inChannelCode });
       curTaxDs.current!.set({ authorityCode: competentTaxAuthorities });
       batchDs.current!.set({ authorityCode: competentTaxAuthorities });
       if (inChannelCode === 'AISINO_IN_CHANNEL') {
-        queryDataSet.current!.set({ taxDiskPassword: '88888888' });
+        // queryDataSet.current!.set({ taxDiskPassword: '88888888' });
+        this.props.companyAndPassword.current!.set({ taxDiskPassword: '88888888' });
+      } else {
+        // 获取税盘密码
+        this.getTaskPassword(companyObj, this.props.companyAndPassword);
       }
     }
     this.setState({ empInfo: companyObj });
@@ -175,6 +216,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
         if (empInfo && !curCompanyId) {
           this.getDataFromCompany(empInfo);
         }
+        this.props.companyAndPassword.loadData(res.content);
       }
       if (curCompanyId) {
         const curInfo = await getCurrentEmployeeInfo({ tenantId, companyId: curCompanyId });
@@ -240,7 +282,8 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
     const { queryDataSet } = this.props.taxRefundHeaderDS;
     if (queryDataSet) {
       const curInfo = queryDataSet.current!.toData();
-      const { companyId, companyCode, employeeNumber, taxDiskPassword, employeeId } = curInfo;
+      const { companyId, companyCode, employeeNumber, employeeId } = curInfo;
+      const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
       const res = await updateEnterpriseFile({
         tenantId,
         companyId,
@@ -252,7 +295,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
       if (res && !res.failed) {
         notification.success({
           description: '',
-          message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
+          message: intl.get('hzero.common.notification.success').d('操作成功'),
         });
         this.props.taxRefundHeaderDS.query();
       } else {
@@ -312,9 +355,10 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
   async batchOperation(record) {
     const { empInfo } = this.state;
     const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
-    const { queryDataSet } = this.props.taxRefundHeaderDS;
+    // const { queryDataSet } = this.props.taxRefundHeaderDS;
     const { queryDataSet: batchDs } = this.batchTaxRefundHeaderDS;
-    const taxDiskPassword = queryDataSet && queryDataSet.current!.get('taxDiskPassword');
+    // const taxDiskPassword = queryDataSet && queryDataSet.current!.get('taxDiskPassword');
+    const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
     const queryData = batchDs && batchDs.current!.toData(true);
     const currentPeriod = moment().format('YYYYMM');
     const salerTaxNo = this.props.taxRefundHeaderDS.current!.get('currentTaxpayerNumber');
@@ -335,7 +379,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
     if (res && res.status === '1000') {
       notification.success({
         description: '',
-        message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
       });
       this.batchTaxRefundHeaderDS.query();
     } else {
@@ -363,10 +407,10 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
         command: ({ record }): Commands[] => {
           const checkState = record.get('checkState');
           return [
-            <Button onClick={() => this.batchOperation(record)}>
+            <Button onClick={() => this.batchOperation(record)} funcType={FuncType.link}>
               {checkState === '0'
-                ? intl.get('hzero.common.status.checkFlag').d('全部勾选')
-                : intl.get('hzero.common.status.checkFlag').d('全部撤销')}
+                ? intl.get(`${modelCode}.status.checkFlag`).d('全部勾选')
+                : intl.get(`${modelCode}.status.checkNotFlag`).d('全部撤销')}
             </Button>,
           ];
         },
@@ -416,7 +460,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
   @Bind()
   renderQueryBar(props) {
     const { queryDataSet, buttons, dataSet } = props;
-    const { displayOptions } = this.state;
+    const { displayOptions, currentTaxRefundMoreDisplay } = this.state;
     let optionList = [];
     if (displayOptions.length > 0) {
       optionList = displayOptions.map((item: any) => {
@@ -435,56 +479,100 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
         );
       });
     }
+    const queryMoreArray: JSX.Element[] = [];
+    queryMoreArray.push(<TextField name="invoiceNo" />);
+    queryMoreArray.push(<DatePicker name="invoiceDateFrom" />);
+    queryMoreArray.push(<DatePicker name="invoiceDateTo" />);
+    queryMoreArray.push(<TextField name="salerTaxNo" />);
+    queryMoreArray.push(<Select name="manageState" />);
+    queryMoreArray.push(<Select name="invoiceState" />);
+    queryMoreArray.push(
+      <Select name="invoiceDisplayOptions" multiple colSpan={3} onChange={this.handleOpChange}>
+        {optionList}
+      </Select>
+    );
+    queryMoreArray.push(
+      <TextField
+        name="number"
+        newLine
+        renderer={(value) =>
+          value.text && `${value.text}${intl.get('hivp.checkCertification.view.share').d('份')}`
+        }
+      />
+    );
+    queryMoreArray.push(<Currency name="amount" />);
+    queryMoreArray.push(<Currency name="taxAmount" />);
     return (
-      <>
-        <Form dataSet={queryDataSet} columns={4}>
-          <TextField name="checkMonth" />
-          <Select
-            name="invoiceType"
-            optionsFilter={(record) => record.get('value') === '01' || record.get('value') === '17'}
-          />
-          <TextField name="invoiceCode" />
-          <TextField name="invoiceNo" />
-          <DatePicker name="invoiceDateFrom" />
-          <DatePicker name="invoiceDateTo" />
-          <TextField name="salerTaxNo" />
-          <Select name="manageState" />
-          <Select name="invoiceState" />
-          <Select name="invoiceDisplayOptions" multiple colSpan={2} onChange={this.handleOpChange}>
-            {optionList}
-          </Select>
-          <TextField name="number" newLine renderer={(value) => value.text && `${value.text}份`} />
-          <Currency name="amount" />
-          <Currency name="taxAmount" />
-        </Form>
-        <Row type="flex" justify="space-between">
-          <Col span={20}>{buttons}</Col>
-          <Col span={4} style={{ textAlign: 'end', marginBottom: '2px' }}>
+      <div style={{ marginBottom: '0.1rem' }}>
+        <Row>
+          <Col span={18}>
+            <Form dataSet={queryDataSet} columns={3}>
+              <TextField name="checkMonth" />
+              <Select
+                name="invoiceType"
+                optionsFilter={(record) =>
+                  record.get('value') === '01' || record.get('value') === '17'
+                }
+              />
+              <TextField name="invoiceCode" />
+              {currentTaxRefundMoreDisplay && queryMoreArray}
+            </Form>
+          </Col>
+          <Col span={6} style={{ textAlign: 'end' }}>
+            <Button
+              funcType={FuncType.link}
+              onClick={() =>
+                this.setState({ currentTaxRefundMoreDisplay: !currentTaxRefundMoreDisplay })
+              }
+            >
+              {currentTaxRefundMoreDisplay ? (
+                <span>
+                  {intl.get('hzero.common.table.column.option').d('更多')}
+                  <Icon type="expand_more" />
+                </span>
+              ) : (
+                <span>
+                  {intl.get('hzero.common.table.column.option').d('更多')}
+                  <Icon type="expand_less" />
+                </span>
+              )}
+            </Button>
+            <Button
+              onClick={() => {
+                queryDataSet.reset();
+                queryDataSet.create();
+              }}
+            >
+              {intl.get('hzero.common.button.reset').d('重置')}
+            </Button>
             <Button color={ButtonColor.primary} onClick={() => dataSet.query()}>
-              {intl.get(`${modelCode}.button.save`).d('查询')}
+              {intl.get('hzero.common.status.search').d('查询')}
             </Button>
           </Col>
         </Row>
-      </>
+        {buttons}
+      </div>
     );
   }
 
   @Bind()
   handleBatchQuery() {
-    const { queryDataSet } = this.props.taxRefundHeaderDS;
-    if (queryDataSet) {
-      const taxDiskPassword = queryDataSet.current!.get('taxDiskPassword');
-      this.batchTaxRefundHeaderDS.setQueryParameter('taxDiskPassword', taxDiskPassword);
-      this.batchTaxRefundLineDS.setQueryParameter('taxDiskPassword', taxDiskPassword);
-      this.batchTaxRefundHeaderDS.query();
-    }
+    // const { queryDataSet } = this.props.taxRefundHeaderDS;
+    // if (queryDataSet) {
+    // const taxDiskPassword = queryDataSet.current!.get('taxDiskPassword');
+    // }
+    const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
+    this.batchTaxRefundHeaderDS.setQueryParameter('taxDiskPassword', taxDiskPassword);
+    this.batchTaxRefundLineDS.setQueryParameter('taxDiskPassword', taxDiskPassword);
+    this.batchTaxRefundHeaderDS.query();
   }
 
   @Bind()
   renderBatchQueryBar(props) {
     const { queryDataSet, buttons, dataSet } = props;
-    const { empInfo, taxDiskPassword } = this.state;
+    const { empInfo, batchTaxMoreDisplay } = this.state;
     const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
+    const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
     const checkMonth = moment().format('YYYYMM');
     const uploadProps = {
       headers: {
@@ -500,45 +588,77 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
       onUploadSuccess: this.handleUploadSuccess,
       onUploadError: this.handleUploadError,
     };
+    const queryMoreArray: JSX.Element[] = [];
+    queryMoreArray.push(<TextField name="salerTaxNo" />);
+    queryMoreArray.push(
+      <Select
+        name="checkFlag"
+        clearButton={false}
+        optionsFilter={(record) => record.get('value') !== '-1' && record.get('value') !== 'R'}
+      />
+    );
+    queryMoreArray.push(
+      <Output
+        label={intl.get(`${modelCode}.table.batchTaxHeader`).d('文件选择')}
+        colSpan={2}
+        renderer={() => (
+          <Upload
+            ref={this.saveMultipleUpload}
+            {...uploadProps}
+            accept={[
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+              'application/vnd.ms-excel',
+            ]}
+          />
+        )}
+      />
+    );
     return (
-      <>
-        <Form dataSet={queryDataSet} columns={3}>
-          <TextField name="checkMonth" />
-          <DatePicker name="invoiceDateFrom" />
-          <DatePicker name="invoiceDateTo" />
-          <TextField name="salerTaxNo" />
-          <Select
-            name="checkFlag"
-            clearButton={false}
-            optionsFilter={(record) => record.get('value') !== '-1' && record.get('value') !== 'R'}
-          />
-          <Output
-            label="文件选择"
-            colSpan={2}
-            renderer={() => (
-              <Upload
-                ref={this.saveMultipleUpload}
-                {...uploadProps}
-                accept={[
-                  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                  'application/vnd.ms-excel',
-                ]}
-              />
-            )}
-          />
-        </Form>
-        <Row type="flex" justify="space-between">
-          <Col span={20}>{buttons}</Col>
-          <Col span={4} style={{ textAlign: 'end', marginBottom: '2px' }}>
+      <div style={{ marginBottom: '0.1rem' }}>
+        <Row>
+          <Col span={19}>
+            <Form dataSet={queryDataSet} columns={3}>
+              <TextField name="checkMonth" />
+              <DatePicker name="invoiceDateFrom" />
+              <DatePicker name="invoiceDateTo" />
+              {batchTaxMoreDisplay && queryMoreArray}
+            </Form>
+          </Col>
+          <Col span={5} style={{ textAlign: 'end' }}>
+            <Button
+              funcType={FuncType.link}
+              onClick={() => this.setState({ batchTaxMoreDisplay: !batchTaxMoreDisplay })}
+            >
+              {batchTaxMoreDisplay ? (
+                <span>
+                  {intl.get('hzero.common.table.column.option').d('更多')}
+                  <Icon type="expand_more" />
+                </span>
+              ) : (
+                <span>
+                  {intl.get('hzero.common.table.column.option').d('更多')}
+                  <Icon type="expand_less" />
+                </span>
+              )}
+            </Button>
+            <Button
+              onClick={() => {
+                queryDataSet.reset();
+                queryDataSet.create();
+              }}
+            >
+              {intl.get('hzero.common.button.reset').d('重置')}
+            </Button>
             <Button color={ButtonColor.primary} onClick={() => dataSet.query()}>
-              {intl.get(`${modelCode}.button.save`).d('查询')}
+              {intl.get('hzero.common.status.search').d('查询')}
             </Button>
           </Col>
         </Row>
+        {buttons}
         <div className="c7n-pro-table-header">
-          {intl.get(`${modelCode}.table.batchTaxHeader`).d('数据汇总情况')}
+          {intl.get(`${modelCode}.table.DataSummary`).d('数据汇总情况')}
         </div>
-      </>
+      </div>
     );
   }
 
@@ -548,7 +668,8 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
     const { queryDataSet } = this.props.taxRefundHeaderDS;
     const { queryDataSet: curQS } = this.props.currentTaxRefundHeaderDS;
     const authorityCode = curQS && curQS.current!.get('authorityCode');
-    const taxDiskPassword = queryDataSet && queryDataSet.current!.get('taxDiskPassword');
+    // const taxDiskPassword = queryDataSet && queryDataSet.current!.get('taxDiskPassword');
+    const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
     const taxInfo = {
       authorityCode,
       taxDiskPassword,
@@ -575,7 +696,8 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
     if (queryDataSet && mainQueryDataSet) {
       const mainQueryData = mainQueryDataSet.current!.toData(true);
       const queryData = queryDataSet.current!.toData(true);
-      const { companyId, companyCode, employeeNumber, taxDiskPassword, employeeId } = mainQueryData;
+      const { companyId, companyCode, employeeNumber, employeeId } = mainQueryData;
+      const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
       const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
       const findParams = {
         tenantId,
@@ -631,7 +753,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
       });
       notification.success({
         description: '',
-        message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
       });
       await this.props.currentTaxRefundHeaderDS.query();
     }
@@ -640,9 +762,10 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
   @Bind()
   async handleRefundRequest(selectedList, type) {
     const { empInfo } = this.state;
-    const { queryDataSet } = this.props.taxRefundHeaderDS;
+    // const { queryDataSet } = this.props.taxRefundHeaderDS;
     const { queryDataSet: curQS } = this.props.currentTaxRefundHeaderDS;
-    const taxDiskPassword = queryDataSet && queryDataSet.current!.get('taxDiskPassword');
+    // const taxDiskPassword = queryDataSet && queryDataSet.current!.get('taxDiskPassword');
+    const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
     const authorityCode = curQS && curQS.current!.get('authorityCode');
     const params = {
       tenantId,
@@ -656,7 +779,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
     if (res && res.status === '1000') {
       notification.success({
         description: '',
-        message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
       });
       await this.props.currentTaxRefundHeaderDS.query();
     } else {
@@ -675,7 +798,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
       notification.warning({
         description: '',
         message: intl
-          .get(`${modelCode}.view.unSubmit`)
+          .get('hivp.checkCertification.view.tickInvalid')
           .d('存在勾选状态为非未勾选状态的发票，无法提交'),
       });
       return;
@@ -691,7 +814,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
       notification.warning({
         description: '',
         message: intl
-          .get(`${modelCode}.view.unSubmit`)
+          .get('hivp.checkCertification.view.tickInvalid1')
           .d('存在勾选状态为非已勾选状态的发票，无法提交'),
       });
       return;
@@ -714,7 +837,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
       notification.warning({
         description: '',
         message: intl
-          .get(`${modelCode}.view.unSubmit`)
+          .get('hivp.checkCertification.view.tickInvalid2')
           .d('存在勾选状态为非请求中状态的发票，无法刷新'),
       });
       return;
@@ -724,7 +847,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
     if (res && res.status === '1000') {
       notification.success({
         description: '',
-        message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
       });
       if (type === 0) {
         this.props.currentTaxRefundHeaderDS.query();
@@ -748,14 +871,15 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
     const { companyId } = empInfo;
     const HeaderButtons = observer((props: any) => {
       const isDisabled = props.dataSet!.selected.length === 0;
+      const { condition } = props;
       return (
         <PermissionButton
           type="c7n-pro"
           key={props.key}
           onClick={props.onClick}
           disabled={isDisabled}
-          funcType={FuncType.flat}
-          color={ButtonColor.primary}
+          funcType={condition === 'refresh' ? FuncType.flat : FuncType.link}
+          // color={ButtonColor.primary}
           permissionList={[
             {
               code: `${permissionPath}.button.${props.permissionCode}`,
@@ -768,22 +892,37 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
         </PermissionButton>
       );
     });
+    const btnMenu = (
+      <Menu>
+        <MenuItem>
+          <HeaderButtons
+            key="submitTaxRefund"
+            onClick={() => this.handleSubmitTax()}
+            dataSet={this.props.currentTaxRefundHeaderDS}
+            title={intl.get('hivp.checkCertification.button.submitTickRequest').d('提交勾选')}
+            permissionCode="submit-tax-refund"
+            permissionMeaning="按钮-提交退税发票勾选请求"
+          />
+        </MenuItem>
+        <MenuItem>
+          <HeaderButtons
+            key="cancelTaxRefund"
+            onClick={() => this.handleCancelTax()}
+            dataSet={this.props.currentTaxRefundHeaderDS}
+            title={intl.get('hivp.checkCertification.button.submitCancelTickRequest').d('取消勾选')}
+            permissionCode="cancel-tax-refund"
+            permissionMeaning="按钮-提交退税发票取消勾选请求"
+          />
+        </MenuItem>
+      </Menu>
+    );
     return [
-      <PermissionButton
-        type="c7n-pro"
-        key="taxRefund"
-        disabled={!companyId}
-        onClick={this.handleTaxComfirm}
-        permissionList={[
-          {
-            code: `${permissionPath}.button.confirm-tax-refund`,
-            type: 'button',
-            meaning: '按钮-退税勾选确认',
-          },
-        ]}
-      >
-        {intl.get(`${modelCode}.button.taxRefund`).d('退税勾选确认')}
-      </PermissionButton>,
+      <Dropdown overlay={btnMenu}>
+        <Button color={ButtonColor.primary}>
+          {intl.get(`${modelCode}.button.dataRefundCheck`).d('退税勾选')}
+          <Icon type="arrow_drop_down" />
+        </Button>
+      </Dropdown>,
       <PermissionButton
         type="c7n-pro"
         key="getVerifiableInvoices"
@@ -799,29 +938,30 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
       >
         {intl.get(`${modelCode}.button.getVerifiableInvoices`).d('退税发票实时查询')}
       </PermissionButton>,
-      <HeaderButtons
-        key="submitTaxRefund"
-        onClick={() => this.handleSubmitTax()}
-        dataSet={this.props.currentTaxRefundHeaderDS}
-        title={intl.get(`${modelCode}.button.submitTaxRefund`).d('提交退税发票勾选请求')}
-        permissionCode="submit-tax-refund"
-        permissionMeaning="按钮-提交退税发票勾选请求"
-      />,
-      <HeaderButtons
-        key="cancelTaxRefund"
-        onClick={() => this.handleCancelTax()}
-        dataSet={this.props.currentTaxRefundHeaderDS}
-        title={intl.get(`${modelCode}.button.cancelTaxRefund`).d('提交退税发票取消勾选请求')}
-        permissionCode="cancel-tax-refund"
-        permissionMeaning="按钮-提交退税发票取消勾选请求"
-      />,
+      <PermissionButton
+        type="c7n-pro"
+        key="taxRefund"
+        disabled={!companyId}
+        onClick={this.handleTaxComfirm}
+        color={ButtonColor.default}
+        permissionList={[
+          {
+            code: `${permissionPath}.button.confirm-tax-refund`,
+            type: 'button',
+            meaning: '按钮-退税勾选确认',
+          },
+        ]}
+      >
+        {intl.get('hivp.checkCertification.title.refund').d('退税勾选确认')}
+      </PermissionButton>,
       <HeaderButtons
         key="refresh"
         onClick={() => this.refresh(0)}
         dataSet={this.props.currentTaxRefundHeaderDS}
-        title={intl.get(`${modelCode}.button.refresh`).d('刷新状态')}
+        title={intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态')}
         permissionCode="refresh"
         permissionMeaning="按钮-刷新状态"
+        condition="refresh"
       />,
     ];
   }
@@ -834,7 +974,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
       if (res && res.status === '1000') {
         notification.success({
           description: '',
-          message: intl.get(`${modelCode}.view.uploadInvalid`).d('上传成功'),
+          message: intl.get('hzero.c7nProUI.Upload.upload_success').d('上传成功'),
         });
         this.setState({ isBatchFreshDisabled: false });
       } else {
@@ -885,7 +1025,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
         } catch (e) {
           notification.error({
             description: '',
-            message: intl.get(`${modelCode}.view.ieUploadInfo`).d('下载失败'),
+            message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
           });
         }
       } else {
@@ -926,7 +1066,6 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
           onClick={props.onClick}
           disabled={isDisabled}
           funcType={FuncType.flat}
-          color={ButtonColor.primary}
           permissionList={[
             {
               code: `${permissionPath}.button.${props.permissionCode}`,
@@ -940,15 +1079,6 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
       );
     });
     return [
-      <HeaderButtons
-        key="downloadFile"
-        onClick={this.downLoad}
-        dataSet={this.batchTaxRefundHeaderDS}
-        title={intl.get(`${modelCode}.button.downloadFile`).d('下载发票文件')}
-        permissionCode="download-file"
-        permissionMeaning="按钮-下载发票文件"
-        type="downLoad"
-      />,
       <PermissionButton
         type="c7n-pro"
         key="upload"
@@ -963,13 +1093,22 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
           },
         ]}
       >
-        {intl.get(`${modelCode}.button.getVerifiableInvoices`).d('上传')}
+        {intl.get('hzero.common.button.upload').d('上传')}
       </PermissionButton>,
+      <HeaderButtons
+        key="downloadFile"
+        onClick={this.downLoad}
+        dataSet={this.batchTaxRefundHeaderDS}
+        title={intl.get(`${modelCode}.button.downloadFile`).d('下载发票文件')}
+        permissionCode="download-file"
+        permissionMeaning="按钮-下载发票文件"
+        type="downLoad"
+      />,
       <HeaderButtons
         key="refresh"
         onClick={() => this.refresh(1)}
         dataSet={this.batchTaxRefundHeaderDS}
-        title={intl.get(`${modelCode}.button.batchRefresh`).d('刷新状态')}
+        title={intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态')}
         permissionCode="batch-refresh"
         permissionMeaning="按钮-刷新状态"
         type="refresh"
@@ -977,125 +1116,233 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
     ];
   }
 
+  // @Bind()
+  // getTaxDiskPassword(value) {
+  //   if (value) {
+  //     this.setState({
+  //       taxDiskPassword: value,
+  //     });
+  //   }
+  // }
+
   @Bind()
-  getTaxDiskPassword(value) {
-    if (value) {
-      this.setState({
-        taxDiskPassword: value,
-      });
+  async handlePasswordSave(modal) {
+    const validate = await this.props.companyAndPassword.validate(false, false);
+    if (validate) {
+      const res = await this.props.companyAndPassword.submit();
+      if (res && res.status === 'H1014') {
+        modal.close();
+      }
     }
   }
 
+  @Bind()
+  taxDiskPasswordChange(record) {
+    const modal = ModalPro.open({
+      title: intl.get(`${modelCode}.title.editDiskPass`).d('编辑税盘密码'),
+      children: (
+        <Form record={record}>
+          <TextField name="companyName" />
+          <Password name="taxDiskPassword" />
+        </Form>
+      ),
+      closable: true,
+      onOk: () => this.handlePasswordSave(modal),
+      onCancel: () => this.props.companyAndPassword.reset(),
+    });
+  }
+
+  @Bind()
+  showDetail() {
+    const modal = ModalPro.open({
+      title: intl.get('hiop.invoiceReq.title.companyInfo').d('公司信息'),
+      drawer: true,
+      children: (
+        <Form dataSet={this.props.taxRefundHeaderDS}>
+          <Output name="companyName" renderer={({ value }) => value || '-'} />
+          <Output name="currentTaxpayerNumber" renderer={({ value }) => value || '-'} />
+          <Output name="usedTaxpayerNumber" renderer={({ value }) => value || '-'} />
+          <Output name="declarePeriod" renderer={({ value, text }) => (value ? text : '-')} />
+          {/* --- */}
+          <Output name="parentComInfo" renderer={({ value }) => value || '-'} />
+          <Output name="isParentCom" renderer={({ value, text }) => (value ? text : '-')} />
+          <Output name="isSpecificCom" renderer={({ value, text }) => (value ? text : '-')} />
+          <Output name="creditRating" renderer={({ value }) => value || '-'} />
+          {/* --- */}
+          <Output name="taxpayerType" renderer={({ value, text }) => (value ? text : '-')} />
+          <Output
+            name="taxpayerRegisterDateFrom"
+            renderer={({ value, text }) => (value ? text : '-')}
+          />
+          <Output
+            name="taxpayerRegisterDateTo"
+            renderer={({ value, text }) => (value ? text : '-')}
+          />
+          <Output name="exportComType" renderer={({ value, text }) => (value ? text : '-')} />
+          {/* --- */}
+          <Output
+            name="fileSynchronizationTime"
+            renderer={({ value, text }) => (value ? text : '-')}
+          />
+          <Output name="oilsComType" renderer={({ value, text }) => (value ? text : '-')} />
+          <Output name="oilsComTaxPeriod" renderer={({ value, text }) => (value ? text : '-')} />
+          <Output name="ethylAlcoholOilsCom" renderer={({ value, text }) => (value ? text : '-')} />
+        </Form>
+      ),
+      closable: true,
+      footer: (
+        <Button color={ButtonColor.primary} onClick={() => modal.close()}>
+          {intl.get('hzero.common.button.close').d('关闭')}
+        </Button>
+      ),
+    });
+  }
+
+  get companyAndPasswordColumns(): ColumnProps[] {
+    const { empInfo } = this.state;
+    const curCompanyId = empInfo.companyId;
+    return [
+      {
+        name: 'companyInfo',
+        aggregation: true,
+        align: ColumnAlign.left,
+        width: 100,
+        children: [
+          {
+            name: 'companyName',
+            title: '',
+            renderer: ({ value, record }) => {
+              const companyId = record?.get('companyId');
+              return (
+                <div>
+                  {curCompanyId === companyId ? (
+                    <a onClick={() => this.showDetail()}>{value}</a>
+                  ) : (
+                    <span>{value}</span>
+                  )}
+                </div>
+              );
+            },
+          },
+          {
+            name: 'taxDiskPassword',
+            renderer: ({ record, value }) => {
+              const companyId = record?.get('companyId');
+              const inChannelCode = record?.get('inChannelCode');
+              return (
+                <div>
+                  <span>{value ? '.......' : ''}</span>
+                  {curCompanyId === companyId && inChannelCode !== 'AISINO_IN_CHANNEL' && (
+                    <a onClick={() => this.taxDiskPasswordChange(record)}>
+                      &emsp;{intl.get('hzero.common.button.edit').d('编辑')}
+                    </a>
+                  )}
+                </div>
+              );
+            },
+          },
+        ],
+      },
+    ];
+  }
+
+  @Bind()
+  handleRow(record) {
+    return {
+      onClick: () => this.companyChange(record.toData()),
+    };
+  }
+
+  @Bind()
+  renderCompany() {
+    return (
+      <div className={styles.companyList}>
+        <Table
+          dataSet={this.props.companyAndPassword}
+          columns={this.companyAndPasswordColumns}
+          aggregation
+          showHeader={false}
+          onRow={({ record }) => this.handleRow(record)}
+        />
+      </div>
+    );
+  }
+
   render() {
-    const { spinning, progressStatus, progressValue, visible, hide, showMore } = this.state;
+    const { spinning, progressStatus, progressValue, visible, hide, empInfo } = this.state;
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('退税勾选')}>
-          <Button color={ButtonColor.dark} onClick={() => this.updateEnterprise()}>
+        <Header title={intl.get(`${modelCode}.button.dataRefundCheck`).d('退税勾选')}>
+          <Button onClick={() => this.updateEnterprise()}>
             {intl.get(`${modelCode}.button.updateEnterpriseFile`).d('更新企业档案')}
           </Button>
         </Header>
-        <Content>
-          <Form dataSet={this.props.taxRefundHeaderDS.queryDataSet} columns={6}>
-            <Lov name="companyObj" colSpan={2} onChange={this.companyChange} />
-            <Output name="employeeDesc" colSpan={2} />
-            <Output name="curDate" />
-            <Password name="taxDiskPassword" reveal={false} onChange={this.getTaxDiskPassword} />
-          </Form>
-          {showMore && (
-            <Form dataSet={this.props.taxRefundHeaderDS} columns={5}>
-              <Output name="companyName" colSpan={2} />
-              <Output name="currentTaxpayerNumber" colSpan={1} />
-              <Output name="usedTaxpayerNumber" colSpan={1} />
-              <Output
-                name="declarePeriod"
-                colSpan={1}
-                renderer={(value) => value.value && `${value.value}-${value.text}`}
-              />
-              {/* --- */}
-              <Output name="parentComInfo" colSpan={2} />
-              <Output
-                name="isParentCom"
-                colSpan={1}
-                renderer={(value) => value.value && `${value.value}-${value.text}`}
-              />
-              <Output
-                name="isSpecificCom"
-                colSpan={1}
-                renderer={(value) => value.value && `${value.value}-${value.text}`}
-              />
-              <Output name="creditRating" colSpan={1} />
-              {/* --- */}
-              <Output
-                name="taxpayerType"
-                colSpan={2}
-                renderer={(value) => value.value && `${value.value}-${value.text}`}
-              />
-              <Output name="taxpayerRegisterDateFrom" colSpan={1} />
-              <Output name="taxpayerRegisterDateTo" colSpan={1} />
-              <Output
-                name="exportComType"
-                colSpan={1}
-                renderer={(value) => value.value && `${value.value}-${value.text}`}
-              />
-              {/* --- */}
-              <Output name="fileSynchronizationTime" colSpan={2} />
-              <Output
-                name="oilsComType"
-                colSpan={1}
-                renderer={(value) => value.value && `${value.value}-${value.text}`}
-              />
-              <Output
-                name="oilsComTaxPeriod"
-                colSpan={1}
-                renderer={(value) => value.value && `${value.value}-${value.text}`}
-              />
-              <Output name="ethylAlcoholOilsCom" colSpan={1} />
-            </Form>
-          )}
-          <div style={{ textAlign: 'end' }}>
-            <a onClick={() => this.setState({ showMore: !showMore })}>
-              {showMore
-                ? intl.get('hzero.common.button.formCollected').d('收起')
-                : intl.get('hzero.common.button.formMore').d('更多')}
-            </a>
-          </div>
-          <Spin spinning={spinning}>
-            <Tabs type={TabsType.card}>
-              <TabPane
-                tab={intl.get(`${modelCode}.currentTaxRefund`).d('当期退税勾选(取消)可确认发票')}
+        <Row gutter={8} style={{ height: 'calc(100%)' }}>
+          <Col span={5} style={{ height: 'calc(100%)' }}>
+            <div className={styles.header}>
+              <Form
+                dataSet={this.props.taxRefundHeaderDS.queryDataSet}
+                style={{ marginLeft: '-20px' }}
               >
-                <Table
-                  buttons={this.buttons}
-                  dataSet={this.props.currentTaxRefundHeaderDS}
-                  columns={this.columns}
-                  queryBar={this.renderQueryBar}
-                  style={{ height: 200 }}
+                <Output name="employeeDesc" />
+                <Output name="curDate" />
+              </Form>
+            </div>
+            <Content>
+              <Form dataSet={this.props.taxRefundHeaderDS.queryDataSet}>
+                <Lov
+                  name="companyObj"
+                  colSpan={2}
+                  onChange={this.companyChange}
+                  placeholder={intl.get(`${modelCode}.placeholder.company`).d('搜索公司')}
                 />
-              </TabPane>
-              <TabPane
-                tab={intl.get(`${modelCode}.batchTaxRefund`).d('批量退税勾选(取消)可确认发票')}
-              >
-                <Table
-                  buttons={this.batchButtons}
-                  dataSet={this.batchTaxRefundHeaderDS}
-                  columns={this.batchHeaderColumns}
-                  queryBar={this.renderBatchQueryBar}
-                  style={{ height: 200 }}
-                />
-                <Table
-                  header={intl.get(`${modelCode}.table.batchTaxLine`).d('批量勾选日志')}
-                  dataSet={this.batchTaxRefundLineDS}
-                  columns={this.batchLineColumns}
-                  style={{ display: hide ? 'none' : 'block', height: 200 }}
-                />
-              </TabPane>
-            </Tabs>
-          </Spin>
-          <Modal title="" visible={visible} closable={false} footer={null}>
-            <Progress percent={progressValue} status={progressStatus} />
-          </Modal>
-        </Content>
+              </Form>
+              {this.renderCompany()}
+            </Content>
+          </Col>
+          <Col span={19} style={{ height: 'calc(100%)' }}>
+            <Content style={{ height: 'calc(90%)' }}>
+              <div className={styles.topTitle}>
+                <span className={styles.topName}>{empInfo.companyName}</span>
+              </div>
+              <Spin spinning={spinning}>
+                <Tabs className={styles.tabsTitle}>
+                  <TabPane
+                    tab={intl.get(`${modelCode}.tab.currentTaxRefund`).d('当期退税勾选可确认发票')}
+                  >
+                    <Table
+                      buttons={this.buttons}
+                      dataSet={this.props.currentTaxRefundHeaderDS}
+                      columns={this.columns}
+                      queryBar={this.renderQueryBar}
+                      style={{ height: 320 }}
+                    />
+                  </TabPane>
+                  <TabPane
+                    tab={intl.get(`${modelCode}.tab.batchTaxRefund`).d('批量退税勾选可确认发票')}
+                  >
+                    <Table
+                      buttons={this.batchButtons}
+                      dataSet={this.batchTaxRefundHeaderDS}
+                      columns={this.batchHeaderColumns}
+                      queryBar={this.renderBatchQueryBar}
+                      style={{ height: 320 }}
+                    />
+                    <Table
+                      header={intl.get(`${modelCode}.table.batchTaxLine`).d('批量勾选日志')}
+                      dataSet={this.batchTaxRefundLineDS}
+                      columns={this.batchLineColumns}
+                      style={{ display: hide ? 'none' : 'block', height: 200 }}
+                    />
+                  </TabPane>
+                </Tabs>
+              </Spin>
+              <Modal title="" visible={visible} closable={false} footer={null}>
+                <Progress percent={progressValue} status={progressStatus} />
+              </Modal>
+            </Content>
+          </Col>
+        </Row>
       </>
     );
   }

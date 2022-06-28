@@ -1,7 +1,15 @@
+/**
+ * @Description: 发票申请统计历史记录
+ * @version: 1.0
+ * @Author: yang.wang04@hand-china.com
+ * @Date: 2020-09-14 09:10:12
+ * @LastEditTime: 2021-10-28 15:22:10
+ * @Copyright: Copyright (c) 2020, Hand
+ */
 import React, { Component } from 'react';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import { Bind } from 'lodash-decorators';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { DataSet, Table } from 'choerodon-ui/pro';
 import { Dispatch } from 'redux';
@@ -17,9 +25,7 @@ interface ApplyStatisticsHistoryListPageProps {
   dispatch: Dispatch<any>;
 }
 
-export default class ApplyStatisticsHistoryListPage extends Component<
-  ApplyStatisticsHistoryListPageProps
-> {
+export default class ApplyStatisticsHistoryListPage extends Component<ApplyStatisticsHistoryListPageProps> {
   tableDS = new DataSet({
     autoQuery: true,
     ...ApplyStatisticsHistoryListDS(),
@@ -27,13 +33,25 @@ export default class ApplyStatisticsHistoryListPage extends Component<
 
   tenantId = getCurrentOrganizationId();
 
+  /**
+   * 导出
+   */
   @Bind()
   handleGetQueryParams() {
     const queryParams = this.tableDS.queryDataSet!.map((data) => data.toData()) || {};
+    for (const key in queryParams[0]) {
+      if (queryParams[0][key] === '' || queryParams[0][key] === null) {
+        delete queryParams[0][key];
+      }
+    }
     const exportParams = { ...queryParams[0] } || {};
     return exportParams;
   }
 
+  /**
+   * 返回表格行
+   * @returns {*[]}
+   */
   get columns(): ColumnProps[] {
     return [
       {

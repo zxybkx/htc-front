@@ -7,62 +7,65 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
 import { routerRedux } from 'dva/router';
 import { connect } from 'dva';
 import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import intl from 'utils/intl';
+import formatterCollections from 'utils/intl/formatterCollections';
 import queryString from 'query-string';
 import { Button as PermissionButton } from 'components/Permission';
-import { getPresentMenu, base64toBlob } from '@common/utils/utils';
+import { base64toBlob, getPresentMenu } from '@htccommon/utils/utils';
 import {
-  Lov,
-  Table,
   Button,
-  Form,
-  DataSet,
-  TextField,
-  Select,
-  Radio,
-  Output,
-  TextArea,
   CheckBox,
-  Spin,
-  Icon,
-  Modal,
   Currency,
+  DataSet,
+  Form,
+  Icon,
+  Lov,
   message,
+  Modal,
+  Radio,
+  Select,
+  Spin,
+  Table,
+  TextArea,
+  TextField,
 } from 'choerodon-ui/pro';
-import { Row, Col } from 'choerodon-ui';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { Bind } from 'lodash-decorators';
 import { queryIdpValue } from 'hzero-front/lib/services/api';
+import { ResizeType } from 'choerodon-ui/pro/lib/text-area/enum';
 import {
-  employeeInvoiceType,
   batchSave,
-  review,
   companyDetailInfo,
   defaultInvoiceInfo,
-  lineRemove,
-  orderNew,
+  employeeInvoiceType,
   employeePurchaseMark,
   exportPrintFile,
+  lineRemove,
+  orderCopy,
+  orderNew,
+  review,
 } from '@src/services/invoiceOrderService';
 import { closeTab } from 'utils/menuTab';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { find, isEmpty, last, replace } from 'lodash';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import { getCurrentEmployeeInfo } from '@common/services/commonService';
+import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import notification from 'utils/notification';
-import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
+import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import InvoiceQueryTable from '@src/utils/invoice-query/InvoiceQueryTable';
+import { FormLayout } from 'choerodon-ui/pro/lib/form/enum';
 import InvoiceOrderHeaderDS from '../stores/InvoiceOrderHeaderDS';
 import InvoiceOrderLinesDS from '../stores/InvoiceOrderLinesDS';
+import IssuePreview from './IssuesPreview';
+import styles from '../invoiceWorkbench.module.less';
 
-const modelCode = 'hiop.invoice-order';
 const tenantId = getCurrentOrganizationId();
 const { Option } = Select;
 const permissionPath = `${getPresentMenu().name}.ps`;
@@ -73,6 +76,9 @@ interface InvoiceOrderPageProps extends RouteComponentProps {
 }
 
 @connect()
+@formatterCollections({
+  code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq', 'hiop.tobeInvoice'],
+})
 export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   invoiceOrderLinesDS = new DataSet({
     autoQuery: false,
@@ -99,9 +105,22 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     employeeInfo: {} as any,
     purchaseMark: [],
     invoiceVariety: undefined,
+    invoiceTypeTag: undefined,
   };
 
-  // 获取可用发票类型
+  /**
+   * 判断是否新建
+   */
+  get isCreatePage() {
+    const { match } = this.props;
+    const { invoicingOrderHeaderId } = match.params;
+    return !invoicingOrderHeaderId;
+  }
+
+  /**
+   * 获取可用发票类型
+   * @params {object} employeeInfo 当前员工信息
+   */
   @Bind()
   async getInvoiceType(employeeInfo) {
     const { companyId, employeeId } = employeeInfo;
@@ -121,7 +140,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     }
   }
 
-  // 获取业务类型
+  /**
+   * 获取业务类型
+   * @params {object} employeeInfo 当前员工信息
+   */
   @Bind()
   async getPurchaseMark(employeeInfo) {
     const { companyId, employeeId } = employeeInfo;
@@ -141,33 +163,30 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     }
   }
 
-  // 填充下次默认值
+  /**
+   * 填充下次默认值
+   * @params {object} params 默认发票交付信息接口参数
+   */
   @Bind()
   async setDefaultValue(params) {
     const defaultRes = getResponse(await defaultInvoiceInfo(params));
     if (!isEmpty(defaultRes)) {
-      this.invoiceOrderHeaderDS.current!.set(
-        'paperTicketReceiverName',
-        defaultRes.paperTicketReceiverName
-      );
-      this.invoiceOrderHeaderDS.current!.set(
-        'paperTicketReceiverPhone',
-        defaultRes.paperTicketReceiverPhone
-      );
-      this.invoiceOrderHeaderDS.current!.set(
-        'paperTicketReceiverAddress',
-        defaultRes.paperTicketReceiverAddress
-      );
-      this.invoiceOrderHeaderDS.current!.set('deliveryWay', defaultRes.deliveryWay);
-      this.invoiceOrderHeaderDS.current!.set(
-        'electronicReceiverInfo',
-        defaultRes.electronicReceiverInfo
-      );
-      this.invoiceOrderHeaderDS.current!.set('nextDefaultFlag', 1);
+      this.invoiceOrderHeaderDS.current!.set({
+        paperTicketReceiverName: defaultRes.paperTicketReceiverName,
+        paperTicketReceiverPhone: defaultRes.paperTicketReceiverPhone,
+        paperTicketReceiverAddress: defaultRes.paperTicketReceiverAddress,
+        // deliveryWay: defaultRes.deliveryWay,
+        electronicReceiverInfo: defaultRes.electronicReceiverInfo,
+        nextDefaultFlag: 1,
+      });
     }
   }
 
-  // 头信息传给行
+  /**
+   * 头信息传给行
+   * @params {string} field 标签名
+   * @params {object} value 当前值
+   */
   @Bind()
   handleTaxRateLovChange(field, value) {
     if (this.invoiceOrderLinesDS.length > 0) {
@@ -175,14 +194,18 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     }
   }
 
+  /**
+   * 获取订单详情
+   * @params {string} headerId 订单id
+   * @params {string} employeeId 员工id
+   */
   @Bind()
-  editData(headerId, employeeId) {
+  getOrderData(headerId, employeeId) {
     const { sourceType } = this.props.match.params;
     this.invoiceOrderHeaderDS.setQueryParameter('headerId', headerId);
     this.invoiceOrderHeaderDS.setQueryParameter('employeeId', employeeId);
     this.invoiceOrderHeaderDS.query().then((res) => {
-      const { billingType, userRemark } = res;
-      const { remark } = res;
+      const { billingType, userRemark, remark } = res;
       let mark = '';
       if (remark) {
         if (userRemark) {
@@ -199,7 +222,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       }
       // 判断页面是否可编辑
       const { orderStatus, invoiceSourceType, invoiceVariety, hasPermission } = res;
-      this.setState({ orderStatus, billingType, invoiceVariety });
+      this.setState({ orderStatus, billingType, invoiceVariety, invoiceTypeTag: invoiceVariety });
       if (
         (orderStatus === 'N' && billingType === 1) ||
         (orderStatus === 'Q' && (billingType === 1 || billingType === 2))
@@ -214,6 +237,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       } else {
         this.setState({ isDisabled: true, submitDisabled: false });
         this.invoiceOrderHeaderDS.current!.set({ readonly: true });
+      }
+      if (orderStatus === 'N' && billingType === 2 && invoiceSourceType === 'RED_INFO') {
+        this.setState({ isDisabled: false, submitDisabled: hasPermission && true });
+        this.invoiceOrderHeaderDS.current!.set({ readonly: false });
       }
       // this.setState({ submitDisabled: !hasPermission });
       // console.log('!hasPermission', !hasPermission);
@@ -241,6 +268,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     }
   }
 
+  /**
+   * 加载数据
+   * @params {boolean} newFlag true-新建 false-编辑
+   */
   @Bind()
   async loadData(newFlag: boolean) {
     const { invoicingOrderHeaderId, companyId } = this.props.match.params;
@@ -265,18 +296,22 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         };
         const newData = getResponse(await orderNew(params));
         if (newData) {
-          const { billingType } = newData;
+          const { billingType, invoiceVariety } = newData;
           this.invoiceOrderHeaderDS.create(newData, 0);
-          this.setState({ billingType });
+          this.setState({ billingType, invoiceTypeTag: invoiceVariety, orderStatus: 'N' });
         }
       } else {
         // 编辑/查看订单
         const { employeeId } = employeeInfo;
-        this.editData(invoicingOrderHeaderId, employeeId);
+        this.getOrderData(invoicingOrderHeaderId, employeeId);
       }
     }
   }
 
+  /**
+   * 发票种类限制
+   * @params {object} value 当前值
+   */
   @Bind()
   invoiceDisabled(value) {
     const { invoiceType } = this.state;
@@ -294,7 +329,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     return disabled;
   }
 
-  // 删除行
+  /**
+   * 删除行
+   * @params {object} record 要删除的行记录
+   */
   @Bind()
   async handleDeleteLines(record) {
     if (record.get('invoicingOrderHeaderId')) {
@@ -304,15 +342,16 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         invoicingOrderHeaderList: [data],
       };
       Modal.confirm({
-        title: intl.get(`${modelCode}.view.deleteTitle`).d('是否确认删除'),
+        title: intl.get('hzero.common.message.confirm.delete').d('是否确认删除'),
         onOk: async () => {
           const res = getResponse(await lineRemove(params));
           if (res) {
             this.invoiceOrderLinesDS.remove(record);
+            this.invoiceOrderLinesDS.query();
           } else {
             notification.error({
               description: '',
-              message: intl.get(`${modelCode}.view.success`).d('删除失败，请联系管理员'),
+              message: intl.get('hzero.common.notification.error').d('操作失败'),
             });
           }
         },
@@ -322,6 +361,44 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     }
   }
 
+  /**
+   * 金额计算
+   * @params {number/string} value 金额值
+   * @params {object} record 行记录
+   */
+  @Bind()
+  calculate(value, record) {
+    const quantity = record.get('quantity');
+    const price = record.get('projectUnitPrice');
+    const _quantity = Number(quantity) || 0;
+    const _price = Number(price) || 0;
+    const _amount = Number(value) || 0;
+    if (quantity && _amount !== 0 && _quantity !== 0) {
+      const calPrice = _amount / _quantity;
+      if (calPrice.toString().length > 8) {
+        record.set({
+          projectUnitPrice: calPrice.toFixed(8),
+        });
+      } else {
+        record.set({ projectUnitPrice: calPrice });
+      }
+    } else if (_price !== 0 && _amount !== 0) {
+      const calQuantity = _amount / _price;
+      if (calQuantity.toString().length > 8) {
+        record.set({
+          quantity: calQuantity.toFixed(8),
+        });
+      } else {
+        record.set({ quantity: calQuantity });
+      }
+    }
+  }
+
+  /**
+   * 金额改变回调
+   * @params {number/string} value 金额值
+   * @params {object} record 行记录
+   */
   @Bind()
   handleAmount(value, record) {
     const invoiceLineNature = record.get('invoiceLineNature');
@@ -331,13 +408,24 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       });
       message.error('折扣金额必须小于0！', undefined, undefined, 'top');
       record.set('amount', -value);
+      this.calculate(-value, record);
+    } else {
+      this.calculate(value, record);
     }
   }
 
+  /**
+   * 返回表格行
+   * @return {*[]}
+   */
   get columns(): ColumnProps[] {
     const { isDisabled } = this.state;
     const adjustEditAble = () => !isDisabled && true;
-    const regExp = /(^[1-9]\d*$)/;
+    const toNonExponential = (num) => {
+      const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
+      return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
+    };
+    const regExp = /(^[0-9]*.[0]*$)/;
     return [
       {
         name: 'operation',
@@ -349,16 +437,18 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
               key="delete"
               onClick={() => this.handleDeleteLines(record)}
               disabled={isDisabled}
+              style={{ color: 'rgba(0, 0, 0, 0.8)' }}
+              funcType={FuncType.link}
             >
-              {intl.get(`${modelCode}.button.delete`).d('删除')}
+              {intl.get('hzero.common.button.delete').d('删除')}
             </Button>,
           ];
         },
-        lock: ColumnLock.left,
+        lock: ColumnLock.right,
         align: ColumnAlign.center,
       },
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('htc.common.orderSeq').d('序号'),
         width: 60,
         renderer: ({ record, dataSet }) => {
           return dataSet && record ? dataSet.indexOf(record) + 1 : '';
@@ -403,7 +493,8 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         name: 'projectUnitPrice',
         editor: !isDisabled && true,
         renderer: ({ value }) =>
-          value && (regExp.test(value) ? value.toFixed(2) : parseFloat(value)),
+          value &&
+          (regExp.test(value) ? Number(value).toFixed(2) : toNonExponential(Number(value))),
         width: 150,
         align: ColumnAlign.right,
       },
@@ -435,6 +526,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     ];
   }
 
+  /**
+   * 行新增回调
+   */
   @Bind()
   handleAddLine() {
     const currentData = this.invoiceOrderHeaderDS.current!.toData(true);
@@ -442,7 +536,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     if (lineList.length > 1 && lineList[0].deduction && lineList[0].deduction > 0) {
       return notification.error({
         description: '',
-        message: intl.get(`${modelCode}.view.newHeader`).d('差额征税最多只能有两行'),
+        message: intl
+          .get('htc.invoiceWorkbench.notification.error.add')
+          .d('差额征税最多只能有两行'),
       });
     }
     if (currentData) {
@@ -459,7 +555,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       if (!customerName) {
         notification.info({
           description: '',
-          message: intl.get(`${modelCode}.view.newHeader`).d('请先完善头数据'),
+          message: intl.get('htc.common.validation.completeData').d('请先完善头数据'),
         });
         return;
       }
@@ -472,33 +568,57 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     } else {
       notification.info({
         description: '',
-        message: intl.get(`${modelCode}.view.newHeader`).d('请先新增头数据'),
+        message: intl.get('htc.common.validation.addHeader').d('请先新增头数据'),
       });
     }
   }
 
-  // 预览票面
+  /**
+   * 票面预览
+   */
   @Bind()
   previewInvoice() {
     const { invoicingOrderHeaderId: headerId, companyId } = this.props.match.params;
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const { employeeId } = this.invoiceOrderHeaderDS.current!.toData(true);
     const pathname = `/htc-front-iop/invoice-workbench/invoice-view/ORDER/${headerId}/${employeeId}`;
-    dispatch(
-      routerRedux.push({
-        pathname,
-        search: queryString.stringify({
-          invoiceInfo: encodeURIComponent(
-            JSON.stringify({
-              backPath: `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${companyId}/${headerId}`,
-            })
-          ),
-        }),
-      })
-    );
+    history.push({
+      pathname,
+      search: queryString.stringify({
+        invoiceInfo: encodeURIComponent(
+          JSON.stringify({
+            backPath: `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${companyId}/${headerId}`,
+          })
+        ),
+      }),
+    });
   }
 
-  // 下载打印
+  /**
+   * 复制订单
+   */
+  @Bind()
+  async handleCopyOrd() {
+    const resParams = await this.batchSave(3);
+    if (!resParams) return;
+    const params = {
+      ...resParams,
+      tenantId,
+    };
+    const res = getResponse(await orderCopy(params));
+    if (res) {
+      notification.success({
+        description: '',
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
+      });
+      const pathname = `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${res[0].companyId}/${res[0].invoicingOrderHeaderId}`;
+      this.props.history.push(pathname);
+    }
+  }
+
+  /**
+   * 下载打印
+   */
   @Bind()
   async downloadInvoice() {
     const curInfo = this.invoiceOrderHeaderDS.current!.toData(true);
@@ -518,7 +638,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
           } catch (e) {
             notification.error({
               description: '',
-              message: intl.get(`${modelCode}.view.ieUploadInfo`).d('下载失败'),
+              message: intl.get('hzero.common.notification.download.error').d('下载失败'),
             });
           }
         } else {
@@ -529,24 +649,6 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
           aElement.click();
           window.URL.revokeObjectURL(blobUrl);
         }
-        // const blob = new Blob([res]); // 字节流
-        // if (window.navigator.msSaveBlob) {
-        //   try {
-        //     window.navigator.msSaveBlob(blob, item);
-        //   } catch (e) {
-        //     notification.error({
-        //       description: '',
-        //       message: intl.get(`${modelCode}.view.ieUploadInfo`).d('下载失败'),
-        //     });
-        //   }
-        // } else {
-        //   const aElement = document.createElement('a');
-        //   const blobUrl = window.URL.createObjectURL(blob);
-        //   aElement.href = blobUrl; // 设置a标签路径
-        //   aElement.download = item;
-        //   aElement.click();
-        //   window.URL.revokeObjectURL(blobUrl);
-        // }
       });
       const printElement = document.createElement('a');
       printElement.href = 'Webshell://'; // 设置a标签路径
@@ -554,22 +656,26 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     }
   }
 
-  // 保存
+  /**
+   * 保存
+   * @params {number} type 0-保存新建 1-审核提交 2-保存继续 3-复制订单
+   */
   @Bind()
   async batchSave(type) {
     const { companyId, invoicingOrderHeaderId } = this.props.match.params;
-    const { dispatch } = this.props;
+    const { dispatch, history } = this.props;
     const { billingType } = this.state;
     const headerData = this.invoiceOrderHeaderDS.current!.toData(true);
     const lineList: any = this.invoiceOrderLinesDS.map((record) => record.toData(true));
     const validateValue = await this.invoiceOrderHeaderDS.validate(false, false);
     const linesValidate = await this.invoiceOrderLinesDS.validate(false, false);
-    const { companyType, listFlag, remark, userRemark } = headerData;
+    const { companyType, remark, userRemark, calculateSpin } = headerData;
     const empRes = await getCurrentEmployeeInfo({
       tenantId,
       companyId: this.props.match.params.companyId,
     });
     const empInfo = empRes && empRes.content[0];
+    // hiop.invoiceWorkbench.validation.invalid
     // 页面校验
     if (!validateValue || !linesValidate) {
       notification.error({
@@ -586,14 +692,18 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       if (invoiceLineNature === '1') {
         return notification.error({
           description: '',
-          message: intl.get(`${modelCode}.view.saveHeader`).d(`折扣行不可在首行录入`),
+          message: intl
+            .get('hiop.invoiceWorkbench.notification.error.atFirst')
+            .d(`折扣行不可在首行录入`),
         });
       }
       // 差额征税最多只能有两行
       if (lineList.length > 2 && lineList[0].deduction && lineList[0].deduction > 0) {
         return notification.error({
           description: '',
-          message: intl.get(`${modelCode}.view.newHeader`).d('差额征税最多只能有两行'),
+          message: intl
+            .get('hiop.invoiceWorkbench.notification.error.dedu')
+            .d('差额征税最多只能有两行'),
         });
       }
       // 表格校验首行输入扣除额后第二行是否是折扣行
@@ -602,7 +712,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
           return notification.error({
             description: '',
             message: intl
-              .get(`${modelCode}.view.saveHeader`)
+              .get('hiop.invoiceWorkbench.notification.error.sec')
               .d(`表格第一行有扣除额，第二行只能选择折扣行`),
           });
         }
@@ -614,7 +724,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
           return notification.error({
             description: '',
             message: intl
-              .get(`${modelCode}.view.saveHeader`)
+              .get('hiop.invoiceWorkbench.notification.error.zeroTaxRate')
               .d(`小规模企业不允许开具普通零税率发票`),
           });
         }
@@ -630,16 +740,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       if (last(lineNatureArr) === '2' || unCount) {
         return notification.error({
           description: '',
-          message: intl.get(`${modelCode}.view.saveHeader`).d(`折扣行紧跟在被折扣行之后下一行`),
-        });
-      }
-      // 清单标志选了不用清单，行不可以超过8行
-      if (listFlag === '0' && lineList.length > 8) {
-        return notification.error({
-          description: '',
           message: intl
-            .get(`${modelCode}.view.saveHeader`)
-            .d(`清单标志选了不用清单，行不可以超过8行`),
+            .get('hiop.invoiceWorkbench.notification.error.discount')
+            .d(`折扣行紧跟在被折扣行之后下一行`),
         });
       }
     }
@@ -656,6 +759,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       tenantId,
       userRemark: mark,
       lines: lineList,
+      discountSplitFlag: !!(this.invoiceOrderLinesDS.dirty && calculateSpin),
     };
     // 审核（提交）1
     if (type === 1) {
@@ -663,7 +767,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       if (isEmpty(lineList)) {
         return notification.error({
           description: '',
-          message: intl.get(`${modelCode}.view.saveHeader`).d(`请新增表格行`),
+          message: intl.get('hiop.invoiceWorkbench.validation.error.addLine').d(`请新增表格行`),
         });
       }
       const res = getResponse(await review(params));
@@ -694,16 +798,12 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       if (res) {
         notification.success({
           description: '',
-          message: intl.get('hzero.common.notification.success').d('保存成功'),
+          message: intl.get('hzero.common.notification.success').d('操作成功'),
         });
         if (!this.props.match.params.invoicingOrderHeaderId) {
           this.loadData(true);
         }
-        dispatch(
-          routerRedux.push({
-            pathname: `/htc-front-iop/invoice-workbench/invoiceOrder/invoiceOrder/${companyId}`,
-          })
-        );
+        history.push(`/htc-front-iop/invoice-workbench/invoice-order/invoiceOrder/${companyId}`);
       }
     }
     // 保存继续
@@ -712,34 +812,65 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       if (res && res[0]) {
         notification.success({
           description: '',
-          message: intl.get('hzero.common.notification.success').d('保存成功'),
+          message: intl.get('hzero.common.notification.success').d('操作成功'),
         });
         if (this.props.match.params.invoicingOrderHeaderId) {
           this.loadData(false);
         }
-        dispatch(
-          routerRedux.push({
-            pathname: `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${companyId}/${res[0].invoicingOrderHeaderId}`,
-          })
+        history.push(
+          `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${companyId}/${res[0].invoicingOrderHeaderId}`
         );
+        return res;
+      }
+    }
+    // 保存 复制订单
+    if (type === 3) {
+      const tempParams = {
+        ...params,
+        employeeId: empInfo && empInfo.employeeId,
+        employeeName: empInfo && empInfo.employeeName,
+        employeeNumber: empInfo && empInfo.employeeNum,
+      };
+      const { isDisabled } = this.state;
+      // 当是完成订单时 不提交
+      if (isDisabled) {
+        return tempParams;
+      }
+      const res = getResponse(await batchSave(params));
+      if (res && res[0]) {
+        // notification.success({
+        //   description: '',
+        //   message: intl.get('hzero.common.notification.success').d('操作成功'),
+        // });
+        return tempParams;
       }
     }
   }
 
+  /**
+   * 返回表格行按钮
+   * @return {*[]}
+   */
   get lineButton(): Buttons[] {
     const { isDisabled, addDisabled } = this.state;
     return [
       <Button
         icon="playlist_add"
         key="add"
+        funcType={FuncType.link}
+        style={{ color: '#3889FF' }}
         onClick={() => this.handleAddLine()}
         disabled={isDisabled || addDisabled}
       >
-        {intl.get(`${modelCode}.button.add`).d('新增')}
+        {intl.get('hzero.c7nProUI.Table.create_button').d('新增')}
       </Button>,
     ];
   }
 
+  /**
+   * 销方/购方公司搜索
+   * @params {number} type 0-购方 1-销方
+   */
   @Bind()
   handleCompanySearch(type) {
     const { employeeInfo } = this.state;
@@ -756,7 +887,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     };
     const modal = Modal.open({
       key: Modal.key(),
-      title: intl.get(`${modelCode}.invoiceQuery.title`).d('开票信息查询'),
+      title: intl.get('hiop.invoiceWorkbench.title.invoiceQuery').d('开票信息查询'),
       destroyOnClose: true,
       closable: true,
       footer: null,
@@ -765,7 +896,12 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     });
   }
 
-  // 公司名称模糊查询赋值
+  /**
+   * 销方/购方改变回调
+   * @params {object} value-当前值
+   * @params {object} oldValue-旧值
+   * @params {number} type 0-购方 1-销方
+   */
   @Bind()
   handleCompanyChange(value, oldValue, type) {
     if (value === oldValue) return;
@@ -790,7 +926,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     }
   }
 
-  // 收购标志变化回调
+  /**
+   * 收购标志变化回调
+   * @params {object} value-当前值
+   */
   @Bind()
   async invoiceFlagChange(value) {
     const { companyCode } = this.state.employeeInfo;
@@ -821,6 +960,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     }
   }
 
+  /**
+   * 购货清单标志变化回调
+   * @params {string} value-当前值
+   */
   @Bind()
   flagChange(value) {
     const { addDisabled } = this.state;
@@ -829,9 +972,15 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     }
   }
 
-  // 发票种类联动下次默认值
+  /**
+   * 发票种类联动下次默认值
+   * @params {string} value-当前值
+   */
   @Bind()
   invoiceVarietyChange(value) {
+    this.setState({
+      invoiceTypeTag: value,
+    });
     const { companyId } = this.props.match.params;
     const curHeaderInfo = this.invoiceOrderHeaderDS.current!.toData();
     const { buyerName, sellerName } = curHeaderInfo;
@@ -848,6 +997,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     this.handleTaxRateLovChange('invoiceType', value);
   }
 
+  /**
+   * 渲染员工信息
+   */
   get renderEmployeeDesc() {
     const { employeeInfo } = this.state;
     if (employeeInfo) {
@@ -858,16 +1010,234 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     return '';
   }
 
+  /**
+   * 查询条自定义
+   */
+  @Bind()
+  renderQueryBar(props) {
+    const { buttons } = props;
+    const { current } = this.invoiceOrderHeaderDS;
+    return (
+      <>
+        <div className={styles.containTable}>
+          <div className={styles.containTable}>
+            <h3 className={styles.title}>
+              <b>{intl.get('hiop.invoiceWorkbench.title.commodityInfo').d('商品信息')}</b>
+            </h3>
+            {buttons}
+          </div>
+          <div className={styles.tableTitleRight}>
+            <p>
+              {intl.get('hiop.invoiceWorkbench.label.totalTax').d('合计税额：')}
+              <span>{current?.get('totalTax') && current?.get('totalTax').toFixed(2)}</span>
+            </p>
+            <p>
+              {intl.get('hiop.invoiceWorkbench.label.totalExcludeTax').d('合计不含税金额：')}
+              <span>
+                {current?.get('totalExcludingTaxAmount') &&
+                  current?.get('totalExcludingTaxAmount').toFixed(2)}
+              </span>
+            </p>
+            <p>
+              {intl.get('hiop.invoiceWorkbench.label.totalPriceTax').d('合计含税金额：')}
+              <span>
+                {current?.get('totalPriceTaxAmount') &&
+                  current?.get('totalPriceTaxAmount').toFixed(2)}
+              </span>
+            </p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  /**
+   * 发票类型切换UI切换
+   */
+  invoiceTypeTag() {
+    const { invoiceTypeTag } = this.state;
+    if (invoiceTypeTag === '51') {
+      return [
+        <Select name="deliveryWay" />,
+        <TextField name="electronicReceiverInfo" colSpan={2} />,
+      ];
+    } else {
+      return [
+        <TextField name="paperTicketReceiverName" />,
+        <TextField name="paperTicketReceiverPhone" />,
+        <TextField name="paperTicketReceiverAddress" />,
+      ];
+    }
+  }
+
+  /**
+   * 提交开具回调
+   * @params {object} modal-发票预览modal
+   */
+  @Bind()
+  handleCommitIssue(modal) {
+    modal.close();
+    this.batchSave(1);
+  }
+
+  /**
+   * 开具预览弹窗
+   * @params {object} pageData-页面数据
+   */
+  @Bind()
+  issueModal(pageData) {
+    const modal = Modal.open({
+      title: intl.get('hzero.invoiceWorkbench.title.issuePreview').d('发票预览'),
+      children: <IssuePreview invoiceData={pageData} />,
+      closable: true,
+      bodyStyle: { width: 'calc(63vw)', height: 'calc(60vh)', padding: '16px 26px' },
+      contentStyle: { width: 'calc(65vw)' },
+      className: styles.invoiceModal,
+      footer: (
+        <div style={{ display: 'block', textAlign: 'center' }}>
+          <Button color={ButtonColor.primary} onClick={() => this.handleCommitIssue(modal)}>
+            {intl.get('hzero.invoiceWorkbench.modalColse').d('提交开具')}
+          </Button>
+          <Button color={ButtonColor.primary} onClick={() => modal.close()}>
+            {intl.get('hzero.invoiceWorkbench.modalColse').d('返回')}
+          </Button>
+        </div>
+      ),
+    });
+  }
+
+  /**
+   * 开具预览回调
+   */
+  @Bind()
+  async issuePreview() {
+    const invoiceSourceType = this.invoiceOrderHeaderDS.current!.get('invoiceSourceType');
+    if (['APPLY', 'RED_MARK', 'VOID', 'RED_INFO'].includes(invoiceSourceType)) {
+      const pageData = this.invoiceOrderHeaderDS.current!.toData();
+      this.issueModal(pageData);
+    } else {
+      const res = await this.batchSave(2);
+      if (res && res[0]) {
+        this.issueModal(res[0]);
+      }
+    }
+  }
+
+  /**
+   * 返回header按钮
+   */
+  renderHeaderBts = () => {
+    const { isDisabled, orderStatus, invoiceVariety, submitDisabled } = this.state;
+    const invoiceSourceType = this.invoiceOrderHeaderDS.getField('invoiceSourceType')?.getValue();
+    return (
+      <>
+        <PermissionButton
+          type="c7n-pro"
+          color={ButtonColor.primary}
+          disabled={!submitDisabled}
+          onClick={() => this.batchSave(1)}
+          permissionList={[
+            {
+              code: `${permissionPath}.detail-submit`,
+              type: 'button',
+              meaning: '按钮-明细-审核(提交)',
+            },
+          ]}
+        >
+          {intl.get('hzero.common.button.submit').d('提交')}
+        </PermissionButton>
+        <PermissionButton
+          type="c7n-pro"
+          disabled={isDisabled}
+          onClick={() => this.batchSave(0)}
+          permissionList={[
+            {
+              code: `${permissionPath}.detail-save-new`,
+              type: 'button',
+              meaning: '按钮-明细-保存（新建）',
+            },
+          ]}
+        >
+          {intl.get('hiop.invoiceWorkbench.button.saveCreate').d('保存(新建)')}
+        </PermissionButton>
+        <PermissionButton
+          type="c7n-pro"
+          disabled={isDisabled}
+          onClick={() => this.batchSave(2)}
+          permissionList={[
+            {
+              code: `${permissionPath}.detail-save-continue`,
+              type: 'button',
+              meaning: '按钮-明细-保存（继续）',
+            },
+          ]}
+        >
+          {intl.get('hiop.invoiceWorkbench.button.saveContinue').d('保存(继续)')}
+        </PermissionButton>
+        <PermissionButton
+          type="c7n-pro"
+          disabled={orderStatus !== 'F' || invoiceVariety === '51'}
+          onClick={() => this.downloadInvoice()}
+          permissionList={[
+            {
+              code: `${permissionPath}.detail-download-invoice`,
+              type: 'button',
+              meaning: '按钮-明细-下载打印',
+            },
+          ]}
+        >
+          {intl.get('hiop.invoiceWorkbench.button.downPrint').d('下载打印')}
+        </PermissionButton>
+        <PermissionButton
+          type="c7n-pro"
+          disabled={orderStatus !== 'F'}
+          onClick={() => this.previewInvoice()}
+          permissionList={[
+            {
+              code: `${permissionPath}.detail-preview-invoice`,
+              type: 'button',
+              meaning: '按钮-明细-票面预览',
+            },
+          ]}
+        >
+          {intl.get('hiop.invoiceWorkbench.button.invoicePreview').d('票面预览')}
+        </PermissionButton>
+        <PermissionButton
+          type="c7n-pro"
+          disabled={orderStatus !== 'N'}
+          onClick={() => this.issuePreview()}
+          permissionList={[
+            {
+              code: `${permissionPath}.button.detail-issuing-preview`,
+              type: 'button',
+              meaning: '按钮-明细-开具预览',
+            },
+          ]}
+        >
+          {intl.get('hiop.invoiceWorkbench.button.IssuingPreview').d('开具预览')}
+        </PermissionButton>
+        <PermissionButton
+          type="c7n-pro"
+          disabled={
+            ['RED_INFO', 'VOID', 'RED_MARK'].includes(invoiceSourceType) || this.isCreatePage
+          }
+          onClick={() => this.handleCopyOrd()}
+          permissionList={[
+            {
+              code: `${permissionPath}.button.detail-copy-order`,
+              type: 'button',
+              meaning: '按钮-明细-复制订单',
+            },
+          ]}
+        >
+          {intl.get('hiop.invoiceReq.button.copy.copyOrder').d('复制订单')}
+        </PermissionButton>
+      </>
+    );
+  };
+
   render() {
-    const {
-      employeeInfo,
-      invoiceVarietyOpt,
-      isDisabled,
-      orderStatus,
-      invoiceVariety,
-      submitDisabled,
-      purchaseMark,
-    } = this.state;
+    const { employeeInfo, invoiceVarietyOpt, purchaseMark } = this.state;
     const { sourceType, companyId, invoicingOrderHeaderId } = this.props.match.params;
     let pathname;
     if (sourceType === 'invoiceOrder') {
@@ -884,7 +1254,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       <>
         <Header
           backPath={pathname}
-          title={intl.get(`${modelCode}.title`).d('开票订单')}
+          title={intl.get('hiop.invoiceWorkbench.title.invoiceOrder').d('开票订单')}
           onBack={() =>
             sourceType !== 'invoiceOrder' &&
             closeTab(
@@ -892,108 +1262,28 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
             )
           }
         >
-          <PermissionButton
-            type="c7n-pro"
-            color={ButtonColor.dark}
-            disabled={!submitDisabled}
-            onClick={() => this.batchSave(1)}
-            permissionList={[
-              {
-                code: `${permissionPath}.detail-submit`,
-                type: 'button',
-                meaning: '按钮-明细-审核(提交)',
-              },
-            ]}
-          >
-            {intl.get(`${modelCode}.submit`).d('审核(提交)')}
-          </PermissionButton>
-          <PermissionButton
-            type="c7n-pro"
-            color={ButtonColor.dark}
-            disabled={isDisabled}
-            onClick={() => this.batchSave(0)}
-            permissionList={[
-              {
-                code: `${permissionPath}.detail-save-new`,
-                type: 'button',
-                meaning: '按钮-明细-保存（新建）',
-              },
-            ]}
-          >
-            {intl.get(`${modelCode}.saveNew`).d('保存（新建）')}
-          </PermissionButton>
-          <PermissionButton
-            type="c7n-pro"
-            disabled={isDisabled}
-            onClick={() => this.batchSave(2)}
-            permissionList={[
-              {
-                code: `${permissionPath}.detail-save-continue`,
-                type: 'button',
-                meaning: '按钮-明细-保存（继续）',
-              },
-            ]}
-          >
-            {intl.get(`${modelCode}.saveContinue`).d('保存（继续）')}
-          </PermissionButton>
-          <PermissionButton
-            type="c7n-pro"
-            disabled={orderStatus !== 'F' || invoiceVariety === '51'}
-            onClick={() => this.downloadInvoice()}
-            permissionList={[
-              {
-                code: `${permissionPath}.detail-download-invoice`,
-                type: 'button',
-                meaning: '按钮-明细-下载打印',
-              },
-            ]}
-          >
-            {intl.get(`${modelCode}.downloadInvoice`).d('下载打印')}
-          </PermissionButton>
-          <PermissionButton
-            type="c7n-pro"
-            disabled={orderStatus !== 'F'}
-            onClick={() => this.previewInvoice()}
-            permissionList={[
-              {
-                code: `${permissionPath}.detail-preview-invoice`,
-                type: 'button',
-                meaning: '按钮-明细-票面预览',
-              },
-            ]}
-          >
-            {intl.get(`${modelCode}.button.previewInvoice`).d('票面预览')}
-          </PermissionButton>
+          {this.renderHeaderBts()}
         </Header>
-        <Content>
+        <Content style={{ background: 'rgb(246,246,246)', padding: '0' }}>
           <Spin dataSet={this.invoiceOrderHeaderDS}>
-            <Row>
-              <Col span={16}>
-                <Form columns={4}>
-                  <Output
-                    label={intl.get(`${modelCode}.view.companyName`).d('所属公司')}
-                    value={(employeeInfo && employeeInfo.companyName) || ''}
-                    colSpan={2}
-                  />
-                  <Output
-                    label={intl.get(`${modelCode}.view.employeeDesc`).d('登录员工')}
-                    colSpan={2}
-                    value={this.renderEmployeeDesc}
-                  />
-                </Form>
-              </Col>
-              <Col span={8}>
-                <Form dataSet={this.invoiceOrderHeaderDS}>
-                  <Output name="orderNumber" />
-                </Form>
-              </Col>
-            </Row>
             <Form
+              style={{ background: '#fff', padding: '16px 16px 0px', marginBottom: '8px' }}
+              columns={4}
               dataSet={this.invoiceOrderHeaderDS}
-              columns={6}
               excludeUseColonTagList={['Radio']}
-              labelTooltip={Tooltip.overflow}
             >
+              <TextField
+                label={intl.get('htc.common.modal.companyName').d('所属公司')}
+                value={(employeeInfo && employeeInfo.companyName) || ''}
+              />
+              {/* <TextField
+                label={intl.get(`${modelCode}.view.employeeDesc`).d('登录员工')}
+                value={this.renderEmployeeDesc}
+              /> */}
+              <TextField name="orderNumber" />
+              <Select name="invoiceSourceType" />
+              <TextField name="invoiceSourceOrder" />
+
               <Select name="purchaseInvoiceFlag" onChange={this.invoiceFlagChange}>
                 {purchaseMark.map((item: any) => (
                   <Option value={item.value} key={item.value}>
@@ -1017,87 +1307,138 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
                 name="extNumberObj"
                 onChange={(value) => this.handleTaxRateLovChange('extNumber', value.value)}
               />
-              <Select name="invoiceSourceType" />
-              <TextField name="invoiceSourceOrder" />
-              {/*---*/}
-              <Select
-                name="buyerName"
-                colSpan={3}
-                searchable
-                searchMatcher="buyerName"
-                combo
-                checkValueOnOptionsChange={false}
-                onChange={(value, oldValue) => this.handleCompanyChange(value, oldValue, 0)}
-                suffix={<Icon type="search" onClick={() => this.handleCompanySearch(0)} />}
-              />
-              <Select
-                name="sellerName"
-                searchable
-                searchMatcher="sellerName"
-                combo
-                checkValueOnOptionsChange={false}
-                colSpan={3}
-                onChange={(value, oldValue) => this.handleCompanyChange(value, oldValue, 1)}
-                suffix={<Icon type="search" onClick={() => this.handleCompanySearch(1)} />}
-              />
-              {/*---*/}
-              <TextField name="buyerTaxpayerNumber" colSpan={2} />
-              <Select name="buyerCompanyType" />
-              <TextField name="sellerTaxpayerNumber" colSpan={2} />
-              <Select name="sellerCompanyType" />
-              {/*---*/}
-              <TextField name="buyerCompanyAddressPhone" colSpan={3} />
-              <TextField name="sellerCompanyAddressPhone" colSpan={3} />
-              {/*---*/}
-              <TextField name="buyerBankNumber" colSpan={3} />
-              <TextField name="sellerBankNumber" colSpan={3} />
-              {/*---*/}
-              <TextArea name="userRemark" colSpan={3} rowSpan={2} />
-              <TextField name="paperTicketReceiverName" />
-              <TextField name="paperTicketReceiverPhone" />
-              <CheckBox name="nextDefaultFlag" />
-              {/*---*/}
-              <TextField name="paperTicketReceiverAddress" colSpan={3} />
-              {/*---*/}
-              <Lov name="payeeNameObj" newLine />
-              <Lov name="issuerNameObj" />
-              <Lov name="reviewerNameObj" />
-              <Select name="deliveryWay" />
-              <TextField name="electronicReceiverInfo" colSpan={2} />
-              {/*---*/}
-              <Radio name="billingType" value="1" newLine style={{ color: 'blue' }}>
-                蓝字发票
-              </Radio>
-              <TextField
-                name="blueInvoiceCode"
-                label={<span style={{ color: 'blue' }}>发票代码</span>}
-              />
-              <TextField
-                name="blueInvoiceNo"
-                label={<span style={{ color: 'blue' }}>发票号码</span>}
-              />
-              <Select name="orderStatus" />
+            </Form>
+            <div style={{ background: '#fff', display: 'flex', padding: '16px' }}>
+              <div
+                style={{
+                  background: 'rgb(0,0,0,0.02)',
+                  padding: '16px 16px 0px',
+                  marginRight: '8px',
+                }}
+              >
+                <h3>
+                  <b>{intl.get('hiop.invoiceWorkbench.label.buyer').d('购买方')}</b>
+                </h3>
+                <Form
+                  columns={2}
+                  dataSet={this.invoiceOrderHeaderDS}
+                  excludeUseColonTagList={['Radio']}
+                  labelTooltip={Tooltip.overflow}
+                >
+                  <Select
+                    name="buyerName"
+                    searchable
+                    searchMatcher="buyerName"
+                    combo
+                    checkValueOnOptionsChange={false}
+                    colSpan={2}
+                    onChange={(value, oldValue) => this.handleCompanyChange(value, oldValue, 0)}
+                    suffix={<Icon type="search" onClick={() => this.handleCompanySearch(0)} />}
+                  />
+                  <TextField name="buyerTaxpayerNumber" labelWidth={140} />
+                  <Select name="buyerCompanyType" />
+                  <TextField name="buyerCompanyAddressPhone" colSpan={2} />
+                  <TextField name="buyerBankNumber" colSpan={2} />
+                </Form>
+              </div>
+              <div style={{ background: 'rgb(0,0,0,0.02)', padding: '16px 16px 0px' }}>
+                <h3>
+                  <b>{intl.get('hiop.invoiceWorkbench.label.seller').d('销售方')}</b>
+                </h3>
+                <Form
+                  columns={2}
+                  dataSet={this.invoiceOrderHeaderDS}
+                  excludeUseColonTagList={['Radio']}
+                  labelTooltip={Tooltip.overflow}
+                >
+                  <Select
+                    name="sellerName"
+                    searchable
+                    searchMatcher="sellerName"
+                    combo
+                    colSpan={2}
+                    checkValueOnOptionsChange={false}
+                    onChange={(value, oldValue) => this.handleCompanyChange(value, oldValue, 1)}
+                    suffix={<Icon type="search" onClick={() => this.handleCompanySearch(1)} />}
+                  />
+                  <TextField name="sellerTaxpayerNumber" labelWidth={140} />
+                  <Select name="sellerCompanyType" />
+                  <TextField name="sellerCompanyAddressPhone" colSpan={2} />
+                  <TextField name="sellerBankNumber" colSpan={2} />
+                </Form>
+              </div>
+            </div>
+            <Form
+              dataSet={this.invoiceOrderHeaderDS}
+              columns={4}
+              excludeUseColonTagList={['Radio']}
+              labelTooltip={Tooltip.overflow}
+              style={{ background: '#fff', paddingRight: '16px' }}
+            >
+              <TextArea name="userRemark" rows={1} colSpan={2} resize={ResizeType.both} />
+
               <Select name="orderProgress" />
+              <Select name="orderStatus" />
+
+              <Lov name="payeeNameObj" />
+              <Lov name="issuerNameObj" labelWidth={140} />
+              <Lov name="reviewerNameObj" labelWidth={140} />
+
               <Currency name="invoiceAmountDifference" />
-              {/*---*/}
-              <Radio name="billingType" value="2" newLine style={{ color: 'red' }}>
-                红字发票
-              </Radio>
-              <TextField
-                name="invoiceCode"
-                label={<span style={{ color: 'red' }}>发票代码</span>}
-              />
-              <TextField name="invoiceNo" label={<span style={{ color: 'red' }}>发票号码</span>} />
-              <Currency name="totalExcludingTaxAmount" />
-              <Currency name="totalPriceTaxAmount" />
-              <Currency name="totalTax" />
+              {this.invoiceTypeTag()}
+              <CheckBox name="nextDefaultFlag" />
+            </Form>
+            <Form
+              dataSet={this.invoiceOrderHeaderDS}
+              columns={6}
+              excludeUseColonTagList={['Radio']}
+              layout={FormLayout.none}
+              labelTooltip={Tooltip.overflow}
+              style={{ background: '#fff' }}
+              className={styles.customTable}
+            >
+              <div className={styles.invoiceContainer}>
+                <Radio name="billingType" value="1" style={{ color: 'blue' }}>
+                  {intl.get('hiop.invoiceWorkbench.label.blueInvoice').d('蓝字发票')}
+                </Radio>
+                <div className={styles.flex}>
+                  <span style={{ color: 'blue' }}>
+                    {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
+                  </span>
+                  <TextField name="blueInvoiceCode" style={{ width: '100px' }} />
+                </div>
+                <div className={styles.flex}>
+                  <span style={{ color: 'blue' }}>
+                    {intl.get('hiop.invoiceWorkbench.label.invoiceNumber').d('发票号码：')}
+                  </span>
+                  <TextField style={{ width: '100px' }} name="blueInvoiceNo" />
+                </div>
+              </div>
+              <div className={styles.invoiceContainer}>
+                <Radio name="billingType" value="2" style={{ color: 'red' }}>
+                  {intl.get('hiop.invoiceWorkbench.label.redInvoice').d('红字发票')}
+                </Radio>
+                <div className={styles.flex}>
+                  <span style={{ color: 'red' }}>
+                    {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
+                  </span>
+                  <TextField style={{ width: '100px' }} name="invoiceCode" />
+                </div>
+                <div className={styles.flex}>
+                  <span style={{ color: 'red' }}>
+                    {intl.get('hiop.invoiceWorkbench.label.invoiceNumber').d('发票号码：')}
+                  </span>
+                  <TextField name="invoiceNo" style={{ width: '100px' }} />
+                </div>
+              </div>
             </Form>
           </Spin>
           <Table
             dataSet={this.invoiceOrderLinesDS}
             columns={this.columns}
             buttons={this.lineButton}
-            style={{ height: 200 }}
+            queryBar={this.renderQueryBar}
+            style={{ height: 400, background: '#fff', marginTop: '8px', padding: '0px 16px 16px' }}
           />
         </Content>
       </>

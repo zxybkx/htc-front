@@ -1,4 +1,4 @@
-/*
+/**
  * @Description:开票申请
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
@@ -8,14 +8,15 @@
  */
 
 import request from 'utils/request';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 
-const HIOP_API = commonConfig.IOP_API;
+const HIOP_API = commonConfig.IOP_API || '';
 
 /**
  * 开票申请复制
  * @async
  * @function reqCopy
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function reqCopy(params) {
@@ -30,6 +31,7 @@ export async function reqCopy(params) {
  * 开票申请发票交付下次默认
  * @async
  * @function reqNextDefault
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function reqNextDefault(params) {
@@ -43,7 +45,8 @@ export async function reqNextDefault(params) {
 /**
  * 开票申请保存
  * @async
- * @function reqSubmit
+ * @function batchSave
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function batchSave(params) {
@@ -59,6 +62,7 @@ export async function batchSave(params) {
  * 开票申请审核提交
  * @async
  * @function reqSubmit
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function reqSubmit(params) {
@@ -74,6 +78,7 @@ export async function reqSubmit(params) {
  * 获取公司规则下的默认值
  * @async
  * @function getRuleDefaultValue
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function getRuleDefaultValue(params) {
@@ -88,6 +93,7 @@ export async function getRuleDefaultValue(params) {
  * 取消申请
  * @async
  * @function reqCancel
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function reqCancel(params) {
@@ -103,6 +109,7 @@ export async function reqCancel(params) {
  * 删除申请
  * @async
  * @function reqDelete
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function reqDelete(params) {
@@ -117,6 +124,7 @@ export async function reqDelete(params) {
  * 权限分配保存
  * @async
  * @function permissionSave
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function permissionSave(params) {
@@ -130,6 +138,10 @@ export async function permissionSave(params) {
 
 /**
  * 导出打印文件
+ * @async
+ * @function exportPrintFiles
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function exportPrintFiles(params) {
   const { tenantId, ...otherParams } = params;
@@ -142,6 +154,10 @@ export async function exportPrintFiles(params) {
 
 /**
  * 发票打印
+ * @async
+ * @function exportNotZip
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function exportNotZip(params) {
   const { tenantId, ...otherParams } = params;
@@ -153,6 +169,10 @@ export async function exportNotZip(params) {
 
 /**
  * 获取数据
+ * @async
+ * @function runReport
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function runReport(params) {
   return request(`${HIOP_API}/v1/${params}/run-report/runReport`, {
@@ -163,7 +183,8 @@ export async function runReport(params) {
 /**
  * 合并
  * @async
- * @function reqCancel
+ * @function batchMerage
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function batchMerage(params) {
@@ -177,7 +198,8 @@ export async function batchMerage(params) {
 /**
  * 取消合并
  * @async
- * @function reqCancel
+ * @function cancelMerage
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function cancelMerage(params) {
@@ -191,7 +213,8 @@ export async function cancelMerage(params) {
 /**
  * 判断是否可以红冲
  * @async
- * @function reqCancel
+ * @function judgeRedFlush
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function judgeRedFlush(params) {
@@ -203,9 +226,25 @@ export async function judgeRedFlush(params) {
 }
 
 /**
+ * 判断是否可以作废
+ * @async
+ * @function judgeInvoiceVoid
+ * @params {object} params
+ * @returns {object} fetch Promise
+ */
+export async function judgeInvoiceVoid(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIOP_API}/v1/${tenantId}/invoicing-order-headers/invoice-void`, {
+    method: 'GET',
+    query: otherParams,
+  });
+}
+
+/**
  * 下载二维码
  * @async
  * @function downloadQrCode
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function downloadQrCode(params) {
@@ -219,6 +258,7 @@ export async function downloadQrCode(params) {
  * 发送二维码
  * @async
  * @function SendQrCode
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function sendQrCode(params) {

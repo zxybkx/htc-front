@@ -1,4 +1,4 @@
-/*
+/**
  * @Description:开票订单查询
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
@@ -6,15 +6,13 @@
  * @LastEditTime: 2021-01-21 15:32:35
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { DataSet } from 'choerodon-ui/pro';
 import { getCurrentOrganizationId } from 'utils/utils';
 import intl from 'utils/intl';
-import { FieldType, DataSetSelection } from 'choerodon-ui/pro/lib/data-set/enum';
-
-const modelCode = 'hiop.invoice-query';
+import { DataSetSelection, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 
 export default (dsProps): DataSetProps => {
   const API_PREFIX = commonConfig.IOP_API || '';
@@ -59,22 +57,22 @@ export default (dsProps): DataSetProps => {
     fields: [
       {
         name: 'enterpriseName',
-        label: intl.get(`${modelCode}.view.enterpriseName`).d('企业名称'),
+        label: intl.get('hiop.invoiceQuery.modal.enterpriseName').d('企业名称'),
         type: FieldType.string,
       },
       {
         name: 'taxpayerNumber',
-        label: intl.get(`${modelCode}.view.taxpayerNumber`).d('纳税人识别号'),
+        label: intl.get('htc.common.modal.taxpayerNumber').d('纳税人识别号'),
         type: FieldType.string,
       },
       {
         name: 'businessAddressPhone',
-        label: intl.get(`${modelCode}.view.companyAddressPhone`).d('地址、电话'),
+        label: intl.get('htc.common.modal.companyAddressPhone').d('地址、电话'),
         type: FieldType.string,
       },
       {
         name: 'corporateBankAccount',
-        label: intl.get(`${modelCode}.view.bankNumber`).d('开户行及账号'),
+        label: intl.get('htc.common.modal.bankNumber').d('开户行及账号'),
         type: FieldType.string,
       },
     ],
@@ -82,7 +80,7 @@ export default (dsProps): DataSetProps => {
       fields: [
         {
           name: 'enterpriseName',
-          label: intl.get(`${modelCode}.view.enterpriseName`).d('企业名称'),
+          label: intl.get('hiop.invoiceQuery.modal.enterpriseName').d('企业名称'),
           type: FieldType.string,
           required: true,
           computedProps: {
@@ -95,11 +93,15 @@ export default (dsProps): DataSetProps => {
               }
             },
           },
-          defaultValidationMessages: { patternMismatch: '请输入至少3个中文字符' },
+          defaultValidationMessages: {
+            patternMismatch: intl
+              .get('hiop.invoiceQuery.message.enterpriseName')
+              .d('请输入至少3个中文字符'),
+          },
         },
         {
           name: 'isQueryAll',
-          label: intl.get(`${modelCode}.view.isQueryAll`).d('查询全部信息'),
+          label: intl.get('hiop.invoiceQuery.modal.isQueryAll').d('查询全部信息'),
           type: FieldType.boolean,
           trueValue: 'Y',
           falseValue: 'N',

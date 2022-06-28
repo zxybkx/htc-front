@@ -12,10 +12,11 @@ import 'react-viewer/dist/index.css';
 import { HZERO_FILE } from 'utils/config';
 import { getCurrentOrganizationId, getAccessToken, getResponse } from 'utils/utils';
 import { urlTojpg } from '@src/services/invoicesService';
-// import ArchiveOfdPage from '@common/pages/invoice-common/ofd-view/index';
+// import ArchiveOfdPage from '@htccommon/pages/invoice-common/ofd-view/index';
+import formatterCollections from 'utils/intl/formatterCollections';
 import InvoicesHeadersDS from '../stores/FileViewDS';
 
-const modelCode = 'hivp.invoices.archiveView';
+const modelCode = 'hivp.invoicesArchiveView';
 const tenantId = getCurrentOrganizationId();
 
 interface RouterInfo {
@@ -25,7 +26,9 @@ interface RouterInfo {
 interface ArchiveViewPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
-
+@formatterCollections({
+  code: [modelCode, 'hcan.invoiceDetail', 'hivp.invoicesArchiveUpload'],
+})
 @connect()
 export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
   state = {
@@ -45,7 +48,9 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
     const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
     if (invoiceInfoStr) {
       const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
-      const fileType = `${toUpper(invoiceInfo.fileTypeMeaning)}类型`;
+      const fileType = `${toUpper(invoiceInfo.fileTypeMeaning)}${intl
+        .get('hcan.invoiceDetail.view.type')
+        .d('类型')}`;
       set(invoiceInfo, 'recordType', fileType);
       this.queryDS.create(invoiceInfo, 0);
       const { companyCode, employeeNum } = invoiceInfo;
@@ -133,7 +138,7 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
       <>
         <Header
           backPath="/htc-front-ivp/batch-check/list"
-          title={intl.get(`${modelCode}.title`).d('档案查看')}
+          title={intl.get('hivp.invoicesArchiveUpload.path.viewArchives').d('档案查看')}
         />
         <Content>
           <Row>
@@ -150,10 +155,26 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
             <Output name="recordType" />
           </Form>
           <Form columns={7}>
-            <Output name="documentNumber" label="单据编号" />
-            <Output name="documentSourceKey" colSpan={2} label="单据关键字" />
-            <Output name="documentRemark" colSpan={2} label="单据描述" />
-            <Output name="relationInvoiceQuantity" label="关联发票数量" />
+            <Output
+              name="documentNumber"
+              label={intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号')}
+            />
+            <Output
+              name="documentSourceKey"
+              colSpan={2}
+              label={intl.get('hivp.invoicesArchiveUpload.view.documentSourceKey').d('单据关键字')}
+            />
+            <Output
+              name="documentRemark"
+              colSpan={2}
+              label={intl.get('hivp.invoicesArchiveUpload.view.documentRemark').d('单据描述')}
+            />
+            <Output
+              name="relationInvoiceQuantity"
+              label={intl
+                .get('hivp.invoicesArchiveUpload.view.relationInvoiceQuantity')
+                .d('关联发票数量')}
+            />
           </Form>
         </Content>
       </>

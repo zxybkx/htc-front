@@ -1,0 +1,47 @@
+:global {
+  .c7n-tabs-bar {
+    margin: 6px !important;
+  }
+}
+.companyTable {
+  :global {
+    .c7n-pro-table-row .c7n-pro-table-cell-inner-row-height-fixed {
+      white-space: normal;
+      word-wrap: break-word;
+      line-height: 0.2rem !important;
+    }
+
+    .c7n-pro-table-aggregation .c7n-pro-table-cell {
+      vertical-align: middle;
+    }
+
+    .c7n-pro-table-cell-inner {
+      padding: 0 0.04rem;
+    }
+
+    .c7n-pro-table-cell-tree-treenode {
+      padding: 0;
+    }
+    .c7n-pro-field-label {
+      margin-left: 20px;
+    }
+  }
+}
+.treeNode {
+  margin-top: 10px;
+  height: ~'calc(100% - 100px)';
+  overflow-y: auto;
+  overflow-x: hidden;
+  span {
+    word-break: break-word;
+    word-wrap: break-word;
+    white-space: normal;
+  }
+}
+.switchContainer {
+  position: absolute;
+  left: 160px;
+  top: 14px;
+  display: flex;
+  align-items: center;
+}

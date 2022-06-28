@@ -6,15 +6,15 @@
  * @LastEditTime:
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { DataSet } from 'choerodon-ui/pro';
 import { getCurrentOrganizationId } from 'utils/utils';
-import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
+import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 
-const modelCode = 'hivp.check-certification';
+const modelCode = 'hivp.checkCertification';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
@@ -76,26 +76,45 @@ export default (): DataSetProps => {
       },
       {
         name: 'batchNo',
-        label: intl.get(`${modelCode}.view.batchNo`).d('批次号'),
+        label: intl.get('hivp.batchCheck.view.batchCode').d('批次号'),
         type: FieldType.string,
       },
       {
         name: 'employeeNumber',
-        label: intl.get(`${modelCode}.view.employeeNumber`).d('请求员工'),
+        label: intl.get('hiop.redInvoiceInfo.modal.employeeName').d('请求员工'),
         type: FieldType.string,
       },
     ],
     queryDataSet: new DataSet({
       fields: [
+        // {
+        //   name: 'statisticalPeriod',
+        //   label: intl.get(`${modelCode}.view.statisticalPeriod`).d('认证所属期'),
+        //   type: FieldType.string,
+        //   readOnly: true,
+        // },
+        {
+          name: 'companyId',
+          type: FieldType.number,
+        },
+        {
+          name: 'authenticationDateObj',
+          label: intl.get(`${modelCode}.view.authenticationDateObj`).d('认证所属期'),
+          type: FieldType.object,
+          lovCode: 'HIVP.BUSINESS_TIME_INFO',
+          cascadeMap: { companyId: 'companyId' },
+          ignore: FieldIgnore.always,
+          required: true,
+        },
         {
           name: 'statisticalPeriod',
-          label: intl.get(`${modelCode}.view.statisticalPeriod`).d('认证所属期'),
           type: FieldType.string,
-          readOnly: true,
+          bind: 'authenticationDateObj.currentPeriod',
+          // ignore: FieldIgnore.always,
         },
         {
           name: 'currentCertState',
-          label: intl.get(`${modelCode}.view.currentCertState`).d('当前认证状态'),
+          label: intl.get('hivp.taxRefund.view.currentCertState').d('当前认证状态'),
           type: FieldType.string,
           lookupCode: 'HIVP.CHECK_CONFIRM_STATE',
           readOnly: true,
@@ -109,3 +128,26 @@ export default (): DataSetProps => {
     }),
   };
 };
+
+const TimeRange = (): DataSetProps => {
+  return {
+    autoCreate: true,
+    fields: [
+      {
+        name: 'invoiceDateFrom',
+        label: intl.get(`${modelCode}.view.checkTimeFrom`).d('勾选日期从'),
+        type: FieldType.date,
+        required: true,
+        max: 'invoiceDateTo',
+      },
+      {
+        name: 'invoiceDateTo',
+        label: intl.get(`${modelCode}.view.checkTimeTo`).d('勾选日期到'),
+        type: FieldType.date,
+        required: true,
+        min: 'invoiceDateFrom',
+      },
+    ],
+  };
+};
+export { TimeRange };

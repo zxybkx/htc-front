@@ -1,5 +1,5 @@
-/*
- * @Descripttion:全发票明细
+/**
+ * @Description:全发票明细
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 16:19:48
@@ -7,7 +7,7 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { DataSet, Spin } from 'choerodon-ui/pro';
 import { Collapse } from 'choerodon-ui';
@@ -19,7 +19,7 @@ import InvoiceHeaderTransferForm from './InvoiceHeaderTransferForm';
 import InvoiceHeaderVehicleForm from './InvoiceHeaderVehicleForm';
 import InvoiceLinesTable from './InvoiceLinesTable';
 
-const modelCode = 'hcan.invoice-detail';
+const modelCode = 'hcan.invoiceDetail';
 const { Panel } = Collapse;
 
 interface InvoiceDetailPageProps {
@@ -29,7 +29,7 @@ interface InvoiceDetailPageProps {
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: [modelCode, 'htc.common', 'hivp.bill'],
 })
 export default class InvoiceDetailPage extends Component<InvoiceDetailPageProps> {
   // 行DS
@@ -48,13 +48,18 @@ export default class InvoiceDetailPage extends Component<InvoiceDetailPageProps>
 
   render() {
     const vehicleFlag = ['02', '03', '15'].includes(this.props.invoiceType);
+    const customPanelStyle = {
+      background: '#fff',
+      overflow: 'hidden',
+      borderBottom: '8px solid #F6F6F6',
+    };
     return (
       <>
         <Header
           title={intl.get(`${modelCode}.title.detail`).d('查看全票面信息')}
           backPath={this.props.backPath}
         />
-        <Content>
+        <Content style={{ background: '#F6F6F6' }}>
           <Spin dataSet={this.detailDS}>
             <Collapse
               bordered={false}
@@ -63,6 +68,7 @@ export default class InvoiceDetailPage extends Component<InvoiceDetailPageProps>
               <Panel
                 header={intl.get(`${modelCode}.title.invoiceHeader`).d('发票关键头信息')}
                 key="HEADER"
+                style={customPanelStyle}
               >
                 <InvoiceHeaderForm dataSet={this.detailDS} />
               </Panel>
@@ -72,6 +78,7 @@ export default class InvoiceDetailPage extends Component<InvoiceDetailPageProps>
                     .get(`${modelCode}.title.invoiceHeaderTransfer`)
                     .d('货物运输发票头信息')}
                   key="TRANSFER"
+                  style={customPanelStyle}
                 >
                   <InvoiceHeaderTransferForm dataSet={this.detailDS} />
                 </Panel>
@@ -82,13 +89,15 @@ export default class InvoiceDetailPage extends Component<InvoiceDetailPageProps>
                     .get(`${modelCode}.title.invoiceHeaderVehicle`)
                     .d('机动车、二手车发票头信息')}
                   key="VEHICLE"
+                  style={customPanelStyle}
                 >
                   <InvoiceHeaderVehicleForm dataSet={this.detailDS} />
                 </Panel>
               )}
               <Panel
-                header={intl.get(`${modelCode}.view.LinesTitle`).d('发票明细信息')}
+                header={intl.get(`${modelCode}.view.linesTitle`).d('发票明细信息')}
                 key="LINES"
+                style={customPanelStyle}
               >
                 <InvoiceLinesTable dataSet={this.linesDS} />
               </Panel>

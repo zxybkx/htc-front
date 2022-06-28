@@ -17,7 +17,7 @@ import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
 import BillsLinesDS from '../stores/BillsLinesDS';
 
-const modelCode = 'hivp.bills';
+const modelCode = 'hivp.bill';
 
 interface RouterInfo {
   billPoolHeaderId: any;
@@ -28,7 +28,7 @@ interface InvoicesLinesPageProps extends RouteComponentProps<RouterInfo> {
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: [modelCode, 'hcan.invoiceDetail', 'htc.common'],
 })
 export default class InvoicesLinesPage extends Component<InvoicesLinesPageProps> {
   lineDS = new DataSet({
@@ -39,7 +39,7 @@ export default class InvoicesLinesPage extends Component<InvoicesLinesPageProps>
   get columns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('行号'),
+        header: intl.get('hcan.invoiceDetail.view.orderSeq').d('行号'),
         width: 60,
         renderer: ({ record }) => {
           return record ? this.lineDS.indexOf(record) + 1 : '';
@@ -61,7 +61,7 @@ export default class InvoicesLinesPage extends Component<InvoicesLinesPageProps>
       <>
         <Header
           backPath="/htc-front-ivp/bills/list"
-          title={intl.get(`${modelCode}.lineTitle`).d('票据池行')}
+          title={intl.get('hivp.bill.lineTitle').d('票据池行')}
         />
         <Content>
           <Table dataSet={this.lineDS} columns={this.columns} style={{ height: 400 }} />

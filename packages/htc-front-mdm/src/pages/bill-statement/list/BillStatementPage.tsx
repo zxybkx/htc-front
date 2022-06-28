@@ -3,19 +3,19 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-09-07 13:44:22
- * @LastEditTime:
+ * @LastEditTime: 2022-06-20 15:23
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
-import { Table, DataSet, Button } from 'choerodon-ui/pro';
-import { Header, Content } from 'components/Page';
+import { Button, DataSet, Table } from 'choerodon-ui/pro';
+import { Content, Header } from 'components/Page';
 import intl from 'utils/intl';
 import { Dispatch } from 'redux';
 import queryString from 'query-string';
 import { Bind } from 'lodash-decorators';
 import { observer } from 'mobx-react-lite';
 import withProps from 'utils/withProps';
-import { routerRedux } from 'dva/router';
+import { RouteComponentProps } from 'react-router-dom';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { connect } from 'dva';
@@ -28,7 +28,7 @@ import BillStatementListDS from '../stores/BillStatementListDS';
 
 const modelCode = 'hmdm.bill-statement';
 
-interface BillStatementPageProps {
+interface BillStatementPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   tableDS: DataSet;
 }
@@ -45,6 +45,10 @@ interface BillStatementPageProps {
   { cacheState: true }
 )
 export default class BillStatementPage extends Component<BillStatementPageProps> {
+  /**
+   * 生成账单
+   * @params {[]} selectedList-选中的行数组
+   */
   @Bind()
   async generateBill(selectedList) {
     const res = getResponse(await billInfomationDownload(selectedList));
@@ -57,20 +61,34 @@ export default class BillStatementPage extends Component<BillStatementPageProps>
     }
   }
 
+  /**
+   * 详情跳转
+   * @params {sting} fileUrl-行的fileUrl
+   */
   @Bind()
   handleGotoBillPage(fileUrl) {
-    const { dispatch } = this.props;
-    const pathname = '/htc-front-mdm/bill-statement/billViewPage';
-    dispatch(
-      routerRedux.push({
-        pathname,
-        search: queryString.stringify({
-          fileUrlInfo: encodeURIComponent(JSON.stringify({ fileUrl })),
-        }),
-      })
-    );
+    const { history } = this.props;
+    const pathname = '/htc-front-mdm/bill-statement/bill-view-page';
+    history.push({
+      pathname,
+      search: queryString.stringify({
+        fileUrlInfo: encodeURIComponent(JSON.stringify({ fileUrl })),
+      }),
+    });
+    // dispatch(
+    //   routerRedux.push({
+    //     pathname,
+    //     search: queryString.stringify({
+    //       fileUrlInfo: encodeURIComponent(JSON.stringify({ fileUrl })),
+    //     }),
+    //   })
+    // );
   }
 
+  /**
+   * 返回表格行
+   * @params {*[]}
+   */
   get columns(): ColumnProps[] {
     return [
       {
@@ -134,7 +152,9 @@ export default class BillStatementPage extends Component<BillStatementPageProps>
     ];
   }
 
-  // 发送
+  /**
+   * 发送账单回调
+   */
   @Bind()
   async batchSend() {
     const selectedList = this.props.tableDS.selected.map((record) => record.toData());
@@ -148,13 +168,19 @@ export default class BillStatementPage extends Component<BillStatementPageProps>
     }
   }
 
-  // 生成账单
+  /**
+   * 生成账单
+   */
   @Bind()
   async batchGenerateBill() {
     const selectedList = this.props.tableDS.selected.map((record) => record.toData());
     this.generateBill(selectedList);
   }
 
+  /**
+   * 返回表格头按钮
+   * @returns {*[]}
+   */
   get buttons(): Buttons[] {
     const BatchButtons = observer((props: any) => {
       const isDisabled = props.dataSet!.selected.length === 0;

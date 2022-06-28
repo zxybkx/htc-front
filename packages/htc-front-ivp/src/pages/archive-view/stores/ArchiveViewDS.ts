@@ -1,19 +1,19 @@
 /*
- * @Descripttion:发票池-单据关联
+ * @Description:发票池-单据关联
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
  * @LastEditTime: 2020-10-19 15:53:46
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 
-const modelCode = 'hivp.invoices.fileArchive';
+const modelCode = 'hivp.invoicesArchiveUpload';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';

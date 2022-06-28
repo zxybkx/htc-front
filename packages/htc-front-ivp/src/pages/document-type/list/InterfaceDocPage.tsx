@@ -1,4 +1,4 @@
-/*
+/**
  * @Description:接口单据详细信息
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
@@ -11,30 +11,42 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import intl from 'utils/intl';
-import { DataSet, Table, Button } from 'choerodon-ui/pro';
+import { Button, DataSet, Form, Output, Table } from 'choerodon-ui/pro';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import {
-  ColumnAlign,
-  ColumnLock,
-  TableCommandType,
-  TableEditMode,
-} from 'choerodon-ui/pro/lib/table/enum';
-import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
-import InterfaceDocDS from '../stores/InterfaceDocDS';
+import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
+import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
+import formatterCollections from 'utils/intl/formatterCollections';
+import InterfaceDocDS, { SystemDS } from '../stores/InterfaceDocDS';
+import styles from '../table.less';
 
-const modelCode = 'hivp.interface-doc';
+const modelCode = 'hivp.documentType';
 
 interface InterfaceDocPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
 }
 
 @connect()
+@formatterCollections({
+  code: [
+    modelCode,
+    'htc.common',
+    'hiop.redInvoiceInfo',
+    'hivp.invoicesArchiveUpload',
+    'hivp.checkCertification',
+    'hiop.invoiceWorkbench',
+  ],
+})
 export default class InterfaceDocPage extends Component<InterfaceDocPageProps> {
   tableDS = new DataSet({
     autoQuery: false,
     ...InterfaceDocDS(),
+  });
+
+  systemDS = new DataSet({
+    autoQuery: false,
+    ...SystemDS(),
   });
 
   componentDidMount() {
@@ -42,52 +54,101 @@ export default class InterfaceDocPage extends Component<InterfaceDocPageProps> {
     const linesInfoStr = new URLSearchParams(search).get('linesInfo');
     if (linesInfoStr) {
       const linesInfo = JSON.parse(decodeURIComponent(linesInfoStr));
-      const { queryDataSet } = this.tableDS;
-      if (queryDataSet) {
-        queryDataSet.getField('systemCode')!.set('defaultValue', linesInfo && linesInfo.systemCode);
-        queryDataSet.getField('systemName')!.set('defaultValue', linesInfo && linesInfo.systemName);
-        queryDataSet
-          .getField('documentTypeCode')!
-          .set('defaultValue', linesInfo && linesInfo.documentTypeCode);
-        queryDataSet
-          .getField('documentTypeMeaning')!
-          .set('defaultValue', linesInfo && linesInfo.documentTypeMeaning);
-        queryDataSet.reset();
-        queryDataSet.create();
-      }
+      this.systemDS.getField('systemCode')!.set('defaultValue', linesInfo && linesInfo.systemCode);
+      this.systemDS.getField('systemName')!.set('defaultValue', linesInfo && linesInfo.systemName);
+      this.systemDS
+        .getField('documentTypeCode')!
+        .set('defaultValue', linesInfo && linesInfo.documentTypeCode);
+      this.systemDS
+        .getField('documentTypeMeaning')!
+        .set('defaultValue', linesInfo && linesInfo.documentTypeMeaning);
+      this.systemDS.create();
       this.tableDS.setQueryParameter('docTypeLineId', linesInfo.docTypeLineId);
       this.tableDS.query();
     }
+  }
+
+  @Bind()
+  handleEdit(record) {
+    record.setState('editing', true);
+  }
+
+  @Bind()
+  handleCancel(record) {
+    if (record.status === 'add') {
+      this.tableDS.remove(record);
+    } else {
+      record.reset();
+      record.setState('editing', false);
+    }
+  }
+
+  @Bind()
+  async handleSave(record) {
+    const res = await this.tableDS.submit();
+    if (res && res.content) record.setState('editing', false);
+  }
+
+  @Bind()
+  commands(record) {
+    const btns: any = [];
+    const relationStateCode = record.get('relationStateCode');
+    if (record.getState('editing')) {
+      btns.push(
+        <a onClick={() => this.handleSave(record)}>
+          {intl.get('hzero.common.btn.save').d('保存')}
+        </a>,
+        <a onClick={() => this.handleCancel(record)}>
+          {intl.get('hzero.common.status.cancel').d('取消')}
+        </a>
+      );
+    } else {
+      btns.push(
+        relationStateCode === '1' ? (
+          <span>-</span>
+        ) : (
+          <a onClick={() => this.handleEdit(record)}>
+            {intl.get('hzero.common.button.rule.edit').d('编辑')}
+          </a>
+        )
+      );
+    }
+    return [
+      <span className="action-link" key="action">
+        {btns}
+      </span>,
+    ];
   }
 
   get columns(): ColumnProps[] {
     return [
       {
         name: 'companyObj',
-        width: 300,
-        editor: true,
+        width: 200,
+        editor: (record) => record.getState('editing'),
       },
-      { name: 'documentNumber', editor: true },
-      { name: 'documentSourceId', width: 120, editor: true },
-      { name: 'documentSourceKey', editor: true },
-      { name: 'documentRemark', width: 300, editor: true },
+      { name: 'documentNumber', width: 150, editor: (record) => record.getState('editing') },
+      {
+        name: 'documentSourceId',
+        width: 120,
+        editor: (record) => record.getState('editing'),
+      },
+      { name: 'documentSourceKey', editor: (record) => record.getState('editing') },
+      {
+        name: 'documentRemark',
+        width: 300,
+        editor: (record) => record.getState('editing'),
+      },
       { name: 'relationStateCode' },
-      { name: 'relationInvoiceQuantity', renderer: ({ value }) => <span>{value}</span> },
+      { name: 'relationInvoiceQuantity' },
       { name: 'sourceTypeCode' },
-      { name: 'recordCreateDate', width: 160 },
-      { name: 'recordUpdateDate', width: 160 },
+      { name: 'recordCreateDate', width: 150 },
+      { name: 'recordUpdateDate', width: 150 },
       {
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
         width: 100,
-        command: ({ record }): Commands[] => {
-          const relationStateCode = record.get('relationStateCode');
-          if (relationStateCode === '1') {
-            return [<span>-</span>];
-          } else {
-            return [TableCommandType.edit];
-          }
-        },
+        renderer: ({ record }) => this.commands(record),
         lock: ColumnLock.right,
         align: ColumnAlign.center,
       },
@@ -101,20 +162,21 @@ export default class InterfaceDocPage extends Component<InterfaceDocPageProps> {
     if (linesInfoStr) {
       const linesInfo = JSON.parse(decodeURIComponent(linesInfoStr));
       const { docTypeHeaderId, docTypeLineId } = linesInfo;
-      this.tableDS.create(
+      const record = this.tableDS.create(
         {
           docTypeHeaderId,
           docTypeLineId,
         },
         0
       );
+      record.setState('editing', true);
     }
   }
 
   get buttons(): Buttons[] {
     return [
       <Button icon="playlist_add" key="add" onClick={() => this.handleAdd()}>
-        {intl.get(`${modelCode}.button.add`).d('新增')}
+        {intl.get('hzero.common.btn.add').d('新增')}
       </Button>,
     ];
   }
@@ -123,16 +185,26 @@ export default class InterfaceDocPage extends Component<InterfaceDocPageProps> {
     return (
       <>
         <Header
-          title={intl.get(`${modelCode}.title`).d('接口单据明细')}
+          title={intl.get(`${modelCode}.button.itfDoc`).d('接口单据明细')}
           backPath="/htc-front-ivp/document-type/list"
         />
+        <div className={styles.docHeader}>
+          <Form dataSet={this.systemDS} columns={4}>
+            <Output name="systemCode" />
+            <Output name="systemName" />
+            <Output name="documentTypeCode" />
+            <Output name="documentTypeMeaning" />
+          </Form>
+        </div>
         <Content>
           <Table
+            // className={styles.companyTable}
+            // aggregation
             buttons={this.buttons}
             dataSet={this.tableDS}
             columns={this.columns}
-            queryFieldsLimit={4}
-            editMode={TableEditMode.inline}
+            queryFieldsLimit={3}
+            style={{ height: 330 }}
           />
         </Content>
       </>

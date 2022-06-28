@@ -1,5 +1,5 @@
-/*
- * @Descripttion:手工发票查验
+/**
+ * @Description: 手工发票查验
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 11:54:42
@@ -7,7 +7,7 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
-import { FieldType, FieldIgnore } from 'choerodon-ui/pro/lib/data-set/enum';
+import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
 import intl from 'utils/intl';
 import moment from 'moment';
@@ -65,15 +65,16 @@ export default (): DataSetProps => {
         name: 'invoiceCode',
         label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
         type: FieldType.string,
-        required: true,
-        maxLength: 20,
+        computedProps: {
+          required: ({ record }) => record.get('invoiceNumber').length !== 20,
+        },
       },
       {
         name: 'invoiceNumber',
         label: intl.get(`${modelCode}.view.invoiceNumber`).d('发票号码'),
         type: FieldType.string,
         required: true,
-        maxLength: 12,
+        maxLength: 20,
       },
       {
         name: 'invoiceDate',

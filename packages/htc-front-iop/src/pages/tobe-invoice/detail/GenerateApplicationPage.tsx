@@ -3,8 +3,8 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-06-21 15:46:22
- * @LastEditTime:
- * @Copyright: Copyright (c) 2020, Hand
+ * @LastEditTime: 2021-11-22 15:32:15
+ * @Copyright: Copyright (c) 2021, Hand
  */
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
@@ -12,21 +12,19 @@ import { Content, Header } from 'components/Page';
 import { RouteComponentProps } from 'react-router-dom';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import intl from 'utils/intl';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { Bind } from 'lodash-decorators';
 import { Button, DataSet, Table } from 'choerodon-ui/pro';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { observer } from 'mobx-react-lite';
-import { getCurrentEmployeeInfo } from '@common/services/commonService';
+import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
 import { createRequisition, mergeCreate } from '@src/services/tobeInvoiceService';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import notification from 'utils/notification';
 import GenerateApplicationDS from '../stores/GenerateApplicationDS';
 
-const modelCode = 'hiop.tobe-invoice';
 const tenantId = getCurrentOrganizationId();
-
-// const API_PREFIX = commonConfig.IOP_API || '';
 
 interface RouterInfo {
   companyId: string;
@@ -39,6 +37,9 @@ interface GenerateApplicationProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
 
+@formatterCollections({
+  code: ['hiop.tobeInvoice', 'hiop.invoiceWorkbench', 'hiop.invoiceReq'],
+})
 export default class GenerateApplication extends Component<GenerateApplicationProps> {
   generateApplicationDS = new DataSet({
     autoQuery: false,
@@ -64,9 +65,11 @@ export default class GenerateApplication extends Component<GenerateApplicationPr
     }
   }
 
-  // 合并生成
+  /**
+   * 合并生成
+   */
   @Bind()
-  async handleMerage() {
+  async handleMerge() {
     const validateValue = await this.generateApplicationDS.validate(true, false);
     if (validateValue) {
       const { empInfo } = this.state;
@@ -84,7 +87,7 @@ export default class GenerateApplication extends Component<GenerateApplicationPr
         if (res.status === '1000') {
           notification.success({
             description: '',
-            message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
+            message: intl.get('hzero.common.notification.success').d('操作成功'),
           });
           this.generateApplicationDS.query();
         } else {
@@ -102,7 +105,9 @@ export default class GenerateApplication extends Component<GenerateApplicationPr
     }
   }
 
-  // 生成申请
+  /**
+   * 生成申请
+   */
   @Bind()
   async generateApplication() {
     const validateValue = await Promise.all(
@@ -129,7 +134,7 @@ export default class GenerateApplication extends Component<GenerateApplicationPr
         if (res.status === '1000') {
           notification.success({
             description: '',
-            message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
+            message: intl.get('hzero.common.notification.success').d('操作成功'),
           });
           this.generateApplicationDS.query();
         } else {
@@ -142,6 +147,10 @@ export default class GenerateApplication extends Component<GenerateApplicationPr
     }
   }
 
+  /**
+   * 返回表格头按钮
+   * @returns {*[]}
+   */
   get buttons(): Buttons[] {
     const ObserverButtons = observer((props: any) => {
       let isDisabled = props.dataSet!.selected.length === 0;
@@ -162,20 +171,24 @@ export default class GenerateApplication extends Component<GenerateApplicationPr
       <ObserverButtons
         key="merge"
         condition="merge"
-        onClick={() => this.handleMerage()}
+        onClick={() => this.handleMerge()}
         dataSet={this.generateApplicationDS}
-        title={intl.get(`${modelCode}.button.merge`).d('合并生成')}
+        title={intl.get('hiop.tobeInvoice.button.merge').d('合并生成')}
       />,
       <ObserverButtons
         key="generateApplication"
         condition="generateApplication"
         onClick={() => this.generateApplication()}
         dataSet={this.generateApplicationDS}
-        title={intl.get(`${modelCode}.button.generateApplication`).d('单张生成')}
+        title={intl.get('hiop.tobeInvoice.button.generateApplication').d('单张生成')}
       />,
     ];
   }
 
+  /**
+   * 返回表格行
+   * @returns {*[]}
+   */
   get columns(): ColumnProps[] {
     return [
       { name: 'businessType', editor: true },
@@ -218,7 +231,7 @@ export default class GenerateApplication extends Component<GenerateApplicationPr
       <>
         <Header
           backPath="/htc-front-iop/tobe-invoice/list"
-          title={intl.get(`${modelCode}.title`).d('生成申请')}
+          title={intl.get('hiop.tobeInvoice.title.generateApplication').d('生成申请')}
         />
         <Content>
           <Table

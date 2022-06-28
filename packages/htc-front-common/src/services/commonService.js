@@ -21,14 +21,16 @@ const { MDM_API, CHAN_API, HSSP_API } = commonConfig;
 export async function getCurrentEmployeeInfo(params) {
   const { tenantId, ...otherParams } = params;
   const apiCondition = process.env.EMPLOYEE_API;
-  console.log('apiCondition', apiCondition);
   const url =
     apiCondition === 'OP'
       ? `${HSSP_API}/v2/${tenantId}/invoice/htc/company-employee`
       : `${MDM_API}/v1/${tenantId}/employee-infos/query-current-employee-info`;
   return request(url, {
     method: 'GET',
-    query: otherParams,
+    query: {
+      ...otherParams,
+      defaultValueFlag: true,
+    },
   });
 }
 
@@ -42,14 +44,16 @@ export async function getCurrentEmployeeInfo(params) {
 export async function getCurrentEmployeeInfoOut(params) {
   const { tenantId, ...otherParams } = params;
   const apiCondition = process.env.EMPLOYEE_API;
-  console.log('apiCondition', apiCondition);
   const url =
     apiCondition === 'OP'
       ? `${HSSP_API}/v2/${tenantId}/invoice/htc/company-employee`
       : `${MDM_API}/v1/${tenantId}/employee-infos/query-current-employee-company-info`;
   return request(url, {
     method: 'GET',
-    query: otherParams,
+    query: {
+      ...otherParams,
+      defaultValueFlag: true,
+    },
   });
 }
 
@@ -60,9 +64,10 @@ export async function getCurrentEmployeeInfoOut(params) {
  * @returns {object} fetch Promise
  */
 export async function getTenantAgreementCompany(params) {
-  return request(`${MDM_API}/v1/agreement-company-infoss/detail-code`, {
+  const { tenantId, ...otherParams } = params;
+  return request(`${MDM_API}/v1/${tenantId}/agreement-company-infoss/detail-code-organization`, {
     method: 'GET',
-    query: params,
+    query: otherParams,
   });
 }
 

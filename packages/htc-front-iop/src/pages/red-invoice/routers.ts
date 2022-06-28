@@ -1,3 +1,11 @@
+/**
+ * @Description: 专票红字路由
+ * @version: 1.0
+ * @Author: wenqi.ma@hand-china.com
+ * @Date: 2021-08-12 17:41:12
+ * @LastEditTime: 2022-06-14 14:04
+ * @Copyright: Copyright (c) 2021, Hand
+ */
 import { RoutersConfig } from 'hzero-boot/lib/typings/IRouterConfig';
 
 const config: RoutersConfig = [
@@ -32,11 +40,11 @@ const config: RoutersConfig = [
       {
         // 专票红字信息表列表-详情
         path: '/htc-front-iop/red-invoice-info/detail/:companyId/:headerId',
-        component: () => import('./detail/RedInvoiceInfoDetail'),
+        component: () => import('./detail/RedInvoiceInfoDetailPage'),
       },
       {
         // 同步请求列表
-        path: '/htc-front-iop/red-invoice-info/SynchronizeRedInfoList',
+        path: '/htc-front-iop/red-invoice-info/synchronize-red-info-list',
         component: () => import('./detail/SynchronizeRedInfoPage'),
       },
     ],

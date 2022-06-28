@@ -1,0 +1,28 @@
+.header {
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  min-height: 0.5rem;
+  margin-top: 0.06rem;
+  padding-left: 0.1rem;
+}
+.upload {
+  display: flex;
+  margin-bottom: 10px;
+  .btnIcon {
+    margin: 0 5px 2px 0;
+  }
+  :global {
+    .c7n-pro-upload {
+      display: flex;
+    }
+    .c7n-pro-btn > button > .icon,
+    .c7n-pro-btn > .icon {
+      display: none;
+    }
+    .c7n-pro-btn.c7n-pro-btn.c7n-pro-btn-raised,
+    .c7n-pro-btn.c7n-pro-btn.c7n-pro-btn-flat {
+      border-width: 0;
+    }
+  }
+}

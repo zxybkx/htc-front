@@ -23,9 +23,17 @@ interface InvoicePoolDetailPageProps extends RouteComponentProps<RouterInfo> {
 export default class InvoicePoolDetailPage extends Component<InvoicePoolDetailPageProps> {
   render() {
     const { invoiceHeaderId, invoiceType, entryPoolSource, companyCode } = this.props.match.params;
+    const state = window.dvaApp._store.getState();
+    const { global } = state;
+    const { activeTabKey } = global;
+    const subTabKey = activeTabKey.substr(15); // 获取当前子标签
+    const backPath =
+      subTabKey === 'my-invoice'
+        ? '/htc-front-ivp/my-invoice/list'
+        : '/htc-front-ivp/invoices/list';
     return (
       <InvoiceDetailPage
-        backPath="/htc-front-ivp/invoices/list"
+        backPath={backPath}
         invoiceHeaderId={invoiceHeaderId}
         invoiceType={invoiceType}
         entryPoolSource={entryPoolSource}

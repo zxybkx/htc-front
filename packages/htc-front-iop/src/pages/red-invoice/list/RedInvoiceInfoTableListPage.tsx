@@ -8,22 +8,22 @@
  */
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
-import { routerRedux } from 'dva/router';
 import { Bind } from 'lodash-decorators';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
+import { RouteComponentProps } from 'react-router-dom';
 import {
-  DataSet,
   Button,
+  DataSet,
+  DateTimePicker,
   Form,
   Lov,
-  Output,
-  TextField,
-  DateTimePicker,
-  Table,
-  Select,
   notification,
+  Output,
+  Select,
+  Table,
+  TextField,
 } from 'choerodon-ui/pro';
-import { Row, Col } from 'choerodon-ui';
+import { Col, Row, Tag } from 'choerodon-ui';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import formatterCollections from 'utils/intl/formatterCollections';
@@ -33,27 +33,26 @@ import queryString from 'query-string';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { observer } from 'mobx-react-lite';
 import { operatorRender } from 'utils/renderer';
-import { getCurrentEmployeeInfoOut } from '@common/services/commonService';
+import { getCurrentEmployeeInfoOut } from '@htccommon/services/commonService';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import {
-  redInvoiceCreateRedOrder,
   downloadPrintPdfFiles,
+  redInvoiceCreateRedOrder,
   redInvoiceCreateRequisition,
 } from '@src/services/redInvoiceService';
-import { queryUnifyIdpValue } from 'hzero-front/lib/services/api';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import RedInvoiceInfoTableListDS from '../stores/RedInvoiceInfoTableListDS';
+import styles from '../redInvoice.module.less';
 
-const modelCode = 'hiop.redInvoice';
 const organizationId = getCurrentOrganizationId();
 
-interface RedInvoiceRequisitionListPageProps {
+interface RedInvoiceRequisitionListPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   headerDS: DataSet;
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: ['hiop.redInvoiceInfo', 'hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceRule'],
 })
 @withProps(
   () => {
@@ -75,23 +74,20 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
         if (empInfo) {
           queryDataSet.current!.set({ companyObj: empInfo });
         }
-        const { companyId } = empInfo;
-        const taxDiskRes = await queryUnifyIdpValue('HIOP.TAX_DISK_NUMBER', { companyId });
-        if (taxDiskRes) {
-          const taxNumberInfo = taxDiskRes[0];
-          if (taxNumberInfo) {
-            queryDataSet.current!.set({ taxDiskNumberObj: taxNumberInfo });
-          }
-        }
       }
     }
   }
 
+  /**
+   * 发票类型下拉值筛选
+   */
   invoiceTypeFilter = (record) => {
     return ['0', '52'].includes(record.get('value'));
   };
 
-  // 自定义查询
+  /**
+   * 自定义查询
+   */
   @Bind()
   renderQueryBar(props) {
     const { queryDataSet, dataSet, buttons } = props;
@@ -120,7 +116,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
                   queryDataSet.create();
                 }}
               >
-                {intl.get('hzero.c7nProUI.Table.reset_button').d('重置')}
+                {intl.get('hzero.common.button.reset').d('重置')}
               </Button>
               <Button
                 color={ButtonColor.primary}
@@ -128,7 +124,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
                   dataSet.query();
                 }}
               >
-                {intl.get('hzero.c7nProUI.Table.query_button').d('查询')}
+                {intl.get('hzero.common.button.search').d('查询')}
               </Button>
             </Col>
           </Row>
@@ -140,11 +136,10 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
 
   /**
    * 获取局端红字信息表
-   * @returns
    */
   @Bind()
   async getRedInfo() {
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const { queryDataSet } = this.props.headerDS;
     if (queryDataSet) {
       const queryData = queryDataSet.current!.toData();
@@ -158,7 +153,9 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
       if (!taxDiskNumber) {
         notification.warning({
           description: '',
-          message: intl.get(`${modelCode}.view.success`).d('请选择金税盘编号'),
+          message: intl
+            .get('hiop.redInvoiceInfo.notification.message.getRedInfo')
+            .d('请选择金税盘编号'),
         });
         return;
       }
@@ -169,32 +166,29 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
         goldenTaxDiskNumber: taxDiskNumber,
         extensionNumber,
       };
-      dispatch(
-        routerRedux.push({
-          pathname: '/htc-front-iop/red-invoice-info/SynchronizeRedInfoList',
-          search: queryString.stringify({
-            redInfo: encodeURIComponent(JSON.stringify(redInfo)),
-          }),
-        })
-      );
+      history.push({
+        pathname: '/htc-front-iop/red-invoice-info/synchronize-red-info-list',
+        search: queryString.stringify({
+          redInfo: encodeURIComponent(JSON.stringify(redInfo)),
+        }),
+      });
+      // dispatch(
+      //   routerRedux.push({
+      //     pathname: '/htc-front-iop/red-invoice-info/SynchronizeRedInfoList',
+      //     search: queryString.stringify({
+      //       redInfo: encodeURIComponent(JSON.stringify(redInfo)),
+      //     }),
+      //   })
+      // );
     }
   }
 
   /**
    * 生成红冲订单
-   * @returns
    */
   @Bind()
   async handleCreateRedOrder() {
     const { queryDataSet } = this.props.headerDS;
-
-    // if (this.headerDS.selected.length <= 0) {
-    //   notification.success({
-    //     description: '',
-    //     message: '请勾选红字信息表！',
-    //   });
-    // }
-
     const redInvoiceInfoHeaderIds = this.props.headerDS.selected
       .map((rec) => rec.get('redInvoiceInfoHeaderId'))
       .join(',');
@@ -212,17 +206,17 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
         })
       );
       if (res) {
-        if (res.failed === 1) {
-          notification.error({
-            description: '',
-            message: res.message,
-          });
-          return;
-        }
+        // if (res.failed === 1) {
+        //   notification.error({
+        //     description: '',
+        //     message: res.message,
+        //   });
+        //   return;
+        // }
         if (!res.message) {
           notification.success({
             description: '',
-            message: '生成成功！',
+            message: intl.get('hzero.common.notification.success').d('操作成功'),
           });
         }
         this.props.headerDS.query();
@@ -233,7 +227,6 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
 
   /**
    * 生成红冲申请单
-   * @returns
    */
   @Bind()
   async handleCreateRedRequest() {
@@ -254,17 +247,19 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
     if (res) {
       notification.success({
         description: '',
-        message: intl.get(`${modelCode}.view.success`).d('刷新成功'),
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
       });
       this.props.headerDS.query();
     }
   }
 
-  // 下载红字发票信息表
+  /**
+   * 下载红字发票信息表
+   * @params {object} record-行记录
+   */
   @Bind()
   async handleDownloadPdfFile(record) {
     const ids = record.get('redInvoiceInfoHeaderId');
-    // const reportCode = "IOP.RED_INVOCIE_INFO";
     const { queryDataSet } = this.props.headerDS;
     if (queryDataSet) {
       const curQueryInfo = queryDataSet.current!.toData();
@@ -279,13 +274,13 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
         })
       );
       if (resFile) {
-        if (resFile.failed === 1) {
-          notification.error({
-            description: '',
-            message: resFile.message,
-          });
-          return;
-        }
+        // if (resFile.failed === 1) {
+        //   notification.error({
+        //     description: '',
+        //     message: resFile.message,
+        //   });
+        //   return;
+        // }
         const blob = new Blob([resFile]); // 字节流
         if (window.navigator.msSaveBlob) {
           try {
@@ -293,7 +288,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
           } catch (e) {
             notification.error({
               description: '',
-              message: intl.get(`${modelCode}.view.ieUploadInfo`).d('下载失败'),
+              message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
             });
           }
         } else {
@@ -308,49 +303,98 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
     }
   }
 
+  /**
+   * 详情跳转
+   * @params {object} record-行记录
+   */
   @Bind()
   gotoDetail(record) {
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const headerId = record.get('redInvoiceInfoHeaderId');
     const companyId = record.get('companyId');
-    dispatch(
-      routerRedux.push({
-        pathname: `/htc-front-iop/red-invoice-info/detail/${companyId}/${headerId}`,
-      })
-    );
+    history.push(`/htc-front-iop/red-invoice-info/detail/${companyId}/${headerId}`);
+    // dispatch(
+    //   routerRedux.push({
+    //     pathname: `/htc-front-iop/red-invoice-info/detail/${companyId}/${headerId}`,
+    //   })
+    // );
   }
 
+  /**
+   * 返回行操作列按钮
+   * @params {object} record-行记录
+   * @return {ReactNode}
+   */
   @Bind()
   optionsRender(record) {
     const operators = [
       {
-        key: 'detail',
-        ele: (
-          <a onClick={() => this.gotoDetail(record)}>
-            {intl.get(`${modelCode}.button.detail`).d('详情')}
-          </a>
-        ),
-        len: 4,
-        title: intl.get(`${modelCode}.button.detail`).d('详情'),
-      },
-      {
         key: 'download',
         ele: (
           <a onClick={() => this.handleDownloadPdfFile(record)}>
-            {intl.get(`${modelCode}.button.download`).d('导出文件')}
+            {intl.get('hiop.redInvoiceInfo.button.download').d('导出文件')}
           </a>
         ),
         len: 4,
-        title: intl.get(`${modelCode}.button.download`).d('导出文件'),
+        title: intl.get('hiop.redInvoiceInfo.button.download').d('导出文件'),
       },
     ];
     return operatorRender(operators, record);
   }
 
+  /**
+   * 返回表格行
+   * @return {*[]}
+   */
   get columns(): ColumnProps[] {
     return [
-      { name: 'redInfoSerialNumber', width: 200 },
-      { name: 'orderStatus', width: 120 },
+      {
+        name: 'redInfoSerialNumber',
+        width: 240,
+        renderer: ({ text, record }) => {
+          let orderStatus;
+
+          switch (record?.get('orderStatus')) {
+            case 'D':
+              orderStatus = (
+                <Tag color="#D6FFD7" style={{ color: '#19A633' }}>
+                  {intl.get('hiop.redInvoiceInfo.view.downloaded').d('已下载')}
+                </Tag>
+              );
+              break;
+            case 'S':
+              orderStatus = (
+                <Tag color="#FFECC4" style={{ color: '#FF8F07' }}>
+                  {intl.get('hiop.redInvoiceInfo.view.submitted').d('已提交')}
+                </Tag>
+              );
+              break;
+            case 'R':
+              orderStatus = (
+                <Tag color="#F0F0F0" style={{ color: '#6C6C6C' }}>
+                  {intl.get('hiop.redInvoiceInfo.view.revoked').d('已撤销')}
+                </Tag>
+              );
+              break;
+            case 'I':
+              orderStatus = (
+                <Tag color="#DBEEFF" style={{ color: '#3889FF' }}>
+                  {intl.get('hiop.redInvoiceInfo.view.issued').d('已开具')}
+                </Tag>
+              );
+              break;
+            default:
+              break;
+          }
+          return (
+            <>
+              {orderStatus}
+              <a onClick={() => this.gotoDetail(record)}>{text}</a>
+            </>
+          );
+        },
+      },
+      // { name: 'orderStatus', width: 120 },
       { name: 'redInvoiceDate', width: 150 },
       { name: 'taxDiskNumber', width: 150 },
       { name: 'extensionNumber', width: 150 },
@@ -359,10 +403,17 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
       {
         name: 'invoiceAmount',
         width: 180,
-        headerStyle: { color: 'red' },
+        // headerStyle: { color: 'red' },
+        // header: (_, __, title) => <span style={{ color: 'red' }}>{title}</span>,
         align: ColumnAlign.right,
       },
-      { name: 'taxAmount', width: 180, headerStyle: { color: 'red' }, align: ColumnAlign.right },
+      {
+        name: 'taxAmount',
+        width: 180,
+        // headerStyle: { color: 'red' },
+        // header: (_, __, title) => <span style={{ color: 'red' }}>{title}</span>,
+        align: ColumnAlign.right,
+      },
       { name: 'buyerName', width: 180 },
       { name: 'buyerTaxNo', width: 180 },
       { name: 'sellerName', width: 150 },
@@ -393,7 +444,8 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
           onClick={props.onClick}
           disabled={isDisabled}
           funcType={FuncType.flat}
-          color={ButtonColor.primary}
+          color={props.color}
+          style={props.style}
         >
           {props.title}
         </Button>
@@ -401,24 +453,28 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
     });
     return [
       <Button
-        key="uploadLocalSide"
+        key="getCentralOffice"
         onClick={() => this.getRedInfo()}
         dataSet={this.props.headerDS}
         color={ButtonColor.primary}
       >
-        {intl.get(`${modelCode}.button.uploadLocalSide`).d('获取局端红字信息表')}
+        {intl.get('hiop.redInvoiceInfo.button.getCentralOffice').d('获取局端红字信息表')}
       </Button>,
       <BatchBtn
         key="createRedOrder"
         onClick={() => this.handleCreateRedOrder()}
         dataSet={this.props.headerDS}
-        title={intl.get(`${modelCode}.button.createRedOrder`).d('生成红冲订单')}
+        color={ButtonColor.default}
+        style={{ color: 'rgba(56, 137, 255, 1)' }}
+        title={intl.get('hiop.redInvoiceInfo.button.createRedOrder').d('生成红冲订单')}
       />,
       <BatchBtn
         key="createRedRequest"
         onClick={() => this.handleCreateRedRequest()}
         dataSet={this.props.headerDS}
-        title={intl.get(`${modelCode}.button.createRedRequest`).d('生成红冲申请单')}
+        color={ButtonColor.default}
+        style={{ color: 'rgba(56, 137, 255, 1)' }}
+        title={intl.get('hiop.redInvoiceInfo.button.createRedRequest').d('生成红冲申请单')}
       />,
     ];
   }
@@ -426,13 +482,15 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('企业红字信息表列表')} />
+        <Header
+          title={intl.get('hiop.redInvoiceInfo.title.invoiceInfoList').d('企业红字信息表列表')}
+        />
         <Content>
           <Table
             buttons={this.buttons}
             dataSet={this.props.headerDS}
             columns={this.columns}
-            queryBar={this.renderQueryBar}
+            className={styles.table}
             style={{ height: 400 }}
           />
         </Content>

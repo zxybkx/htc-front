@@ -1,5 +1,5 @@
-/*
- * @Descripttion:手工发票查验
+/**
+ * @Description:手工发票查验
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 16:19:48
@@ -7,9 +7,10 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import request from 'utils/request';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 
-const { CHAN_API, IVP_API } = commonConfig;
+const CHAN_API = commonConfig.CHAN_API || '';
+const IVP_API = commonConfig.IVP_API || '';
 
 /**
  * 发票查验

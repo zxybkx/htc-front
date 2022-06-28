@@ -1,4 +1,4 @@
-/*
+/**
  * @page - 查检发票历史记录查询:
  * @Author: jesse.chen <jun.chen01@hand-china.com>
  * @Date: 2020-07-27 14:20:17
@@ -8,15 +8,15 @@
  */
 
 import React, { Component } from 'react';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import { Bind } from 'lodash-decorators';
 import { Dispatch } from 'redux';
-import { routerRedux } from 'dva/router';
-import { ColumnLock, ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
+import { RouteComponentProps } from 'react-router-dom';
+import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import { DataSet, Table, Button, Tooltip } from 'choerodon-ui/pro';
+import { Button, DataSet, Table, Tooltip } from 'choerodon-ui/pro';
 import { Commands } from 'choerodon-ui/pro/lib/table/Table';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { getInvoiceInfo } from '@src/services/invoiceCheckService';
 import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
 import intl from 'utils/intl';
@@ -28,7 +28,7 @@ import InvoiceCheckHistoryListDS from '../stores/InvoiceCheckHistoryListDS';
 const modelCode = 'hcan.invoice-histroy';
 const API_PREFIX = commonConfig.CHAN_API || '';
 
-interface InvoiceCheckHistoryListPageProps {
+interface InvoiceCheckHistoryListPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   tableDS: DataSet;
 }
@@ -46,34 +46,36 @@ interface InvoiceCheckHistoryListPageProps {
   },
   { cacheState: true }
 )
-export default class InvoiceCheckHistoryListPage extends Component<
-  InvoiceCheckHistoryListPageProps
-> {
-  // tableDS = new DataSet({
-  //   autoQuery: true,
-  //   ...InvoiceCheckHistoryListDS(),
-  // });
-
+export default class InvoiceCheckHistoryListPage extends Component<InvoiceCheckHistoryListPageProps> {
   tenantId = getCurrentOrganizationId();
 
+  /**
+   * 跳转发票详情
+   * @params {object} record-行记录
+   */
   @Bind()
   async handleGoToDetail(record) {
     const invoiceHeaderId = record.get('invoiceHeaderId');
     // const tenantId = record.get('tenantId');
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const params = { tenantId: this.tenantId, invoiceHeaderId };
     getInvoiceInfo(params).then((resp) => {
       if (resp) {
         const pathname = `/htc-front-chan/invoice-check-history/detail/${invoiceHeaderId}/${resp.invoiceType}`;
-        dispatch(
-          routerRedux.push({
-            pathname,
-          })
-        );
+        history.push(pathname);
+        // dispatch(
+        //   routerRedux.push({
+        //     pathname,
+        //   })
+        // );
       }
     });
   }
 
+  /**
+   * 返回表格行
+   * @returns {*[]}
+   */
   get columns(): ColumnProps[] {
     return [
       {
@@ -130,7 +132,7 @@ export default class InvoiceCheckHistoryListPage extends Component<
       {
         name: 'operation',
         header: intl.get('hzero.common.actionInfo').d('票面信息'),
-        width: 110,
+        width: 130,
         command: ({ record }): Commands[] => {
           return [
             <Button
@@ -138,7 +140,7 @@ export default class InvoiceCheckHistoryListPage extends Component<
               onClick={() => this.handleGoToDetail(record)}
               disabled={record.get('successFlag') === 0}
             >
-              {intl.get('hzero.common.invoiceInfoLink').d('发票详情连接')}
+              {intl.get('hzero.common.invoiceInfoLink').d('发票详情链接')}
             </Button>,
           ];
         },
@@ -154,6 +156,11 @@ export default class InvoiceCheckHistoryListPage extends Component<
   @Bind()
   handleGetQueryParams() {
     const queryParams = this.props.tableDS.queryDataSet!.map((data) => data.toData()) || {};
+    for (const key in queryParams[0]) {
+      if (queryParams[0][key] === '' || queryParams[0][key] === null) {
+        delete queryParams[0][key];
+      }
+    }
     const exportParams = { ...queryParams[0] } || {};
     return exportParams;
   }

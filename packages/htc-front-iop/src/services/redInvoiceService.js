@@ -1,4 +1,4 @@
-/*
+/**
  * @Description:红字发票
  * @version: 1.0
  * @Author: wenqi.ma@hand-china.com
@@ -8,15 +8,15 @@
  */
 
 import request from 'utils/request';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 
-const HIOP_API = `${commonConfig.IOP_API}`;
-// const HRPT_API = `${commonConfig.RPT_API}`;
+const HIOP_API = commonConfig.IOP_API || '';
 
 /**
  * 新建红字发票申请单（头）
  * @async
- * @function reqCopy
+ * @function createRedInvoiceReq
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function createRedInvoiceReq(params) {
@@ -31,7 +31,8 @@ export async function createRedInvoiceReq(params) {
 /**
  * 新建红字发票申请单（行）
  * @async
- * @function reqCopy
+ * @function createRedInvoiceReqLines
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function createRedInvoiceReqLines(params) {
@@ -45,7 +46,8 @@ export async function createRedInvoiceReqLines(params) {
 /**
  * 生成红字发票申请单
  * @async
- * @function reqCopy
+ * @function createRedInvoice
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function createRedInvoice(params) {
@@ -67,7 +69,8 @@ export async function createRedInvoice(params) {
 /**
  * 保存红字发票申请单
  * @async
- * @function reqCopy
+ * @function saveRedInvoice
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function saveRedInvoice(params) {
@@ -82,7 +85,8 @@ export async function saveRedInvoice(params) {
 /**
  * 删除红字发票申请单行
  * @async
- * @function reqCopy
+ * @function deleteRedInvoiceLines
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function deleteRedInvoiceLines(params) {
@@ -97,7 +101,8 @@ export async function deleteRedInvoiceLines(params) {
 /**
  * 红字申请单刷新状态
  * @async
- * @function reqCopy
+ * @function redInvoiceReqUpdateStatus
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function redInvoiceReqUpdateStatus(params) {
@@ -118,7 +123,8 @@ export async function redInvoiceReqUpdateStatus(params) {
 /**
  * 红字申请单上传局端
  * @async
- * @function reqCopy
+ * @function redInvoiceReqUpload
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function redInvoiceReqUpload(params) {
@@ -139,7 +145,8 @@ export async function redInvoiceReqUpload(params) {
 /**
  * 红字发票信息表删除/取消
  * @async
- * @function reqCopy
+ * @function redInvoiceInfoDeleteOrCancel
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function redInvoiceInfoDeleteOrCancel(params) {
@@ -160,7 +167,8 @@ export async function redInvoiceInfoDeleteOrCancel(params) {
 /**
  * 红字发票信息表同步
  * @async
- * @function reqCopy
+ * @function redInvoiceInfoSynchronize
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function redInvoiceInfoSynchronize(params) {
@@ -174,7 +182,8 @@ export async function redInvoiceInfoSynchronize(params) {
 /**
  * 生成红冲订单
  * @async
- * @function reqCopy
+ * @function redInvoiceCreateRedOrder
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function redInvoiceCreateRedOrder(params) {
@@ -194,7 +203,8 @@ export async function redInvoiceCreateRedOrder(params) {
 /**
  * 生成红冲申请单
  * @async
- * @function reqCopy
+ * @function redInvoiceCreateRequisition
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function redInvoiceCreateRequisition(params) {
@@ -208,7 +218,8 @@ export async function redInvoiceCreateRequisition(params) {
 /**
  * 红字发票申请单明细（头）
  * @async
- * @function reqCopy
+ * @function redInvoiceReqHeader
+ * @params {object} params
  * @returns {object} fetch Promise
  */
 export async function redInvoiceReqHeader(params) {
@@ -224,6 +235,9 @@ export async function redInvoiceReqHeader(params) {
 
 /**
  * 打印下载PDF文件
+ * @function downloadPrintPdfFiles
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function downloadPrintPdfFiles(params) {
   const { organizationId, companyCode, employeeNumber, ids } = params;
@@ -236,6 +250,9 @@ export async function downloadPrintPdfFiles(params) {
 
 /**
  * 同步请求列表-同步
+ * @function synchronize
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function synchronize(params) {
   const { organizationId, companyCode, employeeNumber, redInvoiceSynchronizeDto } = params;
@@ -248,6 +265,9 @@ export async function synchronize(params) {
 
 /**
  * 同步请求列表-刷新状态
+ * @function refresh
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function refresh(params) {
   const { organizationId, companyCode, employeeNumber, data } = params;
@@ -260,6 +280,9 @@ export async function refresh(params) {
 
 /**
  * 同步请求列表-一键刷新
+ * @function allRefresh
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function allRefresh(params) {
   const { organizationId, companyCode, employeeNumber } = params;
@@ -271,11 +294,29 @@ export async function allRefresh(params) {
 
 /**
  * 获取机器编码
+ * @function taxInfos
+ * @params {object} params
+ * @returns {object} fetch Promise
  */
 export async function taxInfos(params) {
   const { tenantId, ...otherParams } = params;
   return request(`${HIOP_API}/v1/${tenantId}/tax-header-infos`, {
     method: 'GET',
     query: otherParams,
+  });
+}
+
+/**
+ * 专票红字申请单-保存
+ * @function saveReqInvoice
+ * @params {object} params
+ * @returns {object} fetch Promise
+ */
+export async function saveReqInvoice(params) {
+  const { tenantId, dsData, ...otherParams } = params;
+  return request(`${HIOP_API}/v1/${tenantId}/red-invoice-requisitions/saveRedInvoice`, {
+    method: 'POST',
+    query: otherParams,
+    body: dsData,
   });
 }

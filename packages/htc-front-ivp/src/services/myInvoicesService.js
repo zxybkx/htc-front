@@ -1,5 +1,5 @@
 /*
- * @Descripttion:我的发票接口
+ * @Description:我的发票接口
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-16 16:06:14
@@ -7,9 +7,9 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import request from 'utils/request';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 
-const HIVP_API = commonConfig.IVP_API;
+const HIVP_API = commonConfig.IVP_API || '';
 
 /**
  * 删除部分信息

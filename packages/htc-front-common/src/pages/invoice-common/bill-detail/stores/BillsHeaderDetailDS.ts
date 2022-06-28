@@ -1,20 +1,19 @@
-/*
- * @Descripttion:票据池-头
+/**
+ * @Description:票据池-头
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-12 16:29:24
  * @LastEditTime: 2021-01-28 10:44:06
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
-// import { DataSet } from 'choerodon-ui/pro';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 
-const modelCode = 'hivp.bills';
+const modelCode = 'hivp.bill';
 
 export default (billPoolHeaderId): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
@@ -96,7 +95,7 @@ export default (billPoolHeaderId): DataSetProps => {
       // },
       {
         name: 'invoiceCode',
-        label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
+        label: intl.get('htc.common.view.invoiceCode').d('发票代码'),
         type: FieldType.string,
         readOnly: true,
       },
@@ -108,13 +107,13 @@ export default (billPoolHeaderId): DataSetProps => {
       },
       {
         name: 'invoiceDate',
-        label: intl.get(`${modelCode}.view.invoiceDate`).d('开票日期'),
+        label: intl.get('htc.common.view.invoiceDate').d('开票日期'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'drawer',
-        label: intl.get(`${modelCode}.view.drawer`).d('开票人'),
+        label: intl.get(`${modelCode}.view.issuer`).d('开票人'),
         type: FieldType.string,
         readOnly: true,
       },
@@ -126,49 +125,49 @@ export default (billPoolHeaderId): DataSetProps => {
       },
       {
         name: 'salerName',
-        label: intl.get(`${modelCode}.view.salerName`).d('销方名称'),
+        label: intl.get('htc.common.view.salerName').d('销方名称'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'salerTaxNo',
-        label: intl.get(`${modelCode}.view.salerTaxNo`).d('销方税号'),
+        label: intl.get('htc.common.view.salerTaxNo').d('销方税号'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'salerAddressPhone',
-        label: intl.get(`${modelCode}.view.salerAddressPhone`).d('销方地址电话'),
+        label: intl.get('htc.common.view.salerAddressPhone').d('销方地址电话'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'salerAccount',
-        label: intl.get(`${modelCode}.view.salerAccount`).d('销方银行账号'),
+        label: intl.get('htc.common.view.salerAccount').d('销方银行账号'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'buyerName',
-        label: intl.get(`${modelCode}.view.buyerName`).d('购方名称'),
+        label: intl.get('htc.common.view.buyerName').d('购方名称'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'buyerTaxNo',
-        label: intl.get(`${modelCode}.view.buyerTaxNo`).d('购方税号'),
+        label: intl.get('htc.common.view.buyerTaxNo').d('购方税号'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'buyerAddressPhone',
-        label: intl.get(`${modelCode}.view.buyerAddressPhone`).d('购方地址电话'),
+        label: intl.get('htc.common.view.buyerAddressPhone').d('购方地址电话'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'buyerAccount',
-        label: intl.get(`${modelCode}.view.buyerAccount`).d('购方银行账号'),
+        label: intl.get('htc.common.view.buyerAccount').d('购方银行账号'),
         type: FieldType.string,
         readOnly: true,
       },
@@ -184,33 +183,57 @@ export default (billPoolHeaderId): DataSetProps => {
         type: FieldType.string,
         readOnly: true,
       },
-      {
-        name: 'buyerAccount',
-        label: intl.get(`${modelCode}.view.buyerAccount`).d('购方银行账号'),
-        type: FieldType.string,
-        readOnly: true,
-      },
+      // {
+      //   name: 'buyerAccount',
+      //   label: intl.get(`${modelCode}.view.buyerAccount`).d('购方银行账号'),
+      //   type: FieldType.string,
+      //   readOnly: true,
+      // },
       {
         name: 'invoiceAmount',
-        label: intl.get(`${modelCode}.view.invoiceAmount`).d('发票金额'),
+        label: intl.get('htc.common.view.invoiceAmount').d('发票金额'),
         type: FieldType.currency,
         readOnly: true,
       },
       {
         name: 'taxAmount',
-        label: intl.get(`${modelCode}.view.taxAmount`).d('发票税额'),
+        label: intl.get('htc.common.view.taxAmount').d('发票税额'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'totalAmount',
-        label: intl.get(`${modelCode}.view.totalAmount`).d('价税合计'),
+        label: intl.get('htc.common.view.totalAmount').d('价税合计'),
         type: FieldType.currency,
         readOnly: true,
       },
       {
         name: 'aviationDevelopmentFund',
         label: intl.get(`${modelCode}.view.aviationDevelopmentFund`).d('民航发展基金'),
+        type: FieldType.currency,
+        readOnly: true,
+      },
+      {
+        name: 'fare',
+        label: intl.get(`${modelCode}.view.fare`).d('票价'),
+        type: FieldType.currency,
+        readOnly: true,
+      },
+      {
+        name: 'fuelSurcharge',
+        label: intl.get(`${modelCode}.view.fuelSurcharge`).d('燃油附加费'),
+        type: FieldType.currency,
+        readOnly: true,
+      },
+      {
+        name: 'otherTaxes',
+        label: intl.get(`${modelCode}.view.otherTaxes`).d('其他税费'),
+        type: FieldType.currency,
+        readOnly: true,
+      },
+      {
+        name: 'total',
+        label: intl.get(`${modelCode}.view.total`).d('发票总金额'),
         type: FieldType.currency,
         readOnly: true,
       },
@@ -288,7 +311,7 @@ export default (billPoolHeaderId): DataSetProps => {
       },
       {
         name: 'remark',
-        label: intl.get(`${modelCode}.view.remark`).d('备注'),
+        label: intl.get('hzero.common.remark').d('备注'),
         type: FieldType.string,
         readOnly: true,
       },

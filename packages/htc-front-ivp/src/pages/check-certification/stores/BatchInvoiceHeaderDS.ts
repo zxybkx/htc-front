@@ -6,7 +6,7 @@
  * @LastEditTime:
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { DataSet } from 'choerodon-ui/pro';
@@ -16,7 +16,7 @@ import intl from 'utils/intl';
 import moment from 'moment';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 
-const modelCode = 'hivp.tax-refund';
+const modelCode = 'hivp.taxRefund';
 
 export default (): DataSetProps => {
   const tenantId = getCurrentOrganizationId();
@@ -60,7 +60,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'batchNo',
-        label: intl.get(`${modelCode}.view.batchNo`).d('批次号'),
+        label: intl.get('hiop.redInvoiceInfo.modal.batchNo').d('批次号'),
         type: FieldType.string,
       },
       {
@@ -70,12 +70,12 @@ export default (): DataSetProps => {
       },
       {
         name: 'requestTime',
-        label: intl.get(`${modelCode}.view.requestTime`).d('请求时间'),
+        label: intl.get('hiop.redInvoiceInfo.modal.requestTime').d('请求时间'),
         type: FieldType.string,
       },
       {
         name: 'completeTime',
-        label: intl.get(`${modelCode}.view.completeTime`).d('完成时间'),
+        label: intl.get('hiop.redInvoiceInfo.modal.completeTime').d('完成时间'),
         type: FieldType.string,
       },
     ],
@@ -83,7 +83,7 @@ export default (): DataSetProps => {
       fields: [
         {
           name: 'companyObj',
-          label: intl.get(`${modelCode}.view.companyObj`).d('所属公司'),
+          label: intl.get('htc.common.modal.companyName').d('所属公司'),
           type: FieldType.object,
           ignore: FieldIgnore.always,
         },
@@ -94,13 +94,13 @@ export default (): DataSetProps => {
         },
         {
           name: 'companyCode',
-          label: intl.get(`${modelCode}.view.companyCode`).d('公司代码'),
+          label: intl.get('htc.common.modal.companyCode').d('公司代码'),
           type: FieldType.string,
           bind: 'companyObj.companyCode',
         },
         {
           name: 'employeeNumber',
-          label: intl.get(`${modelCode}.view.employeeNumber`).d('员工编号'),
+          label: intl.get('hiop.redInvoiceInfo.modal.employeeNum').d('员工编号'),
           type: FieldType.string,
           bind: 'companyObj.employeeNum',
         },
@@ -111,7 +111,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'authorityCode',
-          label: intl.get(`${modelCode}.view.authorityCode`).d('主管税务机关代码'),
+          label: intl.get('hcan.invoiceDetail.view.taxAuthorityCode').d('主管税务机关代码'),
           type: FieldType.string,
         },
         {
@@ -123,16 +123,16 @@ export default (): DataSetProps => {
         },
         {
           name: 'currentOperationalDeadline',
-          label: intl.get(`${modelCode}.view.currentOperationalDeadline`).d('当前可操作截止时间'),
+          label: intl.get(`${modelCode}.view.currentOperationalDeadline`).d('当前操作截止'),
           labelWidth: '130',
-          type: FieldType.dateTime,
+          type: FieldType.string,
           transformRequest: (value) => moment(value).format('YYYY-MM-DD'),
           readOnly: true,
           ignore: FieldIgnore.always,
         },
         {
           name: 'checkableTimeRange',
-          label: intl.get(`${modelCode}.view.checkableTimeRange`).d('可勾选时间范围'),
+          label: intl.get(`${modelCode}.view.checkableTimeRange`).d('可选时间范围'),
           type: FieldType.string,
           readOnly: true,
         },
@@ -146,26 +146,26 @@ export default (): DataSetProps => {
         },
         {
           name: 'rqq',
-          label: intl.get(`${modelCode}.view.rqq`).d('开票日期从'),
+          label: intl.get('hivp.bill.view.invoiceDateFrom').d('开票日期从'),
           type: FieldType.date,
           max: 'rqz',
           transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'rqz',
-          label: intl.get(`${modelCode}.view.rqz`).d('开票日期至'),
+          label: intl.get('hivp.bill.view.invoiceDateTo').d('开票日期至'),
           type: FieldType.date,
           min: 'rqq',
           transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'salerTaxNo',
-          label: intl.get(`${modelCode}.view.salerTaxNo`).d('销方税号'),
+          label: intl.get('htc.common.view.salerTaxNo').d('销方税号'),
           type: FieldType.string,
         },
         {
           name: 'gxzt',
-          label: intl.get(`${modelCode}.view.gxzt`).d('勾选标志'),
+          label: intl.get(`${modelCode}.view.checkState`).d('勾选标志'),
           type: FieldType.string,
           lookupCode: 'HIVP.CHECK_STATE',
           defaultValue: '0',

@@ -1,5 +1,5 @@
 /*
- * @Descripttion:手工发票查验
+ * @Description:手工发票查验
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 16:19:48
@@ -7,9 +7,9 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import request from 'utils/request';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 
-const { IVP_API } = commonConfig;
+const IVP_API = commonConfig.IVP_API || '';
 
 /**
  * 发票查验
@@ -20,7 +20,7 @@ const { IVP_API } = commonConfig;
  */
 export async function handleInvoiceCheckApi(params) {
   const { tenantId, companyCode, employeeNumber, ...otherParams } = params;
-  return request(`${process.env.CHECK_API}/v1/${tenantId}/invoice-check/invoice-check-within`, {
+  return request(`${IVP_API}/v1/${tenantId}/invoice-check/invoice-check-within`, {
     method: 'POST',
     query: { companyCode, employeeNumber },
     body: { ...otherParams },
@@ -51,10 +51,7 @@ export async function addToInvoicePool(params) {
  */
 export async function getInvoiceInfo(params) {
   const { tenantId, invoiceHeaderId } = params;
-  return request(
-    `${process.env.CHECK_API}/v1/${tenantId}/invoice-header-infos/${invoiceHeaderId}`,
-    {
-      method: 'GET',
-    }
-  );
+  return request(`${IVP_API}/v1/${tenantId}/invoice-header-infos/${invoiceHeaderId}`, {
+    method: 'GET',
+  });
 }

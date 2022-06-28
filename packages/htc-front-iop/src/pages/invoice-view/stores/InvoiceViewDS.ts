@@ -1,19 +1,17 @@
-/*
+/**
  * @Description:发票预览
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-08 14:03:42
  * @LastEditTime: 2021-01-08 14:34:16
- * @Copyright: Copyright (c) 2020, Hand
+ * @Copyright: Copyright (c) 2021, Hand
  */
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import intl from 'utils/intl';
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import { AxiosRequestConfig } from 'axios';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { getCurrentOrganizationId } from 'utils/utils';
-
-const modelCode = 'hiop.invoice-view';
 
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.IOP_API || '';
@@ -47,12 +45,12 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'downloadFileType',
-        label: intl.get(`${modelCode}.view.downloadFileType`).d('发票类型'),
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceType').d('发票类型'),
         type: FieldType.string,
       },
       {
         name: 'downloadUrl',
-        label: intl.get(`${modelCode}.view.downloadUrl`).d('发票地址'),
+        label: intl.get('hiop.invoiceView.modal.downloadUrl').d('发票地址'),
         type: FieldType.string,
       },
     ],

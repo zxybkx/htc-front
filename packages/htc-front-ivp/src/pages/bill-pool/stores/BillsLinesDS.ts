@@ -1,19 +1,19 @@
 /*
- * @Descripttion:票据池-行
+ * @Description:票据池-行
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-13 16:07:22
  * @LastEditTime: 2021-01-27 11:40:00
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 
-const modelCode = 'hivp.bills';
+const modelCode = 'hivp.bill';
 
 export default (billPoolHeaderId): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
@@ -41,7 +41,7 @@ export default (billPoolHeaderId): DataSetProps => {
     fields: [
       {
         name: 'billPoolLineId',
-        label: intl.get(`${modelCode}.view.billPoolLineId`).d('记录ID'),
+        label: intl.get(`${modelCode}.view.billPoolHeaderId`).d('记录ID'),
         type: FieldType.number,
       },
       {
@@ -56,17 +56,17 @@ export default (billPoolHeaderId): DataSetProps => {
       },
       {
         name: 'specificationModel',
-        label: intl.get(`${modelCode}.view.specificationModel`).d('规格型号'),
+        label: intl.get('htc.common.view.specificationModel').d('规格型号'),
         type: FieldType.string,
       },
       {
         name: 'unit',
-        label: intl.get(`${modelCode}.view.unit`).d('单位'),
+        label: intl.get('htc.common.view.unit').d('单位'),
         type: FieldType.string,
       },
       {
         name: 'quantity',
-        label: intl.get(`${modelCode}.view.quantity`).d('数量'),
+        label: intl.get('htc.common.view.quantity').d('数量'),
         type: FieldType.number,
       },
       {
@@ -77,17 +77,17 @@ export default (billPoolHeaderId): DataSetProps => {
 
       {
         name: 'amount',
-        label: intl.get(`${modelCode}.view.amount`).d('金额'),
+        label: intl.get('htc.common.view.amount').d('金额'),
         type: FieldType.currency,
       },
       {
         name: 'taxRate',
-        label: intl.get(`${modelCode}.view.taxRate`).d('税率'),
+        label: intl.get('htc.common.view.taxRate').d('税率'),
         type: FieldType.string,
       },
       {
         name: 'taxAmount',
-        label: intl.get(`${modelCode}.view.taxAmount`).d('税额'),
+        label: intl.get('htc.common.view.taxAmount').d('税额'),
         type: FieldType.string,
       },
       // {

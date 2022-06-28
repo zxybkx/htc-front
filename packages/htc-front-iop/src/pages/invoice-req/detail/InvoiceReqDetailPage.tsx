@@ -3,61 +3,61 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-12-15 16:31:57
- * @LastEditTime: 2021-03-08 17:46:52
+ * @LastEditTime: 2021-12-07 15:39:52
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import {
-  DataSet,
   Button,
-  Form,
-  TextField,
-  Select,
   CheckBox,
-  Output,
-  Radio,
-  Table,
-  notification,
-  Modal,
+  Currency,
+  DataSet,
+  Form,
   Lov,
+  Modal,
+  notification,
+  Radio,
+  Select,
   Spin,
+  Table,
   TextArea,
-  // Currency,
+  TextField,
 } from 'choerodon-ui/pro';
-import { Icon, Dropdown, Menu } from 'choerodon-ui';
-import { PageHeaderWrapper } from 'hzero-boot/lib/components/Page';
-import { Dispatch } from 'redux';
+import { Card, Icon } from 'choerodon-ui';
+import { Header } from 'components/Page';
 import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
-import { routerRedux } from 'dva/router';
+import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import intl from 'utils/intl';
 import { forEach, isEmpty } from 'lodash';
+import { FormLayout } from 'choerodon-ui/pro/lib/form/enum';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { ResizeType } from 'choerodon-ui/pro/lib/text-area/enum';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import { ColumnLock, ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
-import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
+import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
+import { FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import queryString from 'query-string';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import moment from 'moment';
 import InvoiceQueryTable from '@src/utils/invoice-query/InvoiceQueryTable';
-import { getCurrentEmployeeInfo } from '@common/services/commonService';
+import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
 import {
-  reqCopy,
-  reqSubmit,
   batchSave,
-  getRuleDefaultValue,
-  exportPrintFiles,
   exportNotZip,
+  exportPrintFiles,
+  getRuleDefaultValue,
+  reqCopy,
+  reqNextDefault,
+  reqSubmit,
 } from '@src/services/invoiceReqService';
 import { Button as PermissionButton } from 'components/Permission';
-import { getPresentMenu, base64toBlob } from '@common/utils/utils';
+import { base64toBlob, getPresentMenu } from '@htccommon/utils/utils';
 import InvoiceReqDetailDS from '../stores/InvoiceReqDetailDS';
 import InvoiceReqLinesDS from '../stores/InvoiceReqLinesDS';
+import styles from '../../invoice-workbench/invoiceWorkbench.module.less';
 
-const modelCode = 'hiop.invoice-req-detail';
 const tenantId = getCurrentOrganizationId();
 const permissionPath = `${getPresentMenu().name}.ps`;
 
@@ -65,15 +65,14 @@ interface RouterInfo {
   companyId: any;
   headerId: any;
   sourceType: any;
+  billFlag: any;
 }
 
-interface InvoiceReqDetailPageProps extends RouteComponentProps<RouterInfo> {
-  dispatch: Dispatch<any>;
-}
+interface InvoiceReqDetailPageProps extends RouteComponentProps<RouterInfo> {}
 
 @connect()
 @formatterCollections({
-  code: [modelCode],
+  code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq', 'hiop.tobeInvoice'],
 })
 export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPageProps> {
   state = {
@@ -83,11 +82,6 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     invoiceType: '',
     sourceType: '',
   };
-
-  // receiptNameDS = new DataSet({
-  //   autoQuery: false,
-  //   ...ReceiptNameDS(this.props.match.params.companyId),
-  // });
 
   reqLinesDS = new DataSet({
     ...InvoiceReqLinesDS(),
@@ -102,6 +96,9 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     },
   });
 
+  /**
+   * 判断是否新建
+   */
   get isCreatePage() {
     const { match } = this.props;
     const { headerId } = match.params;
@@ -129,17 +126,22 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     }
   }
 
+  /**
+   * 查询
+   * @params {boolean} newFlag-是否新建
+   */
   @Bind()
   async handleQueryNewReq(newFlag: boolean) {
     const empRes = await getCurrentEmployeeInfo({
       tenantId,
       companyId: this.props.match.params.companyId,
     });
-    const { sourceType } = this.props.match.params;
+    const { sourceType, billFlag } = this.props.match.params;
     const empInfo = empRes && empRes.content[0];
     if (!newFlag) {
       const showAdjustFlag = this.reqHeaderDS.current?.get('showAdjustFlag') || 'N';
       this.reqLinesDS.setQueryParameter('showAdjustFlag', showAdjustFlag);
+      this.reqLinesDS.setQueryParameter('billFlag', billFlag);
       await this.reqHeaderDS.query().then(() =>
         this.reqHeaderDS.current!.set({
           employeeId: empInfo && empInfo.employeeId,
@@ -165,8 +167,8 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
           applicantId: empInfo.employeeId,
           applicantNumber: empInfo.employeeNum,
           applicantName: empInfo.employeeName,
-          requestType: defaultValueRes && defaultValueRes.businessTypeCode,
-          requestTypeMeaning: defaultValueRes && defaultValueRes.businessTypeMeaning,
+          requestType: defaultValueRes && defaultValueRes.requestType,
+          requestTypeMeaning: defaultValueRes && defaultValueRes.requestTypeMeaning,
           invoiceType: defaultValueRes && defaultValueRes.invoiceTypeCode,
           invoiceTypeMeaning: defaultValueRes && defaultValueRes.invoiceTypeMeaning,
           invoiceTypeTag: defaultValueRes && defaultValueRes.invoiceTypeTag,
@@ -188,32 +190,26 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
 
   /**
    * 处理保存事件
-   * newFlag: 是否再次新建
+   * @params {boolean} newFlag: 是否再次新建
    */
   @Bind()
   async handleSaveReq(newFlag: boolean) {
-    if (
-      this.reqHeaderDS.current!.get('electronicType') === '1' ||
-      this.reqHeaderDS.current!.get('invoiceTypeTag') === 'E'
-    ) {
-      this.reqHeaderDS.current!.getField('emailPhone')!.set('required', true);
-    }
-    if (
-      this.reqHeaderDS.current!.get('requestType') === 'SALES_INVOICE_SUBSCRIBE' ||
-      this.reqHeaderDS.current!.get('requestType') === 'PURCHASE_INVOICE_SUBSCRIBE'
-    ) {
-      if (
-        this.reqHeaderDS.current!.get('invoiceType') === '51' ||
-        this.reqHeaderDS.current!.get('invoiceType') === '52'
-      ) {
-        this.reqHeaderDS.current!.getField('emailPhone')!.set('required', false);
-      }
+    const { history } = this.props;
+    const { billFlag } = this.props.match.params;
+    const invoiceTypeTag = this.reqHeaderDS.current!.get('invoiceTypeTag');
+    const requestType = this.reqHeaderDS.current!.get('requestType');
+    if (['SALES_INVOICE_SUBSCRIBE', 'PURCHASE_INVOICE_SUBSCRIBE'].includes(requestType)) {
+      this.reqHeaderDS.current!.getField('emailPhone')!.set('required', false);
+    } else {
+      this.reqHeaderDS
+        .current!.getField('emailPhone')!
+        .set('required', invoiceTypeTag === 'E' && true);
     }
     const res = await this.reqHeaderDS.submit();
     if (res === undefined) {
       notification.warning({
         description: '',
-        message: intl.get('hadm.hystrix.view.message.title.noChange').d('请先修改数据'),
+        message: intl.get('htc.common.notification.noChange').d('请先修改数据'),
       });
     } else if (res === false) {
       notification.error({
@@ -225,31 +221,25 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
         this.handleQueryNewReq(newFlag);
       } else if (newFlag) {
         const pathname = `/htc-front-iop/invoice-req/create/${this.props.match.params.companyId}`;
-        this.props.dispatch(
-          routerRedux.push({
-            pathname,
-          })
-        );
+        history.push(pathname);
       } else {
-        const pathname = `/htc-front-iop/invoice-req/detail/${res.content[0].companyId}/${res.content[0].headerId}`;
-        this.props.dispatch(
-          routerRedux.push({
-            pathname,
-          })
-        );
+        const pathname = `/htc-front-iop/invoice-req/detail/${res.content[0].companyId}/${res.content[0].headerId}/${billFlag}`;
+        history.push(pathname);
       }
     }
   }
 
   /**
    * 复制申请
-   * reqFlag true-申请单 false-未开具
+   * @params {boolean} reqFlag true-申请单 false-未开具
    */
   @Bind()
   async handleCopyReq(reqFlag) {
+    const { history } = this.props;
     const submitRes = await this.reqHeaderDS.submit();
     if (submitRes === false) return;
     const { empInfo } = this.state;
+    const { billFlag } = this.props.match.params;
     const params = {
       tenantId,
       headerId: this.props.match.params.headerId,
@@ -260,52 +250,47 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     if (res) {
       notification.success({
         description: '',
-        message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
       });
-      const pathname = `/htc-front-iop/invoice-req/detail/${res.companyId}/${res.headerId}`;
-      this.props.dispatch(
-        routerRedux.push({
-          pathname,
-        })
-      );
+      const pathname = `/htc-front-iop/invoice-req/detail/${res.companyId}/${res.headerId}/${billFlag}`;
+      history.push(pathname);
     }
   }
 
-  // 提交
+  /**
+   * 提交
+   */
   @Bind()
   async handleSubmitReq() {
-    if (
-      this.reqHeaderDS.current!.get('electronicType') === '1' ||
-      this.reqHeaderDS.current!.get('invoiceTypeTag') === 'E'
-    ) {
-      this.reqHeaderDS.current!.getField('emailPhone')!.set('required', true);
+    const invoiceTypeTag = this.reqHeaderDS.current!.get('invoiceTypeTag');
+    this.reqHeaderDS
+      .current!.getField('emailPhone')!
+      .set('required', invoiceTypeTag === 'E' && true);
+    const validateValue = await this.reqHeaderDS.validate(false, false);
+    const linesValidate = await this.reqLinesDS.validate(false, false);
+    // 页面校验
+    if (!validateValue || !linesValidate) {
+      notification.error({
+        description: '',
+        message: intl.get('hzero.common.notification.invalid').d('数据校验不通过！'),
+      });
+      return;
     }
     const { empInfo } = this.state;
     const headerData = this.reqHeaderDS.current!.toData(true);
-    // const updateLine = filter(this.reqLinesDS, (record) => record && record.get('__dirty'));
-    // let lineData: any = [];
-    // if (updateLine) {
-    //   lineData = updateLine.map((record) => {
+    const lineData = this.reqLinesDS.map((record) => record.toData(true));
+    // this.reqLinesDS.forEach((record) => {
+    //   if (record && record.dirty) {
     //     const item = {
     //       ...record.toData(true),
     //       _status: 'update',
     //     };
-    //     return item;
-    //   });
-    // }
-    const lineData: any = [];
-    this.reqLinesDS.forEach((record) => {
-      if (record && record.dirty) {
-        const item = {
-          ...record.toData(true),
-          _status: 'update',
-        };
-        lineData.push(item);
-      }
-    });
+    //     lineData.push(item);
+    //   }
+    // });
     const pageData = {
       ...headerData,
-      _status: 'update',
+      // _status: 'update',
       requisitionLines: lineData,
     };
     const saveRes = await batchSave(pageData);
@@ -320,19 +305,23 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       if (res) {
         notification.success({
           description: '',
-          message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
+          message: intl.get('hzero.common.notification.success').d('操作成功'),
         });
         this.handleQueryNewReq(false);
       }
     } else {
-      notification.success({
+      notification.error({
         description: '',
         message: saveRes.message,
       });
     }
   }
 
-  // 收票方模糊查询赋值
+  /**
+   * 收票方模糊查询赋值
+   * @params {object} value-当前值
+   * @params {object} oldValue 旧值
+   */
   @Bind()
   handleReceiptNameChange(value, oldValue) {
     if (value === oldValue) return;
@@ -347,7 +336,9 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     }
   }
 
-  // 开票信息查询
+  /**
+   * 开票信息查询
+   */
   @Bind()
   handleInvoiceQuery() {
     const { requestStatus, deleteFlag, empInfo } = this.state;
@@ -365,7 +356,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     };
     const modal = Modal.open({
       key: Modal.key(),
-      title: intl.get(`${modelCode}.invoiceQuery.title`).d('开票信息查询'),
+      title: intl.get('hiop.invoiceWorkbench.title.invoiceQuery').d('开票信息查询'),
       destroyOnClose: true,
       closable: true,
       footer: null,
@@ -374,34 +365,31 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     });
   }
 
-  // 查看订单
+  /**
+   * 查看订单
+   */
   @Bind()
   handleViewOrder() {
-    const { dispatch, location } = this.props;
+    const { history, location } = this.props;
     const { headerId } = this.props.match.params;
     const pathname = `/htc-front-iop/invoice-req/order/${headerId}`;
-    // openTab({
-    //   key: pathname,
-    //   path: pathname,
-    //   title: intl.get(`${modelCode}.invoiceReq.order.title`).d('开票订单信息'),
-    //   closable: true,
-    //   type: 'menu',
-    // });
-    dispatch(
-      routerRedux.push({
-        pathname,
-        search: queryString.stringify({
-          invoiceInfo: encodeURIComponent(
-            JSON.stringify({
-              backPath: location && `${location.pathname}${location.search}`,
-            })
-          ),
-        }),
-      })
-    );
+    history.push({
+      pathname,
+      search: queryString.stringify({
+        invoiceInfo: encodeURIComponent(
+          JSON.stringify({
+            backPath: location && `${location.pathname}${location.search}`,
+          })
+        ),
+      }),
+    });
   }
 
-  // 行税率受控于头
+  /**
+   * 行税率受控于头
+   * @params {string} field-标签名
+   * @params {object} value-标签值
+   */
   @Bind()
   handleTaxRateLovChange(field, value) {
     if (this.reqLinesDS.length > 0) {
@@ -411,8 +399,48 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
   }
 
   /**
+   * 购买方/销售方受控于发票种类
+   * @params {object} value-发票种类
+   */
+  async invoiceVarietyChange(value) {
+    const receiptName = this.reqHeaderDS.current!.get('receiptName');
+    const invoiceType = this.reqHeaderDS.current!.get('invoiceType');
+    const invoiceTypeTag = (value && value.tag) || '';
+    if (receiptName && invoiceType) {
+      const params = {
+        tenantId,
+        receiptName,
+        companyId: this.props.match.params.companyId,
+        invoiceVariety: invoiceType,
+      };
+      const res = await reqNextDefault(params);
+      if (res && res.nextDefaultFlag === 1) {
+        if (invoiceTypeTag === 'E') {
+          this.reqHeaderDS.current!.set({
+            paperRecipient: '',
+            paperPhone: '',
+            nextDefaultFlag: res.nextDefaultFlag,
+            paperAddress: '',
+            // electronicType: res.electronicType,
+            emailPhone: res.emailPhone,
+          });
+        } else {
+          this.reqHeaderDS.current!.set({
+            paperRecipient: res.paperRecipient,
+            paperPhone: res.paperPhone,
+            nextDefaultFlag: res.nextDefaultFlag,
+            paperAddress: res.paperAddress,
+            // electronicType: '',
+            emailPhone: '',
+          });
+        }
+      }
+    }
+    this.handleTaxRateLovChange('invoiceType', value);
+  }
+
+  /**
    * 新增行
-   * @returns
    */
   @Bind()
   handleAddLine() {
@@ -433,7 +461,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       ) {
         notification.info({
           description: '',
-          message: intl.get(`${modelCode}.view.newHeader`).d('请先完善头数据'),
+          message: intl.get('htc.common.validation.completeData').d('请先完善头数据'),
         });
         return;
       }
@@ -448,7 +476,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     } else {
       notification.info({
         description: '',
-        message: intl.get(`${modelCode}.view.newHeader`).d('请先新增头数据'),
+        message: intl.get('htc.common.validation.addHeader').d('请先新增头数据'),
       });
     }
   }
@@ -465,6 +493,8 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
         icon="playlist_add"
         key="add"
         onClick={() => this.handleAddLine()}
+        funcType={FuncType.link}
+        style={{ marginLeft: 10, color: '#3889FF' }}
         disabled={
           !(
             ['N', 'Q'].includes(requestStatus) &&
@@ -474,41 +504,56 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
           )
         }
       >
-        {intl.get('hzero.common.button.add ').d('新增')}
+        {intl.get('hzero.c7nProUI.Table.create_button').d('新增')}
       </Button>,
     ];
   }
 
-  // 删除行——状态修改
+  /**
+   * 计算行金额
+   * @params {object} value-当前值
+   * @params {object} record-当前行
+   */
   @Bind()
-  async handleDeleteLines(record) {
-    if (record.get('lineId')) {
-      Modal.confirm({
-        title: intl.get(`${modelCode}.view.deleteTitle`).d('是否确认删除'),
-        onOk: () => {
-          record.validate().then(() => {
-            record.set('adjustFlag', 'D');
-            this.reqLinesDS.submit().then(() => this.reqLinesDS.query());
-          });
-        },
-      });
-    } else {
-      this.reqLinesDS.delete(record);
+  handleAmount(value, record) {
+    const quantity = record.get('quantity');
+    const price = record.get('price');
+    const _quantity = Number(quantity) || 0;
+    const _price = Number(price) || 0;
+    const _amount = Number(value) || 0;
+    if (quantity && _amount !== 0 && _quantity !== 0) {
+      const calPrice = _amount / _quantity;
+      if (calPrice.toString().length > 8) {
+        record.set({
+          price: calPrice.toFixed(8),
+        });
+      } else {
+        record.set({ price: calPrice });
+      }
+    } else if (_price !== 0 && _amount !== 0) {
+      const calQuantity = _amount / _price;
+      if (calQuantity.toString().length > 8) {
+        record.set({
+          quantity: calQuantity.toFixed(8),
+        });
+      } else {
+        record.set({ quantity: calQuantity });
+      }
     }
   }
 
-  // 税率选项过滤
-  taxRateOptions = (record) => {
-    const companyType = this.reqHeaderDS.current?.get('companyType');
-    if (companyType === '1') {
-      return record.get('tag') === companyType;
-    }
-    return true;
-  };
-
+  /**
+   * 返回表格行
+   * @returns {*[]}
+   */
   get columns(): ColumnProps[] {
     const { sourceType: urlSourceType } = this.props.match.params;
     const { requestStatus, deleteFlag, sourceType } = this.state;
+    const toNonExponential = (num) => {
+      const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
+      return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
+    };
+    const regExp = /(^[0-9]*.[0]*$)/;
     // 删除行不可修改/【来源类型】=“发票作废”不允许修改/从待开票跳转过来不可改
     const adjustEditAble = (record) =>
       ['N', 'Q'].includes(requestStatus) &&
@@ -517,7 +562,12 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       sourceType !== '8' &&
       urlSourceType !== 'TOBE';
     return [
-      { name: 'lineNum' },
+      {
+        header: intl.get('htc.common.orderSeq').d('序号'),
+        renderer: ({ record, dataSet }) => {
+          return dataSet && record ? dataSet.indexOf(record) + 1 : '';
+        },
+      },
       { name: 'projectNumberObj', editor: (record) => adjustEditAble(record), width: 150 },
       { name: 'commodityNumberObj', editor: (record) => adjustEditAble(record), width: 150 },
       { name: 'commodityShortName' },
@@ -541,13 +591,20 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       {
         name: 'price',
         editor: (record) => adjustEditAble(record),
+        renderer: ({ value }) =>
+          value &&
+          (regExp.test(value) ? Number(value).toFixed(2) : toNonExponential(Number(value))),
         width: 150,
         align: ColumnAlign.right,
       },
       {
         name: 'amount',
         editor: (record) =>
-          adjustEditAble(record) && !(record.get('quantity') && record.get('price')),
+          adjustEditAble(record) && (
+            <Currency onChange={(value) => this.handleAmount(value, record)} />
+          ),
+        // editor: (record) =>
+        //   adjustEditAble(record) && !(record.get('quantity') && record.get('price')),
         width: 150,
         align: ColumnAlign.right,
       },
@@ -591,19 +648,24 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
           return [
             <Button
               key="delete"
-              onClick={() => this.handleDeleteLines(record)}
+              funcType={FuncType.link}
+              onClick={() => this.reqLinesDS.delete(record)}
               disabled={!adjustEditAble(record)}
             >
-              {intl.get(`${modelCode}.button.delete`).d('删除')}
+              {intl.get('hzero.common.button.delete').d('删除')}
             </Button>,
           ];
         },
-        lock: ColumnLock.left,
+        lock: ColumnLock.right,
         align: ColumnAlign.center,
       },
     ];
   }
 
+  /**
+   * 导出打印
+   * @params {[]} list-文件列表
+   */
   @Bind()
   printZip(list) {
     forEach(list, (item, key) => {
@@ -616,7 +678,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
         } catch (e) {
           notification.error({
             description: '',
-            message: intl.get(`${modelCode}.view.ieUploadInfo`).d('下载失败'),
+            message: intl.get('hzero.common.notification.download.error').d('下载失败'),
           });
         }
       } else {
@@ -630,15 +692,22 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     });
   }
 
-  // 导出打印文件
+  /**
+   * 导出打印文件
+   * @params {boolean} type 0-导出打印 1-打印发票
+   * @params {string} printType-打印类型
+   */
   @Bind()
-  async handleExportPrintFiles(type) {
+  async handleExportPrintFiles(type, printType) {
     const { empInfo } = this.state;
     const curData = this.reqHeaderDS.current!.toData();
+    const tips = type === 0 ? '无法导出打印文件' : '打印发票';
     if (!(curData.completedQuantity > 0)) {
       notification.warning({
         description: '',
-        message: intl.get(`${modelCode}.view.incompatible`).d('存在未完成的发票，无法导出打印文件'),
+        message: intl
+          .get('hiop.invoiceWorkbench.notification.error.status.batchExport', { tips })
+          .d('存在未完成的发票，无法导出打印文件'),
       });
       return;
     }
@@ -647,6 +716,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       companyCode: empInfo && empInfo.companyCode,
       employeeNumber: empInfo && empInfo.employeeNum,
       invoiceRequisitionHeaderIds: curData.headerId,
+      printType,
     };
     // 导出打印(zip)
     if (type === 0) {
@@ -683,7 +753,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
             } catch (e) {
               notification.error({
                 description: '',
-                message: intl.get(`${modelCode}.view.ieUploadInfo`).d('下载失败'),
+                message: intl.get('hzero.common.notification.error').d('下载失败'),
               });
             }
           } else {
@@ -702,6 +772,11 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     }
   }
 
+  /**
+   * 显示调整记录回调
+   * @params {object} value-当前值
+   * @params {object} oldValue-旧值
+   */
   @Bind()
   handleShowAdjustChange(value, oldValue) {
     if (value !== oldValue) {
@@ -710,29 +785,16 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     }
   }
 
+  /**
+   * 渲染头按钮
+   */
   renderHeaderBts = () => {
     const { requestStatus, deleteFlag, invoiceType, sourceType } = this.state;
-    const menu = (
-      <Menu>
-        <Menu.Item key="reqOrder">
-          <a onClick={() => this.handleCopyReq(true)}>
-            {intl.get(`${modelCode}.button.copy.reqOrder`).d('申请单')}
-          </a>
-        </Menu.Item>
-        {requestStatus === 'E' && (
-          <Menu.Item key="unIssue">
-            <a onClick={() => this.handleCopyReq(false)}>
-              {intl.get(`${modelCode}.button.copy.unIssue`).d('未开具')}
-            </a>
-          </Menu.Item>
-        )}
-      </Menu>
-    );
     return (
       <>
         <PermissionButton
           type="c7n-pro"
-          color={ButtonColor.dark}
+          // color={ButtonColor.dark}
           disabled={this.isCreatePage || !['N', 'Q'].includes(requestStatus) || deleteFlag === 'Y'}
           onClick={() => this.handleSubmitReq()}
           permissionList={[
@@ -743,7 +805,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
             },
           ]}
         >
-          {intl.get(`${modelCode}.button.submit`).d('审核(提交)')}
+          {intl.get('hzero.common.button.submit').d('审核(提交)')}
         </PermissionButton>
         <PermissionButton
           type="c7n-pro"
@@ -757,7 +819,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
             },
           ]}
         >
-          {intl.get(`${modelCode}.button.saveNew`).d('保存(新建)')}
+          {intl.get('hiop.invoiceWorkbench.button.saveCreate').d('保存(新建)')}
         </PermissionButton>
         <PermissionButton
           type="c7n-pro"
@@ -771,34 +833,42 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
             },
           ]}
         >
-          {intl.get(`${modelCode}.button.saveContinue`).d('保存(继续)')}
+          {intl.get('hiop.invoiceWorkbench.button.saveContinue').d('保存(继续)')}
         </PermissionButton>
         <PermissionButton
           type="c7n-pro"
           disabled={
             this.isCreatePage || deleteFlag === 'Y' || ['7', '8', '9', '10'].includes(sourceType)
           }
+          onClick={() => this.handleCopyReq(true)}
           permissionList={[
             {
-              code: `${permissionPath}.button.detail-copy`,
+              code: `${permissionPath}.button.detail-req-order`,
               type: 'button',
               meaning: '按钮-明细-复制申请',
             },
           ]}
         >
-          <Dropdown
+          {intl.get('hiop.invoiceReq.button.copy.reqOrder').d('复制申请')}
+        </PermissionButton>
+        {requestStatus === 'E' && (
+          <PermissionButton
+            type="c7n-pro"
             disabled={
               this.isCreatePage || deleteFlag === 'Y' || ['7', '8', '9', '10'].includes(sourceType)
             }
-            overlay={menu}
-            trigger={['click']}
+            onClick={() => this.handleCopyReq(false)}
+            permissionList={[
+              {
+                code: `${permissionPath}.button.detail-unissue`,
+                type: 'button',
+                meaning: '按钮-明细-复制未开',
+              },
+            ]}
           >
-            <span>
-              {intl.get(`${modelCode}.button.copy`).d('复制申请')}
-              <Icon type="arrow_drop_down" />
-            </span>
-          </Dropdown>
-        </PermissionButton>
+            {intl.get('hiop.invoiceReq.button.copy.unissue').d('复制未开')}
+          </PermissionButton>
+        )}
         <PermissionButton
           type="c7n-pro"
           disabled={!['C', 'F', 'E'].includes(requestStatus)}
@@ -811,7 +881,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
             },
           ]}
         >
-          {intl.get(`${modelCode}.button.viewOrder`).d('查看订单')}
+          {intl.get('hiop.invoiceReq.button.viewOrder').d('查看订单')}
         </PermissionButton>
         <PermissionButton
           type="c7n-pro"
@@ -820,7 +890,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
             ['51', '52'].includes(invoiceType) ||
             ['N', 'Q'].includes(requestStatus)
           }
-          onClick={() => this.handleExportPrintFiles(0)}
+          onClick={() => this.handleExportPrintFiles(0, 'null')}
           permissionList={[
             {
               code: `${permissionPath}.button.detail-export-print`,
@@ -829,7 +899,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
             },
           ]}
         >
-          {intl.get(`${modelCode}.button.exportPrint`).d('导出打印文件')}
+          {intl.get('hiop.invoiceWorkbench.button.export').d('导出打印文件')}
         </PermissionButton>
         <PermissionButton
           type="c7n-pro"
@@ -838,7 +908,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
             ['51', '52'].includes(invoiceType) ||
             ['N', 'Q'].includes(requestStatus)
           }
-          onClick={() => this.handleExportPrintFiles(1)}
+          onClick={() => this.handleExportPrintFiles(1, 'INVOICE')}
           permissionList={[
             {
               code: `${permissionPath}.button.detail-invoice-print`,
@@ -847,12 +917,15 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
             },
           ]}
         >
-          {intl.get(`${modelCode}.button.exportPrint`).d('打印发票')}
+          {intl.get('hiop.invoiceWorkbench.button.invoicePrint').d('打印发票')}
         </PermissionButton>
       </>
     );
   };
 
+  /**
+   * 公司信息
+   */
   get renderCompanyDesc() {
     const { empInfo } = this.state;
     if (empInfo) {
@@ -861,6 +934,9 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     return '';
   }
 
+  /**
+   * 员工信息
+   */
   get renderEmployeeDesc() {
     const { empInfo } = this.state;
     if (empInfo) {
@@ -871,125 +947,174 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     return '';
   }
 
+  /**
+   * 行查询条
+   */
+  @Bind()
+  renderQueryBar(props) {
+    const { buttons } = props;
+    return (
+      <div style={{ marginBottom: 20 }}>
+        <h3 style={{ display: 'inline' }}>
+          <b>{intl.get('hiop.invoiceWorkbench.title.commodityInfo').d('商品信息')}</b>
+        </h3>
+        {buttons}
+      </div>
+    );
+  }
+
   render() {
     const { search } = this.props.location;
+    const { invoiceType } = this.state;
     const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
     let pathname = '/htc-front-iop/invoice-req/list';
     if (invoiceInfoStr) {
       const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
       pathname = invoiceInfo.backPath;
     }
+    const paperInvoice: JSX.Element[] = [
+      <TextField name="paperRecipient" />,
+      <TextField name="paperPhone" />,
+      <TextField name="paperAddress" />,
+    ];
+    const electronicInvoice: JSX.Element[] = [
+      <Select name="electronicType" />,
+      <TextField name="emailPhone" colSpan={2} />,
+    ];
     return (
-      <PageHeaderWrapper
-        title={intl.get(`${modelCode}.title`).d('开票申请单')}
-        header={this.renderHeaderBts()}
-        headerProps={{ backPath: pathname }}
-      >
-        <Spin dataSet={this.reqHeaderDS}>
-          <Form dataSet={this.reqHeaderDS} columns={4}>
-            <Output
-              label={intl.get(`${modelCode}.view.companyDesc`).d('所属公司')}
-              value={this.renderCompanyDesc}
+      <>
+        <Header
+          backPath={pathname}
+          title={intl.get('hiop.invoiceReq.title.billApply').d('开票申请单')}
+        >
+          {this.renderHeaderBts()}
+        </Header>
+        <div style={{ overflow: 'auto' }}>
+          <Card style={{ marginTop: 10 }}>
+            <div style={{ marginBottom: 20 }}>
+              <h3>
+                <b>{intl.get('hiop.invoiceReq.title.companyInfo').d('公司信息')}</b>
+              </h3>
+            </div>
+            <Spin dataSet={this.reqHeaderDS}>
+              <Form dataSet={this.reqHeaderDS} columns={4} labelTooltip={Tooltip.overflow}>
+                <TextField
+                  label={intl.get('htc.common.modal.companyName').d('所属公司')}
+                  value={this.renderCompanyDesc}
+                />
+                <TextField name="taxpayerNumber" />
+                <TextField
+                  label={intl.get('htc.common.modal.employeeDesc').d('登录员工')}
+                  value={this.renderEmployeeDesc}
+                />
+                <Lov
+                  name="extNumberObj"
+                  onChange={(value) => this.handleTaxRateLovChange('extNumber', value)}
+                />
+                {/*---*/}
+                <Select name="receiptType" />
+                <Lov name="invoiceTypeObj" onChange={(value) => this.invoiceVarietyChange(value)} />
+                <Select name="billFlag" />
+                <Lov name="requestTypeObj" />
+                {/*---*/}
+                <Select
+                  name="receiptName"
+                  searchable
+                  searchMatcher="receiptName"
+                  combo
+                  checkValueOnOptionsChange={false}
+                  onChange={(value, oldValue) => this.handleReceiptNameChange(value, oldValue)}
+                  suffix={<Icon type="search" onClick={() => this.handleInvoiceQuery()} />}
+                />
+                <TextArea name="remark" colSpan={2} rows={1} resize={ResizeType.both} />
+                <CheckBox name="nextDefaultFlag" />
+                <TextField name="receiptTaxNo" />
+                {invoiceType === '51' ? electronicInvoice : paperInvoice}
+                {/*----*/}
+                <TextArea
+                  name="receiptAccount"
+                  rowSpan={2}
+                  rows={3}
+                  resize={ResizeType.both}
+                  newLine
+                />
+                <TextField name="applicantName" />
+                <TextField name="creationDate" />
+                <TextField name="requestNumber" />
+                {/*---*/}
+                <Select name="requestStatus" />
+                <TextField name="reviewerName" />
+                <TextField name="reviewDate" />
+                {/*---*/}
+                <TextArea
+                  name="receiptAddressPhone"
+                  rowSpan={2}
+                  rows={3}
+                  resize={ResizeType.both}
+                />
+                <TextField name="progress" />
+                <Select name="sourceType" />
+                <TextField name="sourceNumber" />
+                {/*----*/}
+                <TextField name="sourceNumber1" />
+                <TextField name="sourceNumber2" />
+                <CheckBox name="showAdjustFlag" onChange={this.handleShowAdjustChange} />
+              </Form>
+              <Form
+                columns={6}
+                dataSet={this.reqHeaderDS}
+                excludeUseColonTagList={['Radio']}
+                className={styles.customTable}
+                layout={FormLayout.none}
+              >
+                <div className={styles.invoiceContainer}>
+                  <Radio name="billingType" value="1" style={{ color: 'blue' }}>
+                    {intl.get('hiop.invoiceWorkbench.label.blueInvoice').d('蓝字发票')}
+                  </Radio>
+                  <div className={styles.flex}>
+                    <span style={{ color: 'blue' }}>
+                      {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
+                    </span>
+                    <TextField name="blueInvoiceCode" style={{ width: '100px' }} />
+                  </div>
+                  <div className={styles.flex}>
+                    <span style={{ color: 'blue' }}>
+                      {intl.get('hiop.invoiceWorkbench.label.invoiceNumber').d('发票号码：')}
+                    </span>
+                    <TextField style={{ width: '100px' }} name="blueInvoiceNo" />
+                  </div>
+                </div>
+                <div className={styles.invoiceContainer}>
+                  <Radio name="billingType" value="2" style={{ color: 'red' }}>
+                    {intl.get('hiop.invoiceWorkbench.label.redInvoice').d('红字发票')}
+                  </Radio>
+                  <div className={styles.flex}>
+                    <span style={{ color: 'red' }}>
+                      {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
+                    </span>
+                    <TextField style={{ width: '100px' }} name="invoiceCode" />
+                  </div>
+                  <div className={styles.flex}>
+                    <span style={{ color: 'red' }}>
+                      {intl.get('hiop.invoiceWorkbench.label.invoiceNumber').d('发票号码：')}
+                    </span>
+                    <TextField name="invoiceNo" style={{ width: '100px' }} />
+                  </div>
+                </div>
+              </Form>
+            </Spin>
+          </Card>
+          <Card style={{ marginTop: 10 }}>
+            <Table
+              buttons={this.buttons}
+              dataSet={this.reqLinesDS}
+              columns={this.columns}
+              style={{ height: 400 }}
+              queryBar={this.renderQueryBar}
             />
-            <Output
-              label={intl.get(`${modelCode}.view.employeeDesc`).d('登录员工')}
-              value={this.renderEmployeeDesc}
-            />
-            <Output name="taxpayerNumber" />
-            <Lov name="requestTypeObj" />
-          </Form>
-          <Form
-            dataSet={this.reqHeaderDS}
-            columns={12}
-            excludeUseColonTagList={['Radio', 'Output']}
-          >
-            <Select
-              name="receiptName"
-              colSpan={4}
-              searchable
-              searchMatcher="receiptName"
-              combo
-              checkValueOnOptionsChange={false}
-              onChange={(value, oldValue) => this.handleReceiptNameChange(value, oldValue)}
-              suffix={<Icon type="search" onClick={() => this.handleInvoiceQuery()} />}
-            />
-            <Lov
-              name="invoiceTypeObj"
-              colSpan={2}
-              onChange={(value) => this.handleTaxRateLovChange('invoiceType', value)}
-            />
-            <Select name="billFlag" colSpan={2} />
-            <TextField name="creationDate" colSpan={2} />
-            <TextField name="reviewDate" colSpan={2} />
-            {/*----*/}
-            <TextField name="receiptTaxNo" colSpan={4} newLine />
-            <Select name="receiptType" colSpan={2} />
-            <Lov
-              name="extNumberObj"
-              colSpan={2}
-              onChange={(value) => this.handleTaxRateLovChange('extNumber', value)}
-            />
-            <TextArea name="remark" colSpan={4} rows={1} resize={ResizeType.both} />
-            {/*----*/}
-            <TextField name="receiptAddressPhone" colSpan={6} />
-            <TextField name="progress" colSpan={4} />
-            <CheckBox name="showAdjustFlag" colSpan={2} onChange={this.handleShowAdjustChange} />
-            {/*----*/}
-            <TextField name="receiptAccount" colSpan={4} />
-            <TextField name="applicantName" colSpan={2} />
-            <TextField name="reviewerName" colSpan={2} />
-            <Select name="sourceType" colSpan={2} />
-            <Select name="requestStatus" colSpan={2} />
-            {/*----*/}
-            <TextField name="paperRecipient" colSpan={4} labelWidth={50} />
-            <TextField name="paperPhone" colSpan={2} />
-            <TextField name="sourceNumber" colSpan={3} />
-            <TextField name="requestNumber" colSpan={3} />
-            {/*----*/}
-            <TextField name="paperAddress" colSpan={4} />
-            <CheckBox name="nextDefaultFlag" colSpan={2} />
-            <TextField name="sourceNumber1" colSpan={3} />
-            <TextField name="sourceNumber2" colSpan={3} />
-            {/*----*/}
-            <Select name="electronicType" colSpan={2} />
-            <TextField name="emailPhone" colSpan={4} />
-            <Radio name="billingType" colSpan={2} value="1" style={{ color: 'blue' }}>
-              蓝字发票
-            </Radio>
-            <TextField
-              name="blueInvoiceCode"
-              colSpan={2}
-              label={<span style={{ color: 'blue' }}>发票代码</span>}
-            />
-            <TextField
-              name="blueInvoiceNo"
-              colSpan={2}
-              label={<span style={{ color: 'blue' }}>发票号码</span>}
-            />
-            {/*----*/}
-            <TextField name="reservationCode" colSpan={6} newLine />
-            <Radio name="billingType" colSpan={2} value="2" style={{ color: 'red' }}>
-              红字发票
-            </Radio>
-            <TextField
-              name="invoiceCode"
-              colSpan={2}
-              label={<span style={{ color: 'red' }}>发票代码</span>}
-            />
-            <TextField
-              name="invoiceNo"
-              colSpan={2}
-              label={<span style={{ color: 'red' }}>发票号码</span>}
-            />
-          </Form>
-        </Spin>
-        <Table
-          buttons={this.buttons}
-          dataSet={this.reqLinesDS}
-          columns={this.columns}
-          style={{ height: 200 }}
-        />
-      </PageHeaderWrapper>
+          </Card>
+        </div>
+      </>
     );
   }
 }

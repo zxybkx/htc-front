@@ -1,19 +1,31 @@
+/**
+ * @Description:全发票明细
+ * @version: 1.0
+ * @Author: yang.wang04@hand-china.com
+ * @Date: 2020-07-20 16:19:48
+ * @LastEditTime: 2020-07-28 15:03:23
+ * @Copyright: Copyright (c) 2020, Hand
+ */
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import intl from 'utils/intl';
 import { Modal } from 'choerodon-ui/pro';
-import { Row, Col, Divider, Icon } from 'choerodon-ui';
+import { Col, Divider, Icon, Row } from 'choerodon-ui';
 import { parseOfdDocument, renderOfdByScale, setPageScale } from 'ofd.js';
 import notification from 'utils/notification';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { ofdInvoiceResolver } from '../../../services/commonService';
 
-const modelCode = 'htc.invoices.ofd-view';
+const modelCode = 'htc.invoicesOfd';
 
 interface ArchiveOfdPageProps {
   recordType: String;
   curImgUrl: String;
 }
 
+@formatterCollections({
+  code: [modelCode, 'htc.common'],
+})
 @connect()
 export default class ArchiveOfdPage extends Component<ArchiveOfdPageProps> {
   componentDidMount() {
@@ -132,7 +144,8 @@ export default class ArchiveOfdPage extends Component<ArchiveOfdPageProps> {
           </Col>
           <Col span={4} style={{ padding: '10px' }}>
             <div id="checkValid" style={{ display: 'none' }}>
-              <Icon type="check_circle" style={{ color: 'green' }} /> 有效
+              <Icon type="check_circle" style={{ color: 'green' }} />
+              {intl.get(`${modelCode}.view.ofd.efficient`).d('有效')}
             </div>
             <div id="checkInvalid" style={{ display: 'block' }}>
               {intl.get(`${modelCode}.view.ofd.checking`).d('查验中...')}

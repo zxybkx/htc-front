@@ -1,4 +1,4 @@
-/*
+/**
  * @Description: 专用红字申请单新建/详情页
  * @version: 1.0
  * @Author: wenqi.ma@hand-china.com
@@ -6,48 +6,47 @@
  * @LastEditTime: 2021-03-05 15:51:54
  * @Copyright: Copyright (c) 2020, Hand
  */
-import React, { Component, ReactNode } from 'react';
+import React, { Component } from 'react';
 import { Dispatch } from 'redux';
-import { routerRedux } from 'dva/router';
 import { Bind } from 'lodash-decorators';
-import { Header, Content } from 'components/Page';
+import { Header } from 'components/Page';
 import {
-  DataSet,
-  Table,
   Button,
+  Currency,
+  DataSet,
+  DatePicker,
+  DateTimePicker,
   Form,
   Lov,
-  Output,
-  TextField,
-  DateTimePicker,
+  message,
   Select,
   Spin,
-  Currency,
-  message,
-  DatePicker,
+  Table,
+  TextField,
 } from 'choerodon-ui/pro';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import { ColumnAlign, TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
+import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
 import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import notification from 'utils/notification';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { RouteComponentProps } from 'react-router-dom';
-import { getCurrentEmployeeInfo } from '@common/services/commonService';
-import { Card } from 'choerodon-ui';
+import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
+import { Card, Col, Row } from 'choerodon-ui';
 import {
   createRedInvoiceReq,
   createRedInvoiceReqLines,
+  saveReqInvoice,
   taxInfos,
 } from '@src/services/redInvoiceService';
 import { observer } from 'mobx-react-lite';
-import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
-import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
+import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
+import { FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import RedInvoiceRequisitionDS from '../stores/RedInvoiceRequisitionLineDS';
 import RedInvoiceRequisitionHeaderDS from '../stores/RedInvoiceRequisitionHeaderDS';
+import styles from '../../invoice-workbench/invoiceWorkbench.module.less';
 
-const modelCode = 'hiop.redInvoice';
 const tenantId = getCurrentOrganizationId();
 
 interface RouterInfo {
@@ -60,7 +59,7 @@ interface RedInvoiceRequisitionPageProps extends RouteComponentProps<RouterInfo>
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: ['hiop.redInvoiceInfo', 'hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq'],
 })
 export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequisitionPageProps> {
   state = {
@@ -71,6 +70,10 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     listFlag: null,
   };
 
+  /**
+   * 判断是否新建
+   * @return {boolean} true-新建 false-编辑
+   */
   get isCreatePage() {
     const { match } = this.props;
     const { headerId } = match.params;
@@ -86,11 +89,16 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
         this.calAmount(dataSet);
         // 金额变动
         if (name === 'detailAmount') {
-          const unitPrice = record.get('unitPrice') || 0;
+          const unitPrice = Number(record.get('unitPrice')) || 0;
           if (unitPrice !== 0) {
-            record.set({
-              num: value / record.get('unitPrice'),
-            });
+            const num = value / unitPrice;
+            if (num.toString().length > 8) {
+              record.set({
+                num: num.toFixed(8),
+              });
+            } else {
+              record.set({ num });
+            }
           }
           if (record.get('deductionAmount') && !isNaN(record.get('deductionAmount'))) {
             record.set({
@@ -105,25 +113,12 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
             });
           }
         }
-        // 单价变动
-        if (name === 'unitPrice') {
-          if (record.get('num') && Number(record.get('num')) !== 0) {
-            record.set({
-              detailAmount: record.get('unitPrice') * record.get('num'),
-            });
-          }
-        }
-        // 数量变动
-        if (name === 'num') {
-          if (!value) {
-            record.set({
-              unitPrice: '',
-            });
-          } else if (record.get('unitPrice')) {
-            record.set({
-              detailAmount: record.get('unitPrice') * record.get('num'),
-            });
-          }
+        // 单价变动、数量变动
+        if (['unitPrice', 'num'].includes(name)) {
+          const num = Number(record.get('num')) || 0;
+          const unitPrice = Number(record.get('unitPrice')) || 0;
+          const detailAmount = num * unitPrice;
+          record.set({ detailAmount: detailAmount.toFixed(2) });
         }
         // 优惠政策标识
         if (name === 'zeroTaxRateFlag') {
@@ -153,10 +148,16 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
             });
           } else {
             const unitPrice = record.get('unitPrice') || 0;
+            const detailAmount = record.get('detailAmount') || 0;
             if (unitPrice !== 0) {
-              record.set({
-                num: record.get('detailAmount') / record.get('unitPrice'),
-              });
+              const num = detailAmount / unitPrice;
+              if (num.toString().length > 8) {
+                record.set({
+                  num: num.toFixed(8),
+                });
+              } else {
+                record.set({ num });
+              }
             }
             record.set({
               taxAmount: (record.get('detailAmount') * record.get('taxRate')).toFixed(2),
@@ -191,6 +192,10 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     },
   });
 
+  /**
+   * 计算金额
+   * @params {object} dataSet-数据源
+   */
   @Bind
   calAmount(dataSet) {
     // 合计金额
@@ -211,7 +216,9 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     this.headerDS.current!.set('taxAmount', taxAmount.toFixed(2));
   }
 
-  // 税率不为0 修改优惠政策标识为不使用
+  /**
+   * 税率影响优惠政策标识
+   */
   @Bind()
   handleTaxRateNotZero() {
     if (this.linesDS.length > 0) {
@@ -250,101 +257,136 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     if (!this.isCreatePage) {
       this.headerDS.query().then((res) => {
         if (this.headerDS) {
-          this.headerDS.current!.set('operateType', '1');
-        }
-        if (this.linesDS) {
-          this.setState({
-            editable: ['E', 'R', 'N'].includes(this.headerDS.current!.get('status')),
-          });
-          this.linesDS.query().then(() => {
-            this.calAmount(this.linesDS);
-            // this.handleTaxRateNotZero();
+          const { blueInvoiceCode, blueInvoiceNo } = res;
+          this.headerDS.current!.set({
+            // 'operateType': '1',
+            invoiceCode: blueInvoiceCode,
+            invoiceNo: blueInvoiceNo,
           });
         }
         const { status, isMultipleTaxRate, listFlag } = res;
-        this.setState({ status, isMultipleTaxRate, listFlag });
+        this.setState({
+          status,
+          isMultipleTaxRate,
+          listFlag,
+          editable: ['E', 'R', 'N'].includes(status),
+        });
       });
-    } else if (this.headerDS) {
+    } else {
       this.headerDS.create({}, 0);
+      const { search } = this.props.location;
+      const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
+      if (invoiceInfoStr) {
+        const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
+        this.handleAddReq(invoiceInfo);
+      }
       this.setState({ editable: true });
     }
   }
 
   /**
    * 红字发票申请单新建
-   * @returns
+   * @params {object} invoiceInfo-发票信息
    */
   @Bind()
-  async handleAddReq() {
+  async handleAddReq(invoiceInfo) {
     const { empInfo } = this.state;
-    const curInfo = this.headerDS.current!.toData();
-    const { invoiceCode, invoiceNo, deductionStatus, applicantType } = curInfo;
+    const { invoiceCode, invoiceNo, deductionStatus, applicantType } = invoiceInfo;
+    const params = {
+      tenantId,
+      invoiceCode,
+      invoiceNo,
+      companyCode: empInfo.companyCode,
+      employeeNumber: empInfo.employeeNum,
+      deductionStatus,
+      applicantType,
+    };
+    const headerRes = getResponse(await createRedInvoiceReq(params));
+    if (headerRes) {
+      const { status, isMultipleTaxRate, listFlag, blueInvoiceCode, blueInvoiceNo } = headerRes;
+      const headerData = {
+        ...headerRes,
+        invoiceCode: blueInvoiceCode,
+        invoiceNo: blueInvoiceNo,
+      };
+      this.headerDS.reset();
+      this.headerDS.create({ ...headerData }, 0);
+      this.setState({ status, isMultipleTaxRate, listFlag });
+    }
+    if (deductionStatus !== '01') {
+      const lineRes = await createRedInvoiceReqLines(params);
+      if (lineRes && lineRes.length > 0) {
+        lineRes.forEach((line) => this.linesDS.create(line));
+      }
+    }
+  }
+
+  /**
+   * 保存红字信息
+   */
+  @Bind()
+  async saveRedInvoice() {
+    const { empInfo } = this.state;
     const validateValue = await this.headerDS.validate(false, false);
     if (!validateValue) {
       notification.error({
         description: '',
-        message: '校验不通过！',
+        message: intl.get('hzero.common.notification.invalid').d('校验不通过！'),
       });
       return;
     }
-    if (deductionStatus === '01') {
-      this.headerDS.current!.set('buyerName', empInfo.companyName);
-      this.headerDS.current!.set('buyerTaxNo', empInfo.taxpayerNumber);
-      this.headerDS.current!.getField('invoiceDate')!.set('required', false);
-    } else {
-      const params = {
-        tenantId,
-        invoiceCode,
-        invoiceNo,
-        companyCode: empInfo.companyCode,
-        employeeNumber: empInfo.employeeNum,
-        deductionStatus,
-        applicantType,
-      };
-      const res = getResponse(
-        await Promise.all([createRedInvoiceReq(params), createRedInvoiceReqLines(params)])
-      );
-
-      if (res && res[0]) {
-        const { status, isMultipleTaxRate, listFlag } = res[0];
-        this.headerDS.current!.set({ ...res[0] });
-        this.setState({ status, isMultipleTaxRate, listFlag });
-      }
-      if (res[1]) {
-        this.linesDS.reset();
-        const { extensionNumber, invoiceTypeCode } = res[0];
-        if (res[1].length > 0) {
-          res[1].forEach((line) =>
-            this.linesDS.create({
-              ...line,
-              extNumber: extensionNumber,
-              invoiceType: invoiceTypeCode,
-            })
-          );
-        }
-      }
-      this.headerDS.current!.getField('invoiceDate')!.set('required', true);
+    const data = this.headerDS.toData();
+    const params = {
+      tenantId,
+      companyCode: empInfo.companyCode,
+      employeeNumber: empInfo.employeeNum,
+      dsData: data[0],
+    };
+    const res = getResponse(await saveReqInvoice(params));
+    if (res) {
+      notification.success({
+        description: '',
+        message: res.message,
+      });
     }
-    this.headerDS.current!.getField('requisitionReasonObj')!.set('required', true);
-    this.headerDS.current!.getField('taxType')!.set('required', true);
-    this.headerDS.current!.getField('uploadEmployeeName')!.set('required', true);
-    this.headerDS.current!.getField('infoType')!.set('required', true);
-    this.headerDS.current!.getField('businessTaxMarkCode')!.set('required', true);
-    this.headerDS.current!.getField('extensionNumberObj')!.set('required', true);
-    this.headerDS.current!.set('taxType', '1');
-    this.headerDS.current!.set('businessTaxMarkCode', '0000000000');
-    this.headerDS.current!.set('infoType', '0');
-    this.headerDS.current!.set('uploadEmployeeName', empInfo);
-
-    if (this.isCreatePage) {
-      this.headerDS.current!.set('operateType', '0');
-    } else {
-      this.headerDS.current!.set('operateType', '1');
-    }
-    this.calAmount(this.linesDS);
   }
 
-  // 保存/生成
+  /**
+   * 生成红字申请单调接口
+   */
+  @Bind()
+  async createRedInvoice() {
+    const res = await this.headerDS.submit();
+    if (res === undefined) {
+      notification.warning({
+        description: '',
+        message: intl.get('htc.common.notification.noChange').d('请先修改数据'),
+      });
+    } else if (res === false) {
+      notification.error({
+        description: '',
+        message: intl.get('hzero.common.notification.invalid').d('校验不通过！'),
+      });
+    } else if (res.failed === 1) {
+      notification.error({
+        description: '',
+        message: res.message,
+      });
+    } else if (res) {
+      const { history } = this.props;
+      const pathname = `/htc-front-iop/red-invoice-requisition/list/`;
+      history.push(pathname);
+      // dispatch(
+      //   routerRedux.push({
+      //     pathname,
+      //   })
+      // );
+    }
+  }
+
+  /**
+   * 生成红字申请单
+   */
   @Bind()
   async handleSaveIvc() {
     const deductionStatus = this.headerDS.current!.get('deductionStatus');
@@ -359,57 +401,20 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
         notification.error({
           description: '',
           message: intl
-            .get('hzero.common.notification.amountInvalid')
+            .get('hiop.redInvoiceInfo.notification.message.amountInvalid')
             .d('商品金额不能大于原蓝票金额'),
         });
         return;
       }
     }
-    const res = await this.headerDS.submit();
-    if (res === undefined) {
-      notification.warning({
-        description: '',
-        message: intl.get('hadm.hystrix.view.message.title.noChange').d('请先修改数据'),
-      });
-    } else if (res === false) {
-      notification.error({
-        description: '',
-        message: intl.get('hzero.common.notification.invalid').d('数据校验不通过！'),
-      });
-    } else if (res.failed === 1) {
-      notification.error({
-        description: '',
-        message: res.message,
-      });
-    } else if (res) {
-      if (this.isCreatePage) {
-        const { dispatch } = this.props;
-        const pathname = `/htc-front-iop/red-invoice-requisition/list/`;
-        dispatch(
-          routerRedux.push({
-            pathname,
-          })
-        );
-      } else {
-        const { dispatch } = this.props;
-        const pathname = `/htc-front-iop/red-invoice-requisition/list/`;
-        dispatch(
-          routerRedux.push({
-            pathname,
-          })
-        );
-      }
-    }
+    this.createRedInvoice();
   }
 
-  // 删除
-  @Bind()
-  handleDeleteHeaders() {
-    const headersList = this.linesDS.selected;
-    this.linesDS.delete(headersList);
-  }
-
-  // 行零税率标识受控于头
+  /**
+   * 行零税率标识受控于头
+   * @params {string} field-标签名
+   * @params {object} value-当前值
+   */
   @Bind()
   handleTaxRateLovChange(field, value) {
     if (this.linesDS.length > 0) {
@@ -417,6 +422,11 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     }
   }
 
+  /**
+   * 金额回调
+   * @params {number} value-当前值
+   * @params {object} record-行记录
+   */
   @Bind()
   handleAmount(value, record) {
     if (value > 0) {
@@ -428,6 +438,10 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     }
   }
 
+  /**
+   * 返回表格行
+   * @return {*[]}
+   */
   get columns(): ColumnProps[] {
     const { editable, isMultipleTaxRate } = this.state;
     const taxRateIsZero = (record) =>
@@ -438,7 +452,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
       editable;
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('htc.common.orderSeq').d('序号'),
         width: 60,
         renderer: ({ record, dataSet }) => {
           return dataSet && record ? dataSet.indexOf(record) + 1 : '';
@@ -451,7 +465,6 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
       },
       {
         name: 'unit',
-        width: 150,
         editor: (record) => editable && <TextField onChange={() => record.set('projectObj', '')} />,
       },
       {
@@ -463,34 +476,35 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
         name: 'unitPrice',
         editor: (record) => editable && <TextField onChange={() => record.set('projectObj', '')} />,
         width: 150,
-        align: ColumnAlign.right,
       },
       {
         name: 'num',
         width: 150,
-        headerStyle: { color: 'red' },
+        // headerStyle: { color: 'red' },
+        // header: (_, __, title) => <span style={{ color: 'red' }}>{title}</span>,
         editor: editable,
         renderer: ({ value }) => <span>{value}</span>,
       },
       {
         name: 'detailAmount',
         width: 200,
-        headerStyle: { color: 'red' },
+        // headerStyle: { color: 'red' },
+        // header: (_, __, title) => <span style={{ color: 'red' }}>{title}</span>,
         editor: (record) =>
           editable && <Currency onChange={(value) => this.handleAmount(value, record)} />,
-        align: ColumnAlign.right,
       },
       {
         name: 'deductionAmount',
         width: 150,
-        headerStyle: { color: 'red' },
-        align: ColumnAlign.right,
+        // headerStyle: { color: 'red' },
+        // header: (_, __, title) => <span style={{ color: 'red' }}>{title}</span>,
       },
       { name: 'taxRateObj', width: 150, editor: editable },
       {
         name: 'taxAmount',
         width: 150,
-        headerStyle: { color: 'red' },
+        // headerStyle: { color: 'red' },
+        // header: (_, __, title) => <span style={{ color: 'red' }}>{title}</span>,
         editor: (record) => taxAmountEdit(record),
       },
       { name: 'goodsCode', width: 150 },
@@ -502,9 +516,31 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
       },
       { name: 'preferentialPolicyFlag', width: 110 },
       { name: 'specialManagementVat', width: 110 },
+      {
+        name: 'operation',
+        header: intl.get('hzero.common.action').d('操作'),
+        width: 100,
+        command: ({ record }): Commands[] => {
+          return [
+            <Button
+              key="delete"
+              funcType={FuncType.link}
+              disabled={!editable}
+              onClick={() => this.linesDS.delete(record)}
+            >
+              {intl.get('hzero.common.button.delete').d('删除')}
+            </Button>,
+          ];
+        },
+        lock: ColumnLock.right,
+        align: ColumnAlign.center,
+      },
     ];
   }
 
+  /**
+   * 专票红字申请单新增
+   */
   @Bind()
   handleAddLine() {
     const { empInfo } = this.state;
@@ -518,7 +554,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     if (!extNumber || !invoiceType || !customerName) {
       notification.info({
         description: '',
-        message: intl.get(`${modelCode}.view.newHeader`).d('请先完善头数据'),
+        message: intl.get('htc.common.validation.completeData').d('请先完善头数据'),
       });
       return;
     }
@@ -561,8 +597,8 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
           key={props.key}
           onClick={props.onClick}
           disabled={isDisabled}
-          funcType={FuncType.flat}
-          color={ButtonColor.primary}
+          funcType={FuncType.link}
+          style={{ marginLeft: 10, color: '#3889FF' }}
         >
           {props.title}
         </Button>
@@ -574,16 +610,20 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
       return [
         <AddBtn
           dataSet={this.linesDS}
-          icon="playlist_add"
+          icon="add"
           key="add"
           onClick={() => this.handleAddLine()}
-          title={intl.get(`${modelCode}.button.add`).d('新增')}
+          title={intl.get('hzero.common.button.add').d('新增')}
         />,
-        TableButtonType.delete,
+        // TableButtonType.delete,
       ];
     }
   }
 
+  /**
+   * 返回公司信息
+   * @returns {string}
+   */
   get renderCompanyDesc() {
     const { empInfo } = this.state;
     if (empInfo) {
@@ -592,6 +632,10 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     return '';
   }
 
+  /**
+   * 返回员工信息
+   * @returns {string}
+   */
   get renderEmployeeDesc() {
     const { empInfo } = this.state;
     if (empInfo) {
@@ -602,6 +646,9 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     return '';
   }
 
+  /**
+   * 申请方改变回调
+   */
   @Bind()
   handleApplicantTypeChange(value) {
     if (value === '02') {
@@ -612,6 +659,9 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     }
   }
 
+  /**
+   * 是否抵扣改变回调
+   */
   @Bind()
   async handleDeductionChange(value) {
     const { empInfo } = this.state;
@@ -643,112 +693,134 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     }
   }
 
+  /**
+   * 自定义查询条
+   */
+  @Bind()
+  renderQueryBar(props) {
+    const { buttons } = props;
+    return (
+      <div className={styles.containTable}>
+        <div className={styles.containTable}>
+          <h3 style={{ display: 'inline' }}>
+            <b>{intl.get('hiop.invoiceWorkbench.title.commodityInfo').d('商品信息')}</b>
+          </h3>
+          {buttons}
+        </div>
+        <div className={styles.tableTitleRight}>
+          <p>
+            {intl.get('hiop.redInvoiceInfo.title.InvoiceAmount').d('合计金额：')}
+            <span>{this.headerDS.current?.get('invoiceAmount')}</span>
+          </p>
+          <p>
+            {intl.get('hiop.invoiceWorkbench.label.totalTax').d('合计税额：')}
+            <span>{this.headerDS.current?.get('taxAmount')}</span>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   render() {
     const { empInfo } = this.state;
-    const redlabelInvoiceAmount: ReactNode = (
-      <span style={{ color: 'red' }}>
-        {intl.get(`${modelCode}.view.invoiceAmount`).d('合计金额')}
-      </span>
-    );
-    const redlabelTaxAmount: ReactNode = (
-      <span style={{ color: 'red' }}>{intl.get(`${modelCode}.view.taxAmount`).d('合计税额')}</span>
-    );
     return (
       <>
         <Header
           backPath="/htc-front-iop/red-invoice-requisition/list"
-          title={intl.get(`${modelCode}.title`).d('专票红字申请单')}
+          title={intl.get('hiop.redInvoiceInfo.title.specialAppliaction').d('专票红字申请单')}
         >
           <Button
             key="save"
-            onClick={() => this.handleSaveIvc()}
+            onClick={() => this.saveRedInvoice()}
             disabled={this.isCreatePage || !this.state.editable}
           >
-            {intl.get(`${modelCode}.button.save`).d('保存红字申请单')}
+            {intl.get('hiop.redInvoiceInfo.button.saveRedReq').d('保存红字申请单')}
           </Button>
           <Button key="create" onClick={() => this.handleSaveIvc()} disabled={!this.isCreatePage}>
-            {intl.get(`${modelCode}.button.generate`).d('生成红字申请单')}
+            {intl.get('hiop.redInvoiceInfo.button.createRedReq').d('生成红字申请单')}
           </Button>
         </Header>
-        <Content>
-          <Spin dataSet={this.headerDS}>
-            <Form columns={3}>
-              <Output
-                label={intl.get(`${modelCode}.view.companyDesc`).d('所属公司')}
+        <div style={{ overflow: 'auto' }}>
+          <Card style={{ marginTop: 10 }}>
+            <Form columns={4} dataSet={this.headerDS}>
+              <TextField
+                label={intl.get('htc.common.label.companyName').d('所属公司')}
                 value={this.renderCompanyDesc}
               />
-              <Output
-                label={intl.get(`${modelCode}.view.employeeDesc`).d('登录员工')}
-                value={this.renderEmployeeDesc}
-              />
-              <Output
-                label={intl.get(`${modelCode}.view.taxpayerNumber`).d('纳税人识别号')}
+              <TextField
+                label={intl.get('htc.common.modal.taxpayerNumber').d('纳税人识别号')}
                 value={empInfo && empInfo.taxpayerNumber}
               />
-            </Form>
-            <Form columns={6} dataSet={this.headerDS}>
               <Select name="applicantType" onChange={this.handleApplicantTypeChange} />
               <Select name="deductionStatus" onChange={this.handleDeductionChange} />
               <Select name="taxType" />
               <Lov name="invoiceObj" />
               <TextField name="invoiceNo" />
-              <Button
-                key="new"
-                onClick={() => this.handleAddReq()}
-                disabled={!(this.isCreatePage && empInfo)}
-                style={{ marginLeft: '-0.6rem', width: '70px', marginRight: '-3rem' }}
-                color={ButtonColor.primary}
-              >
-                {intl.get(`${modelCode}.button.new`).d('新建')}
-              </Button>
-              {/*---*/}
-              <Select name="requisitionReasonObj" newLine colSpan={2} />
-              <TextField name="requisitionDescription" />
-              <TextField name="goodsVersion" />
-              <DateTimePicker name="redInvoiceDate" />
-              <Lov name="uploadEmployeeName" />
-              {/*---*/}
-              <TextField name="serialNumber" colSpan={2} />
-              <Select name="infoType" />
-              <Select name="status" />
-              <Select name="businessTaxMarkCode" />
-              <Select name="operateType" />
             </Form>
-            <Card bordered style={{ marginBottom: '0.2rem' }}>
-              <Form
-                columns={6}
-                dataSet={this.headerDS}
-                labelWidth={60}
-                labelTooltip={Tooltip.overflow}
-              >
-                <TextField name="taxDiskNumber" newLine colSpan={1} />
+          </Card>
+          <Card style={{ marginTop: 10 }}>
+            <Spin dataSet={this.headerDS}>
+              <Form columns={4} dataSet={this.headerDS} labelTooltip={Tooltip.overflow}>
+                <Lov name="uploadEmployeeNameObj" />
+                <Select name="requisitionReasonObj" />
+                <TextField name="requisitionDescription" />
+                <Select name="status" />
+                {/*---*/}
+                <TextField name="goodsVersion" />
+                <DateTimePicker name="redInvoiceDate" />
+                <TextField name="serialNumber" />
+                <Select name="infoType" />
+                {/*---*/}
+                <Select name="businessTaxMarkCode" />
+                <Select name="operateType" />
+                <TextField name="taxDiskNumber" />
                 <Lov
                   name="extensionNumberObj"
-                  colSpan={1}
                   onChange={(value) => this.handleTaxRateLovChange('extNumber', value.value)}
                 />
-                <Select name="invoiceTypeCode" />
-                <TextField name="blueInvoiceCode" colSpan={1} />
-                <TextField name="blueInvoiceNo" colSpan={1} />
-                <DatePicker name="invoiceDate" colSpan={1} />
-
-                <TextField name="sellerName" newLine colSpan={2} />
-                <TextField name="sellerTaxNo" colSpan={2} />
-                <Currency name="invoiceAmount" colSpan={1} label={redlabelInvoiceAmount} />
-                <Currency name="taxAmount" colSpan={1} label={redlabelTaxAmount} />
-
-                <TextField name="buyerName" newLine colSpan={2} />
-                <TextField name="buyerTaxNo" colSpan={2} />
               </Form>
-            </Card>
-          </Spin>
-          <Table
-            buttons={this.buttons}
-            dataSet={this.linesDS}
-            columns={this.columns}
-            style={{ height: 200 }}
-          />
-        </Content>
+              <Row gutter={8}>
+                <Col span={12}>
+                  <div style={{ backgroundColor: '#f6f6f6', padding: '10px 20px 0 20px' }}>
+                    <h3>
+                      <b>{intl.get('hiop.invoiceWorkbench.label.buyer').d('购买方')}</b>
+                    </h3>
+                    <Form dataSet={this.headerDS}>
+                      <TextField name="buyerName" />
+                      <TextField name="buyerTaxNo" />
+                    </Form>
+                  </div>
+                </Col>
+                <Col span={12}>
+                  <div style={{ backgroundColor: '#f6f6f6', padding: '10px 20px 0 20px' }}>
+                    <h3>
+                      <b>{intl.get('hiop.invoiceWorkbench.label.seller').d('销售方')}</b>
+                    </h3>
+                    <Form dataSet={this.headerDS}>
+                      <TextField name="sellerName" />
+                      <TextField name="sellerTaxNo" />
+                    </Form>
+                  </div>
+                </Col>
+              </Row>
+              <Form columns={4} dataSet={this.headerDS} style={{ marginTop: 10 }}>
+                <Select name="invoiceTypeCode" />
+                <TextField name="blueInvoiceCode" />
+                <TextField name="blueInvoiceNo" />
+                <DatePicker name="invoiceDate" />
+              </Form>
+            </Spin>
+          </Card>
+          <Card style={{ marginTop: 10 }}>
+            <Table
+              buttons={this.buttons}
+              dataSet={this.linesDS}
+              columns={this.columns}
+              queryBar={this.renderQueryBar}
+              style={{ height: 400 }}
+            />
+          </Card>
+        </div>
       </>
     );
   }

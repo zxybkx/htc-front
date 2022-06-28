@@ -1,4 +1,4 @@
-/*
+/**
  * @Description:开票申请
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
@@ -10,32 +10,30 @@ import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { PageHeaderWrapper } from 'hzero-boot/lib/components/Page';
 import { Dispatch } from 'redux';
-// import { routerRedux } from 'dva/router';
 import { connect } from 'dva';
 import {
-  DataSet,
-  Table,
-  Select,
-  TextField,
-  Form,
-  Output,
-  DatePicker,
-  Spin,
   Currency,
+  DataSet,
+  DatePicker,
+  Form,
   NumberField,
+  Output,
+  Select,
+  Spin,
+  Table,
+  TextField,
 } from 'choerodon-ui/pro';
 import { openTab } from 'utils/menuTab';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import { ColumnLock, ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
+import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import intl from 'utils/intl';
 import queryString from 'query-string';
 import formatterCollections from 'utils/intl/formatterCollections';
 import moment from 'moment';
 import { getCurrentOrganizationId } from 'utils/utils';
-import { getCurrentEmployeeInfo } from '@common/services/commonService';
-import { ReqHeaderDS, OrderLinesDS } from '../stores/InvoiceReqOrderListDS';
+import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
+import { OrderLinesDS, ReqHeaderDS } from '../stores/InvoiceReqOrderListDS';
 
-const modelCode = 'hiop.invoice-req';
 const tenantId = getCurrentOrganizationId();
 
 interface RouterInfo {
@@ -46,10 +44,10 @@ interface InvoiceReqOrderListPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
 
-@formatterCollections({
-  code: [modelCode],
-})
 @connect()
+@formatterCollections({
+  code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq', 'hiop.tobeInvoice'],
+})
 export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderListPageProps> {
   state = { empInfo: {} as any, backPath: '' };
 
@@ -68,10 +66,8 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
   componentDidMount() {
     const { search } = this.props.location;
     const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
-    // console.log('invoiceInfoStr', invoiceInfoStr);
     if (invoiceInfoStr) {
       const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
-      // console.log('invoiceInfo', invoiceInfo);
       this.setState({
         backPath: invoiceInfo.backPath,
       });
@@ -88,6 +84,9 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
     }
   }
 
+  /**
+   * 查询
+   */
   handleQuery = () => {
     this.reqHeaderDS.setQueryParameter('headerId', this.props.match.params.headerId);
     this.orderLinesDS.setQueryParameter('headerId', this.props.match.params.headerId);
@@ -102,15 +101,17 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
     });
   };
 
+  /**
+   * 订单详情
+   * @params {object} record-行记录
+   */
   handleGotoOrderDetailPage = (record) => {
-    // const { dispatch } = this.props;
     const orderHeaderId = record.get('orderHeaderId');
     const companyId = this.reqHeaderDS.current?.get('companyId');
-    // const { headerId } = this.props.match.params;
     openTab({
       key: `/htc-front-iop/invoice-workbench/edit/invoiceReq/${companyId}/${orderHeaderId}`,
       path: `/htc-front-iop/invoice-workbench/edit/invoiceReq/${companyId}/${orderHeaderId}`,
-      title: intl.get(`${modelCode}.invoiceReq.order.title`).d('开票订单'),
+      title: intl.get('hiop.invoiceWorkbench.title.invoiceOrder').d('开票订单'),
       search: queryString.stringify({
         invoiceInfo: encodeURIComponent(
           JSON.stringify({
@@ -122,31 +123,14 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
       closable: true,
       type: 'menu',
     });
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname: `/htc-front-iop/invoice-workbench/edit/invoiceReq/${companyId}/${orderHeaderId}`,
-    //     search: queryString.stringify({
-    //       invoiceInfo: encodeURIComponent(
-    //         JSON.stringify({
-    //           backPath: location.pathname,
-    //           backSearch: location.search,
-    //         })
-    //       ),
-    //     }),
-    //   })
-    // );
   };
 
+  /**
+   * 返回表格行
+   * @returns {*[]}
+   */
   get columns(): ColumnProps[] {
     return [
-      // {
-      //   header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
-      //   width: 60,
-      //   renderer: ({ record, dataSet }) => {
-      //     return dataSet && record ? dataSet.indexOf(record) + 1 : '';
-      //   },
-      //   lock: ColumnLock.left,
-      // },
       { name: 'lineNum', lock: ColumnLock.left },
       { name: 'projectName', width: 200, lock: ColumnLock.left },
       { name: 'taxIncludedFlag', width: 130 },
@@ -187,6 +171,9 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
     ];
   }
 
+  /**
+   * 渲染公司信息
+   */
   get renderCompanyDesc() {
     const { empInfo } = this.state;
     if (empInfo) {
@@ -195,6 +182,9 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
     return '';
   }
 
+  /**
+   * 渲染员工信息
+   */
   get renderEmployeeDesc() {
     const { empInfo } = this.state;
     if (empInfo) {
@@ -210,26 +200,25 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
     return (
       <PageHeaderWrapper
         headerProps={{ backPath }}
-        // headerProps={{ backPath: backPath || '/htc-front-iop/invoice-req/list' }}
-        title={intl.get(`${modelCode}.title`).d('开票订单信息')}
+        title={intl.get('hiop.invoiceReq.title.invoiceOrderInfo').d('开票订单信息')}
       >
         <Spin dataSet={this.reqHeaderDS}>
           <Form dataSet={this.reqHeaderDS} columns={5}>
             <Output
-              label={intl.get(`${modelCode}.view.companyDesc`).d('所属公司')}
+              label={intl.get('htc.common.modal.companyName').d('所属公司')}
               required
               value={this.renderCompanyDesc}
               colSpan={2}
             />
             <Output
-              label={intl.get(`${modelCode}.view.employeeDesc`).d('登录员工')}
+              label={intl.get('htc.common.modal.employeeDesc').d('登录员工')}
               value={this.renderEmployeeDesc}
               required
               colSpan={2}
             />
             <DatePicker
               value={moment()}
-              label={intl.get(`${modelCode}.view.curDate`).d('当前日期')}
+              label={intl.get('hiop.invoiceReq.modal.curDate').d('当前日期')}
               readOnly
             />
             <Select name="sourceType" />

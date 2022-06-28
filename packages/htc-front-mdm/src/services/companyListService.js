@@ -1,16 +1,16 @@
 /**
- * service - 公司列表
- * @Author:jesse.chen <jun.chen01@hand-china.com>
+ * @Description: 公司列表
+ * @Author: jesse.chen <jun.chen01@hand-china.com>
  * @Date: 2020-06-29
- * @LastEditeTime: 2020-06-29
+ * @LastEditTime: 2020-06-29
  * @Copyright: Copyright (c) 2020, Hand
  */
 import request from 'utils/request';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 
-const HMDM_API = commonConfig.MDM_API;
-const HCAN_API = commonConfig.CHAN_API;
-const HIOP_API = commonConfig.IOP_API;
+const HMDM_API = commonConfig.MDM_API || '';
+const HCAN_API = commonConfig.CHAN_API || '';
+const HIOP_API = commonConfig.IOP_API || '';
 
 /**
  * 获取租户协议
@@ -25,6 +25,12 @@ export async function getTenantAgreement(params) {
   });
 }
 
+/**
+ * 获取秘钥
+ * @async
+ * @function responseDecryptionKey
+ * @returns {object} fetch Promise
+ */
 export async function responseDecryptionKey(params) {
   const { tenantId, ...otherParams } = params;
   return request(`${HCAN_API}/v1/${tenantId}/secret-key/response-decryption-key`, {

@@ -1,16 +1,16 @@
-/*
- * @Descripttion:公司协议信息-租户协议条款
+/**
+ * @Description:公司协议信息-租户协议条款
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-08-07 10:19:48
  * @LastEditTime: 2020-08-07 16:05:59
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
-import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
+import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
+import commonConfig from '@htccommon/config/commonConfig';
 
 const modelCode = 'hmdm.agreement-clause';
 
@@ -40,6 +40,12 @@ export default (dsParams): DataSetProps => {
         type: FieldType.number,
       },
       {
+        name: 'expensesTypeInfo',
+        label: intl.get(`${modelCode}.view.expensesTypeInfo`).d('费用类型信息'),
+        type: FieldType.object,
+        ignore: FieldIgnore.always,
+      },
+      {
         name: 'expensesTypeCode',
         label: intl.get(`${modelCode}.view.expensesTypeCode`).d('费用类型代码'),
         type: FieldType.string,
@@ -67,28 +73,40 @@ export default (dsParams): DataSetProps => {
         lookupCode: 'HMDM.BILLING_CODE',
       },
       {
+        name: 'numberInfo',
+        label: intl.get(`${modelCode}.view.numberInfo`).d('数量信息'),
+        type: FieldType.object,
+        ignore: FieldIgnore.always,
+      },
+      {
         name: 'solutionPackageNumber',
-        label: intl.get(`${modelCode}.view.solutionPackageNumber`).d('数量'),
+        label: intl.get(`${modelCode}.view.solutionPackageNumber`).d('总量：'),
         type: FieldType.number,
       },
       {
         name: 'usedQuantity',
-        label: intl.get(`${modelCode}.view.usedQuantity`).d('已使用数量'),
+        label: intl.get(`${modelCode}.view.usedQuantity`).d('已用：'),
         type: FieldType.number,
       },
       {
         name: 'remainingQuantity',
-        label: intl.get(`${modelCode}.view.remainingQuantity`).d('剩余使用数量'),
+        label: intl.get(`${modelCode}.view.remainingQuantity`).d('剩余：'),
         type: FieldType.number,
       },
       {
+        name: 'dateInfo',
+        label: intl.get(`${modelCode}.view.dateInfo`).d('计费日期'),
+        type: FieldType.object,
+        ignore: FieldIgnore.always,
+      },
+      {
         name: 'billingStartDate',
-        label: intl.get(`${modelCode}.view.billingStartDate`).d('计费起始日'),
+        label: intl.get(`${modelCode}.view.billingStartDate`).d('开始：'),
         type: FieldType.dateTime,
       },
       {
         name: 'billingEndDate',
-        label: intl.get(`${modelCode}.view.billingEndDate`).d('计费到期日'),
+        label: intl.get(`${modelCode}.view.billingEndDate`).d('截止：'),
         type: FieldType.dateTime,
       },
       {

@@ -1,23 +1,26 @@
-/*
+/**
  * @Description:开票订单头
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2020-12-4 9:54:22
- * @LastEditTime:
+ * @LastEditTime: 2022-06-13 17:50
  * @Copyright: Copyright (c) 2020, Hand
  */
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { AxiosRequestConfig } from 'axios';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { defaultInvoiceInfo } from '@src/services/invoiceOrderService';
 import intl from 'utils/intl';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
-import { EMAIL, PHONE } from 'utils/regExp';
+import { EMAIL } from 'utils/regExp';
+import { phoneReg } from '@htccommon/utils/utils';
 import { isEmpty } from 'lodash';
 import { getCurrentOrganizationId } from 'utils/utils';
 
-const modelCode = 'hiop.invoice-order';
-
+/**
+ * 只读验证规则
+ * @params {object} record-行记录
+ */
 const headerReadOnlyRule = (record) => {
   return (
     record.get('readonly') ||
@@ -26,7 +29,6 @@ const headerReadOnlyRule = (record) => {
 };
 
 export default (dsParams): DataSetProps => {
-  // const API_PREFIX = `${commonConfig.IOP_API}-28090` || '';
   const API_PREFIX = commonConfig.IOP_API || '';
   const tenantId = getCurrentOrganizationId();
   return {
@@ -78,7 +80,7 @@ export default (dsParams): DataSetProps => {
                   paperTicketReceiverName: res.paperTicketReceiverName,
                   paperTicketReceiverPhone: res.paperTicketReceiverPhone,
                   paperTicketReceiverAddress: res.paperTicketReceiverAddress,
-                  deliveryWay: res.deliveryWay,
+                  // deliveryWay: res.deliveryWay,
                   electronicReceiverInfo: res.electronicReceiverInfo,
                   nextDefaultFlag: 1,
                 });
@@ -144,7 +146,6 @@ export default (dsParams): DataSetProps => {
     fields: [
       {
         name: 'readonly',
-        label: intl.get(`${modelCode}.view.readonly`).d('是否可编辑'),
         type: FieldType.boolean,
       },
       {
@@ -161,7 +162,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'companyType',
-        label: intl.get(`${modelCode}.view.companyType`).d('是否小规模公司'),
+        label: intl.get('hiop.invoiceWorkbench.modal.companyType').d('是否小规模公司'),
         type: FieldType.string,
       },
       {
@@ -170,7 +171,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'extNumberObj',
-        label: intl.get(`${modelCode}.view.extNumberObj`).d('分机号'),
+        label: intl.get('hiop.invoiceWorkbench.modal.extNumber').d('分机号'),
         type: FieldType.object,
         required: true,
         lovCode: 'HIOP.COMPANY_TAX_CONTROL_INFO',
@@ -182,13 +183,12 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'extNumber',
-        label: intl.get(`${modelCode}.view.extNumber`).d('分机号'),
         type: FieldType.string,
         bind: 'extNumberObj.extNumber',
       },
       {
         name: 'listFlag',
-        label: intl.get(`${modelCode}.view.listFlag`).d('购货清单标志'),
+        label: intl.get('hiop.invoiceWorkbench.modal.shopListFlag').d('购货清单标志'),
         type: FieldType.string,
         lookupCode: 'HIOP.PURCHASE_LIST_MARK ',
         computedProps: {
@@ -198,7 +198,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'purchaseInvoiceFlag',
-        label: intl.get(`${modelCode}.view.purchaseInvoiceFlag`).d('业务类型'),
+        label: intl.get('hiop.tobeInvoice.modal.requestTypeObj').d('业务类型'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
@@ -207,7 +207,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'invoiceVariety',
-        label: intl.get(`${modelCode}.view.invoiceVariety`).d('发票种类'),
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
@@ -221,7 +221,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'buyerName',
-        label: intl.get(`${modelCode}.view.buyerName`).d('购方名称'),
+        label: intl.get('hiop.invoiceWorkbench.modal.name').d('名称'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -234,10 +234,11 @@ export default (dsParams): DataSetProps => {
           url: `${API_PREFIX}/v1/${tenantId}/billing-info/buyer-info-list?companyId=${dsParams.companyId}`,
           method: 'GET',
         }),
+        maxLength: 100,
       },
       {
         name: 'buyerTaxpayerNumber',
-        label: intl.get(`${modelCode}.view.buyerTaxpayerNumber`).d('购方纳税人识别号'),
+        label: intl.get('htc.common.modal.taxpayerNumber').d('纳税人识别号'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -245,10 +246,11 @@ export default (dsParams): DataSetProps => {
           required: ({ record }) =>
             record.get('buyerCompanyType') !== '03' && record.get('buyerCompanyType') !== '04',
         },
+        maxLength: 24,
       },
       {
         name: 'buyerCompanyAddressPhone',
-        label: intl.get(`${modelCode}.view.buyerCompanyAddressPhone`).d('购方地址、电话'),
+        label: intl.get('htc.common.modal.companyAddressPhone').d('地址、电话'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -256,10 +258,11 @@ export default (dsParams): DataSetProps => {
           required: ({ record }) =>
             record.get('invoiceVariety') === '0' || record.get('invoiceVariety') === '52',
         },
+        maxLength: 100,
       },
       {
         name: 'buyerBankNumber',
-        label: intl.get(`${modelCode}.view.buyerBankNumber`).d('购方开户行及账号'),
+        label: intl.get('htc.common.modal.bankNumber').d('开户行及账号'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -267,10 +270,11 @@ export default (dsParams): DataSetProps => {
           required: ({ record }) =>
             record.get('invoiceVariety') === '0' || record.get('invoiceVariety') === '52',
         },
+        maxLength: 100,
       },
       {
         name: 'buyerCompanyType',
-        label: intl.get(`${modelCode}.view.buyerCompanyType`).d('企业类型'),
+        label: intl.get('hiop.invoiceWorkbench.modal.companyType').d('企业类型'),
         type: FieldType.string,
         lookupCode: 'HIOP.BUSINESS_TYPE',
         required: true,
@@ -285,7 +289,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'sellerName',
-        label: intl.get(`${modelCode}.view.sellerName`).d('销方名称'),
+        label: intl.get('hiop.invoiceWorkbench.modal.name').d('名称'),
         computedProps: {
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '1',
@@ -298,10 +302,11 @@ export default (dsParams): DataSetProps => {
           url: `${API_PREFIX}/v1/${tenantId}/billing-info/seller-info-list?companyId=${dsParams.companyId}`,
           method: 'GET',
         }),
+        maxLength: 100,
       },
       {
         name: 'sellerTaxpayerNumber',
-        label: intl.get(`${modelCode}.view.sellerTaxpayerNumber`).d('销方纳税人识别号'),
+        label: intl.get('hiop.invoiceWorkbench.modal.taxpayerNumber').d('纳税人识别号'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -311,28 +316,31 @@ export default (dsParams): DataSetProps => {
             record.get('buyerCompanyType') !== '03' &&
             record.get('buyerCompanyType') !== '04',
         },
+        maxLength: 24,
       },
       {
         name: 'sellerCompanyAddressPhone',
-        label: intl.get(`${modelCode}.view.sellerCompanyAddressPhone`).d('销方地址、电话'),
+        label: intl.get('hiop.invoiceWorkbench.modal.companyAddressPhone').d('地址、电话'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '1',
         },
+        maxLength: 100,
       },
       {
         name: 'sellerBankNumber',
-        label: intl.get(`${modelCode}.view.sellerBankNumber`).d('销方开户行及账号'),
+        label: intl.get('hiop.invoiceWorkbench.modal.bankNumber').d('开户行及账号'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '1',
         },
+        maxLength: 100,
       },
       {
         name: 'sellerCompanyType',
-        label: intl.get(`${modelCode}.view.sellerCompanyType`).d('企业类型'),
+        label: intl.get('hiop.invoiceWorkbench.modal.companyType').d('企业类型'),
         type: FieldType.string,
         lookupCode: 'HIOP.BUSINESS_TYPE',
         required: true,
@@ -342,13 +350,13 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'remark',
-        label: intl.get(`${modelCode}.view.remark`).d('备注'),
+        label: intl.get('hzero.common.remark').d('备注'),
         maxLength: 200,
         type: FieldType.string,
       },
       {
         name: 'userRemark',
-        label: intl.get(`${modelCode}.view.userRemark`).d('备注'),
+        label: intl.get('hzero.common.remark').d('备注'),
         type: FieldType.string,
         maxLength: 200,
         computedProps: {
@@ -357,7 +365,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'paperTicketReceiverName',
-        label: intl.get(`${modelCode}.view.paperTicketReceiverName`).d('纸票收件人'),
+        label: intl.get('hiop.invoiceWorkbench.modal.paperTicketReceiverName').d('纸票收件人'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -368,14 +376,14 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'paperTicketReceiverPhone',
-        label: intl.get(`${modelCode}.view.paperTicketReceiverPhone`).d('纸票收件人电话'),
+        label: intl.get('hiop.invoiceWorkbench.modal.paperTicketReceiverPhone').d('纸票收件人电话'),
         type: FieldType.string,
-        pattern: PHONE,
-        defaultValidationMessages: {
-          patternMismatch: intl
-            .get(`${modelCode}.view.paperTicketReceiverPhone`)
-            .d('请输入正确的电话'),
-        },
+        pattern: phoneReg,
+        // defaultValidationMessages: {
+        //   patternMismatch: intl
+        //     .get('hzero.common.validation.phone')
+        //     .d('手机格式不正确'),
+        // },
         computedProps: {
           readOnly: ({ record }) =>
             record.get('readonly') ||
@@ -385,7 +393,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'nextDefaultFlag',
-        label: intl.get(`${modelCode}.view.nextDefaultFlag`).d('下次默认'),
+        label: intl.get('hiop.invoiceWorkbench.modal.nextDefaultFlag').d('下次默认'),
         type: FieldType.boolean,
         trueValue: 1,
         falseValue: 0,
@@ -395,7 +403,9 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'paperTicketReceiverAddress',
-        label: intl.get(`${modelCode}.view.paperTicketReceiverAddress`).d('纸票收件人地址'),
+        label: intl
+          .get('hiop.invoiceWorkbench.modal.paperTicketReceiverAddress')
+          .d('纸票收件人地址'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -406,14 +416,14 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'deliveryWay',
-        label: intl.get(`${modelCode}.view.deliveryWay`).d('交付方式'),
+        label: intl.get('hiop.invoiceWorkbench.modal.deliveryWay').d('交付方式'),
         type: FieldType.string,
         lookupCode: 'HIOP.DELIVERY_WAY',
         readOnly: true,
       },
       {
         name: 'electronicReceiverInfo',
-        label: intl.get(`${modelCode}.view.electronicReceiverInfo`).d('手机/邮件'),
+        label: intl.get('hiop.invoiceWorkbench.modal.electronicReceiverInfo').d('手机/邮件'),
         type: FieldType.string,
         computedProps: {
           required: ({ record }) => record.get('deliveryWay') === '1',
@@ -423,7 +433,7 @@ export default (dsParams): DataSetProps => {
               if (record.get('electronicReceiverInfo').indexOf('@') > -1) {
                 return EMAIL;
               } else {
-                return PHONE;
+                return phoneReg;
               }
             }
           },
@@ -431,7 +441,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'payeeNameObj',
-        label: intl.get(`${modelCode}.view.payeeName`).d('收款人'),
+        label: intl.get('hiop.invoiceWorkbench.modal.payeeName').d('收款人'),
         type: FieldType.object,
         lovCode: 'HMDM.EMPLOYEE_NAME',
         cascadeMap: { companyId: 'companyId' },
@@ -442,31 +452,31 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'payeeName',
-        label: intl.get(`${modelCode}.view.payeeName`).d('收款人'),
+        label: intl.get('hiop.invoiceWorkbench.modal.payeeName').d('收款人'),
         type: FieldType.string,
         bind: 'payeeNameObj.employeeName',
       },
       {
         name: 'issuerNameObj',
-        label: intl.get(`${modelCode}.view.issuerName`).d('开票人'),
+        label: intl.get('hiop.invoiceWorkbench.modal.issuerName').d('开票人'),
         type: FieldType.object,
         lovCode: 'HMDM.EMPLOYEE_NAME',
         cascadeMap: { companyId: 'companyId' },
         computedProps: {
           readOnly: ({ record }) => record.get('readonly'),
         },
-        required: true,
+        // required: true,
         ignore: FieldIgnore.always,
       },
       {
         name: 'issuerName',
-        label: intl.get(`${modelCode}.view.issuerName`).d('开票人'),
+        label: intl.get('hiop.invoiceWorkbench.modal.issuerName').d('开票人'),
         type: FieldType.string,
         bind: 'issuerNameObj.employeeName',
       },
       {
         name: 'reviewerNameObj',
-        label: intl.get(`${modelCode}.view.reviewerName`).d('复核'),
+        label: intl.get('hiop.invoiceWorkbench.modal.reviewerName').d('复核'),
         type: FieldType.object,
         lovCode: 'HMDM.EMPLOYEE_NAME',
         cascadeMap: { companyId: 'companyId' },
@@ -478,7 +488,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'reviewerName',
-        label: intl.get(`${modelCode}.view.reviewerName`).d('复核'),
+        label: intl.get('hiop.invoiceWorkbench.modal.reviewerName').d('复核'),
         type: FieldType.string,
         bind: 'reviewerNameObj.employeeName',
       },
@@ -489,7 +499,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'blueInvoiceCode',
-        label: intl.get(`${modelCode}.view.blueInvoiceCode`).d('发票代码'),
+        label: intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) => record.get('isRedMark') !== 'Y' || record.get('readonly'),
@@ -497,7 +507,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'blueInvoiceNo',
-        label: intl.get(`${modelCode}.view.blueInvoiceNo`).d('发票号码'),
+        label: intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) => record.get('isRedMark') !== 'Y' || record.get('readonly'),
@@ -505,70 +515,70 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'invoiceCode',
-        label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
+        label: intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'invoiceNo',
-        label: intl.get(`${modelCode}.view.invoiceNo`).d('发票号码'),
+        label: intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'totalExcludingTaxAmount',
-        label: intl.get(`${modelCode}.view.totalExcludingTaxAmount`).d('合计不含税金额'),
+        label: intl.get('hiop.invoiceWorkbench.modal.excludingTaxAmount').d('合计不含税金额'),
         type: FieldType.currency,
         readOnly: true,
       },
       {
         name: 'totalPriceTaxAmount',
-        label: intl.get(`${modelCode}.view.totalPriceTaxAmount`).d('合计含税金额'),
+        label: intl.get('hiop.invoiceWorkbench.modal.priceTaxAmount').d('合计含税金额'),
         type: FieldType.currency,
         readOnly: true,
       },
       {
         name: 'totalTax',
-        label: intl.get(`${modelCode}.view.totalTax`).d('合计税额'),
+        label: intl.get('hiop.invoiceWorkbench.modal.totalTaxAmount').d('合计税额'),
         type: FieldType.currency,
         readOnly: true,
       },
       {
         name: 'orderNumber',
-        label: intl.get(`${modelCode}.view.orderNumber`).d('订单号'),
+        label: intl.get('hiop.invoiceWorkbench.modal.orderNumber').d('订单号'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'orderStatus',
-        label: intl.get(`${modelCode}.view.orderStatus`).d('订单状态'),
+        label: intl.get('hiop.invoiceWorkbench.modal.orderStatus').d('订单状态'),
         type: FieldType.string,
         lookupCode: 'HIOP.ORDER_STATUS',
         readOnly: true,
       },
       {
         name: 'invoiceSourceType',
-        label: intl.get(`${modelCode}.view.invoiceSourceType`).d('来源类型'),
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceSourceType').d('来源类型'),
         type: FieldType.string,
         readOnly: true,
         lookupCode: 'HIOP.INVOICE_SOURCE_TYPE',
       },
       {
         name: 'orderProgress',
-        label: intl.get(`${modelCode}.view.orderProgress`).d('订单进展'),
+        label: intl.get('hiop.invoiceWorkbench.modal.orderProgress').d('订单进展'),
         type: FieldType.string,
         lookupCode: 'HIOP.ORDER_PROGRESS ',
         readOnly: true,
       },
       {
         name: 'invoiceAmountDifference',
-        label: intl.get(`${modelCode}.view.invoiceAmountDifference`).d('开票税差'),
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceAmountDifference').d('开票税差'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'invoiceSourceOrder',
-        label: intl.get(`${modelCode}.view.invoiceSourceFlag`).d('来源单号'),
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceSourceOrder').d('来源单号'),
         type: FieldType.string,
         readOnly: true,
       },

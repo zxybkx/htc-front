@@ -1,5 +1,5 @@
-/*
- * @Description:开票申请
+/**
+ * @Description: 开票申请
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-12-14 16:53:56
@@ -21,7 +21,7 @@ const config: RoutersConfig = [
         component: () => import('./detail/InvoiceReqDetailPage'),
       },
       {
-        path: '/htc-front-iop/invoice-req/detail/:companyId/:headerId',
+        path: '/htc-front-iop/invoice-req/detail/:companyId/:headerId/:billFlag',
         component: () => import('./detail/InvoiceReqDetailPage'),
       },
       {
@@ -34,7 +34,7 @@ const config: RoutersConfig = [
       },
       // 空白废申请
       {
-        path: '/htc-front-iop/invoice-req/invoiceVoid/:sourceType/:companyId',
+        path: '/htc-front-iop/invoice-req/invoice-void/:sourceType/:companyId',
         component: () => import('../invoice-void/list/InvoiceVoidPage'),
       },
       // 发票作废
@@ -46,19 +46,19 @@ const config: RoutersConfig = [
       // 发票红冲
       {
         path:
-          '/htc-front-iop/invoice-req/invoiceRedFlush/:sourceType/:invoicingOrderHeaderId/:companyId',
+          '/htc-front-iop/invoice-req/invoice-red-flush/:sourceType/:invoicingOrderHeaderId/:companyId',
         component: () => import('../invoice-redFlush/list/InvoiceRedFlushPage'),
       },
       // 申请单-发票作废
       {
         path:
-          '/htc-front-iop/invoice-req/invoiceMain-void/:sourceType/:invoicingReqHeaderId/:companyId',
+          '/htc-front-iop/invoice-req/invoice-main-void/:sourceType/:invoicingReqHeaderId/:companyId',
         component: () => import('../invoice-void/list/InvoiceVoidPage'),
       },
       // 申请单-发票红冲
       {
         path:
-          '/htc-front-iop/invoice-req/invoiceMain-redFlush/:sourceType/:invoicingReqHeaderId/:companyId',
+          '/htc-front-iop/invoice-req/invoice-main-red-flush/:sourceType/:invoicingReqHeaderId/:companyId',
         component: () => import('../invoice-redFlush/list/InvoiceRedFlushPage'),
       },
     ],

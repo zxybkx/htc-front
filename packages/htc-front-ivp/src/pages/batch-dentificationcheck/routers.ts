@@ -28,6 +28,11 @@ const config: RoutersConfig = [
         component: () => import('./detail/BatchBillDetailPage'),
       },
       {
+        // 查看详情(区块链、通用机打)
+        path: '/htc-front-ivp/batch-check/blockAndCeneralDetail/:invoiceId',
+        component: () => import('./detail/BatchBlockAndCeneralDetailPage'),
+      },
+      {
         //  档案查看
         path: '/htc-front-ivp/batch-check/archive-view',
         component: () => import('./detail/FileView'),

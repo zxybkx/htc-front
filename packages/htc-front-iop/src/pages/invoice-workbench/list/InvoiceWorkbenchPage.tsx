@@ -8,62 +8,62 @@
  */
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
-import { routerRedux } from 'dva/router';
 import { connect } from 'dva';
 import { Content, Header } from 'components/Page';
 import withProps from 'utils/withProps';
 import queryString from 'query-string';
 import { Button as PermissionButton } from 'components/Permission';
-import { openTab, closeTab } from 'utils/menuTab';
+import { closeTab, openTab } from 'utils/menuTab';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import intl from 'utils/intl';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { Bind } from 'lodash-decorators';
+import { RouteComponentProps } from 'react-router-dom';
 import ExcelExport from 'components/ExcelExport';
-import commonConfig from '@common/config/commonConfig';
+import { Col, Dropdown, Icon, Menu, Row, Tag } from 'choerodon-ui';
+import commonConfig from '@htccommon/config/commonConfig';
 import {
   Button,
+  Currency,
   DataSet,
   DateTimePicker,
   Form,
   Lov,
-  Output,
+  Modal,
   Select,
   Table,
   TextField,
-  Currency,
-  Modal,
 } from 'choerodon-ui/pro';
-import { Col, Row } from 'choerodon-ui';
-import { getPresentMenu, base64toBlob } from '@common/utils/utils';
+import { base64toBlob, getPresentMenu } from '@htccommon/utils/utils';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { operatorRender } from 'utils/renderer';
 import notification from 'utils/notification';
 import { observer } from 'mobx-react-lite';
-import { find, isEmpty, forEach } from 'lodash';
+import { find, forEach, isEmpty } from 'lodash';
 import moment from 'moment';
-import { getCurrentEmployeeInfoOut } from '@common/services/commonService';
+import { getCurrentEmployeeInfoOut } from '@htccommon/services/commonService';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import {
-  batchExport,
-  refresh,
-  batchSubmit,
-  batchRemove,
   batchCancelSubmitOrder,
-  exportPrintFile,
+  batchExport,
   batchExportNoZip,
+  batchRemove,
+  batchSubmit,
+  exportPrintFile,
+  refresh,
   updatePrintNum,
 } from '@src/services/invoiceOrderService';
 import { judgeRedFlush } from '@src/services/invoiceReqService';
+import MenuItem from 'choerodon-ui/lib/menu/MenuItem';
 import InvoiceWorkbenchDS from '../stores/InvoiceWorkbenchDS';
 
-const modelCode = 'hiop.invoice-workbench';
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.IOP_API || '';
 const permissionPath = `${getPresentMenu().name}.ps`;
 
-interface InvoiceWorkbenchPageProps {
+interface InvoiceWorkbenchPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   invoiceWorkbenchDS: DataSet;
 }
@@ -79,6 +79,9 @@ interface InvoiceWorkbenchPageProps {
   { cacheState: true }
 )
 @connect()
+@formatterCollections({
+  code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.tobeInvoice'],
+})
 export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPageProps> {
   state = {
     curCompanyId: undefined,
@@ -98,9 +101,14 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         }
       }
       this.setState({ curCompanyId });
+      this.props.invoiceWorkbenchDS.query(this.props.invoiceWorkbenchDS.currentPage || 0);
     }
   }
 
+  /**
+   * 公司改变回调
+   * @params {object} value-当前值
+   */
   @Bind()
   async handleCompanyChange(value) {
     if (value) {
@@ -109,60 +117,70 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     }
   }
 
+  /**
+   * 自定义查询条
+   * @params {object} value-当前值
+   */
   @Bind()
   renderQueryBar(props) {
     const { queryDataSet, buttons, dataSet } = props;
     const { showMore } = this.state;
     if (queryDataSet) {
       const queryMoreArray: JSX.Element[] = [];
-      queryMoreArray.push(<DateTimePicker name="invoiceDate" />);
-      queryMoreArray.push(<DateTimePicker name="invoiceDateTo" />);
-      queryMoreArray.push(<DateTimePicker name="submitDate" />);
-      queryMoreArray.push(<DateTimePicker name="submitDateTo" />);
-      /*---*/
-      queryMoreArray.push(<Lov name="employeeNameObj" />);
-      queryMoreArray.push(<TextField name="invoiceSourceFlag" />);
-      queryMoreArray.push(<Select name="purchaseInvoiceFlag" />);
-      queryMoreArray.push(<Select name="invoiceVariety" />);
-      /*---*/
-      queryMoreArray.push(<TextField name="buyerName" colSpan={2} />);
-      queryMoreArray.push(<Select name="printFlag" />);
+      queryMoreArray.push(<TextField name="orderNumber" />);
+      queryMoreArray.push(<Select name="invoiceSourceType" />);
       queryMoreArray.push(<Currency name="invoiceAmount" />);
-      queryMoreArray.push(<TextField name="sellerName" colSpan={2} />);
       queryMoreArray.push(<TextField name="invoiceCode" />);
+
       queryMoreArray.push(<TextField name="invoiceNo" />);
+      queryMoreArray.push(<Select name="printFlag" />);
+      queryMoreArray.push(<DateTimePicker name="submitDates" />);
+      // queryMoreArray.push(<DateTimePicker name="submitDate" />);
+      // queryMoreArray.push(<DateTimePicker name="submitDateTo" />);
+
+      queryMoreArray.push(<Select name="purchaseInvoiceFlag" />);
+      queryMoreArray.push(<Select name="billingType" />);
+
+      queryMoreArray.push(<TextField name="buyerName" colSpan={2} />);
+      queryMoreArray.push(<Lov name="employeeNameObj" />);
+      queryMoreArray.push(<TextField name="sellerName" colSpan={2} />);
+      queryMoreArray.push(<TextField name="invoiceSourceFlag" />);
+
       return (
         <>
-          <Form columns={4} dataSet={queryDataSet}>
-            <Lov
-              name="companyObj"
-              colSpan={2}
-              onChange={(value) => this.handleCompanyChange(value)}
-            />
-            <Output name="employeeDesc" colSpan={1} />
-            <Output name="taxpayerNumber" colSpan={1} />
-            {/*---*/}
-            <Output name="addressPhone" colSpan={2} />
-            <Output name="bankNumber" colSpan={2} />
-            {/*---*/}
-            <Select name="invoiceState" />
-            <Select name="billingType" />
-            <Select name="invoiceSourceType" />
-            <TextField name="invoiceSourceOrder" />
-            {/*---*/}
-            <DateTimePicker name="creationDate" />
-            <DateTimePicker name="creationDateTo" />
-            <Select name="orderStatus" />
-            <TextField name="orderNumber" />
-            {showMore && queryMoreArray}
-          </Form>
-          <Row type="flex" justify="space-between">
-            <Col span={18}>{buttons}</Col>
-            <Col span={6} style={{ textAlign: 'end', marginBottom: '2px' }}>
-              <Button onClick={() => this.setState({ showMore: !showMore })}>
-                {showMore
-                  ? intl.get('hzero.common.button.collected').d('收起查询')
-                  : intl.get('hzero.common.button.viewMore').d('更多查询')}
+          <Row type="flex" style={{ flexWrap: 'nowrap' }}>
+            <Col span={20}>
+              <Form columns={3} dataSet={queryDataSet}>
+                <Lov name="companyObj" onChange={(value) => this.handleCompanyChange(value)} />
+                <TextField name="taxpayerNumber" />
+                <TextField name="employeeDesc" />
+
+                <DateTimePicker name="creatDate" />
+                {/* <DateTimePicker name="creationDate" />
+                <DateTimePicker name="creationDateTo" /> */}
+                <DateTimePicker name="invoiceDates" />
+                {/* <DateTimePicker name="invoiceDate" />
+                <DateTimePicker name="invoiceDateTo" /> */}
+
+                {/* <TextField name="bankNumber" /> */}
+                {/* <TextField name="addressPhone"/> */}
+                <TextField name="invoiceSourceOrder" />
+                <Select name="invoiceState" />
+                <Select name="orderStatus" />
+                <Select name="invoiceVariety" />
+
+                {showMore && queryMoreArray}
+              </Form>
+            </Col>
+            <Col span={4} style={{ minWidth: '190px', textAlign: 'end' }}>
+              <Button
+                funcType={FuncType.link}
+                onClick={() => this.setState({ showMore: !showMore })}
+              >
+                <span>
+                  {intl.get('hzero.common.button.option').d('更多')}
+                  {showMore ? <Icon type="expand_more" /> : <Icon type="expand_less" />}
+                </span>
               </Button>
               <Button
                 onClick={() => {
@@ -170,11 +188,16 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
                   queryDataSet.create();
                 }}
               >
-                {intl.get(`${modelCode}.button.reset`).d('重置')}
+                {intl.get('hzero.common.button.reset').d('重置')}
               </Button>
               <Button color={ButtonColor.primary} onClick={() => dataSet.query()}>
-                {intl.get(`${modelCode}.button.save`).d('查询')}
+                {intl.get('hzero.common.button.search').d('查询')}
               </Button>
+            </Col>
+          </Row>
+          <Row type="flex" justify="space-between">
+            <Col span={18} style={{ marginBottom: '10px' }}>
+              {buttons}
             </Col>
           </Row>
         </>
@@ -183,7 +206,9 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     return <></>;
   }
 
-  // 导出
+  /**
+   * 导出
+   */
   @Bind()
   exportParams() {
     const queryParams =
@@ -201,7 +226,9 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     return { ..._queryParams } || {};
   }
 
-  // 导入
+  /**
+   * 导入
+   */
   @Bind()
   async handleBatchExport() {
     const code = 'HIOP.INVOICINGORDER';
@@ -221,7 +248,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         title: intl.get('hzero.common.button.import').d('导入'),
         search: queryString.stringify({
           prefixPath: API_PREFIX,
-          action: intl.get(`${modelCode}.view.invoiceReqImport`).d('开票订单导入'),
+          action: intl.get('hiop.invoiceWorkbench.title.import').d('开票订单导入'),
           tenantId,
           args: argsParam,
         }),
@@ -229,7 +256,9 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     }
   }
 
-  // 刷新状态（批量）
+  /**
+   * 批量刷新状态回调
+   */
   @Bind()
   async batchFresh() {
     const list = this.props.invoiceWorkbenchDS.selected.map((record) => record.toData());
@@ -238,7 +267,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       return notification.warning({
         description: '',
         message: intl
-          .get(`${modelCode}.view.unSubmit`)
+          .get('hiop.invoiceWorkbench.notification.error.batchFresh')
           .d('存在非提交、开具中状态发票，无法刷新状态'),
       });
     }
@@ -256,14 +285,17 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       if (res) {
         notification.success({
           description: '',
-          message: intl.get(`${modelCode}.view.success`).d('刷新成功'),
+          message: intl.get('hzero.common.notification.success').d('操作成功'),
         });
         this.props.invoiceWorkbenchDS.query();
       }
     }
   }
 
-  // 刷新状态（单条）
+  /**
+   * 刷新状态（单条）
+   * @params {object} record-行记录
+   */
   @Bind()
   async singleFresh(record) {
     const data = record.toData();
@@ -278,47 +310,44 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     if (res) {
       notification.success({
         description: '',
-        message: intl.get(`${modelCode}.view.success`).d('刷新成功'),
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
       });
       this.props.invoiceWorkbenchDS.query();
     }
   }
 
-  // 手工开票
+  /**
+   * 手工开票回调
+   */
   @Bind()
   handleManualInvoice() {
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const { queryDataSet } = this.props.invoiceWorkbenchDS;
     if (queryDataSet) {
       const curInfo = queryDataSet.current!.toData();
       const { companyObj } = curInfo;
-      dispatch(
-        routerRedux.push({
-          pathname: `/htc-front-iop/invoice-workbench/invoiceOrder/invoiceOrder/${companyObj.companyId}`,
-          // search: querystring.stringify({
-          //   companyInfo: encodeURIComponent(JSON.stringify(companyObj)),
-          // }),
-        })
+      history.push(
+        `/htc-front-iop/invoice-workbench/invoice-order/invoiceOrder/${companyObj.companyId}`
       );
     }
   }
 
-  // 数据权限分配
+  /**
+   * 数据权限分配
+   */
   @Bind()
   handlePermission() {
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const { curCompanyId } = this.state;
     const selectedList = this.props.invoiceWorkbenchDS.selected
       .map((rec) => rec.get('invoicingOrderHeaderId'))
       .join(',');
-    dispatch(
-      routerRedux.push({
-        pathname: `/htc-front-iop/permission-assign/ORDER/${curCompanyId}/${selectedList}`,
-      })
-    );
+    history.push(`/htc-front-iop/permission-assign/ORDER/${curCompanyId}/${selectedList}`);
   }
 
-  // 批量提交
+  /**
+   * 批量提交
+   */
   @Bind()
   async handleBatchSubmit() {
     const submitOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
@@ -332,7 +361,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       return notification.warning({
         description: '',
         message: intl
-          .get(`${modelCode}.view.unSubmit`)
+          .get('hiop.invoiceWorkbench.notification.error.batchSubmit')
           .d('存在非新建或取消状态的发票，无法批量提交'),
       });
     }
@@ -352,14 +381,16 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       if (res) {
         notification.success({
           description: '',
-          message: intl.get(`${modelCode}.view.success`).d('批量提交成功'),
+          message: intl.get('hzero.common.notification.success').d('操作成功'),
         });
       }
       this.props.invoiceWorkbenchDS.query();
     }
   }
 
-  // 批量取消
+  /**
+   * 批量取消
+   */
   @Bind()
   async handleBatchCancel() {
     const cancelOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
@@ -373,34 +404,16 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       return notification.warning({
         description: '',
         message: intl
-          .get(`${modelCode}.view.unCancel`)
+          .get('hiop.invoiceWorkbench.notification.error.batchCancel')
           .d('存在非开具中或非异常状态发票，无法批量取消'),
       });
     }
-    const { queryDataSet } = this.props.invoiceWorkbenchDS;
-    if (queryDataSet) {
-      const curInfo = queryDataSet.current!.toData();
-      const { companyId, companyCode, employeeNumber, employeeId } = curInfo;
-      const params = {
-        tenantId,
-        companyId,
-        companyCode,
-        employeeId,
-        employeeNumber,
-        cancelOrderHeaderList,
-      };
-      const res = getResponse(await batchCancelSubmitOrder(params));
-      if (res) {
-        notification.success({
-          description: '',
-          message: intl.get(`${modelCode}.view.success`).d('取消成功'),
-        });
-        this.props.invoiceWorkbenchDS.query();
-      }
-    }
+    this.handleCancel(cancelOrderHeaderList);
   }
 
-  // 批量删除
+  /**
+   * 批量删除
+   */
   @Bind()
   async handleBatchDelete() {
     const invoicingOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
@@ -413,52 +426,45 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     if (unNew) {
       return notification.warning({
         description: '',
-        message: intl.get(`${modelCode}.view.unSubmit`).d('存在非新建或取消状态发票，无法批量删除'),
+        message: intl
+          .get('hiop.invoiceWorkbench.notification.error.batchDelete')
+          .d('存在非新建或取消状态发票，无法批量删除'),
       });
     }
-    const params = {
-      tenantId,
-      invoicingOrderHeaderList,
-    };
-    const res = getResponse(await batchRemove(params));
-    if (res) {
-      notification.success({
-        description: '',
-        message: intl.get(`${modelCode}.view.success`).d('删除成功'),
-      });
-      this.props.invoiceWorkbenchDS.query();
-    }
+    this.handledDeleteOrder(invoicingOrderHeaderList);
   }
 
-  // 空白废开具
+  /**
+   * 空白废开具
+   */
   @Bind()
   handleBlankInvoiceVoid() {
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const { curCompanyId } = this.state;
-    dispatch(
-      routerRedux.push({
-        pathname: `/htc-front-iop/invoice-workbench/invoiceVoid/${curCompanyId}`,
-      })
-    );
+    history.push(`/htc-front-iop/invoice-workbench/invoice-void/${curCompanyId}`);
   }
 
-  // 发票作废
+  /**
+   * 发票作废
+   * @params {object} record-行记录
+   */
   @Bind()
   handleInvoiceVoid(record) {
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const invoicingOrderHeaderId = record.get('invoicingOrderHeaderId');
     const companyId = record.get('companyId');
-    dispatch(
-      routerRedux.push({
-        pathname: `/htc-front-iop/invoice-workbench/invoiceLineVoid/${invoicingOrderHeaderId}/${companyId}`,
-      })
+    history.push(
+      `/htc-front-iop/invoice-workbench/invoice-line-void/${invoicingOrderHeaderId}/${companyId}`
     );
   }
 
-  // 发票红冲
+  /**
+   * 发票红冲
+   * @params {object} record-行记录
+   */
   @Bind()
   async handleInvoiceRed(record) {
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const invoicingOrderHeaderId = record.get('invoicingOrderHeaderId');
     const companyId = record.get('companyId');
     const params = {
@@ -472,14 +478,16 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         message: res && res.message,
       });
     } else {
-      dispatch(
-        routerRedux.push({
-          pathname: `/htc-front-iop/invoice-workbench/invoiceRedFlush/${invoicingOrderHeaderId}/${companyId}`,
-        })
+      history.push(
+        `/htc-front-iop/invoice-workbench/invoice-red-flush/${invoicingOrderHeaderId}/${companyId}`
       );
     }
   }
 
+  /**
+   * 导出打印
+   * @params {array} list-文件数据
+   */
   @Bind()
   printZip(list) {
     forEach(list, (item, key) => {
@@ -492,7 +500,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         } catch (e) {
           notification.error({
             description: '',
-            message: intl.get(`${modelCode}.view.ieUploadInfo`).d('下载失败'),
+            message: intl.get('hzero.common.notification.download.error').d('下载失败'),
           });
         }
       } else {
@@ -504,12 +512,15 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         window.URL.revokeObjectURL(blobUrl);
       }
     });
-    // this.props.invoiceWorkbenchDS.query();
   }
 
-  // 导出打印文件/打印发票
+  /**
+   * 导出打印文件/打印发票
+   * @params {number} type 0-导出打印文件 1-打印发票/打印清单
+   * @params {array} printType-打印类型
+   */
   @Bind()
-  async handleExport(type) {
+  async handleExport(type, printType) {
     const exportOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
       record.toData()
     );
@@ -518,7 +529,9 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     if (incompatible) {
       return notification.warning({
         description: '',
-        message: intl.get(`${modelCode}.view.incompatible`).d(`存在非完成状态发票，${tips}`),
+        message: intl
+          .get('hiop.invoiceWorkbench.notification.error.status.batchExport', { tips })
+          .d(`存在非完成状态发票，${tips}`),
       });
     }
     const unInvoiceState = find(
@@ -529,7 +542,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       return notification.warning({
         description: '',
         message: intl
-          .get(`${modelCode}.view.unInvoiceState`)
+          .get('hiop.invoiceWorkbench.notification.error.type.batchExport', { tips })
           .d(`存在发票种类为电子普票或电子专票的发票，${tips}`),
       });
     }
@@ -539,7 +552,9 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     if (unBillType) {
       return notification.warning({
         description: '',
-        message: intl.get(`${modelCode}.view.unInvoiceState`).d(`存在作废的发票，${tips}`),
+        message: intl
+          .get('hiop.invoiceWorkbench.notification.error.invalid.batchExport', { tips })
+          .d(`存在作废的发票，${tips}`),
       });
     }
     const { queryDataSet } = this.props.invoiceWorkbenchDS;
@@ -551,6 +566,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         params = {
           tenantId,
           ...curInfo,
+          printType,
           exportOrderHeaderList,
         };
       } else {
@@ -560,6 +576,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           employeeNumber,
           allCheckFlag,
           exportOrderHeaderList,
+          printType,
         };
       }
       // 导出打印(zip)
@@ -590,6 +607,14 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       } else {
         // 打印发票
         const res = getResponse(await batchExportNoZip(params));
+        let regName = 'Webshell1://';
+        if (printType) {
+          if (printType === 'INVOICE') {
+            regName = 'Webshell2://';
+          } else if (printType === 'LIST') {
+            regName = 'Webshell3://';
+          }
+        }
         if (res) {
           res.forEach((item) => {
             const blob = new Blob([base64toBlob(item.data)]);
@@ -599,7 +624,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
               } catch (e) {
                 notification.error({
                   description: '',
-                  message: intl.get(`${modelCode}.view.ieUploadInfo`).d('下载失败'),
+                  message: intl.get('hzero.common.notification.error').d('下载失败'),
                 });
               }
             } else {
@@ -612,28 +637,32 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
             }
           });
           const printElement = document.createElement('a');
-          printElement.href = 'Webshell://'; // 设置a标签路径
+          printElement.href = regName; // 设置a标签路径
           printElement.click();
         }
       }
     }
   }
 
-  // 编辑/查看
+  /**
+   * 编辑/查看
+   * @params {object} record-行记录
+   */
   @Bind()
   editAndView(record) {
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const invoicingOrderHeaderId = record.get('invoicingOrderHeaderId');
-    dispatch(
-      routerRedux.push({
-        pathname: `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${record.get(
-          'companyId'
-        )}/${invoicingOrderHeaderId}`,
-      })
+    history.push(
+      `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${record.get(
+        'companyId'
+      )}/${invoicingOrderHeaderId}`
     );
   }
 
-  // 提交订单
+  /**
+   * 提交订单
+   * @params {object} record-行记录
+   */
   @Bind()
   async submitInvoice(record) {
     const data = record.toData();
@@ -654,13 +683,16 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     if (res) {
       notification.success({
         description: '',
-        message: intl.get(`${modelCode}.view.success`).d('提交成功'),
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
       });
     }
     this.props.invoiceWorkbenchDS.query();
   }
 
-  // 行打印文件
+  /**
+   * 行打印文件
+   * @params {object} record-行记录
+   */
   @Bind()
   async handledDownload(record) {
     const lineData = record.toData();
@@ -680,7 +712,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           } catch (e) {
             notification.error({
               description: '',
-              message: intl.get(`${modelCode}.view.ieUploadInfo`).d('下载失败'),
+              message: intl.get('hzero.common.notification.error').d('操作失败'),
             });
           }
         } else {
@@ -691,24 +723,6 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           aElement.click();
           window.URL.revokeObjectURL(blobUrl);
         }
-        // const blob = new Blob([res]); // 字节流
-        // if (window.navigator.msSaveBlob) {
-        //   try {
-        //     window.navigator.msSaveBlob(blob, item);
-        //   } catch (e) {
-        //     notification.error({
-        //       description: '',
-        //       message: intl.get(`${modelCode}.view.ieUploadInfo`).d('下载失败'),
-        //     });
-        //   }
-        // } else {
-        //   const aElement = document.createElement('a');
-        //   const blobUrl = window.URL.createObjectURL(blob);
-        //   aElement.href = blobUrl; // 设置a标签路径
-        //   aElement.download = item;
-        //   aElement.click();
-        //   window.URL.revokeObjectURL(blobUrl);
-        // }
       });
       const printElement = document.createElement('a');
       printElement.href = 'Webshell://'; // 设置a标签路径
@@ -716,70 +730,107 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     }
   }
 
-  // 单条删除
+  /**
+   * 删除订单
+   * @params {array} records-选中的行记录数组
+   */
   @Bind()
-  async handleSingleDelete(record) {
-    const data = record.toData();
-    const params = {
-      tenantId,
-      invoicingOrderHeaderList: [data],
-    };
-    const res = getResponse(await batchRemove(params));
-    if (res) {
-      notification.success({
-        description: '',
-        message: intl.get(`${modelCode}.view.success`).d('删除成功'),
-      });
-      this.props.invoiceWorkbenchDS.query();
-    }
+  async handledDeleteOrder(records) {
+    Modal.confirm({
+      title: intl
+        .get('hiop.invoiceWorkbench.view.deleteHint')
+        .d('删除后将无法恢复，是否确定删除？'),
+      onOk: async () => {
+        const params = {
+          tenantId,
+          invoicingOrderHeaderList: records,
+        };
+        const res = getResponse(await batchRemove(params));
+        if (res) {
+          notification.success({
+            description: '',
+            message: intl.get('hzero.common.notification.success').d('操作成功'),
+          });
+          this.props.invoiceWorkbenchDS.query();
+        }
+      },
+    });
   }
 
-  // 单条取消
+  /**
+   * 取消订单调接口
+   * @params {array} records-选中的行记录数组
+   */
   @Bind()
-  async handleSingleCancel(record) {
-    const data = record.toData();
+  async handleCancel(records) {
     const { queryDataSet } = this.props.invoiceWorkbenchDS;
-    const { companyId, companyCode, employeeNumber } = data;
-    const employeeId = queryDataSet && queryDataSet.current!.get('employeeId');
-    const params = {
-      tenantId,
-      companyId,
-      companyCode,
-      employeeId,
-      employeeNumber,
-      cancelOrderHeaderList: [data],
-    };
-    const res = getResponse(await batchCancelSubmitOrder(params));
-    if (res) {
-      notification.success({
-        description: '',
-        message: intl.get(`${modelCode}.view.success`).d('取消成功'),
+    if (queryDataSet) {
+      const curInfo = queryDataSet.current!.toData();
+      const { companyId, companyCode, employeeNumber, employeeId } = curInfo;
+      const params = {
+        tenantId,
+        companyId,
+        companyCode,
+        employeeId,
+        employeeNumber,
+        cancelOrderHeaderList: records,
+      };
+      Modal.confirm({
+        title: intl
+          .get('hiop.invoiceWorkbench.view.deleteHint')
+          .d('取消后您可以重新提交，是否确定取消？'),
+        onOk: async () => {
+          const res = getResponse(await batchCancelSubmitOrder(params));
+          if (res) {
+            notification.success({
+              description: '',
+              message: intl.get('hzero.common.notification.success').d('操作成功'),
+            });
+            this.props.invoiceWorkbenchDS.query();
+          }
+        },
       });
-      this.props.invoiceWorkbenchDS.query();
     }
   }
 
-  // 票面预览
+  /**
+   * 票面预览
+   * @params {object} record-行记录
+   */
   @Bind()
   previewInvoice(record) {
     const headerId = record.get('invoicingOrderHeaderId');
     const employeeId = record.get('employeeId');
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const pathname = `/htc-front-iop/invoice-workbench/invoice-view/ORDER/${headerId}/${employeeId}`;
-    dispatch(
-      routerRedux.push({
-        pathname,
-        search: queryString.stringify({
-          invoiceInfo: encodeURIComponent(
-            JSON.stringify({
-              backPath: '/htc-front-iop/invoice-workbench/list',
-            })
-          ),
-        }),
-      })
-    );
+    history.push({
+      pathname,
+      search: queryString.stringify({
+        invoiceInfo: encodeURIComponent(
+          JSON.stringify({
+            backPath: '/htc-front-iop/invoice-workbench/list',
+          })
+        ),
+      }),
+    });
+    // dispatch(
+    //   routerRedux.push({
+    //     pathname,
+    //     search: queryString.stringify({
+    //       invoiceInfo: encodeURIComponent(
+    //         JSON.stringify({
+    //           backPath: '/htc-front-iop/invoice-workbench/list',
+    //         })
+    //       ),
+    //     }),
+    //   })
+    // );
   }
 
+  /**
+   * 返回操作列按钮
+   * @params {object} record-行记录
+   */
   @Bind()
   operationsRender(record) {
     const orderStatus = record.get('orderStatus');
@@ -788,15 +839,15 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     const invoiceState = record.get('invoiceState');
     const billingType = record.get('billingType');
     const invoiceDate = record.get('invoiceDate');
-    const invoiceMonth = moment(invoiceDate).month();
-    const nowMonth = moment().month();
-    const monthAbled = invoiceMonth < nowMonth;
+    const invoiceMonth = invoiceDate && invoiceDate.substring(0, 7);
+    const nowMonth = moment().format('YYYY-MM');
     const renderPermissionButton = (params) => (
       <PermissionButton
         type="c7n-pro"
-        funcType={FuncType.flat}
+        funcType={FuncType.link}
         onClick={params.onClick}
         color={ButtonColor.primary}
+        style={{ color: 'rgba(56,137,255,0.8)' }}
         permissionList={[
           {
             code: `${permissionPath}.${params.permissionCode}`,
@@ -808,39 +859,29 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         {params.title}
       </PermissionButton>
     );
-    const operators = [
-      {
-        key: 'editAndView',
-        ele: (
-          <a onClick={() => this.editAndView(record)}>
-            {intl.get(`${modelCode}.editAndView`).d('编辑/查看')}
-          </a>
-        ),
-        len: 5,
-        title: intl.get(`${modelCode}.editAndView`).d('编辑/查看'),
-      },
-    ];
+    const operators: any[] = [];
     const submitInvoiceBtn = {
       key: 'submitInvoice',
       ele: renderPermissionButton({
         onClick: () => this.submitInvoice(record),
         permissionCode: 'submit-invoice',
         permissionMeaning: '按钮-提交订单',
-        title: intl.get(`${modelCode}.submitInvoice`).d('提交订单'),
+        title: intl.get('hiop.invoiceWorkbench.button.submitInvoice').d('提交订单'),
       }),
+      funcType: FuncType.link,
       len: 6,
-      title: intl.get(`${modelCode}.submitInvoice`).d('提交订单'),
+      title: intl.get('hiop.invoiceWorkbench.button.submitInvoice').d('提交订单'),
     };
     const cancelInvoiceBtn = {
       key: 'cancelInvoice',
       ele: renderPermissionButton({
-        onClick: () => this.handleSingleCancel(record),
+        onClick: () => this.handleCancel([record.toData()]),
         permissionCode: 'cancel-invoice',
         permissionMeaning: '按钮-取消订单',
-        title: intl.get(`${modelCode}.cancelInvoice`).d('取消订单'),
+        title: intl.get('hiop.invoiceWorkbench.button.cancelInvoice').d('取消订单'),
       }),
       len: 6,
-      title: intl.get(`${modelCode}.cancelInvoice`).d('取消订单'),
+      title: intl.get('hiop.invoiceWorkbench.button.cancelInvoice').d('取消订单'),
     };
     const printDocBtn = {
       key: 'printDoc',
@@ -848,10 +889,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         onClick: () => this.handledDownload(record),
         permissionCode: 'print-doc',
         permissionMeaning: '按钮-打印文件',
-        title: intl.get(`${modelCode}.printDoc`).d('打印文件'),
+        title: intl.get('hiop.invoiceWorkbench.button.printDoc').d('打印文件'),
       }),
       len: 6,
-      title: intl.get(`${modelCode}.printDoc`).d('打印文件'),
+      title: intl.get('hiop.invoiceWorkbench.button.printDoc').d('打印文件'),
     };
     const invoiceInvalidBtn = {
       key: 'invoiceInvalid',
@@ -859,10 +900,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         onClick: () => this.handleInvoiceVoid(record),
         permissionCode: 'invoice-invalid',
         permissionMeaning: '按钮-发票作废',
-        title: intl.get(`${modelCode}.invoiceInvalid`).d('发票作废'),
+        title: intl.get('hiop.invoiceWorkbench.button.invoiceInvalid').d('发票作废'),
       }),
       len: 6,
-      title: intl.get(`${modelCode}.invoiceInvalid`).d('发票作废'),
+      title: intl.get('hiop.invoiceWorkbench.button.invoiceInvalid').d('发票作废'),
     };
     const invoiceRedBtn = {
       key: 'invoiceRed',
@@ -870,10 +911,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         onClick: () => this.handleInvoiceRed(record),
         permissionCode: 'invoice-red',
         permissionMeaning: '按钮-发票红冲',
-        title: intl.get(`${modelCode}.invoiceRed`).d('发票红冲'),
+        title: intl.get('hiop.invoiceWorkbench.button.invoiceRed').d('发票红冲'),
       }),
       len: 6,
-      title: intl.get(`${modelCode}.invoiceRed`).d('发票红冲'),
+      title: intl.get('hiop.invoiceWorkbench.button.invoiceRed').d('发票红冲'),
     };
     const invoicePreviewBtn = {
       key: 'invoicePreview',
@@ -881,21 +922,21 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         onClick: () => this.previewInvoice(record),
         permissionCode: 'invoice-preview',
         permissionMeaning: '按钮-票面预览',
-        title: intl.get(`${modelCode}.invoicePreview`).d('票面预览'),
+        title: intl.get('hiop.invoiceWorkbench.button.invoicePreview').d('票面预览'),
       }),
       len: 6,
-      title: intl.get(`${modelCode}.invoicePreview`).d('票面预览'),
+      title: intl.get('hiop.invoiceWorkbench.button.invoicePreview').d('票面预览'),
     };
     const deleteInvoiceBtn = {
       key: 'deleteInvoice',
       ele: renderPermissionButton({
-        onClick: () => this.handleSingleDelete(record),
+        onClick: () => this.handledDeleteOrder([record.toData()]),
         permissionCode: 'delete-invoice',
         permissionMeaning: '按钮-删除订单',
-        title: intl.get(`${modelCode}.deleteInvoice`).d('删除订单'),
+        title: intl.get('hiop.invoiceWorkbench.button.deleteInvoice').d('删除订单'),
       }),
       len: 6,
-      title: intl.get(`${modelCode}.deleteInvoice`).d('删除订单'),
+      title: intl.get('hiop.invoiceWorkbench.button.deleteInvoice').d('删除订单'),
     };
     const freshStateBtn = {
       key: 'freshState',
@@ -903,10 +944,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         onClick: () => this.singleFresh(record),
         permissionCode: 'fresh-state',
         permissionMeaning: '按钮-刷新状态',
-        title: intl.get(`${modelCode}.freshState`).d('刷新状态'),
+        title: intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态'),
       }),
       len: 6,
-      title: intl.get(`${modelCode}.freshState`).d('刷新状态'),
+      title: intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态'),
     };
     // 新建、取消
     if (orderStatus === 'N' || orderStatus === 'Q') {
@@ -926,7 +967,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       ['1', '2'].includes(billingType) &&
       ['0', '1', '4', '5'].includes(invoiceState) &&
       orderStatus === 'F' &&
-      !monthAbled
+      invoiceMonth === nowMonth
     ) {
       operators.push(invoiceInvalidBtn);
     }
@@ -952,16 +993,68 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     return operatorRender(newOperators, record, { limit: 2 });
   }
 
+  /**
+   * 返回表格行
+   * @return {*[]}
+   */
   get columns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('htc.common.orderSeq').d('序号'),
         width: 60,
         renderer: ({ record }) => {
           return record ? record.index + 1 : '';
         },
       },
-      { name: 'orderStatus' },
+      {
+        name: 'orderNumber',
+        width: 300,
+        renderer: ({ value, record }) => {
+          const test = record?.toJSONData();
+          let color;
+          let style;
+          switch (test.orderStatus) {
+            case 'N':
+              color = '#DBEEFF';
+              style = {
+                color: '#3889FF',
+              };
+              break;
+            case 'E':
+              color = '#FFDCD4';
+              style = {
+                color: '#FF5F57',
+              };
+              break;
+            case 'F':
+              style = {
+                color: '#19A633',
+              };
+              color = '#D6FFD7';
+              break;
+            case 'C' || 'I':
+              style = {
+                color: '#FF8F07',
+              };
+              color = '#FFECC4';
+              break;
+            default:
+              style = {
+                color: '#6C6C6C',
+              };
+              color = '#F0F0F0';
+              break;
+          }
+          return (
+            <div style={{ cursor: 'pointer' }} onClick={() => this.editAndView(record)}>
+              <Tag color={color} style={style}>
+                {record?.getField('orderStatus')?.getText()}
+              </Tag>
+              <a>{value}</a>
+            </div>
+          );
+        },
+      },
       { name: 'billingType' },
       { name: 'invoiceVariety' },
       { name: 'buyerName', width: 230 },
@@ -985,7 +1078,6 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       { name: 'extNumber' },
       { name: 'invoiceSourceType' },
       { name: 'invoiceSourceOrder', width: 230 },
-      { name: 'orderNumber', width: 260 },
       { name: 'orderProgress', width: 160 },
       { name: 'invoiceSourceFlag', width: 230 },
       { name: 'buyerTaxpayerNumber', width: 190 },
@@ -1010,14 +1102,17 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       {
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
-        width: 180,
+        width: 200,
         renderer: ({ record }) => this.operationsRender(record),
         lock: ColumnLock.right,
-        align: ColumnAlign.center,
       },
     ];
   }
 
+  /**
+   * 返回表格头按钮
+   * @return {*[]}
+   */
   get buttons(): Buttons[] {
     const BatchButtons = observer((props: any) => {
       const isDisabled = props.dataSet!.selected.length === 0;
@@ -1027,8 +1122,9 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           key={props.key}
           onClick={props.onClick}
           disabled={isDisabled}
-          funcType={FuncType.flat}
-          color={ButtonColor.primary}
+          funcType={props.funcType}
+          color={props.color}
+          style={props.style}
           permissionList={[
             {
               code: `${permissionPath}.${props.permissionCode}`,
@@ -1041,15 +1137,92 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         </PermissionButton>
       );
     });
+    const batchMene = (
+      <Menu style={{ marginTop: '24px' }}>
+        <MenuItem>
+          <BatchButtons
+            key="batchSubmit"
+            funcType={FuncType.link}
+            onClick={() => this.handleBatchSubmit()}
+            dataSet={this.props.invoiceWorkbenchDS}
+            title={intl.get('hiop.invoiceWorkbench.button.batchSubmit').d('批量提交')}
+            permissionCode="batch-submit"
+            permissionMeaning="按钮-批量提交"
+          />
+        </MenuItem>
+        <MenuItem>
+          <BatchButtons
+            key="batchCancel"
+            funcType={FuncType.link}
+            onClick={() => this.handleBatchCancel()}
+            dataSet={this.props.invoiceWorkbenchDS}
+            title={intl.get('hiop.invoiceWorkbench.button.batchCancel').d('批量取消')}
+            permissionCode="batch-cancel"
+            permissionMeaning="按钮-批量取消"
+          />
+        </MenuItem>
+        <MenuItem>
+          <BatchButtons
+            key="batchDelete"
+            funcType={FuncType.link}
+            onClick={() => this.handleBatchDelete()}
+            dataSet={this.props.invoiceWorkbenchDS}
+            title={intl.get('hiop.invoiceWorkbench.button.batchDelete').d('批量删除')}
+            permissionCode="batch-delete"
+            permissionMeaning="按钮-批量删除"
+          />
+        </MenuItem>
+      </Menu>
+    );
+    const printingMene = (
+      <Menu style={{ marginTop: '24px' }}>
+        <MenuItem>
+          <BatchButtons
+            key="exportPrint"
+            onClick={() => this.handleExport(0, null)}
+            funcType={FuncType.link}
+            dataSet={this.props.invoiceWorkbenchDS}
+            title={intl.get('hiop.invoiceWorkbench.button.export').d('导出打印文件')}
+            permissionCode="export-print"
+            permissionMeaning="按钮-导出打印文件"
+          />
+        </MenuItem>
+        <MenuItem>
+          <BatchButtons
+            key="invoiceAndListPrint"
+            funcType={FuncType.link}
+            onClick={() => this.handleExport(1, 'ALL')}
+            dataSet={this.props.invoiceWorkbenchDS}
+            title={intl.get('hiop.invoiceWorkbench.button.invoiceAndListPrint').d('打印发票及清单')}
+            permissionCode="invoice-list-print"
+            permissionMeaning="按钮-打印发票及清单"
+          />
+        </MenuItem>
+        <MenuItem>
+          <BatchButtons
+            key="invoicePrint"
+            funcType={FuncType.link}
+            onClick={() => this.handleExport(1, 'INVOICE')}
+            dataSet={this.props.invoiceWorkbenchDS}
+            title={intl.get('hiop.invoiceWorkbench.button.invoicePrint').d('打印发票')}
+            permissionCode="invoice-print"
+            permissionMeaning="按钮-打印发票"
+          />
+        </MenuItem>
+        <MenuItem>
+          <BatchButtons
+            key="listPrint"
+            funcType={FuncType.link}
+            onClick={() => this.handleExport(1, 'LIST')}
+            dataSet={this.props.invoiceWorkbenchDS}
+            title={intl.get('hiop.invoiceWorkbench.button.listPrint').d('打印清单')}
+            permissionCode="list-print"
+            permissionMeaning="按钮-打印清单"
+          />
+        </MenuItem>
+      </Menu>
+    );
     return [
-      <BatchButtons
-        key="permissionFresh"
-        onClick={() => this.batchFresh()}
-        dataSet={this.props.invoiceWorkbenchDS}
-        title={intl.get(`${modelCode}.fresh`).d('刷新状态')}
-        permissionCode="permission-fresh"
-        permissionMeaning="按钮-刷新状态"
-      />,
       <PermissionButton
         type="c7n-pro"
         key="manualInvoice"
@@ -1062,40 +1235,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           },
         ]}
       >
-        {intl.get(`${modelCode}.manualInvoice`).d('手工开票')}
+        {intl.get('hiop.invoiceWorkbench.button.manualInvoice').d('手工开票')}
       </PermissionButton>,
-      <BatchButtons
-        key="dataPermission"
-        onClick={() => this.handlePermission()}
-        dataSet={this.props.invoiceWorkbenchDS}
-        title={intl.get(`${modelCode}.dataPermission`).d('数据权限分配')}
-        permissionCode="data-permission"
-        permissionMeaning="按钮-数据权限分配"
-      />,
-      <BatchButtons
-        key="batchSubmit"
-        onClick={() => this.handleBatchSubmit()}
-        dataSet={this.props.invoiceWorkbenchDS}
-        title={intl.get(`${modelCode}.batchSubmit`).d('批量提交')}
-        permissionCode="batch-submit"
-        permissionMeaning="按钮-批量提交"
-      />,
-      <BatchButtons
-        key="batchCancel"
-        onClick={() => this.handleBatchCancel()}
-        dataSet={this.props.invoiceWorkbenchDS}
-        title={intl.get(`${modelCode}.batchCancel`).d('批量取消')}
-        permissionCode="batch-cancel"
-        permissionMeaning="按钮-批量取消"
-      />,
-      <BatchButtons
-        key="batchDelete"
-        onClick={() => this.handleBatchDelete()}
-        dataSet={this.props.invoiceWorkbenchDS}
-        title={intl.get(`${modelCode}.batchDelete`).d('批量删除')}
-        permissionCode="batch-delete"
-        permissionMeaning="按钮-批量删除"
-      />,
       <PermissionButton
         type="c7n-pro"
         key="blankWaste"
@@ -1108,37 +1249,88 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           },
         ]}
       >
-        {intl.get(`${modelCode}.blankWaste`).d('空白废开具')}
+        {intl.get('hiop.invoiceWorkbench.button.blankWaste').d('空白废开具')}
       </PermissionButton>,
       <BatchButtons
-        key="exportPrint"
-        onClick={() => this.handleExport(0)}
+        key="dataPermission"
+        onClick={() => this.handlePermission()}
+        color={ButtonColor.default}
+        style={{ color: '#3889FF', borderColor: '#3889FF' }}
         dataSet={this.props.invoiceWorkbenchDS}
-        title={intl.get(`${modelCode}.export`).d('导出打印文件')}
-        permissionCode="export-print"
-        permissionMeaning="按钮-导出打印文件"
+        title={intl.get('hiop.invoiceWorkbench.button.dataPermission').d('数据权限分配')}
+        permissionCode="data-permission"
+        permissionMeaning="按钮-数据权限分配"
       />,
+      <Dropdown overlay={batchMene}>
+        <Button style={{ color: '#3889FF', borderColor: '#3889FF' }}>
+          {intl.get('hiop.invoiceWorkbench.button.batch').d('批量')}
+          <Icon type="arrow_drop_down" />
+        </Button>
+      </Dropdown>,
+      <Dropdown overlay={printingMene}>
+        <Button>
+          {intl.get('hiop.invoiceWorkbench.button.invoicePrintCollection').d('发票打印')}
+          <Icon type="arrow_drop_down" />
+        </Button>
+      </Dropdown>,
       <BatchButtons
-        key="invoicePrint"
-        onClick={() => this.handleExport(1)}
+        key="permissionFresh"
+        color={ButtonColor.default}
+        funcType={FuncType.raised}
+        onClick={() => this.batchFresh()}
         dataSet={this.props.invoiceWorkbenchDS}
-        title={intl.get(`${modelCode}.invoicePrint`).d('打印发票')}
-        permissionCode="invoice-print"
-        permissionMeaning="按钮-打印发票"
+        title={intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态')}
+        permissionCode="permission-fresh"
+        permissionMeaning="按钮-刷新状态"
       />,
     ];
+  }
+
+  /**
+   * 渲染表脚
+   */
+  @Bind()
+  renderFooter(records) {
+    let totalPriceTaxAmount = 0; // 合计含税金额
+    let totalExcludingTaxAmount = 0; // 合计不含税金额
+    let totalTax = 0; // 合计税额
+    const pageData = records.map((record) => record.toData());
+    pageData.forEach((record: any) => {
+      const { billingType } = record;
+      if (['1', '2'].includes(billingType)) {
+        totalPriceTaxAmount += Number(record.totalPriceTaxAmount) || 0;
+        totalExcludingTaxAmount += Number(record.totalExcludingTaxAmount) || 0;
+        totalTax += Number(record.totalTax) || 0;
+      } else {
+        totalPriceTaxAmount -= Number(record.totalPriceTaxAmount) || 0;
+        totalExcludingTaxAmount -= Number(record.totalExcludingTaxAmount) || 0;
+        totalTax -= Number(record.totalTax) || 0;
+      }
+    });
+    return (
+      <div>
+        <span>
+          {`当前页：合计含税金额：${totalPriceTaxAmount.toFixed(
+            2
+          )}，合计不含税金额：${totalExcludingTaxAmount.toFixed(2)}，合计税额：${totalTax.toFixed(
+            2
+          )}`}
+        </span>
+        <span style={{ float: 'right' }}>累加当前页所有状态的蓝票红票、蓝废红废</span>
+      </div>
+    );
   }
 
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('销项发票控制台')}>
+        <Header title={intl.get('hiop.invoiceWorkbench.header').d('销项发票控制台')}>
           <ExcelExport
             requestUrl={`${API_PREFIX}/v1/${tenantId}/invoicing-order-headers/export`}
             queryParams={() => this.exportParams()}
           />
           <Button onClick={() => this.handleBatchExport()}>
-            {intl.get(`${modelCode}.import`).d('导入')}
+            {intl.get('hzero.common.button.import').d('导入')}
           </Button>
         </Header>
         <Content>
@@ -1147,6 +1339,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
             dataSet={this.props.invoiceWorkbenchDS}
             columns={this.columns}
             queryBar={this.renderQueryBar}
+            footer={(records) => this.renderFooter(records)}
             style={{ height: 400 }}
           />
         </Content>

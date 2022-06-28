@@ -10,11 +10,11 @@ import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import intl from 'utils/intl';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import { AxiosRequestConfig } from 'axios';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { DataSet } from 'choerodon-ui/pro';
 
-const modelCode = 'hivp.invoice-whitelist';
+const modelCode = 'hivp.invoiceWhitelist';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
@@ -86,7 +86,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'enabledFlag',
-        label: intl.get(`${modelCode}.view.enabledFlag`).d('是否启用'),
+        label: intl.get('hiop.invoiceRule.modal.enabledFlag').d('是否启用'),
         type: FieldType.number,
         falseValue: 0,
         trueValue: 1,
@@ -98,7 +98,7 @@ export default (): DataSetProps => {
       fields: [
         {
           name: 'companyObj',
-          label: intl.get(`${modelCode}.view.companyObj`).d('公司名称'),
+          label: intl.get('hzero.hzeroTheme.page.companyName').d('公司名称'),
           type: FieldType.object,
           lovCode: 'HMDM.CURRENT_EMPLOYEE',
           lovPara: { tenantId },
@@ -117,9 +117,10 @@ export default (): DataSetProps => {
         },
         {
           name: 'taxpayerNumber',
-          label: intl.get(`${modelCode}.view.taxpayerNumber`).d('纳税人识别号'),
+          label: intl.get('htc.common.modal.taxpayerNumber').d('纳税人识别号'),
           type: FieldType.string,
           bind: 'companyObj.taxpayerNumber',
+          readOnly: true,
         },
         {
           name: 'buyerName',

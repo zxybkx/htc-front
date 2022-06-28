@@ -8,18 +8,52 @@
  */
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { AxiosRequestConfig } from 'axios';
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { DataSet } from 'choerodon-ui/pro';
 import intl from 'utils/intl';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import { getCurrentOrganizationId } from 'utils/utils';
+import moment from 'moment';
+import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 
-const modelCode = 'hivp.batch-check';
+const modelCode = 'hivp.batchCheck';
 
+// 发票值
+const vatValue = [
+  '01',
+  '02',
+  '03',
+  '04',
+  '08',
+  '10',
+  '11',
+  '14',
+  '15',
+  '17',
+  '24',
+  '30',
+  '66',
+  '67',
+  '80',
+];
 // 必输受控于票据类型
 const requiredByBillType = (record, name) => {
   const billTypeTag = record && record.get('billTypeTag');
   return billTypeTag.includes(name);
+};
+
+// 必输受控于发票/票据类型
+const requiredByType = (record, name) => {
+  const billTypeTag = record && record.get('billTypeTag');
+  const invoiceType = record && record.get('invoiceType');
+  if (name === 'totalAmount') {
+    // 价税合计
+    return billTypeTag.includes(name) || invoiceType === '15';
+  } else if (vatValue.includes(invoiceType)) {
+    return invoiceType !== '15';
+  } else {
+    return billTypeTag.includes(name);
+  }
 };
 
 export default (): DataSetProps => {
@@ -57,27 +91,15 @@ export default (): DataSetProps => {
     events: {
       update: ({ record, name }) => {
         const invoiceType = record.get('invoiceType');
-        const vatValue = [
-          '01',
-          '02',
-          '03',
-          '04',
-          '08',
-          '10',
-          '11',
-          '14',
-          '15',
-          '17',
-          '24',
-          '30',
-          '66',
-          '67',
-          '80',
-        ];
         if (
-          ['invoiceCode', 'invoiceNumber', 'invoiceDate', 'totalAmount', 'checkCode'].includes(
-            name
-          ) &&
+          [
+            'invoiceCode',
+            'invoiceNumber',
+            'invoiceDate',
+            'totalAmount',
+            'invoiceAmount',
+            'checkCode',
+          ].includes(name) &&
           vatValue.includes(invoiceType)
         ) {
           record.set('checkStatus', '1');
@@ -92,7 +114,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'companyCode',
-        label: intl.get(`${modelCode}.view.companyCode`).d('公司ID'),
+        label: intl.get(`${modelCode}.view.companyCode`).d('公司code'),
         type: FieldType.string,
       },
       {
@@ -113,7 +135,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'fileType',
-        label: intl.get(`${modelCode}.view.fileType`).d('文件类型'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.fileType').d('文件类型'),
         type: FieldType.string,
         lookupCode: 'HIVP.FILE_TYPE',
       },
@@ -133,7 +155,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceCode',
-        label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
+        label: intl.get('htc.common.view.invoiceCode').d('发票代码'),
         type: FieldType.string,
         computedProps: {
           required: ({ record, name }) => requiredByBillType(record, name),
@@ -141,7 +163,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceNumber',
-        label: intl.get(`${modelCode}.view.invoiceNumber`).d('发票号码'),
+        label: intl.get('htc.common.view.invoiceNo').d('发票号码'),
         type: FieldType.string,
         computedProps: {
           required: ({ record, name }) => requiredByBillType(record, name),
@@ -149,8 +171,16 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceDate',
-        label: intl.get(`${modelCode}.view.invoiceDate`).d('开票日期'),
+        label: intl.get('htc.common.view.invoiceDate').d('开票日期'),
         type: FieldType.date,
+        computedProps: {
+          required: ({ record, name }) => requiredByBillType(record, name),
+        },
+      },
+      {
+        name: 'fare',
+        label: intl.get(`${modelCode}.view.fare`).d('机票票价'),
+        type: FieldType.currency,
         computedProps: {
           required: ({ record, name }) => requiredByBillType(record, name),
         },
@@ -164,16 +194,56 @@ export default (): DataSetProps => {
         },
       },
       {
-        name: 'totalAmount',
-        label: intl.get(`${modelCode}.view.totalAmount`).d('价税合计'),
+        name: 'fuelSurcharge',
+        label: intl.get(`${modelCode}.view.fuelSurcharge`).d('燃油附加费'),
         type: FieldType.currency,
         computedProps: {
           required: ({ record, name }) => requiredByBillType(record, name),
         },
       },
       {
+        name: 'otherTaxes',
+        label: intl.get(`${modelCode}.view.otherTaxes`).d('其他税费'),
+        type: FieldType.currency,
+        computedProps: {
+          required: ({ record, name }) => requiredByBillType(record, name),
+        },
+      },
+      {
+        name: 'total',
+        label: intl.get(`${modelCode}.view.total`).d('机票总金额'),
+        type: FieldType.currency,
+        computedProps: {
+          required: ({ record, name }) => requiredByBillType(record, name),
+        },
+      },
+      {
+        name: 'invoiceAmount',
+        label: intl.get(`${modelCode}.view.invoiceAmount`).d('不含税金额'),
+        type: FieldType.currency,
+        computedProps: {
+          required: ({ record, name }) => requiredByType(record, name),
+        },
+      },
+      {
+        name: 'totalAmount',
+        label: intl.get('htc.common.view.totalAmount').d('价税合计'),
+        type: FieldType.currency,
+        computedProps: {
+          required: ({ record, name }) => requiredByType(record, name),
+        },
+      },
+      {
+        name: 'buyerName',
+        label: intl.get('htc.common.view.buyerName').d('购方名称'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record, name }) => requiredByBillType(record, name),
+        },
+      },
+      {
         name: 'checkCode',
-        label: intl.get(`${modelCode}.view.checkCode`).d('检验码'),
+        label: intl.get('hivp.bill.view.checkCode').d('检验码'),
         type: FieldType.string,
         computedProps: {
           required: ({ record, name }) => requiredByBillType(record, name),
@@ -187,7 +257,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'ticketCollectorObj',
-        label: intl.get(`${modelCode}.view.ticketCollectorObj`).d('收票员工'),
+        label: intl.get(`${modelCode}.view.collectionStaff`).d('收票员工'),
         type: FieldType.object,
         lovCode: 'HMDM.EMPLOYEE_NAME',
         cascadeMap: { companyId: 'companyId' },
@@ -196,7 +266,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'ticketCollectorDesc',
-        label: intl.get(`${modelCode}.view.ticketCollectorDesc`).d('收票员工'),
+        label: intl.get(`${modelCode}.view.collectionStaff`).d('收票员工'),
         type: FieldType.string,
         bind: 'ticketCollectorObj.employeeDesc',
       },
@@ -250,6 +320,11 @@ export default (): DataSetProps => {
         name: 'invoiceHeaderId',
         type: FieldType.number,
       },
+      {
+        name: 'tabActiveKey',
+        type: FieldType.string,
+        defaultValue: 'notAdd',
+      },
     ],
     queryDataSet: new DataSet({
       events: {
@@ -262,6 +337,20 @@ export default (): DataSetProps => {
         },
       },
       fields: [
+        {
+          name: 'employeeDesc',
+          label: intl.get(`${modelCode}.view.employeeDesc`).d('登录员工'),
+          type: FieldType.string,
+          readOnly: true,
+        },
+        {
+          name: 'currentTime',
+          label: intl.get(`${modelCode}.view.currentTime`).d('当前日期'),
+          type: FieldType.date,
+          defaultValue: moment().format(DEFAULT_DATE_FORMAT),
+          readOnly: true,
+          ignore: FieldIgnore.always,
+        },
         {
           name: 'companyObj',
           label: intl.get(`${modelCode}.view.companyObj`).d('所属公司'),
@@ -282,12 +371,6 @@ export default (): DataSetProps => {
           bind: 'companyObj.companyCode',
         },
         {
-          name: 'employeeDesc',
-          label: intl.get(`${modelCode}.view.employeeDesc`).d('登录员工'),
-          type: FieldType.string,
-          readOnly: true,
-        },
-        {
           name: 'employeeNum',
           type: FieldType.string,
           bind: 'companyObj.employeeNum',
@@ -306,19 +389,19 @@ export default (): DataSetProps => {
         },
         {
           name: 'invoicePoolStatus',
-          label: intl.get(`${modelCode}.view.invoicePoolStatus`).d('添加至发票池、票据池'),
+          // label: intl.get(`${modelCode}.view.invoicePoolStatus`).d('添加至发票池、票据池'),
           type: FieldType.string,
           lookupCode: 'HIVP.ADD_INVOICE/TICKET_POOL_STATUS',
-          labelWidth: '150',
+          defaultValue: 'N',
         },
         {
           name: 'invoiceCode',
-          label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
+          label: intl.get('htc.common.view.invoiceCode').d('发票代码'),
           type: FieldType.string,
         },
         {
           name: 'invoiceNumber',
-          label: intl.get(`${modelCode}.view.invoiceNumber`).d('发票号码'),
+          label: intl.get('htc.common.view.invoiceNo').d('发票号码'),
           type: FieldType.string,
         },
       ],

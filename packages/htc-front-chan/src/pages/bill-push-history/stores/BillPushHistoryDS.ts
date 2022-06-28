@@ -1,12 +1,12 @@
 /**
- * @Description:账单推送历史记录
+ * @Description: 账单推送历史记录
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-09-13 17:22:22
- * @LastEditTime:
+ * @LastEditTime: 2022-06-21 13:42
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';

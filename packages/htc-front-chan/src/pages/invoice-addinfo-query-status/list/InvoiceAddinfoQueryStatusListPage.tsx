@@ -1,31 +1,40 @@
+/**
+ * @Description: 开票附加信息状态查询
+ * @Author: huishan.yu <huishan.yu@hand-china.com>
+ * @Date: 2021-09-06 10:26:45
+ * @LastEditors: huishan.yu
+ * @LastEditTime: 2021-09-06 16:56:45
+ * @Copyright: Copyright (c) 2020, Hand
+ */
 import React, { Component } from 'react';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import { Bind } from 'lodash-decorators';
 import { getResponse } from 'hzero-front/lib/utils/utils';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import { ColumnLock, ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
+import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { Button as PermissionButton } from 'components/Permission';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { Dispatch } from 'redux';
-import { DataSet,
-  Table,
-  Menu,
+import {
+  DataSet,
   Dropdown,
   Icon,
-  notification,
+  Menu,
   Modal,
+  notification,
+  Table,
   TextField,
 } from 'choerodon-ui/pro';
 import intl from 'utils/intl';
-import { getPresentMenu } from '@common/utils/utils';
+import { getPresentMenu } from '@htccommon/utils/utils';
 import {
+  cancelOrderApi,
+  electronicUploadApi,
   invoicePreviewApi,
   invoicePrintApi,
-  electronicUploadApi,
-  updateInvoicePoolApi,
-  pushInvoicePoolApi,
   notifyMessageApi,
-  cancelOrderApi,
+  pushInvoicePoolApi,
+  updateInvoicePoolApi,
 } from '@src/services/invoiceAddinfoQueryStatusService';
 import InvoiceAddinfoQueryStatusListDS, {
   modelCode,
@@ -35,21 +44,23 @@ const permissionPath = `${getPresentMenu().name}.ps`;
 interface InvoiceAddinfoQueryStatusListPageProps {
   dispatch: Dispatch<any>;
 }
-// const tenantId = getCurrentOrganizationId();
+
 export default class InvoiceAddinfoQueryStatusListPage extends Component<InvoiceAddinfoQueryStatusListPageProps> {
-  state={employeeNumber: ''}
+  state = { employeeNumber: '' };
 
   tableDS = new DataSet({
     autoQuery: false,
     ...InvoiceAddinfoQueryStatusListDS(),
   });
 
-  // 操作请求
+  /**
+   * 操作列按钮回调
+   */
   @Bind()
-  async handleOperation(type){
+  async handleOperation(type) {
     const companyCode = this.tableDS.current!.get('companyCode');
     const invoiceHeadId = this.tableDS.current!.get('invoicingOrderHeaderId');
-    const tenantId=this.tableDS.current!.get('tenantId');
+    const tenantId = this.tableDS.current!.get('tenantId');
     const toggleOkDisabled = (e, modal) => {
       const { value } = e.currentTarget;
       if (value.trim()) {
@@ -73,7 +84,7 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
           invoiceHeadId,
         };
         let res;
-        switch(type) {
+        switch (type) {
           case 0:
             res = getResponse(await invoicePreviewApi(params));
             break;
@@ -92,8 +103,8 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
           case 5:
             res = getResponse(await updateInvoicePoolApi(params));
             break;
-          default:{
-            const transformParams={
+          default: {
+            const transformParams = {
               tenantId,
               companyCode,
               employeeNumber: this.state.employeeNumber,
@@ -112,10 +123,11 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
     });
   }
 
-  // 操作渲染
+  /**
+   * 返回操作列
+   */
   @Bind()
-  optionsRender(record) {
-    console.log(record);
+  optionsRender() {
     const renderPermissionButton = (params) => (
       <PermissionButton
         type="c7n-pro"
@@ -166,7 +178,7 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
       len: 6,
       title: intl.get(`${modelCode}.button.print`).d('纸票打印文件'),
     };
-    const noticeBtn={
+    const noticeBtn = {
       key: 'notice',
       ele: renderPermissionButton({
         onClick: () => this.handleOperation(3),
@@ -178,7 +190,7 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
       title: intl.get(`${modelCode}.button.notice`).d('短信邮件通知'),
     };
 
-    const pushInvoicePoolBtn={
+    const pushInvoicePoolBtn = {
       key: 'pushInvoicePool',
       ele: renderPermissionButton({
         onClick: () => this.handleOperation(4),
@@ -189,7 +201,7 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
       len: 6,
       title: intl.get(`${modelCode}.button.pushInvoicePool`).d('推送发票池'),
     };
-    const updateInvoicePoolBtn={
+    const updateInvoicePoolBtn = {
       key: 'updateInvoicePool',
       ele: renderPermissionButton({
         onClick: () => this.handleOperation(5),
@@ -200,7 +212,7 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
       len: 6,
       title: intl.get(`${modelCode}.button.updateInvoicePool`).d('更新发票池'),
     };
-    const cancelOrderBtn={
+    const cancelOrderBtn = {
       key: 'cancelOrder',
       ele: renderPermissionButton({
         onClick: () => this.handleOperation(6),
@@ -241,6 +253,9 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
     );
   }
 
+  /**
+   * 返回表格行
+   */
   get columns(): ColumnProps[] {
     return [
       {
@@ -280,7 +295,7 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
         width: 180,
-        renderer: ({ record }) => this.optionsRender(record),
+        renderer: () => this.optionsRender(),
         lock: ColumnLock.right,
         align: ColumnAlign.center,
       },
@@ -292,7 +307,12 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
       <>
         <Header title={intl.get(`${modelCode}.title`).d('开票附加信息状态查询')} />
         <Content>
-          <Table queryFieldsLimit={3} dataSet={this.tableDS} columns={this.columns} />
+          <Table
+            queryFieldsLimit={3}
+            dataSet={this.tableDS}
+            columns={this.columns}
+            style={{ height: '500px' }}
+          />
         </Content>
       </>
     );

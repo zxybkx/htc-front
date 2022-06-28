@@ -1,19 +1,19 @@
 /*
- * @Descripttion:发票池-底账行
+ * @Description:发票池-底账行
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
  * @LastEditTime: 2020-12-09 16:58:28
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 
-const modelCode = 'hivp.invoices.originalAccount';
+const modelCode = 'hivp.invoicesOriginalAccount';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
@@ -64,7 +64,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'completeDate',
-        label: intl.get(`${modelCode}.view.completeDate`).d('完成时间'),
+        label: intl.get(`hivp.checkCertification.view.completeTime`).d('完成时间'),
         type: FieldType.dateTime,
       },
       {
@@ -79,17 +79,17 @@ export default (): DataSetProps => {
       },
       {
         name: 'batchNo',
-        label: intl.get(`${modelCode}.view.batchNo`).d('批次号'),
+        label: intl.get(`hiop.redInvoiceInfo.modal.batchNo`).d('批次号'),
         type: FieldType.string,
       },
       {
         name: 'parameter',
-        label: intl.get(`${modelCode}.view.parameter`).d('参数'),
+        label: intl.get('hzero.common.model.param').d('参数'),
         type: FieldType.object,
       },
       {
         name: 'exceptionInfo',
-        label: intl.get(`${modelCode}.view.exceptionInfo`).d('异常信息'),
+        label: intl.get('hzero.common.component.excelExport.v.hd.errorInfo').d('异常信息'),
         type: FieldType.string,
       },
     ],

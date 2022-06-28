@@ -6,7 +6,7 @@
  * @LastEditTime: 2020-09-29 09:29:28
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { DataSet } from 'choerodon-ui/pro';
@@ -15,7 +15,7 @@ import { FieldType, FieldIgnore } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import moment from 'moment';
 
-const modelCode = 'hivp.check-certification';
+const modelCode = 'hivp.checkCertification';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
@@ -43,7 +43,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'companyName',
-        label: intl.get(`${modelCode}.view.companyName`).d('公司名称'),
+        label: intl.get('hzero.hzeroTheme.page.companyName').d('公司名称'),
         type: FieldType.string,
         readOnly: true,
       },
@@ -170,18 +170,16 @@ export default (): DataSetProps => {
       fields: [
         {
           name: 'tenantId',
-          label: intl.get(`${modelCode}.view.tenantId`).d('租户id'),
+          label: intl.get('htc.common.modal.tenantId').d('租户id'),
           type: FieldType.number,
         },
         {
           name: 'companyObj',
-          label: intl.get(`${modelCode}.view.companyObj`).d('所属公司'),
           type: FieldType.object,
           lovCode: 'HMDM.CURRENT_EMPLOYEE',
           lovPara: { tenantId },
-          // defaultValue: dsParams && dsParams.companyObj,
           ignore: FieldIgnore.always,
-          required: true,
+          // required: true,
         },
         {
           name: 'companyId',
@@ -191,14 +189,14 @@ export default (): DataSetProps => {
         },
         {
           name: 'companyName',
-          label: intl.get(`${modelCode}.view.companyName`).d('公司'),
+          label: intl.get('hzero.hzeroTheme.page.companyName').d('公司'),
           type: FieldType.string,
           bind: 'companyObj.companyName',
           ignore: FieldIgnore.always,
         },
         {
           name: 'companyCode',
-          label: intl.get(`${modelCode}.view.companyCode`).d('公司代码'),
+          label: intl.get('htc.common.modal.companyCode').d('公司代码'),
           type: FieldType.string,
           // defaultValue: dsParams.companyCode,
           bind: 'companyObj.companyCode',
@@ -212,7 +210,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'employeeDesc',
-          label: intl.get(`${modelCode}.view.employeeDesc`).d('登录员工'),
+          label: intl.get('htc.common.modal.employeeDesc').d('登录员工'),
           type: FieldType.string,
           // defaultValue: dsParams && dsParams.employeeDesc,
           readOnly: true,
@@ -220,7 +218,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'employeeNumber',
-          label: intl.get(`${modelCode}.view.employeeNum`).d('员工编号'),
+          label: intl.get('hiop.redInvoiceInfo.modal.employeeNum').d('员工编号'),
           type: FieldType.string,
           // defaultValue: dsParams && dsParams.employeeNum,
           bind: 'companyObj.employeeNum',
@@ -242,14 +240,14 @@ export default (): DataSetProps => {
         },
         {
           name: 'taxpayerNumber',
-          label: intl.get(`${modelCode}.view.taxpayerNumber`).d('纳税人识别号'),
+          label: intl.get('htc.common.modal.taxpayerNumber').d('纳税人识别号'),
           type: FieldType.string,
           bind: 'companyObj.taxpayerNumber',
           ignore: FieldIgnore.always,
         },
         {
           name: 'curDate',
-          label: intl.get(`${modelCode}.view.curDate`).d('当前日期'),
+          label: intl.get('hivp.batchCheck.view.currentTime').d('当前日期'),
           type: FieldType.date,
           defaultValue: moment(),
           ignore: FieldIgnore.always,

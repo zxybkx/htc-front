@@ -24,7 +24,7 @@ const config: RoutersConfig = [
       },
       {
         // 查看详情
-        path: '/htc-front-ivp/bills/detail/:billPoolHeaderId',
+        path: '/htc-front-ivp/bills/detail/:billPoolHeaderId/:billType',
         component: () => import('./detail/BillPoolDetailPage'),
       },
       // {
@@ -61,6 +61,16 @@ const config: RoutersConfig = [
         //  档案上传
         path: '/htc-front-ivp/bills/archive-upload/:sourceCode/:sourceHeaderId',
         component: () => import('../archive-upload/detail/ArchiveUploadPage'),
+      },
+      {
+        //  档案信息
+        path: '/htc-front-ivp/bills/archive-information/:sourceCode/:sourceHeaderId',
+        component: () => import('../archive-information/detail/archiveInformationPage'),
+      },
+      {
+        //  批量上传
+        path: '/htc-front-ivp/bills/batch-upload/:sourceCode/:companyId',
+        component: () => import('../batch-upload/detail/BatchUploadPage'),
       },
       {
         //  档案查看

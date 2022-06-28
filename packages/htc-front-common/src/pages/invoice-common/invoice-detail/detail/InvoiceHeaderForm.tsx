@@ -1,5 +1,5 @@
-/*
- * @Descripttion:全发票明细头
+/**
+ * @Description:全发票明细头
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 16:19:48
@@ -7,7 +7,7 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { FunctionComponent } from 'react';
-import { DataSet, Form, TextField, Select, Currency, NumberField } from 'choerodon-ui/pro';
+import { DataSet, Form, Output } from 'choerodon-ui/pro';
 
 interface Props {
   dataSet: DataSet;
@@ -16,47 +16,43 @@ const InvoiceHeaderForm: FunctionComponent<Props> = (props: Props) => {
   const { dataSet } = props;
   return (
     <>
-      <Form dataSet={dataSet} columns={6}>
-        <TextField name="machineNo" colSpan={2} />
-        <TextField name="checkCode" colSpan={2} />
-        <Select name="invoiceType" colSpan={2} />
+      <Form dataSet={dataSet} columns={3}>
+        <Output name="machineNo" />
+        <Output name="checkCode" />
+        <Output name="invoiceType" />
         {/* --- */}
-        <TextField name="invoiceCode" colSpan={2} />
-        <TextField name="invoiceNo" colSpan={1} />
-        <NumberField
-          name="checkCount"
-          formatterOptions={{ options: { useGrouping: false } }}
-          colSpan={1}
-        />
-        <TextField name="invoiceDate" colSpan={1} />
-        <TextField name="drawer" colSpan={1} />
+        <Output name="invoiceCode" />
+        <Output name="invoiceNo" />
+        <Output name="checkCount" formatterOptions={{ options: { useGrouping: false } }} />
+        <Output name="invoiceDate" />
+        <Output name="drawer" />
         {/* --- */}
-        <TextField name="salerName" colSpan={2} />
-        <TextField name="salerAddressPhone" colSpan={4} />
+        <Output name="salerName" />
+        <Output name="salerAddressPhone" />
         {/* --- */}
-        <TextField name="salerTaxNo" colSpan={2} />
-        <TextField name="salerAccount" colSpan={4} />
+        <Output name="salerTaxNo" />
+        <Output name="salerAccount" />
         {/* --- */}
-        <TextField name="buyerName" colSpan={2} />
-        <TextField name="buyerAddressPhone" colSpan={4} />
+        <Output name="buyerName" />
+        <Output name="buyerAddressPhone" />
         {/* --- */}
-        <TextField name="buyerTaxNo" colSpan={2} />
-        <TextField name="buyerAccount" colSpan={4} />
+        <Output name="buyerTaxNo" />
+        <Output name="buyerAccount" />
         {/* --- */}
-        <Currency name="invoiceAmount" colSpan={2} />
-        <TextField name="taxAmount" colSpan={2} />
-        <Currency name="totalAmount" colSpan={2} />
+        <Output name="invoiceAmount" />
+        <Output name="taxAmount" />
+        <Output name="totalAmount" />
         {/* --- */}
-        <Select name="zeroTaxRateFlag" colSpan={1} />
-        <Select name="trafficFeeFlag" colSpan={1} />
-        <TextField name="payee" colSpan={2} />
-        <TextField name="reviewer" colSpan={2} />
+        <Output name="zeroTaxRateFlag" />
+        <Output name="trafficFeeFlag" />
+        <Output name="payee" />
+        <Output name="reviewer" />
         {/* --- */}
-        <Select name="cancellationMark" colSpan={2} />
-        <TextField name="blueInvoiceCode" colSpan={2} />
-        <TextField name="blueInvoiceNo" colSpan={2} />
+        <Output name="cancellationMark" />
+        <Output name="blueInvoiceCode" />
+        <Output name="blueInvoiceNo" />
         {/* --- */}
-        <TextField name="remark" colSpan={6} />
+        <Output name="remark" />
       </Form>
     </>
   );

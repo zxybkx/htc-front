@@ -7,11 +7,10 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import request from 'utils/request';
-import commonConfig from '@common/config/commonConfig';
 import moment from 'moment';
+import commonConfig from '@htccommon/config/commonConfig';
 
-const HIVP_API = commonConfig.IVP_API;
-// const HIVP_API = `${commonConfig.IVP_API}-31183`;
+const HIVP_API = commonConfig.IVP_API || '';
 
 /**
  * 提交退税发票勾选(取消)请求

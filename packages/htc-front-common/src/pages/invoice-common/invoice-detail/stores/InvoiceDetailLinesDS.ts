@@ -1,5 +1,5 @@
-/*
- * @Descripttion:发票行
+/**
+ * @Description:发票行
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 11:54:42
@@ -10,7 +10,7 @@ import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 
-const modelCode = 'hcan.invoice-detail';
+const modelCode = 'hcan.invoiceDetail';
 
 export default (): DataSetProps => {
   return {
@@ -29,22 +29,22 @@ export default (): DataSetProps => {
       },
       {
         name: 'detailAmount',
-        label: intl.get(`${modelCode}.view.detailAmount`).d('金额'),
+        label: intl.get('htc.common.view.amount').d('金额'),
         type: FieldType.currency,
       },
       {
         name: 'num',
-        label: intl.get(`${modelCode}.view.num`).d('数量'),
+        label: intl.get('htc.common.view.quantity').d('数量'),
         type: FieldType.number,
       },
       {
         name: 'taxRate',
-        label: intl.get(`${modelCode}.view.taxRate`).d('税率'),
+        label: intl.get('htc.common.view.taxRate').d('税率'),
         type: FieldType.string,
       },
       {
         name: 'taxAmount',
-        label: intl.get(`${modelCode}.view.taxAmount`).d('税额'),
+        label: intl.get('htc.common.view.taxAmount').d('税额'),
         type: FieldType.currency,
       },
       {
@@ -59,17 +59,17 @@ export default (): DataSetProps => {
       },
       {
         name: 'unitPrice',
-        label: intl.get(`${modelCode}.view.unitPrice`).d('不含税单价'),
+        label: intl.get('hivp.bill.view.unitPrice').d('不含税单价'),
         type: FieldType.currency,
       },
       {
         name: 'specificationModel',
-        label: intl.get(`${modelCode}.view.specificationModel`).d('规格型号'),
+        label: intl.get('htc.common.view.specificationModel').d('规格型号'),
         type: FieldType.string,
       },
       {
         name: 'unit',
-        label: intl.get(`${modelCode}.view.unit`).d('计量单位'),
+        label: intl.get('htc.common.view.unit').d('计量单位'),
         type: FieldType.string,
       },
       {
@@ -89,12 +89,12 @@ export default (): DataSetProps => {
       },
       {
         name: 'trafficDateStart',
-        label: intl.get(`${modelCode}.view.trafficDateStart`).d('同行日期起'),
+        label: intl.get(`${modelCode}.view.trafficDateStart`).d('通行日期起'),
         type: FieldType.date,
       },
       {
         name: 'trafficDateEnd',
-        label: intl.get(`${modelCode}.view.trafficDateEnd`).d('同行日期止'),
+        label: intl.get(`${modelCode}.view.trafficDateEnd`).d('通行日期止'),
         type: FieldType.date,
       },
     ],

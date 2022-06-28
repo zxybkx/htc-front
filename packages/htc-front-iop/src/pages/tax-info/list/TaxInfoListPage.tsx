@@ -10,38 +10,40 @@ import React, { Component } from 'react';
 import { Bind } from 'lodash-decorators';
 import { Dispatch } from 'redux';
 import { observer } from 'mobx-react-lite';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import formatterCollections from 'utils/intl/formatterCollections';
-import { ColumnLock, ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
-import { FuncType, ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
-import { DataSet, Table, Button, Modal } from 'choerodon-ui/pro';
+import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
+import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
+import { Button, DataSet, Modal, Table } from 'choerodon-ui/pro';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import intl from 'utils/intl';
 import notification from 'utils/notification';
 import { Button as PermissionButton } from 'components/Permission';
-import { getPresentMenu } from '@common/utils/utils';
+import { getPresentMenu } from '@htccommon/utils/utils';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
-import { getCurrentEmployeeInfoOut } from '@common/services/commonService';
+import { getCurrentEmployeeInfoOut } from '@htccommon/services/commonService';
 import {
-  updateTax,
-  updateInvoice,
-  deviceStatusQuery,
   avoidLogin,
+  batchUpdateInvoice,
+  deviceStatusQuery,
+  updateInvoice,
+  updateTax,
 } from '@src/services/taxInfoService';
+import { Card } from 'choerodon-ui';
 import TaxHeadersDS from '../stores/TaxHeadersDS';
 import TaxLinesDS from '../stores/TaxLinesDS';
+import styles from '../taxInfo.module.less';
 
 interface TaxInfoPageProps {
   dispatch: Dispatch<any>;
 }
 
-const modelCode = 'hiop.tax-info';
 const tenantId = getCurrentOrganizationId();
 const permissionPath = `${getPresentMenu().name}.ps`;
 
 @formatterCollections({
-  code: [modelCode],
+  code: ['hiop.taxInfo', 'hiop.invoiceWorkbench', 'htc.common', 'hiop.redInvoiceInfo'],
 })
 export default class TaxInfoPage extends Component<TaxInfoPageProps> {
   tableLineDS = new DataSet({
@@ -79,7 +81,7 @@ export default class TaxInfoPage extends Component<TaxInfoPageProps> {
     const taxpayerNumber = queryDataSet.current!.get('taxpayerNumber');
     let confirm = 'ok';
     if (this.tableLineDS.length > 0) {
-      const title = intl.get(`${modelCode}.view.initConfirm`).d('更新税控信息');
+      const title = intl.get('hiop.taxInfo.title.initConfirm').d('更新税控信息');
       confirm = await Modal.confirm({
         key: Modal.key,
         title,
@@ -87,7 +89,7 @@ export default class TaxInfoPage extends Component<TaxInfoPageProps> {
           <div>
             <p>
               {intl
-                .get(`${modelCode}.view.initConfirmDesc`)
+                .get('hiop.taxInfo.notification.message.initConfirmDesc')
                 .d('更新税控信息，将清除当前已有信息，是否确认？')}
             </p>
           </div>
@@ -106,7 +108,9 @@ export default class TaxInfoPage extends Component<TaxInfoPageProps> {
     }
   }
 
-  // 发票申领
+  /**
+   * 发票申领
+   */
   @Bind()
   async invoiceApply() {
     const companyCode =
@@ -126,6 +130,7 @@ export default class TaxInfoPage extends Component<TaxInfoPageProps> {
 
   /**
    * 更新库存发票信息
+   * @params {object} record-行记录
    */
   @Bind()
   async handleUpdateInvoice(record) {
@@ -140,7 +145,28 @@ export default class TaxInfoPage extends Component<TaxInfoPageProps> {
     }
   }
 
-  // 设备在线查询
+  /**
+   * 批量更新库存发票
+   */
+  @Bind()
+  async batchUpdate() {
+    const { queryDataSet } = this.tableHeaderDS;
+    if (!queryDataSet) return;
+    const companyId = queryDataSet.current!.get('companyId');
+    const res = getResponse(await batchUpdateInvoice({ tenantId, companyId }));
+    if (res) {
+      notification.success({
+        description: '',
+        message: res.message,
+      });
+      this.tableLineDS.query();
+    }
+  }
+
+  /**
+   * 设备在线查询
+   * @params {object} record-行记录
+   */
   @Bind()
   async handleDeviceStatusQuery(record) {
     const { extNumber, taxpayerNumber } = record.toData();
@@ -162,9 +188,9 @@ export default class TaxInfoPage extends Component<TaxInfoPageProps> {
           <span>
             {res.data.map((data) => (
               <p>
-                {intl.get(`${modelCode}.view.extNumber`).d('分机号：')}
+                {intl.get('hiop.taxInfo.view.extNumber').d('分机号：')}
                 {data.extNumber}&nbsp;&nbsp;&nbsp;
-                {intl.get(`${modelCode}.view.deviceStatus`).d('在线状态：')}
+                {intl.get('hiop.taxInfo.view.deviceStatus').d('在线状态：')}
                 {data.deviceStatus}
               </p>
             ))}
@@ -172,14 +198,15 @@ export default class TaxInfoPage extends Component<TaxInfoPageProps> {
         );
       }
       Modal.info({
-        title: intl.get(`${modelCode}.view.deviceStatusQuery`).d('设备在线查询'),
+        title: intl.get('hiop.taxInfo.view.deviceStatusQuery').d('设备在线查询'),
         children: showContent,
       });
     }
   }
 
   /**
-   * 税控主信息
+   * 返回税控主信息行
+   * @returns {*[]}
    */
   get headerColumns(): ColumnProps[] {
     return [
@@ -212,8 +239,10 @@ export default class TaxInfoPage extends Component<TaxInfoPageProps> {
               key="deviceStatusQuery"
               onClick={() => this.handleDeviceStatusQuery(record)}
               disabled={disabledFlag}
+              funcType={FuncType.link}
+              style={{ color: '#3889FF' }}
             >
-              {intl.get(`${modelCode}.button.deviceStatusQuery`).d('设备在线查询')}
+              {intl.get('hiop.taxInfo.button.deviceStatusQuery').d('设备在线查询')}
             </Button>,
           ];
         },
@@ -224,13 +253,14 @@ export default class TaxInfoPage extends Component<TaxInfoPageProps> {
   }
 
   /**
-   * 税控行信息
+   * 返回税控行
+   * @returns {*[]}
    */
   get lineColumns(): ColumnProps[] {
     return [
       {
         name: 'invoiceInfo',
-        header: intl.get(`${modelCode}.header.invoiceInfo`).d('税控授权票种信息'),
+        header: intl.get('hiop.taxInfo.view.invoiceInfo').d('税控授权票种信息'),
         children: [
           { name: 'invoiceType' },
           { name: 'lockDate', width: 110 },
@@ -245,7 +275,7 @@ export default class TaxInfoPage extends Component<TaxInfoPageProps> {
       },
       {
         name: 'invInfo',
-        header: intl.get(`${modelCode}.header.invInfo`).d('票种库存信息'),
+        header: intl.get('hiop.taxInfo.view.invInfo').d('票种库存信息'),
         children: [
           { name: 'curInvoiceCode', width: 150 },
           { name: 'curInvoiceNumber', width: 150 },
@@ -260,8 +290,13 @@ export default class TaxInfoPage extends Component<TaxInfoPageProps> {
         width: 160,
         command: ({ record }): Commands[] => {
           return [
-            <Button key="updateInvoice" onClick={() => this.handleUpdateInvoice(record)}>
-              {intl.get(`${modelCode}.button.updateInvoice`).d('更新库存发票信息')}
+            <Button
+              key="updateInvoice"
+              style={{ color: '#3889FF' }}
+              funcType={FuncType.link}
+              onClick={() => this.handleUpdateInvoice(record)}
+            >
+              {intl.get('hiop.taxInfo.button.updateInvoice').d('更新库存发票信息')}
             </Button>,
           ];
         },
@@ -272,7 +307,7 @@ export default class TaxInfoPage extends Component<TaxInfoPageProps> {
   }
 
   /**
-   * 返回表格操作按钮组
+   * 返回纳税人税控主信息头按钮组
    * @returns {*[]}
    */
   get buttons(): Buttons[] {
@@ -299,7 +334,7 @@ export default class TaxInfoPage extends Component<TaxInfoPageProps> {
           onClick={props.onClick}
           disabled={isDisabled}
           funcType={FuncType.flat}
-          color={ButtonColor.primary}
+          color={props.color}
           permissionList={[
             {
               code: `${permissionPath}.button.${props.permissionCode}`,
@@ -317,40 +352,65 @@ export default class TaxInfoPage extends Component<TaxInfoPageProps> {
         key="updateTaxInfo"
         dataSet={this.tableHeaderDS.queryDataSet}
         onClick={this.handleUpdateTax}
-        title={intl.get(`${modelCode}.button.updateTaxInfo`).d('更新税控信息')}
+        title={intl.get('hiop.taxInfo.button.updateTaxInfo').d('更新税控信息')}
       />,
       <InvoiceApplicationBtn
         key="invoiceApply"
         dataSet={this.tableHeaderDS}
+        color={ButtonColor.default}
         onClick={this.invoiceApply}
-        title={intl.get(`${modelCode}.button.invoiceApply`).d('发票申领')}
+        title={intl.get('hiop.taxInfo.button.invoiceApply').d('发票申领')}
         permissionCode="invoice-apply"
         permissionMeaning="按钮-发票申领"
       />,
     ];
   }
 
+  /**
+   * 返回票种信息表格头按钮组
+   * @returns {*[]}
+   */
+  get lineButtons(): Buttons[] {
+    return [
+      <Button
+        key="batchUpdate"
+        onClick={() => this.batchUpdate()}
+        funcType={FuncType.flat}
+        color={ButtonColor.primary}
+      >
+        {intl.get('hiop.taxInfo.button.batchUpdate').d('批量更新库存发票')}
+      </Button>,
+    ];
+  }
+
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('税控信息')} />
-        <Content>
-          <Table
-            key="taxHeader"
-            header={intl.get(`${modelCode}.table.taxHeader`).d('纳税人税控主信息')}
-            dataSet={this.tableHeaderDS}
-            columns={this.headerColumns}
-            buttons={this.buttons}
-            queryFieldsLimit={2}
-            style={{ height: 200 }}
-          />
-          <Table
-            key="taxLine"
-            header={intl.get(`${modelCode}.table.taxLine`).d('票种信息')}
-            dataSet={this.tableLineDS}
-            columns={this.lineColumns}
-            style={{ height: 200 }}
-          />
+        <Header title={intl.get('hiop.taxInfo.title.invoiceInfo').d('税控信息')} />
+        <Content style={{ background: '#f4f5f7', padding: '0' }}>
+          <Card style={{ marginBottom: '8px' }}>
+            <Table
+              key="taxHeader"
+              // header={intl.get(`${modelCode}.table.taxHeader`).d('纳税人税控主信息')}
+              dataSet={this.tableHeaderDS}
+              columns={this.headerColumns}
+              buttons={this.buttons}
+              queryFieldsLimit={3}
+              className={styles.table}
+              style={{ height: 200 }}
+            />
+          </Card>
+          <Card>
+            <Table
+              key="taxLine"
+              header={intl.get('hiop.taxInfo.view.invoiceTypeInfo').d('票种信息')}
+              dataSet={this.tableLineDS}
+              buttons={this.lineButtons}
+              columns={this.lineColumns}
+              className={styles.table}
+              style={{ height: 200 }}
+            />
+          </Card>
         </Content>
       </>
     );

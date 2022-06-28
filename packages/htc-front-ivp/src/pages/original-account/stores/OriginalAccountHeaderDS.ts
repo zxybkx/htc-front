@@ -1,21 +1,21 @@
 /*
- * @Descripttion:发票池-底账头
+ * @Description:发票池-底账头
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
  * @LastEditTime: 2020-10-28 17:47:18
  * @Copyright: Copyright (c) 2020, Hand
  */
-import commonConfig from '@common/config/commonConfig';
+import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldType, FieldIgnore } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
-import { DEFAULT_DATE_FORMAT } from 'utils/constants';
+// import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import moment from 'moment';
 
-const modelCode = 'hivp.invoices.originalAccount';
+const modelCode = 'hivp.invoicesOriginalAccount';
 
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
@@ -78,7 +78,7 @@ export default (dsParams): DataSetProps => {
         label: intl.get(`${modelCode}.view.invoiceDateFrom`).d('开票日期起'),
         type: FieldType.date,
         defaultValue: yearStart,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        // transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
         computedProps: {
           required: ({ record }) => record.get('everydayGetOriginalFlag') !== 1,
           disabled: ({ record }) => record.get('everydayGetOriginalFlag') === 1,
@@ -89,7 +89,7 @@ export default (dsParams): DataSetProps => {
         label: intl.get(`${modelCode}.view.invoiceDateTo`).d('开票日期止'),
         type: FieldType.date,
         defaultValue: moment(),
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        // transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
         computedProps: {
           required: ({ record }) => record.get('everydayGetOriginalFlag') !== 1,
           disabled: ({ record }) => record.get('everydayGetOriginalFlag') === 1,
@@ -133,7 +133,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'taxDiskPassword',
-        label: intl.get(`${modelCode}.view.taxDiskPassword`).d('税盘密码'),
+        label: intl.get(`hivp.checkCertification.view.taxDiskPassword`).d('税盘密码'),
         type: FieldType.string,
         defaultValue: '88888888',
         required: dsParams.inChannelCode === 'AISINO_IN_CHANNEL_PLUG',
@@ -143,7 +143,7 @@ export default (dsParams): DataSetProps => {
     queryFields: [
       {
         name: 'companyDesc',
-        label: intl.get(`${modelCode}.view.companyDesc`).d('所属公司'),
+        label: intl.get(`htc.common.modal.companyName`).d('所属公司'),
         type: FieldType.string,
         defaultValue: dsParams.companyDesc,
         ignore: FieldIgnore.always,
@@ -152,7 +152,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'curDate',
-        label: intl.get(`${modelCode}.view.curDate`).d('当前日期'),
+        label: intl.get(`hivp.invoicesArchiveUpload.view.curDate`).d('当前日期'),
         type: FieldType.date,
         defaultValue: moment(),
         ignore: FieldIgnore.always,
