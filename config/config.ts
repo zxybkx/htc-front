@@ -98,48 +98,48 @@ export default {
         packages: [
             // 子模块配置 在这里面配置后当执行build:ms的时候可以选择到对应的子模块
             // -- APPEND SUB MODULE ITEMS HERE --
-            {
-                'name': 'hzero-front-hiam',
-            },
-            {
-                'name': 'hzero-front-hpfm',
-            },
-            {
-                'name': 'hzero-front-hcnf',
-            },
-            {
-                'name': 'hzero-front-hmsg',
-            },
-            {
-                'name': 'hzero-front-himp',
-            },
-            {
-                'name': 'hzero-front-hfile',
-            },
-            {
-                'name': 'hzero-front-hadm',
-            },
-            {
-                'name': 'hzero-front-hchg',
-            },
-            {
-                'name': 'hzero-front-hrpt',
-            },
-            {
-                'name': 'hzero-front-hsdr',
-            },
-            {
-                'name': 'hzero-front-hitf',
-            },
-            {
-                'name': 'hzero-front-hivc',
-            },
-            {
-                'name': 'hzero-front-hocr',
-            },
-            {
-                'name': 'hzero-front-hwfp',
-            },
+//             {
+//                 'name': 'hzero-front-hiam',
+//             },
+//             {
+//                 'name': 'hzero-front-hpfm',
+//             },
+//             {
+//                 'name': 'hzero-front-hcnf',
+//             },
+//             {
+//                 'name': 'hzero-front-hmsg',
+//             },
+//             {
+//                 'name': 'hzero-front-himp',
+//             },
+//             {
+//                 'name': 'hzero-front-hfile',
+//             },
+//             {
+//                 'name': 'hzero-front-hadm',
+//             },
+//             {
+//                 'name': 'hzero-front-hchg',
+//             },
+//             {
+//                 'name': 'hzero-front-hrpt',
+//             },
+//             {
+//                 'name': 'hzero-front-hsdr',
+//             },
+//             {
+//                 'name': 'hzero-front-hitf',
+//             },
+//             {
+//                 'name': 'hzero-front-hivc',
+//             },
+//             {
+//                 'name': 'hzero-front-hocr',
+//             },
+//             {
+//                 'name': 'hzero-front-hwfp',
+//             },
             {
                 "name": "htc-front-iop"
             },

@@ -70,10 +70,6 @@ const tenantAgreementRouterConfig = [
             },
         ],
     },
-    {
-        path: '/htc-front-mdm/tenant-agreement/createPDF',
-        component: '@/pages/tenant-agreement/detail/BillView',
-    },
 ];
 const outageNoticeRouterConfig = [
     {
@@ -81,7 +77,7 @@ const outageNoticeRouterConfig = [
         routes: [
             {
                 path: '/htc-front-mdm/outage-notice/detail',
-                component: '@/pages/outage-notice/detail/outageNoticePage',
+                component: '@/pages/outage-notice/detail/OutageNoticePage',
             },
         ],
     },

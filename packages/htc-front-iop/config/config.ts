@@ -49,7 +49,7 @@ const redInvoiceRouterConfig = [
             {
                 // 专票红字信息表列表-详情
                 path: '/htc-front-iop/red-invoice-info/detail/:companyId/:headerId',
-                component: '@/pages/red-invoice/detail/RedInvoiceInfoDetail',
+                component: '@/pages/red-invoice/detail/RedInvoiceInfoDetailPage',
             },
             {
                 // 同步请求列表
