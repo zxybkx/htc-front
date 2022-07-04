@@ -48,8 +48,6 @@
     "@hzero-front-ui/cfg": "2.0.24",
     "@hzero-front-ui/c7n-ui": "2.0.24",
     "@hzero-front-ui/hzero-ui": "2.0.24",
-    "@types/react": "^16.0.0",
-    "@types/react-dom": "^16.0.0",
     "lerna": "3.20.2",
     "url-loader": "1.1.2",
     "css-loader": "1.0.0",
