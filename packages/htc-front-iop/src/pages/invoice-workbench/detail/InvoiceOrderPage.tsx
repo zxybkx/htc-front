@@ -105,7 +105,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     employeeInfo: {} as any,
     purchaseMark: [],
     invoiceVariety: undefined,
-    invoiceTypeTag: undefined,
+    invoiceTypeTag: '',
   };
 
   /**
@@ -1056,7 +1056,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    */
   invoiceTypeTag() {
     const { invoiceTypeTag } = this.state;
-    if (invoiceTypeTag === '51') {
+    if (['51', '52'].includes(invoiceTypeTag)) {
       return [
         <Select name="deliveryWay" />,
         <TextField name="electronicReceiverInfo" colSpan={2} />,

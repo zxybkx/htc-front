@@ -1029,7 +1029,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
                 <TextArea name="remark" colSpan={2} rows={1} resize={ResizeType.both} />
                 <CheckBox name="nextDefaultFlag" />
                 <TextField name="receiptTaxNo" />
-                {invoiceType === '51' ? electronicInvoice : paperInvoice}
+                {['51', '52'].includes(invoiceType) ? electronicInvoice : paperInvoice}
                 {/*----*/}
                 <TextArea
                   name="receiptAccount"

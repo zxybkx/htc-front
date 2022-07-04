@@ -379,11 +379,6 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.paperTicketReceiverPhone').d('纸票收件人电话'),
         type: FieldType.string,
         pattern: phoneReg,
-        // defaultValidationMessages: {
-        //   patternMismatch: intl
-        //     .get('hzero.common.validation.phone')
-        //     .d('手机格式不正确'),
-        // },
         computedProps: {
           readOnly: ({ record }) =>
             record.get('readonly') ||
