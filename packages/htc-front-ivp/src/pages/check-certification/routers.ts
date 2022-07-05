@@ -31,6 +31,11 @@ const config: RoutersConfig = [
         path: '/htc-front-ivp/check-certification/certificationResults',
         component: () => import('./detail/CertificationResultsReport'),
       },
+      {
+        //  批量勾选明细
+        path: '/htc-front-ivp/check-certification/batch-check-detail/:invoiceCheckCollectId/:type',
+        component: () => import('./detail/BatchCheckDetailTable'),
+      },
     ],
   },
 ];

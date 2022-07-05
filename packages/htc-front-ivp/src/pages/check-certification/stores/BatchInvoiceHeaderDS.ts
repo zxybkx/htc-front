@@ -33,6 +33,13 @@ export default (): DataSetProps => {
         };
         return axiosConfig;
       },
+      destroy: ({ data }) => {
+        return {
+          url: `${API_PREFIX}/v1/${tenantId}/batch-check/batch-remove`,
+          data,
+          method: 'DELETE',
+        };
+      },
     },
     primaryKey: 'needDownloadKey',
     paging: false,
@@ -59,13 +66,33 @@ export default (): DataSetProps => {
         type: FieldType.currency,
       },
       {
+        name: 'abnormalInvoiceCount',
+        label: intl.get(`${modelCode}.view.abnormalInvoiceCount`).d('备注'),
+        type: FieldType.string,
+      },
+      {
         name: 'batchNo',
         label: intl.get('hiop.redInvoiceInfo.modal.batchNo').d('批次号'),
         type: FieldType.string,
       },
       {
+        name: 'failCount',
+        label: intl.get(`${modelCode}.view.failCount`).d('本次失败份数'),
+        type: FieldType.number,
+      },
+      {
+        name: 'taxStatistics',
+        label: intl.get(`${modelCode}.view.taxStatistics`).d('本次勾选税额'),
+        type: FieldType.currency,
+      },
+      {
         name: 'failReason',
         label: intl.get(`${modelCode}.view.failReason`).d('失败原因'),
+        type: FieldType.string,
+      },
+      {
+        name: 'uploadTime',
+        label: intl.get(`${modelCode}.view.uploadTime`).d('上传时间'),
         type: FieldType.string,
       },
       {
@@ -89,7 +116,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'companyId',
-          type: FieldType.string,
+          type: FieldType.number,
           bind: 'companyObj.companyId',
         },
         {
@@ -106,7 +133,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'employeeId',
-          type: FieldType.string,
+          type: FieldType.number,
           bind: 'companyObj.employeeId',
         },
         {
@@ -126,7 +153,7 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.currentOperationalDeadline`).d('当前操作截止'),
           labelWidth: '130',
           type: FieldType.string,
-          transformRequest: (value) => moment(value).format('YYYY-MM-DD'),
+          transformRequest: (value) => moment(value).format(DEFAULT_DATE_FORMAT),
           readOnly: true,
           ignore: FieldIgnore.always,
         },
@@ -177,6 +204,30 @@ export default (): DataSetProps => {
         {
           name: 'fply',
           defaultValue: '1',
+        },
+        {
+          name: 'batchNo',
+          label: intl.get('hiop.redInvoiceInfo.modal.batchNo').d('批次号'),
+          type: FieldType.string,
+        },
+        {
+          name: 'invoiceDate',
+          label: intl.get('hivp.checkCertification.view.requestTime').d('请求时间'),
+          type: FieldType.date,
+          range: ['invoiceDateFrom', 'invoiceDateTo'],
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'invoiceDateFrom',
+          type: FieldType.date,
+          bind: 'invoiceDate.invoiceDateFrom',
+          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'invoiceDateTo',
+          type: FieldType.date,
+          bind: 'invoiceDate.invoiceDateTo',
+          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
       ],
     }),

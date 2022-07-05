@@ -218,13 +218,35 @@ export async function refreshStatus(params) {
 }
 
 /**
+ * 查询是否有勾选请求中的发票
+ */
+export async function checkInvoiceCount(params) {
+  const { tenantId } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/batch-check/select-check-invoice-count`, {
+    method: 'GET',
+  });
+}
+
+/**
+ * 获取当前可勾选发票
+ */
+export async function unCertifiedInvoiceQuery(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/batch-check/unCertified-invoice-query`, {
+    method: 'GET',
+    query: otherParams,
+  });
+}
+
+/**
  * 全部勾选/全部撤销
  */
 export async function batchCheck(params) {
-  const { tenantId, ...otherParams } = params;
-  return request(`${HIVP_API}/v1/${tenantId}/batch-check/batch-Check`, {
+  const { tenantId, invoiceCheckCollects, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/batch-check/partial-Check`, {
     method: 'POST',
     query: otherParams,
+    body: invoiceCheckCollects,
   });
 }
 
@@ -240,14 +262,24 @@ export async function getTaskPassword(params) {
 }
 
 /**
+ * 批量勾选明细
+ */
+export async function failDetail(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/batch-check/fail-detail`, {
+    method: 'GET',
+    query: otherParams,
+  });
+}
+
+/**
  * 勾选认证-下载申报抵扣统计表
  */
 export async function deductionReportDownload(params) {
-  const { tenantId, pageData, ...otherParams } = params;
+  const { tenantId, ...otherParams } = params;
   return request(`${HIVP_API}/v1/${tenantId}/invoice-operation/deduction-apply-report/download`, {
-    method: 'POST',
+    method: 'GET',
     query: otherParams,
-    body: pageData,
     responseType: 'text',
   });
 }
@@ -256,13 +288,12 @@ export async function deductionReportDownload(params) {
  * 勾选认证-下载认证结果统计表
  */
 export async function statisticReportDownload(params) {
-  const { tenantId, pageData, ...otherParams } = params;
+  const { tenantId, ...otherParams } = params;
   return request(
     `${HIVP_API}/v1/${tenantId}/invoice-operation/certified-result-statistic-report/download`,
     {
-      method: 'POST',
+      method: 'GET',
       query: otherParams,
-      body: pageData,
       responseType: 'text',
     }
   );

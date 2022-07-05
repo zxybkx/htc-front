@@ -51,7 +51,6 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
   state = {
     summaryData: [],
     detailData: [],
-    pageData: undefined,
   };
 
   headerDS = new DataSet({
@@ -113,7 +112,6 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
           this.setState({
             summaryData: certifiedResultStatisticSummaryDtoList || [],
             detailData: detailList || [],
-            pageData: res,
           });
         }
       });
@@ -150,7 +148,6 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
   @Bind()
   async handlePrint() {
     const { search } = this.props.location;
-    const { pageData } = this.state;
     const statisticalConfirmInfoStr = new URLSearchParams(search).get('statisticalConfirmInfo');
     if (statisticalConfirmInfoStr) {
       const statisticalConfirmInfo = JSON.parse(decodeURIComponent(statisticalConfirmInfoStr));
@@ -179,7 +176,6 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
         spmm: taxDiskPassword,
         rqq: invoiceDateFromStr,
         rqz: invoiceDateToStr,
-        pageData,
       };
       const res = getResponse(await statisticReportDownload(params));
       if (res) {

@@ -11,7 +11,7 @@ import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { DataSet } from 'choerodon-ui/pro';
 import { getCurrentOrganizationId } from 'utils/utils';
-import { FieldType, FieldIgnore } from 'choerodon-ui/pro/lib/data-set/enum';
+import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import moment from 'moment';
 
@@ -198,7 +198,6 @@ export default (): DataSetProps => {
           name: 'companyCode',
           label: intl.get('htc.common.modal.companyCode').d('公司代码'),
           type: FieldType.string,
-          // defaultValue: dsParams.companyCode,
           bind: 'companyObj.companyCode',
           required: true,
         },
@@ -212,7 +211,6 @@ export default (): DataSetProps => {
           name: 'employeeDesc',
           label: intl.get('htc.common.modal.employeeDesc').d('登录员工'),
           type: FieldType.string,
-          // defaultValue: dsParams && dsParams.employeeDesc,
           readOnly: true,
           ignore: FieldIgnore.always,
         },
@@ -220,7 +218,6 @@ export default (): DataSetProps => {
           name: 'employeeNumber',
           label: intl.get('hiop.redInvoiceInfo.modal.employeeNum').d('员工编号'),
           type: FieldType.string,
-          // defaultValue: dsParams && dsParams.employeeNum,
           bind: 'companyObj.employeeNum',
           required: true,
         },
