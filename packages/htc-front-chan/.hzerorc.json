@@ -1,7 +1,1 @@
-{
-  "package": {
-  "initLoad": true,
-  "indexRouter": "/htc-front-chan/hello",
-  "registerRegex": "\\/.*\\/"
-  }
-}
+

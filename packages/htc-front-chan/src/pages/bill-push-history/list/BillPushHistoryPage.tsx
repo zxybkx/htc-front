@@ -9,7 +9,8 @@
 import React, { Component } from 'react';
 import { DataSet, Table } from 'choerodon-ui/pro';
 import { Content } from 'components/Page';
-import { PageHeaderWrapper } from 'hzero-boot/lib/components/Page';
+// import { PageHeaderWrapper } from 'hzero-boot/lib/components/Page';
+import { Header } from 'components/Page';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
@@ -101,11 +102,12 @@ export default class BillPushHistoryPage extends Component<BillPushHistoryPagePr
 
   render() {
     return (
-      <PageHeaderWrapper title={intl.get(`${modelCode}.title`).d('账单推送历史记录')}>
+      <>
+        <Header title={intl.get(`${modelCode}.title`).d('账单推送历史记录')} />
         <Content>
           <Table dataSet={this.props.tableDS} columns={this.columns} />
         </Content>
-      </PageHeaderWrapper>
+      </>
     );
   }
 }
