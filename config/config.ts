@@ -25,26 +25,21 @@ export default {
     // 配置环境变量
     define: {
         'process.env': {
-            NODE_PROFILE: 'test',
             BASE_PATH: "/",
             PUBLIC_URL: "/",
             PLATFORM_VERSION: 'SASS',
-            CLIENT_ID: "localhost",
+            CLIENT_ID: "hzero-front-dev",
             GENERATE_SOURCEMAP: 'false',
             SKIP_TS_CHECK_IN_START: 'false', // yarn start 时, 是否跳过 ts 语法检查
             SKIP_ESLINT_CHECK_IN_START: 'true', // yarn start 时, 是否跳过 eslint 语法检查
             SKIP_NO_CHANGE_MODULE: 'false', // 是否跳过未变更的子模块编译
             ADDITIONAL: process.env.ADDITIONAL, //c7n特异性包的环境变量
-            API_HOST: "http://172.23.40.53:8080",
+            API_HOST: "http://172.23.16.23:8080",
             NO_PROXY: 'true',
-
             MY_ROUTE: "htc-front-chan",
             CHECK_API: "/hcan",
             EMPLOYEE_API: "SAAS",
-
-
-            WEBSOCKET_HOST: 'BUILD_WEBSOCKET_HOST',
-
+            WEBSOCKET_HOST: 'ws://172.23.16.23:8080/hpfm/websocket',
             IM_WEBSOCKET_HOST: "ws://192.168.16.150:9876",
             TRACE_LOG_ENABLE: "true",  // TraceLog日志追溯分析是否启用，true/false
             CUSTOMIZE_ICON_NAME: "customize-icon ",
