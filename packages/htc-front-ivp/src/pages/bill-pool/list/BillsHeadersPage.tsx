@@ -167,7 +167,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
         <div style={{ marginBottom: '0.1rem' }}>
           <Row>
             <Col span={20}>
-              <Form columns={6} dataSet={queryDataSet}>
+              <Form columns={6} dataSet={queryDataSet} labelTooltip={Tooltip.overflow}>
                 <Lov
                   name="companyObj"
                   colSpan={2}

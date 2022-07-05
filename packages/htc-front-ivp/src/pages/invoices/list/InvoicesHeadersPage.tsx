@@ -35,6 +35,7 @@ import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
 import querystring from 'querystring';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
+import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import withProps from 'utils/withProps';
 import notification from 'utils/notification';
 import { isNullOrUndefined } from 'util';
@@ -42,7 +43,10 @@ import { getCurrentOrganizationId } from 'utils/utils';
 import { queryMapIdpValue } from 'hzero-front/lib/services/api';
 import ExcelExport from 'components/ExcelExport';
 import commonConfig from '@htccommon/config/commonConfig';
-import { getCurrentEmployeeInfo, getTenantAgreementCompany } from '@htccommon/services/commonService';
+import {
+  getCurrentEmployeeInfo,
+  getTenantAgreementCompany,
+} from '@htccommon/services/commonService';
 import {
   invoiceCheck,
   invoiceCheckExist,
@@ -200,17 +204,17 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       queryMoreArray.push(<Select key="entryAccountState" name="entryAccountState" colSpan={2} />);
       queryMoreArray.push(<Select key="receiptsState" name="receiptsState" colSpan={2} />);
       queryMoreArray.push(<Select key="checkStates" name="checkStates" colSpan={2} />);
-      queryMoreArray.push(<TextField key="invoiceCode" name="invoiceCode" />);
-      queryMoreArray.push(<TextField key="invoiceNo" name="invoiceNo" />);
-      queryMoreArray.push(<Currency key="invoiceAmount" name="invoiceAmount" />);
+      queryMoreArray.push(<TextField key="invoiceCode" name="invoiceCode" colSpan={2} />);
+      queryMoreArray.push(<TextField key="invoiceNo" name="invoiceNo" colSpan={2} />);
       queryMoreArray.push(<TextField key="salerName" name="salerName" colSpan={2} newLine />);
       queryMoreArray.push(<TextField key="buyerName" name="buyerName" colSpan={2} />);
+      queryMoreArray.push(<Currency key="invoiceAmount" name="invoiceAmount" />);
 
       return (
         <div style={{ marginBottom: '0.1rem' }}>
           <Row>
             <Col span={20}>
-              <Form columns={6} dataSet={queryDataSet}>
+              <Form columns={6} dataSet={queryDataSet} labelTooltip={Tooltip.overflow}>
                 <Lov
                   name="companyObj"
                   colSpan={2}
