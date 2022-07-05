@@ -1113,7 +1113,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'invoiceAmount',
-          label: intl.get(`htc.common.view.amount`).d('金额'),
+          label: intl.get('htc.bill.view.amountExcludeTax').d('金额（不含税）'),
           type: FieldType.currency,
         },
         {
