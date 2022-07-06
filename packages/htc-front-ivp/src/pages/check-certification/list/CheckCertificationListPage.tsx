@@ -2562,12 +2562,12 @@ export default class CheckCertificationPage extends Component<CheckCertification
             {intl.get(`${modelCode}.button.enterpriseFileInit`).d('企业档案初始化')}
           </Button>
         </Header>
-        <Row gutter={8} style={{ height: 'calc(100%)' }}>
+        <Row gutter={8} style={{ height: 'calc(100%)', margin: '0 4px' }}>
           <Col span={5} style={{ height: 'calc(100%)' }}>
             <div className={styles.header}>
               <Form
                 dataSet={this.props.checkCertificationListDS.queryDataSet}
-                style={{ marginLeft: '-20px' }}
+                // style={{ marginLeft: '-20px' }}
               >
                 <Output name="employeeDesc" />
                 <Output name="curDate" />

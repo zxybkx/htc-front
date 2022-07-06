@@ -1,5 +1,5 @@
 const defaultThemeConfig = {
-  theme3: {
+  aurora: {
     current: {
       schema: 'theme3',
       images: 0,
@@ -53,7 +53,7 @@ const defaultThemeConfig = {
     },
     prev: {},
   },
-  active: 'theme3',
+  active: 'aurora',
 };
 
 localStorage.setItem('themeConfig', JSON.stringify(defaultThemeConfig));
