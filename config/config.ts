@@ -25,10 +25,10 @@ export default {
     // 配置环境变量
     define: {
         'process.env': {
-            BASE_PATH: "/",
-            PUBLIC_URL: "/",
+            // BASE_PATH: "/",
+            // PUBLIC_URL: "/",
             PLATFORM_VERSION: 'SASS',
-            CLIENT_ID: "hzero-front-dev",
+            CLIENT_ID: "localhost",
             GENERATE_SOURCEMAP: 'false',
             SKIP_TS_CHECK_IN_START: 'false', // yarn start 时, 是否跳过 ts 语法检查
             SKIP_ESLINT_CHECK_IN_START: 'true', // yarn start 时, 是否跳过 eslint 语法检查
@@ -93,6 +93,9 @@ export default {
         packages: [
             // 子模块配置 在这里面配置后当执行build:ms的时候可以选择到对应的子模块
             // -- APPEND SUB MODULE ITEMS HERE --
+            {
+                'name': 'hzero-front',
+            },
             {
                 'name': 'hzero-front-hiam',
             },
