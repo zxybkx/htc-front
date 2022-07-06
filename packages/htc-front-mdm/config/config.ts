@@ -148,7 +148,7 @@ const projectCostSharingRouterConfig = [
 const projectTenantMaintenanceRouterConfig = [
     {
         path: '/htc-front-mdm/project-tenant-maintenance',
-        components: [
+        routes: [
             {
                 path: '/htc-front-mdm/project-tenant-maintenance/list',
                 component: '@/pages/project-tenant-maintenance/list/ProjectTenantMaintenancePage',
