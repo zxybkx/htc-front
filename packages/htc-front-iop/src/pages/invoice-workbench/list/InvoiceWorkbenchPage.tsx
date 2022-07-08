@@ -34,6 +34,8 @@ import {
   Select,
   Table,
   TextField,
+  TextArea,
+  CheckBox,
 } from 'choerodon-ui/pro';
 import { base64toBlob, getPresentMenu } from '@htccommon/utils/utils';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
@@ -58,7 +60,7 @@ import {
 import { judgeRedFlush } from '@src/services/invoiceReqService';
 import MenuItem from 'choerodon-ui/lib/menu/MenuItem';
 import InvoiceWorkbenchDS from '../stores/InvoiceWorkbenchDS';
-
+import DeliverInfoDS from "../stores/DeliverInfoDs";
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.IOP_API || '';
 const permissionPath = `${getPresentMenu().name}.ps`;
@@ -66,6 +68,7 @@ const permissionPath = `${getPresentMenu().name}.ps`;
 interface InvoiceWorkbenchPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   invoiceWorkbenchDS: DataSet;
+  deliverInfoDS: DataSet;
 }
 
 @withProps(
@@ -74,7 +77,11 @@ interface InvoiceWorkbenchPageProps extends RouteComponentProps {
       autoQuery: false,
       ...InvoiceWorkbenchDS(),
     });
-    return { invoiceWorkbenchDS };
+    const deliverInfoDS = new DataSet({
+      autoCreate: true,
+      ...DeliverInfoDS(),
+    });
+    return { invoiceWorkbenchDS, deliverInfoDS };
   },
   { cacheState: true }
 )
@@ -432,6 +439,84 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       });
     }
     this.handledDeleteOrder(invoicingOrderHeaderList);
+  }
+  /**
+   * @description: 批量交付
+   * @function: handleBatchDeliver
+   */
+  @Bind()
+  async handleBatchDeliver() {
+    const invoicingOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
+      record.toData()
+    );
+    const invoiceVarietys = invoicingOrderHeaderList.map(item => item.invoiceVariety);
+    console.log('invoicingOrderHeaderList', invoicingOrderHeaderList);
+    const invoiceInfos = invoicingOrderHeaderList.map(item => `${item.invoiceNo}-${item.invoiceCode}`)
+    if (invoicingOrderHeaderList.some(item => item.orderStatus !== 'F')) {
+      Modal.warning(intl
+        .get('hiop.invoiceWorkbench.notification.waring.noFinish')
+        .d('存在未完成订单无法交付'));
+      return;
+    };
+    if ((invoiceVarietys.includes('51') || invoiceVarietys.includes('52'))
+      && (invoiceVarietys.includes('0') || invoiceVarietys.includes('2') || invoiceVarietys.includes('41'))) {
+      Modal.warning(intl
+        .get('hiop.invoiceWorkbench.notification.waring.noAgreement')
+        .d('请仅选择纸质发票或仅选择电子发票操作交付！'));
+      return;
+    }
+    if (invoiceVarietys.includes('51') || invoiceVarietys.includes('52')) {
+      // 电子
+      Modal.open({
+        title: '电票交付信息',
+        closable: true,
+        footer: (_, cancelBtn) => (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            {cancelBtn}
+            <Button>{intl
+              .get('hiop.invoiceWorkbench.notification.waring.noAgreement')
+              .d('批量保存')}
+            </Button>
+            <Button>{intl
+              .get('hiop.invoiceWorkbench.notification.waring.noAgreement')
+              .d('重新推送')}
+            </Button>
+          </div>
+        ),
+        children: (
+          <Form >
+            <TextArea label='发票信息' readOnly value={invoiceInfos.join(',')} />
+            <TextField label='重新推送邮箱' />
+            <TextField label='备注说明' />
+          </Form>
+        ),
+      });
+    } else {
+      // 纸质
+      Modal.open({
+        title: '纸票交付信息',
+        closable: true,
+        footer: (_, cancelBtn) => (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            {cancelBtn}
+            <Button>{intl
+              .get('hiop.invoiceWorkbench.notification.waring.noAgreement')
+              .d('批量保存')}
+            </Button>
+            <Button>发送交付通知</Button>
+          </div>
+        ),
+        children: (
+          <Form dataSet={this.props.deliverInfoDS}>
+            <TextArea name='invoiceInformation' value={invoiceInfos.join(',')} />
+            <Select name='postLogisticsCompany' />
+            <TextField name='postalLogisticsSingleNumber' />
+            <TextField name='receiveNotificationEmail' />
+            <CheckBox name='whetherReceiv' />
+          </Form>
+        ),
+      });
+    }
   }
 
   /**
@@ -1170,6 +1255,17 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
             title={intl.get('hiop.invoiceWorkbench.button.batchDelete').d('批量删除')}
             permissionCode="batch-delete"
             permissionMeaning="按钮-批量删除"
+          />
+        </MenuItem>
+        <MenuItem>
+          <BatchButtons
+            key="batchDeliver"
+            funcType={FuncType.link}
+            onClick={() => this.handleBatchDeliver()}
+            dataSet={this.props.invoiceWorkbenchDS}
+            title={intl.get('hiop.invoiceWorkbench.button.batchDeliver').d('批量交付')}
+            permissionCode="batch-deliver"
+            permissionMeaning="按钮-批量交付"
           />
         </MenuItem>
       </Menu>
