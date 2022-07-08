@@ -485,7 +485,7 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
     return (
       <>
         <Header title={intl.get(`${modelCode}.view.title`).d('单据类型维护')} />
-        <Row gutter={16} style={{ height: 'calc(100%)' }}>
+        <Row gutter={16} style={{ height: 'calc(100%)', margin: '0 2px' }}>
           <Col span={5} style={{ height: 'calc(100%)' }}>
             <Content style={{ overflowX: 'hidden' }}>
               <div>
