@@ -1,9 +1,8 @@
-/**
+/*
  * @Description:开票订单页面
- * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2020-12-10 11:18:22
- * @LastEditTime: 2021-03-04 17:07:11
+ * @LastEditTime: 2022-07-12 10:38:43
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -61,6 +60,11 @@ import { judgeRedFlush } from '@src/services/invoiceReqService';
 import MenuItem from 'choerodon-ui/lib/menu/MenuItem';
 import InvoiceWorkbenchDS from '../stores/InvoiceWorkbenchDS';
 import DeliverInfoDS from "../stores/DeliverInfoDs";
+import { ResizeType } from 'choerodon-ui/pro/lib/text-area/enum';
+enum ModalType {
+  electronic,
+  paper,
+}
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.IOP_API || '';
 const permissionPath = `${getPresentMenu().name}.ps`;
@@ -68,7 +72,6 @@ const permissionPath = `${getPresentMenu().name}.ps`;
 interface InvoiceWorkbenchPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   invoiceWorkbenchDS: DataSet;
-  deliverInfoDS: DataSet;
 }
 
 @withProps(
@@ -77,11 +80,8 @@ interface InvoiceWorkbenchPageProps extends RouteComponentProps {
       autoQuery: false,
       ...InvoiceWorkbenchDS(),
     });
-    const deliverInfoDS = new DataSet({
-      autoCreate: true,
-      ...DeliverInfoDS(),
-    });
-    return { invoiceWorkbenchDS, deliverInfoDS };
+
+    return { invoiceWorkbenchDS };
   },
   { cacheState: true }
 )
@@ -94,12 +94,15 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     curCompanyId: undefined,
     showMore: false,
   };
-
+  deliverInfoDS = dsParams => new DataSet({
+    autoCreate: true,
+    ...DeliverInfoDS(dsParams),
+  });
   async componentDidMount() {
     const { queryDataSet } = this.props.invoiceWorkbenchDS;
     if (queryDataSet) {
       const res = await getCurrentEmployeeInfoOut({ tenantId });
-      let curCompanyId = queryDataSet.current!.get('companyId');
+      let curCompanyId = queryDataSet?.current?.get('companyId');
       if (res && res.content) {
         const empInfo = res.content[0];
         if (empInfo && !curCompanyId) {
@@ -440,12 +443,36 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     }
     this.handledDeleteOrder(invoicingOrderHeaderList);
   }
+  modalDeliver;//批量交付form对象
+  /**
+   * @description: 发送交付通知
+   * @function: handlePaperDeliverNotice
+   */
+  async handlePaperDeliverNotice() {
+    this.modalDeliver.dataSet.getField('postLogisticsCompany')
+  }
+  /**
+   * @description: 发票批量交付
+   * @function: handlePaperDeliver
+   */
+  @Bind()
+  async handlePaperDeliver() {
+    Modal.confirm({
+      title: 'Confirm',
+      children: '是否确认保存？保存后无法批量修改。'
+    }).then((button) => {
+      if (button === 'ok') {
+        this.modalDeliver.dataSet.submit();
+      }
+    });
+  }
   /**
    * @description: 批量交付
    * @function: handleBatchDeliver
    */
   @Bind()
   async handleBatchDeliver() {
+
     const invoicingOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
       record.toData()
     );
@@ -484,10 +511,13 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           </div>
         ),
         children: (
-          <Form >
-            <TextArea label='发票信息' readOnly value={invoiceInfos.join(',')} />
-            <TextField label='重新推送邮箱' />
-            <TextField label='备注说明' />
+          <Form dataSet={this.deliverInfoDS({
+            invoiceInformation: invoiceInfos.join(','),
+            type: ModalType.electronic
+          })}>
+            <TextArea name='invoiceInformation' resize={ResizeType.vertical} />
+            <TextField name='receiveNotificationEmail' />
+            <TextField name='descr' />
           </Form>
         ),
       });
@@ -499,19 +529,28 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         footer: (_, cancelBtn) => (
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             {cancelBtn}
-            <Button>{intl
-              .get('hiop.invoiceWorkbench.notification.waring.noAgreement')
-              .d('批量保存')}
+            <Button
+              onClick={this.handlePaperDeliver}
+            >
+              {intl
+                .get('hiop.invoiceWorkbench.notification.waring.noAgreement')
+                .d('批量保存')}
             </Button>
-            <Button>发送交付通知</Button>
+            <Button
+              onClick={this.handlePaperDeliverNotice}
+            >发送交付通知</Button>
           </div>
         ),
         children: (
-          <Form dataSet={this.props.deliverInfoDS}>
-            <TextArea name='invoiceInformation' value={invoiceInfos.join(',')} />
+          <Form ref={(node) => this.modalDeliver = node} dataSet={this.deliverInfoDS({
+            invoiceInformation: invoiceInfos.join(','),
+            type: ModalType.paper
+          })}>
+            <TextArea name='invoiceInformation' resize={ResizeType.vertical} />
             <Select name='postLogisticsCompany' />
             <TextField name='postalLogisticsSingleNumber' />
             <TextField name='receiveNotificationEmail' />
+            <TextField name='descr' />
             <CheckBox name='whetherReceiv' />
           </Form>
         ),
