@@ -23,7 +23,7 @@ export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
   const halfYearStart = moment().subtract(6, 'months').startOf('month');
-  const yearStart = moment().subtract(12, 'months').startOf('month');
+  // const yearStart = moment().subtract(12, 'months').startOf('month');
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -872,12 +872,12 @@ export default (): DataSetProps => {
           name: 'ticketCollectorDate',
           label: intl.get(`hivp.bill.view.ticketCollectorDate`).d('收票日期'),
           type: FieldType.date,
-          required: true,
+          // required: true,
           range: ['ticketCollectorDateFrom', 'ticketCollectorDateTo'],
-          defaultValue: {
-            ticketCollectorDateFrom: yearStart,
-            ticketCollectorDateTo: moment().format(DEFAULT_DATE_FORMAT),
-          },
+          // defaultValue: {
+          //   ticketCollectorDateFrom: yearStart,
+          //   ticketCollectorDateTo: moment().format(DEFAULT_DATE_FORMAT),
+          // },
           ignore: FieldIgnore.always,
         },
         {
@@ -898,12 +898,12 @@ export default (): DataSetProps => {
           name: 'entryAccountDate',
           label: intl.get(`hivp.bill.view.entryAccountDate`).d('入账日期'),
           type: FieldType.date,
-          required: true,
+          // required: true,
           range: ['entryAccountDateFrom', 'entryAccountDateTo'],
-          defaultValue: {
-            entryAccountDateFrom: yearStart,
-            entryAccountDateTo: moment().format(DEFAULT_DATE_FORMAT),
-          },
+          // defaultValue: {
+          //   entryAccountDateFrom: yearStart,
+          //   entryAccountDateTo: moment().format(DEFAULT_DATE_FORMAT),
+          // },
           ignore: FieldIgnore.always,
         },
         {
@@ -924,12 +924,12 @@ export default (): DataSetProps => {
           name: 'entryPoolDatetime',
           label: intl.get(`hivp.bill.view.entryPoolDatetime`).d('进池日期'),
           type: FieldType.date,
-          required: true,
+          // required: true,
           range: ['entryPoolDatetimeFrom', 'entryPoolDatetimeTo'],
-          defaultValue: {
-            entryPoolDatetimeFrom: yearStart,
-            entryPoolDatetimeTo: moment().format(DEFAULT_DATE_FORMAT),
-          },
+          // defaultValue: {
+          //   entryPoolDatetimeFrom: yearStart,
+          //   entryPoolDatetimeTo: moment().format(DEFAULT_DATE_FORMAT),
+          // },
           ignore: FieldIgnore.always,
         },
         {
@@ -950,12 +950,12 @@ export default (): DataSetProps => {
           name: 'warehousingDate',
           label: intl.get(`${modelCode}.view.warehousingDate`).d('入库日期'),
           type: FieldType.date,
-          required: true,
+          // required: true,
           range: ['warehousingDateFrom', 'warehousingDateTo'],
-          defaultValue: {
-            warehousingDateFrom: yearStart,
-            warehousingDateTo: moment().format(DEFAULT_DATE_FORMAT),
-          },
+          // defaultValue: {
+          //   warehousingDateFrom: yearStart,
+          //   warehousingDateTo: moment().format(DEFAULT_DATE_FORMAT),
+          // },
           ignore: FieldIgnore.always,
         },
         {
@@ -976,12 +976,12 @@ export default (): DataSetProps => {
           name: 'checkDate',
           label: intl.get(`hivc.select.model.select.tickDate`).d('勾选日期'),
           type: FieldType.date,
-          required: true,
+          // required: true,
           range: ['checkDateFrom', 'checkDateTo'],
-          defaultValue: {
-            checkDateFrom: yearStart,
-            checkDateTo: moment().format(DEFAULT_DATE_FORMAT),
-          },
+          // defaultValue: {
+          //   checkDateFrom: yearStart,
+          //   checkDateTo: moment().format(DEFAULT_DATE_FORMAT),
+          // },
           ignore: FieldIgnore.always,
         },
         {
@@ -1003,7 +1003,7 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.displayOptions`).d('显示选项'),
           type: FieldType.string,
           lookupCode: 'HIVP.DISPLAY_OPTIONS',
-          required: true,
+          // required: true,
           multiple: ',',
         },
         {
@@ -1011,7 +1011,7 @@ export default (): DataSetProps => {
           label: intl.get(`hivp.batchCheck.view.invoiceState`).d('发票状态'),
           type: FieldType.string,
           lookupCode: 'HMDM.INVOICE_STATE',
-          required: true,
+          // required: true,
           multiple: ',',
         },
         {
@@ -1125,6 +1125,56 @@ export default (): DataSetProps => {
           name: 'buyerName',
           label: intl.get(`htc.common.view.buyerName`).d('购方名称'),
           type: FieldType.string,
+        },
+        {
+          name: 'systemCodeObj',
+          label: intl.get(`htc.common.view.buyerName`).d('来源系统'),
+          type: FieldType.string,
+          lovCode: 'HTC.SOURCE_SYSTEM',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'systemCode',
+          type: FieldType.string,
+          bind: 'systemCodeObj.systemCode',
+        },
+        {
+          name: 'sysTypeHeaderId',
+          type: FieldType.number,
+          bind: 'systemCodeObj.docTypeHeaderId',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentTypeCodeObj',
+          label: intl.get(`htc.common.view.buyerName`).d('单据类型'),
+          type: FieldType.string,
+          lovCode: 'HTC.DOCUMENT_TYPE',
+          cascadeMap: { docTypeHeaderId: 'sysTypeHeaderId' },
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentTypeCode',
+          type: FieldType.string,
+          bind: 'documentTypeCodeObj.documentTypeCode',
+        },
+        {
+          name: 'docTypeHeaderId',
+          type: FieldType.number,
+          bind: 'documentTypeCodeObj.docTypeHeaderId',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentNumberObj',
+          label: intl.get(`htc.common.view.buyerName`).d('单据编号'),
+          type: FieldType.string,
+          lovCode: 'HTC.DOCUMENT_CODE',
+          cascadeMap: { docTypeHeaderId: 'docTypeHeaderId' },
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentNumber',
+          type: FieldType.string,
+          bind: 'documentNumberObj.documentNumber',
         },
       ],
     }),
