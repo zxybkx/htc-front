@@ -12,9 +12,9 @@ import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 // import { DataSet } from 'choerodon-ui/pro';
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
-import {
-    Modal,
-} from 'choerodon-ui/pro';
+// import {
+//     Modal,
+// } from 'choerodon-ui/pro';
 export default (dsParams): DataSetProps => {
     const API_PREFIX = commonConfig.IOP_API || '';
     const tenantId = getCurrentOrganizationId();

@@ -2,7 +2,7 @@
  * @Description:开票订单页面
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2020-12-10 11:18:22
- * @LastEditTime: 2022-07-12 10:38:43
+ * @LastEditTime: 2022-07-12 11:02:47
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -448,8 +448,11 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
    * @description: 发送交付通知
    * @function: handlePaperDeliverNotice
    */
+  @Bind()
   async handlePaperDeliverNotice() {
-    this.modalDeliver.dataSet.getField('postLogisticsCompany')
+    // console.log(this.modalDeliver.dataSet.getField('postLogisticsCompany'));
+
+    this.modalDeliver.dataSet.current!.getField('postLogisticsCompany')!.set('required', true);
   }
   /**
    * @description: 发票批量交付
