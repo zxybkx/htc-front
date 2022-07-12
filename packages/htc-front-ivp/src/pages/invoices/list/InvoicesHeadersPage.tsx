@@ -209,9 +209,9 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       queryMoreArray.push(<TextField key="salerName" name="salerName" colSpan={2} newLine />);
       queryMoreArray.push(<TextField key="buyerName" name="buyerName" colSpan={2} />);
       queryMoreArray.push(<Currency key="invoiceAmount" name="invoiceAmount" />);
-      queryMoreArray.push(<Lov key="systemCodeObj" name="systemCodeObj" newLine />);
-      queryMoreArray.push(<Lov key="documentTypeCodeObj" name="documentTypeCodeObj" />);
-      queryMoreArray.push(<Lov key="documentNumberObj" name="documentNumberObj" />);
+      queryMoreArray.push(<Lov key="systemCodeObj" name="systemCodeObj" colSpan={2} newLine />);
+      queryMoreArray.push(<Lov key="documentTypeCodeObj" name="documentTypeCodeObj" colSpan={2} />);
+      queryMoreArray.push(<Lov key="documentNumberObj" name="documentNumberObj" colSpan={2} />);
 
       return (
         <div style={{ marginBottom: '0.1rem' }}>
