@@ -1129,7 +1129,7 @@ export default (): DataSetProps => {
         {
           name: 'systemCodeObj',
           label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
-          type: FieldType.string,
+          type: FieldType.object,
           lovCode: 'HTC.SOURCE_SYSTEM',
           ignore: FieldIgnore.always,
         },
@@ -1147,7 +1147,7 @@ export default (): DataSetProps => {
         {
           name: 'documentTypeCodeObj',
           label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
-          type: FieldType.string,
+          type: FieldType.object,
           lovCode: 'HTC.DOCUMENT_TYPE',
           cascadeMap: { docTypeHeaderId: 'sysTypeHeaderId' },
           ignore: FieldIgnore.always,
@@ -1166,7 +1166,7 @@ export default (): DataSetProps => {
         {
           name: 'documentNumberObj',
           label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
-          type: FieldType.string,
+          type: FieldType.object,
           lovCode: 'HTC.DOCUMENT_CODE',
           cascadeMap: { docTypeHeaderId: 'docTypeHeaderId' },
           ignore: FieldIgnore.always,
