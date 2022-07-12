@@ -1,7 +1,7 @@
 const defaultThemeConfig = {
-  nightingale: {
+  theme3: {
     current: {
-      schema: 'nightingale',
+      schema: 'theme3',
       images: 0,
       layout: 0,
       formColor: 0,
@@ -53,7 +53,7 @@ const defaultThemeConfig = {
     },
     prev: {},
   },
-  active: 'nightingale',
+  active: 'theme3',
 };
 
 localStorage.setItem('themeConfig', JSON.stringify(defaultThemeConfig));
