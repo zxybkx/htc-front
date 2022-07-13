@@ -53,7 +53,7 @@ const redInvoiceRouterConfig = [
             },
             {
                 // 同步请求列表
-                path: '/htc-front-iop/red-invoice-info/SynchronizeRedInfoList',
+                path: '/htc-front-iop/red-invoice-info/synchronize-red-info-list',
                 component: '@/pages/red-invoice/detail/SynchronizeRedInfoPage',
             },
         ],
@@ -70,7 +70,7 @@ const invoiceWorkbenchRouterConfig = [
             },
             // 新建开票订单
             {
-                path: '/htc-front-iop/invoice-workbench/invoiceOrder/:sourceType/:companyId',
+                path: '/htc-front-iop/invoice-workbench/invoice-order/:sourceType/:companyId',
                 component: '@/pages/invoice-workbench/detail/InvoiceOrderPage',
             },
             // 编辑开票订单
@@ -81,17 +81,17 @@ const invoiceWorkbenchRouterConfig = [
             },
             // 空白发票作废
             {
-                path: '/htc-front-iop/invoice-workbench/invoiceVoid/:companyId',
+                path: '/htc-front-iop/invoice-workbench/invoice-void/:companyId',
                 component: '@/pages/invoice-void/list/InvoiceVoidPage',
             },
             // 发票作废
             {
-                path: '/htc-front-iop/invoice-workbench/invoiceLineVoid/:invoicingOrderHeaderId/:companyId',
+                path: '/htc-front-iop/invoice-workbench/invoice-line-void/:invoicingOrderHeaderId/:companyId',
                 component: '@/pages/invoice-void/list/InvoiceVoidPage',
             },
             // 发票红冲
             {
-                path: '/htc-front-iop/invoice-workbench/invoiceRedFlush/:invoicingOrderHeaderId/:companyId',
+                path: '/htc-front-iop/invoice-workbench/invoice-red-flush/:invoicingOrderHeaderId/:companyId',
                 component: '@/pages/invoice-redFlush/list/InvoiceRedFlushPage',
             },
             // 发票预览
@@ -128,7 +128,7 @@ const invoiceReqRouterConfig = [
             },
             // 空白废申请
             {
-                path: '/htc-front-iop/invoice-req/invoiceVoid/:sourceType/:companyId',
+                path: '/htc-front-iop/invoice-req/invoice-void/:sourceType/:companyId',
                 component: '@/pages/invoice-void/list/InvoiceVoidPage',
             },
             // 发票作废
@@ -140,19 +140,19 @@ const invoiceReqRouterConfig = [
             // 发票红冲
             {
                 path:
-                    '/htc-front-iop/invoice-req/invoiceRedFlush/:sourceType/:invoicingOrderHeaderId/:companyId',
+                    '/htc-front-iop/invoice-req/invoice-red-flush/:sourceType/:invoicingOrderHeaderId/:companyId',
                 component: '@/pages/invoice-redFlush/list/InvoiceRedFlushPage',
             },
             // 申请单-发票作废
             {
                 path:
-                    '/htc-front-iop/invoice-req/invoiceMain-void/:sourceType/:invoicingReqHeaderId/:companyId',
+                    '/htc-front-iop/invoice-req/invoice-main-void/:sourceType/:invoicingReqHeaderId/:companyId',
                 component: '@/pages/invoice-void/list/InvoiceVoidPage',
             },
             // 申请单-发票红冲
             {
                 path:
-                    '/htc-front-iop/invoice-req/invoiceMain-redFlush/:sourceType/:invoicingReqHeaderId/:companyId',
+                    '/htc-front-iop/invoice-req/invoice-main-red-flush/:sourceType/:invoicingReqHeaderId/:companyId',
                 component: '@/pages/invoice-redFlush/list/InvoiceRedFlushPage',
             },
         ],
