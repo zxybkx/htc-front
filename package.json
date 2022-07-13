@@ -54,6 +54,7 @@
     "core-js": "^3.6.4",
     "cropperjs": "1.5.6",
     "cross-env": "^7.0.2",
+    "echarts": "^4.8.0",
     "escape-goat": "^3.0.0",
     "eslint": "^8.2.0",
     "eslint-plugin-import-helpers": "^1.1.0",
