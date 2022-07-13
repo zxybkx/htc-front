@@ -36,6 +36,7 @@
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
     "@antv/data-set": "latest",
+    "gg-editor": "2.0.4",
     "@antv/g6": "^3.5.3",
     "choerodon-ui": "1.5.4",
     "@hzerojs/plugin-hzero-ued": "0.1.43",
