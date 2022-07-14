@@ -203,7 +203,6 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
             <Button
               key="refreshStatus"
               funcType={FuncType.link}
-              style={{ color: '#3889FF' }}
               onClick={() => this.handleRefreshStatus(record)}
               disabled={record.get('state') !== '0'}
             >
