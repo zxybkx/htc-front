@@ -2,7 +2,7 @@
  * @Description:开票订单页面
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2020-12-10 11:18:22
- * @LastEditTime: 2022-07-12 11:02:47
+ * @LastEditTime: 2022-07-13 18:01:38
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -57,6 +57,7 @@ import {
   updatePrintNum,
 } from '@src/services/invoiceOrderService';
 import { judgeRedFlush } from '@src/services/invoiceReqService';
+import { paperDeliverNotice, electronicRePush } from '@src/services/deliverInvoiceService';
 import MenuItem from 'choerodon-ui/lib/menu/MenuItem';
 import InvoiceWorkbenchDS from '../stores/InvoiceWorkbenchDS';
 import DeliverInfoDS from "../stores/DeliverInfoDs";
@@ -87,12 +88,13 @@ interface InvoiceWorkbenchPageProps extends RouteComponentProps {
 )
 @connect()
 @formatterCollections({
-  code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.tobeInvoice'],
+  code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.tobeInvoice', 'hiop.invoiceReq'],
 })
 export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPageProps> {
   state = {
     curCompanyId: undefined,
     showMore: false,
+    deliverModalTag: true,//true 批量交付 false 单个交付
   };
   deliverInfoDS = dsParams => new DataSet({
     autoCreate: true,
@@ -445,43 +447,213 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   }
   modalDeliver;//批量交付form对象
   /**
+   * @description:纸质交付模态框 
+   * @function: modalPaperDomRender
+   */
+  @Bind()
+  modalPaperDomRender(dataSet) {
+    Modal.open({
+      title: intl.get('hiop.invoiceWorkbench.modal.paperTitle')
+        .d('纸票交付信息'),
+      closable: true,
+      footer: (_, cancelBtn) => (
+        <div>
+          {cancelBtn}
+          <Button
+            onClick={this.handleDeliverSave}
+            color={ButtonColor.primary}
+          >
+            {
+              this.state.deliverModalTag ?
+                intl.get('hiop.invoiceWorkbench.view.bulkSave')
+                  .d('批量保存')
+                : intl.get('hzero.common.table.column.save')
+                  .d('保存')
+            }
+          </Button>
+          <Button
+            color={ButtonColor.primary}
+            onClick={this.handlePaperDeliverNotice}
+          >{intl.get('hiop.invoiceWorkbench.btn.sendNotice')
+            .d('发送交付通知')}</Button>
+        </div>
+      ),
+      children: (
+        <Form ref={(node) => this.modalDeliver = node} dataSet={dataSet}>
+          <TextArea name='invoiceInformation' resize={ResizeType.vertical} />
+          <Select name='postLogisticsCompany' />
+          <TextField name='postalLogisticsSingleNumber' />
+          <TextField name='receiveNotificationEmail' />
+          <TextField name='descr' />
+          <CheckBox name='whetherReceiv' />
+        </Form>
+      ),
+    });
+  }
+  /**
+   * @description: 电子交付模态框
+   * @function: modalElectronicDomRender
+   */
+  @Bind()
+  modalElectronicDomRender(dataSet) {
+    Modal.open({
+      title: intl.get('hiop.invoiceWorkbench.modal.electronicTitle')
+        .d('电票交付信息'),
+      closable: true,
+      footer: (_, cancelBtn) => (
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          {cancelBtn}
+          <Button color={ButtonColor.primary} onClick={this.handleDeliverSave}>
+            {
+              this.state.deliverModalTag ?
+                intl.get('hhiop.invoiceWorkbench.view.bulkSave')
+                  .d('批量保存')
+                : intl.get('hzero.common.table.column.save')
+                  .d('保存')
+            }
+          </Button>
+          <Button color={ButtonColor.primary} onClick={this.handleRePush}>{intl
+            .get('hiop.invoiceWorkbench.btn.rePush')
+            .d('重新推送')}
+          </Button>
+        </div>
+      ),
+      children: (
+        <Form dataSet={dataSet}>
+          <TextArea name='invoiceInformation' resize={ResizeType.vertical} />
+          <TextField name='receiveNotificationEmail' />
+          <TextField name='descr' />
+        </Form>
+      ),
+    });
+  }
+  @Bind()
+  async handleInvoiceDeliverInfo(record) {
+    this.setState({ deliverModalTag: false });
+    const lineData = record.toData();
+    const invoiceVariety = lineData.invoiceVariety;
+    let dataSet;
+    if (invoiceVariety === '51' || invoiceVariety === '52') {
+      dataSet = this.deliverInfoDS({
+        invoiceOrderHeaderId: lineData.invoicingOrderHeaderId,
+        invoiceInformation: `${lineData.invoiceCode} - ${lineData.invoiceNo}`,
+        type: ModalType.electronic
+      })
+      // 电子
+
+      this.modalElectronicDomRender(dataSet)
+    } else {
+      dataSet = this.deliverInfoDS({
+        invoiceOrderHeaderId: lineData.invoicingOrderHeaderId,
+        invoiceInformation: `${lineData.invoiceCode} - ${lineData.invoiceNo}`,
+        type: ModalType.paper
+      })
+      // 纸质
+      this.modalPaperDomRender(dataSet)
+    }
+    dataSet.query(1, { params: lineData.invoicingOrderHeaderId });
+  }
+  /**
+   * @description: 电子发票=>重新推送
+   * @function: handleRePush
+   */
+  @Bind()
+  async handleRePush() {
+    this.modalDeliver.dataSet.current!.getField('receiveNotificationEmail')!.set('required', true);
+    const validate = await this.modalDeliver.dataSet.validate();
+    if (validate) {
+      // this.modalDeliver.dataSet.submit();
+      let params = this.modalDeliver.dataSet.toJSONData();
+      params.forEach(item => {
+        const invoiceOrderHeaderIds = item.invoiceOrderHeaderId.split(',');
+        params = item.invoiceInformation.split(',').map((inner, index) => {
+          return {
+            ...item,
+            invoiceInformation: inner,
+            invoiceOrderHeaderId: invoiceOrderHeaderIds[index],
+          }
+        })
+      })
+      const res = await electronicRePush(params);
+      if (res && res.failed) {
+        notification.error({
+          description: '',
+          message: res && res.message,
+        });
+      } else {
+        Modal.destroyAll();
+      }
+    }
+  }
+  /**
    * @description: 发送交付通知
    * @function: handlePaperDeliverNotice
    */
   @Bind()
   async handlePaperDeliverNotice() {
     // console.log(this.modalDeliver.dataSet.getField('postLogisticsCompany'));
-
     this.modalDeliver.dataSet.current!.getField('postLogisticsCompany')!.set('required', true);
+    this.modalDeliver.dataSet.current!.getField('postalLogisticsSingleNumber')!.set('required', true);
+    this.modalDeliver.dataSet.current!.getField('receiveNotificationEmail')!.set('required', true);
+    const validate = await this.modalDeliver.dataSet.validate();
+    if (validate) {
+      // this.modalDeliver.dataSet.submit();
+      let params = this.modalDeliver.dataSet.toJSONData();
+      params.forEach(item => {
+        const invoiceOrderHeaderIds = item.invoiceOrderHeaderId.split(',');
+        params = item.invoiceInformation.split(',').map((inner, index) => {
+          return {
+            ...item,
+            invoiceInformation: inner,
+            invoiceOrderHeaderId: invoiceOrderHeaderIds[index],
+          }
+        })
+      })
+      const res = await paperDeliverNotice(params);
+      if (res && res.failed) {
+        notification.error({
+          description: '',
+          message: res && res.message,
+        });
+      } else {
+        Modal.destroyAll();
+      }
+    }
   }
   /**
-   * @description: 发票批量交付
+   * @description: 批量保存
    * @function: handlePaperDeliver
    */
   @Bind()
-  async handlePaperDeliver() {
-    Modal.confirm({
-      title: 'Confirm',
-      children: '是否确认保存？保存后无法批量修改。'
-    }).then((button) => {
-      if (button === 'ok') {
-        this.modalDeliver.dataSet.submit();
-      }
-    });
+  async handleDeliverSave() {
+    if (this.state.deliverModalTag) {
+      Modal.confirm({
+        children: intl.get('hiop.invoiceWorkbench.notice.saveNoEdit')
+          .d('是否确认保存？保存后无法批量修改。')
+      }).then(async (button) => {
+        if (button === 'ok') {
+          await this.modalDeliver.dataSet.submit();
+          Modal.destroyAll();
+        }
+      });
+    } else {
+      await this.modalDeliver.dataSet.submit();
+      Modal.destroyAll();
+    }
   }
   /**
-   * @description: 批量交付
+   * @description: 电子交付=>批量交付
    * @function: handleBatchDeliver
    */
   @Bind()
   async handleBatchDeliver() {
-
+    this.setState({ deliverModalTag: true });
     const invoicingOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
       record.toData()
     );
     const invoiceVarietys = invoicingOrderHeaderList.map(item => item.invoiceVariety);
-    console.log('invoicingOrderHeaderList', invoicingOrderHeaderList);
-    const invoiceInfos = invoicingOrderHeaderList.map(item => `${item.invoiceNo}-${item.invoiceCode}`)
+    const invoiceOrderHeaderIds = invoicingOrderHeaderList.map(item => item.invoicingOrderHeaderId);
+    const invoiceInfos = invoicingOrderHeaderList.map(item => `${item.invoiceCode}-${item.invoiceNo}`)
     if (invoicingOrderHeaderList.some(item => item.orderStatus !== 'F')) {
       Modal.warning(intl
         .get('hiop.invoiceWorkbench.notification.waring.noFinish')
@@ -496,68 +668,21 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       return;
     }
     if (invoiceVarietys.includes('51') || invoiceVarietys.includes('52')) {
+      const dataSet = this.deliverInfoDS({
+        invoiceOrderHeaderIds: invoiceOrderHeaderIds.join(','),
+        invoiceInformation: invoiceInfos.join(','),
+        type: ModalType.electronic
+      })
       // 电子
-      Modal.open({
-        title: '电票交付信息',
-        closable: true,
-        footer: (_, cancelBtn) => (
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            {cancelBtn}
-            <Button>{intl
-              .get('hiop.invoiceWorkbench.notification.waring.noAgreement')
-              .d('批量保存')}
-            </Button>
-            <Button>{intl
-              .get('hiop.invoiceWorkbench.notification.waring.noAgreement')
-              .d('重新推送')}
-            </Button>
-          </div>
-        ),
-        children: (
-          <Form dataSet={this.deliverInfoDS({
-            invoiceInformation: invoiceInfos.join(','),
-            type: ModalType.electronic
-          })}>
-            <TextArea name='invoiceInformation' resize={ResizeType.vertical} />
-            <TextField name='receiveNotificationEmail' />
-            <TextField name='descr' />
-          </Form>
-        ),
-      });
+      this.modalElectronicDomRender(dataSet);
     } else {
       // 纸质
-      Modal.open({
-        title: '纸票交付信息',
-        closable: true,
-        footer: (_, cancelBtn) => (
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            {cancelBtn}
-            <Button
-              onClick={this.handlePaperDeliver}
-            >
-              {intl
-                .get('hiop.invoiceWorkbench.notification.waring.noAgreement')
-                .d('批量保存')}
-            </Button>
-            <Button
-              onClick={this.handlePaperDeliverNotice}
-            >发送交付通知</Button>
-          </div>
-        ),
-        children: (
-          <Form ref={(node) => this.modalDeliver = node} dataSet={this.deliverInfoDS({
-            invoiceInformation: invoiceInfos.join(','),
-            type: ModalType.paper
-          })}>
-            <TextArea name='invoiceInformation' resize={ResizeType.vertical} />
-            <Select name='postLogisticsCompany' />
-            <TextField name='postalLogisticsSingleNumber' />
-            <TextField name='receiveNotificationEmail' />
-            <TextField name='descr' />
-            <CheckBox name='whetherReceiv' />
-          </Form>
-        ),
-      });
+      const dataSet = this.deliverInfoDS({
+        invoiceOrderHeaderIds: invoiceOrderHeaderIds.join(','),
+        invoiceInformation: invoiceInfos.join(','),
+        type: ModalType.paper
+      })
+      this.modalPaperDomRender(dataSet);
     }
   }
 
@@ -1032,6 +1157,17 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       len: 6,
       title: intl.get('hiop.invoiceWorkbench.button.invoiceInvalid').d('发票作废'),
     };
+    const invoiceDeliverBtn = {
+      key: 'invoiceDeliver',
+      ele: renderPermissionButton({
+        onClick: () => this.handleInvoiceDeliverInfo(record),
+        permissionCode: 'invoice-deliver',
+        permissionMeaning: '按钮-交付信息',
+        title: intl.get('hiop.invoiceWorkbench.button.deliverInfo').d('交付信息'),
+      }),
+      len: 7,
+      title: intl.get('hiop.invoiceWorkbench.button.deliverInfo').d('交付信息'),
+    };
     const invoiceRedBtn = {
       key: 'invoiceRed',
       ele: renderPermissionButton({
@@ -1111,6 +1247,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     }
     if (orderStatus === 'F') {
       operators.push(invoicePreviewBtn);
+      operators.push(invoiceDeliverBtn);
     }
     // 提交
     if (orderStatus === 'C' || orderStatus === 'I') {
