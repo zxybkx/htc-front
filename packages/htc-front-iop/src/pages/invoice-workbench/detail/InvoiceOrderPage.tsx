@@ -10,8 +10,6 @@ import React, { Component } from 'react';
 import { Content, Header } from 'components/Page';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
-import { routerRedux } from 'dva/router';
-import { connect } from 'dva';
 import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import intl from 'utils/intl';
 import formatterCollections from 'utils/intl/formatterCollections';
@@ -75,7 +73,7 @@ interface InvoiceOrderPageProps extends RouteComponentProps {
   match: any;
 }
 
-@connect()
+
 @formatterCollections({
   code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq', 'hiop.tobeInvoice'],
 })
@@ -244,6 +242,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       }
       // this.setState({ submitDisabled: !hasPermission });
       // console.log('!hasPermission', !hasPermission);
+      // 开具预览
+      if(sourceType === 'issues') {
+        this.issueModal(res, 1);
+      }
     });
     this.invoiceOrderLinesDS.setQueryParameter('invoicingOrderHeaderId', headerId);
     this.invoiceOrderLinesDS.query();
@@ -599,7 +601,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    */
   @Bind()
   async handleCopyOrd() {
-    const resParams = await this.batchSave(3);
+    const resParams = await this.batchSave(3, null);
     if (!resParams) return;
     const params = {
       ...resParams,
@@ -661,9 +663,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    * @params {number} type 0-保存新建 1-审核提交 2-保存继续 3-复制订单
    */
   @Bind()
-  async batchSave(type) {
-    const { companyId, invoicingOrderHeaderId } = this.props.match.params;
-    const { dispatch, history } = this.props;
+  async batchSave(type, source) {
+    const { companyId, invoicingOrderHeaderId, sourceType } = this.props.match.params;
+    const { history } = this.props;
     const { billingType } = this.state;
     const headerData = this.invoiceOrderHeaderDS.current!.toData(true);
     const lineList: any = this.invoiceOrderLinesDS.map((record) => record.toData(true));
@@ -771,10 +773,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         });
       }
       const res = getResponse(await review(params));
-      const { sourceType } = this.props.match.params;
       let pathname;
       let pathSearch;
-      if (sourceType === 'invoiceOrder') {
+      if (['issues', 'invoiceOrder'].includes(sourceType)) {
         pathname = '/htc-front-iop/invoice-workbench/list';
       } else {
         const { search } = this.props.location;
@@ -789,7 +790,11 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         }
       }
       if (res) {
-        dispatch(routerRedux.push({ pathname, search: pathSearch }));
+        history.push({
+          pathname,
+          search: pathSearch,
+        });
+        // dispatch(routerRedux.push({ pathname, search: pathSearch }));
       }
     }
     // 保存（新建）
@@ -817,10 +822,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         if (this.props.match.params.invoicingOrderHeaderId) {
           this.loadData(false);
         }
-        history.push(
-          `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${companyId}/${res[0].invoicingOrderHeaderId}`
-        );
-        return res;
+        // console.log('jump');
+        const pathname = source ? `/htc-front-iop/invoice-workbench/edit/issues/${companyId}/${res[0].invoicingOrderHeaderId}` : `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${companyId}/${res[0].invoicingOrderHeaderId}`;
+        history.push(pathname);
+        // return res;
       }
     }
     // 保存 复制订单
@@ -1075,9 +1080,37 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    * @params {object} modal-发票预览modal
    */
   @Bind()
-  handleCommitIssue(modal) {
+  async handleCommitIssue(modal, data, type) {
     modal.close();
-    this.batchSave(1);
+    if(type === 0) {
+      this.batchSave(1, null);
+    } else {
+      const { companyId, invoicingOrderHeaderId, sourceType } = this.props.match.params;
+      const { history } = this.props;
+      const res = getResponse(await review(data));
+      let pathname;
+      let pathSearch;
+      if (['issues', 'invoiceOrder'].includes(sourceType)) {
+        pathname = '/htc-front-iop/invoice-workbench/list';
+      } else {
+        const { search } = this.props.location;
+        const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
+        closeTab(
+          `/htc-front-iop/invoice-workbench/edit/invoiceReq/${companyId}/${invoicingOrderHeaderId}`
+        );
+        if (invoiceInfoStr) {
+          const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
+          pathname = invoiceInfo.backPath;
+          pathSearch = invoiceInfo.backSearch;
+        }
+      }
+      if (res) {
+        history.push({
+          pathname,
+          search: pathSearch,
+        });
+      }
+    }
   }
 
   /**
@@ -1085,7 +1118,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    * @params {object} pageData-页面数据
    */
   @Bind()
-  issueModal(pageData) {
+  issueModal(pageData, type) {
     const modal = Modal.open({
       title: intl.get('hzero.invoiceWorkbench.title.issuePreview').d('发票预览'),
       children: <IssuePreview invoiceData={pageData} />,
@@ -1095,7 +1128,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       className: styles.invoiceModal,
       footer: (
         <div style={{ display: 'block', textAlign: 'center' }}>
-          <Button color={ButtonColor.primary} onClick={() => this.handleCommitIssue(modal)}>
+          <Button color={ButtonColor.primary} onClick={() => this.handleCommitIssue(modal, pageData, type)}>
             {intl.get('hzero.invoiceWorkbench.modalColse').d('提交开具')}
           </Button>
           <Button color={ButtonColor.primary} onClick={() => modal.close()}>
@@ -1110,16 +1143,13 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    * 开具预览回调
    */
   @Bind()
-  async issuePreview() {
+  issuePreview() {
     const invoiceSourceType = this.invoiceOrderHeaderDS.current!.get('invoiceSourceType');
     if (['APPLY', 'RED_MARK', 'VOID', 'RED_INFO'].includes(invoiceSourceType)) {
       const pageData = this.invoiceOrderHeaderDS.current!.toData();
-      this.issueModal(pageData);
+      this.issueModal(pageData, 0);
     } else {
-      const res = await this.batchSave(2);
-      if (res && res[0]) {
-        this.issueModal(res[0]);
-      }
+      this.batchSave(2, 1);
     }
   }
 
@@ -1135,7 +1165,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
           type="c7n-pro"
           color={ButtonColor.primary}
           disabled={!submitDisabled}
-          onClick={() => this.batchSave(1)}
+          onClick={() => this.batchSave(1, null)}
           permissionList={[
             {
               code: `${permissionPath}.detail-submit`,
@@ -1149,7 +1179,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         <PermissionButton
           type="c7n-pro"
           disabled={isDisabled}
-          onClick={() => this.batchSave(0)}
+          onClick={() => this.batchSave(0, null)}
           permissionList={[
             {
               code: `${permissionPath}.detail-save-new`,
@@ -1163,7 +1193,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         <PermissionButton
           type="c7n-pro"
           disabled={isDisabled}
-          onClick={() => this.batchSave(2)}
+          onClick={() => this.batchSave(2, null)}
           permissionList={[
             {
               code: `${permissionPath}.detail-save-continue`,
@@ -1240,7 +1270,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     const { employeeInfo, invoiceVarietyOpt, purchaseMark } = this.state;
     const { sourceType, companyId, invoicingOrderHeaderId } = this.props.match.params;
     let pathname;
-    if (sourceType === 'invoiceOrder') {
+    if (['issues', 'invoiceOrder'].includes(sourceType)) {
       pathname = '/htc-front-iop/invoice-workbench/list';
     } else {
       const { search } = this.props.location;
@@ -1256,7 +1286,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
           backPath={pathname}
           title={intl.get('hiop.invoiceWorkbench.title.invoiceOrder').d('开票订单')}
           onBack={() =>
-            sourceType !== 'invoiceOrder' &&
+            sourceType !== ('invoiceOrder' || 'issues') &&
             closeTab(
               `/htc-front-iop/invoice-workbench/edit/invoiceReq/${companyId}/${invoicingOrderHeaderId}`
             )

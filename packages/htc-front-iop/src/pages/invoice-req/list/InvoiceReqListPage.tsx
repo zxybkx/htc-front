@@ -9,7 +9,6 @@
 import React, { Component } from 'react';
 import { Content, Header } from 'components/Page';
 import { RouteComponentProps } from 'react-router-dom';
-import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
 import { observer } from 'mobx-react-lite';
 import {
@@ -77,7 +76,7 @@ interface InvoiceReqListPageProps extends RouteComponentProps {
 @formatterCollections({
   code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq', 'hiop.tobeInvoice'],
 })
-@connect()
+
 @withProps(
   () => {
     const reqListDS = new DataSet({
@@ -1417,20 +1416,6 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
           <Button onClick={() => this.handleImport()}>
             {intl.get('hzero.common.button.import').d('导入')}
           </Button>
-          <PermissionButton
-            type="c7n-pro"
-            key="getData"
-            onClick={() => this.getData()}
-            permissionList={[
-              {
-                code: `${permissionPath}.button.get-data`,
-                type: 'button',
-                meaning: '按钮-获取数据',
-              },
-            ]}
-          >
-            {intl.get('hiop.invoiceReq.button.getData').d('获取数据')}
-          </PermissionButton>
         </Header>
         <Content>
           <Table
