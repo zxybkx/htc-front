@@ -9,7 +9,6 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
 import { Header, Content } from 'components/Page';
 import intl from 'utils/intl';
@@ -27,7 +26,6 @@ interface InterfaceDocPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
 }
 
-@connect()
 @formatterCollections({
   code: [
     modelCode,
@@ -207,23 +205,6 @@ export default class InterfaceDocPage extends Component<InterfaceDocPageProps> {
             style={{ height: 330 }}
           />
         </Content>
-        {/*<ContentCard>*/}
-        {/*  <Form dataSet={this.systemDS} columns={4}>*/}
-        {/*    <Output name="systemCode"/>*/}
-        {/*    <Output name="systemName"/>*/}
-        {/*    <Output name="documentTypeCode"/>*/}
-        {/*    <Output name="documentTypeMeaning"/>*/}
-        {/*  </Form>*/}
-        {/*</ContentCard>*/}
-        {/*<ContentCard>*/}
-        {/*  <Table*/}
-        {/*    buttons={this.buttons}*/}
-        {/*    dataSet={this.tableDS}*/}
-        {/*    columns={this.columns}*/}
-        {/*    queryFieldsLimit={3}*/}
-        {/*    style={{ height: 330 }}*/}
-        {/*  />*/}
-        {/*</ContentCard>*/}
       </>
     );
   }
