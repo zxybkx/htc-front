@@ -11,7 +11,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
-import { Content, Header } from 'components/Page';
+import { Header, Content } from 'components/Page';
 import intl from 'utils/intl';
 import { Button, DataSet, Form, Output, Table } from 'choerodon-ui/pro';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
@@ -100,7 +100,7 @@ export default class InterfaceDocPage extends Component<InterfaceDocPageProps> {
         </a>,
         <a onClick={() => this.handleCancel(record)}>
           {intl.get('hzero.common.status.cancel').d('取消')}
-        </a>
+        </a>,
       );
     } else {
       btns.push(
@@ -110,7 +110,7 @@ export default class InterfaceDocPage extends Component<InterfaceDocPageProps> {
           <a onClick={() => this.handleEdit(record)}>
             {intl.get('hzero.common.button.rule.edit').d('编辑')}
           </a>
-        )
+        ),
       );
     }
     return [
@@ -167,7 +167,7 @@ export default class InterfaceDocPage extends Component<InterfaceDocPageProps> {
           docTypeHeaderId,
           docTypeLineId,
         },
-        0
+        0,
       );
       record.setState('editing', true);
     }
@@ -207,6 +207,23 @@ export default class InterfaceDocPage extends Component<InterfaceDocPageProps> {
             style={{ height: 330 }}
           />
         </Content>
+        {/*<ContentCard>*/}
+        {/*  <Form dataSet={this.systemDS} columns={4}>*/}
+        {/*    <Output name="systemCode"/>*/}
+        {/*    <Output name="systemName"/>*/}
+        {/*    <Output name="documentTypeCode"/>*/}
+        {/*    <Output name="documentTypeMeaning"/>*/}
+        {/*  </Form>*/}
+        {/*</ContentCard>*/}
+        {/*<ContentCard>*/}
+        {/*  <Table*/}
+        {/*    buttons={this.buttons}*/}
+        {/*    dataSet={this.tableDS}*/}
+        {/*    columns={this.columns}*/}
+        {/*    queryFieldsLimit={3}*/}
+        {/*    style={{ height: 330 }}*/}
+        {/*  />*/}
+        {/*</ContentCard>*/}
       </>
     );
   }
