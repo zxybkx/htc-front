@@ -1423,7 +1423,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
             dataSet={this.props.reqListDS}
             columns={this.columns}
             queryBar={this.renderQueryBar}
-            style={{ height: 400 }}
+            style={{ height: 450 }}
           />
         </Content>
       </>
