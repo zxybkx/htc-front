@@ -34,7 +34,7 @@ export default (): DataSetProps => {
         return axiosConfig;
       },
     },
-    pageSize: 10,
+    pageSize: 15,
     selection: DataSetSelection.multiple,
     primaryKey: 'headerId',
     fields: [
