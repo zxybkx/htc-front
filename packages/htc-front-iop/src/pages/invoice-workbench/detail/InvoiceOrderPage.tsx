@@ -88,7 +88,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     autoCreate: false,
     ...InvoiceOrderHeaderDS(this.props.match.params),
     children: {
-      lines: this.invoiceOrderLinesDS,
+      lineData: this.invoiceOrderLinesDS,
     },
   });
 
