@@ -244,7 +244,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       // console.log('!hasPermission', !hasPermission);
       // 开具预览
       if(sourceType === 'issues') {
-        this.issueModal(res, 1);
+        this.issueModal({
+          curEmployeeId: employeeId,
+          ...res,
+        }, 1);
       }
     });
     this.invoiceOrderLinesDS.setQueryParameter('invoicingOrderHeaderId', headerId);
@@ -666,17 +669,17 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   async batchSave(type, source) {
     const { companyId, invoicingOrderHeaderId, sourceType } = this.props.match.params;
     const { history } = this.props;
-    const { billingType } = this.state;
+    const { billingType, employeeInfo } = this.state;
     const headerData = this.invoiceOrderHeaderDS.current!.toData(true);
     const lineList: any = this.invoiceOrderLinesDS.map((record) => record.toData(true));
     const validateValue = await this.invoiceOrderHeaderDS.validate(false, false);
     const linesValidate = await this.invoiceOrderLinesDS.validate(false, false);
     const { companyType, remark, userRemark, calculateSpin } = headerData;
-    const empRes = await getCurrentEmployeeInfo({
-      tenantId,
-      companyId: this.props.match.params.companyId,
-    });
-    const empInfo = empRes && empRes.content[0];
+    // const empRes = await getCurrentEmployeeInfo({
+    //   tenantId,
+    //   companyId: this.props.match.params.companyId,
+    // });
+    // const empInfo = empRes && empRes.content[0];
     // hiop.invoiceWorkbench.validation.invalid
     // 页面校验
     if (!validateValue || !linesValidate) {
@@ -754,7 +757,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     }
     const params = {
       ...headerData,
-      curEmployeeId: empInfo && empInfo.employeeId,
+      curEmployeeId: employeeInfo.employeeId,
       // curEmployeeName: empInfo && empInfo.employeeName,
       // curEmployeeNumber: empInfo && empInfo.employeeNum,
       billingType,
