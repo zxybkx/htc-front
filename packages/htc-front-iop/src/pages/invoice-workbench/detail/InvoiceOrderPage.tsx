@@ -835,9 +835,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     if (type === 3) {
       const tempParams = {
         ...params,
-        employeeId: empInfo && empInfo.employeeId,
-        employeeName: empInfo && empInfo.employeeName,
-        employeeNumber: empInfo && empInfo.employeeNum,
+        employeeId: employeeInfo.employeeId,
+        employeeName: employeeInfo.employeeName,
+        employeeNumber: employeeInfo.employeeNum,
       };
       const { isDisabled } = this.state;
       // 当是完成订单时 不提交
