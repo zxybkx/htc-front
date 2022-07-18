@@ -12,7 +12,6 @@ import intl from 'utils/intl';
 import formatterCollections from 'utils/intl/formatterCollections';
 import withProps from 'utils/withProps';
 import { RouteComponentProps } from 'react-router-dom';
-import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
 import ExcelExport from 'components/ExcelExport';
 import commonConfig from '@htccommon/config/commonConfig';
@@ -65,7 +64,7 @@ interface CommodityInfoPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-@connect()
+
 export default class CustomerInfoPage extends Component<CommodityInfoPageProps> {
   async componentDidMount() {
     const { queryDataSet } = this.props.customerInfoListDS;
