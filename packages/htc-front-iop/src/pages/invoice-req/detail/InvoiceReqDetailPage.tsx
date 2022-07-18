@@ -26,7 +26,6 @@ import {
 } from 'choerodon-ui/pro';
 import { Card, Icon } from 'choerodon-ui';
 import { Header } from 'components/Page';
-import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
 import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import intl from 'utils/intl';
@@ -70,7 +69,6 @@ interface RouterInfo {
 
 interface InvoiceReqDetailPageProps extends RouteComponentProps<RouterInfo> {}
 
-@connect()
 @formatterCollections({
   code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq', 'hiop.tobeInvoice'],
 })
@@ -370,15 +368,15 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
    */
   @Bind()
   handleViewOrder() {
-    const { history, location } = this.props;
-    const { headerId } = this.props.match.params;
+    const { history } = this.props;
+    const { headerId, billFlag, companyId } = this.props.match.params;
     const pathname = `/htc-front-iop/invoice-req/order/${headerId}`;
     history.push({
       pathname,
       search: queryString.stringify({
         invoiceInfo: encodeURIComponent(
           JSON.stringify({
-            backPath: location && `${location.pathname}${location.search}`,
+            backPath: `/htc-front-iop/invoice-req/detail/${companyId}/${headerId}/${billFlag}`,
           })
         ),
       }),
