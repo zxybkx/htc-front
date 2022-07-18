@@ -7,7 +7,6 @@
  */
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { Content, Header } from 'components/Page';
 import withProps from 'utils/withProps';
 import queryString from 'query-string';
@@ -86,7 +85,6 @@ interface InvoiceWorkbenchPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-@connect()
 @formatterCollections({
   code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.tobeInvoice', 'hiop.invoiceReq'],
 })
@@ -447,7 +445,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   }
   modalDeliver;//批量交付form对象
   /**
-   * @description:纸质交付模态框 
+   * @description:纸质交付模态框
    * @function: modalPaperDomRender
    */
   @Bind()
