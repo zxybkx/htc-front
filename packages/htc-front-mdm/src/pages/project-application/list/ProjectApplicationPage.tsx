@@ -74,7 +74,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
   componentDidMount() {}
 
   linkDS = new DataSet({
-    autoCreate: true,
+    // autoCreate: true,
     autoQuery: false,
     ...LinkDS(),
   });
@@ -421,10 +421,11 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
    */
   @Bind()
   handleGenerateInviteLink() {
+    const record = this.linkDS.create({}, 0);
     const modal = Modal.open({
       title: intl.get('hzero.common.button.save').d('生成邀请链接'),
       children: (
-        <Form dataSet={this.linkDS}>
+        <Form record={record}>
           <Select name="linksType" />
           <DatePicker name="linksAccountObj" />
           <TextField name="phone" />
