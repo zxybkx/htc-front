@@ -75,7 +75,6 @@ interface InvoiceOrderPageProps extends RouteComponentProps {
   match: any;
 }
 
-@connect()
 @formatterCollections({
   code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq', 'hiop.tobeInvoice'],
 })
@@ -262,7 +261,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     if (
       prevProps.match.params.invoicingOrderHeaderId &&
       prevProps.match.params.invoicingOrderHeaderId !==
-        this.props.match.params.invoicingOrderHeaderId
+      this.props.match.params.invoicingOrderHeaderId
     ) {
       this.loadData(false);
     }
@@ -1003,9 +1002,8 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   get renderEmployeeDesc() {
     const { employeeInfo } = this.state;
     if (employeeInfo) {
-      return `${employeeInfo.companyCode || ''}-${employeeInfo.employeeNum || ''}-${
-        employeeInfo.employeeName || ''
-      }-${employeeInfo.mobile || ''}`;
+      return `${employeeInfo.companyCode || ''}-${employeeInfo.employeeNum || ''}-${employeeInfo.employeeName || ''
+        }-${employeeInfo.mobile || ''}`;
     }
     return '';
   }
