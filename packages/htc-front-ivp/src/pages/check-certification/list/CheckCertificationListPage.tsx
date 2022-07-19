@@ -8,7 +8,6 @@
  */
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { RouteComponentProps } from 'react-router-dom';
 import { Bind } from 'lodash-decorators';
@@ -150,7 +149,7 @@ interface CheckCertificationPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-@connect()
+
 @formatterCollections({
   code: [
     modelCode,
