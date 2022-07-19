@@ -8,7 +8,6 @@
  */
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Header, Content } from 'components/Page';
 import { Bind } from 'lodash-decorators';
@@ -46,7 +45,6 @@ interface DocumentTypePageProps {
   dispatch: Dispatch<any>;
 }
 
-@connect()
 @formatterCollections({
   code: [modelCode, 'htc.common', 'hiop.invoiceRule'],
 })
