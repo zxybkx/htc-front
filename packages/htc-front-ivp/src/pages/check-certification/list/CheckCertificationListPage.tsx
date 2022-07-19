@@ -1987,7 +1987,7 @@ export default class CheckCertificationPage extends Component<CheckCertification
           key={props.key}
           onClick={props.onClick}
           disabled={isDisabled}
-          style={{ float: 'right' }}
+          style={{ float: 'right',  marginLeft: '0.08rem' }}
           color={ButtonColor.primary}
         >
           {props.title}
@@ -2047,7 +2047,6 @@ export default class CheckCertificationPage extends Component<CheckCertification
     );
     return [
       <Upload
-        // ref={this.saveMultipleUpload}
         {...uploadProps}
         disabled={!companyId}
         accept={[
