@@ -9,7 +9,6 @@
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { connect } from 'dva';
 import { Content, Header } from 'components/Page';
 import withProps from 'utils/withProps';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
@@ -68,14 +67,14 @@ interface ProjectApplicationPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-@connect()
+
 export default class ProjectApplicationPage extends Component<ProjectApplicationPageProps> {
   state = {};
 
   componentDidMount() {}
 
   linkDS = new DataSet({
-    autoCreate: true,
+    // autoCreate: true,
     autoQuery: false,
     ...LinkDS(),
   });
@@ -422,10 +421,11 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
    */
   @Bind()
   handleGenerateInviteLink() {
+    const record = this.linkDS.create({}, 0);
     const modal = Modal.open({
       title: intl.get('hzero.common.button.save').d('生成邀请链接'),
       children: (
-        <Form dataSet={this.linkDS}>
+        <Form record={record}>
           <Select name="linksType" />
           <DatePicker name="linksAccountObj" />
           <TextField name="phone" />

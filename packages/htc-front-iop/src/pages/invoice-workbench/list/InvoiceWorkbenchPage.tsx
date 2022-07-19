@@ -445,7 +445,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   }
   modalDeliver;//批量交付form对象
   /**
-   * @description:纸质交付模态框 
+   * @description:纸质交付模态框
    * @function: modalPaperDomRender
    */
   @Bind()

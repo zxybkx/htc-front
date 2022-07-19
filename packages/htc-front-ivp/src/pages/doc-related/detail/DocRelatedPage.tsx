@@ -258,13 +258,13 @@ export default class DocRelatedPage extends Component<DocRelatedPageProps> {
           if (receiptsState === '0') {
             return (
               <Tag style={{ color: '#595959' }} color="#F0F0F0">
-                {intl.get(`${modelCode}.button.disassociate`).d('未关联')}
+                {intl.get(`${modelCode}.view.notAssociated`).d('未关联')}
               </Tag>
             );
           } else {
             return (
               <Tag style={{ color: '#19A633' }} color="#D6FFD7">
-                {intl.get(`${modelCode}.button.disassociate`).d('已关联')}
+                {intl.get(`${modelCode}.view.linked`).d('已关联')}
               </Tag>
             );
           }

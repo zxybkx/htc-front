@@ -189,8 +189,8 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       const queryMoreArray: JSX.Element[] = [];
       queryMoreArray.push(<Lov key="ticketCollectorObj" name="ticketCollectorObj" colSpan={2} />);
       queryMoreArray.push(<Select key="entryPoolSource" name="entryPoolSource" colSpan={2} />);
-      queryMoreArray.push(<Select key="recordState" name="recordState" />);
-      queryMoreArray.push(<Lov key="authenticationDateObj" name="authenticationDateObj" />);
+      queryMoreArray.push(<Lov key="authenticationDateObj" name="authenticationDateObj" colSpan={2} />);
+      queryMoreArray.push(<Select key="checkStates" name="checkStates" colSpan={2} />);
       queryMoreArray.push(
         <Select key="authenticationState" name="authenticationState" colSpan={2} />
       );
@@ -200,18 +200,18 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       queryMoreArray.push(
         <Select key="taxBureauManageState" name="taxBureauManageState" colSpan={2} />
       );
-      queryMoreArray.push(<Select key="abnormalSign" name="abnormalSign" colSpan={2} />);
       queryMoreArray.push(<Select key="entryAccountState" name="entryAccountState" colSpan={2} />);
-      queryMoreArray.push(<Select key="receiptsState" name="receiptsState" colSpan={2} />);
-      queryMoreArray.push(<Select key="checkStates" name="checkStates" colSpan={2} />);
+      queryMoreArray.push(<Select key="recordState" name="recordState" colSpan={2} />);
       queryMoreArray.push(<TextField key="invoiceCode" name="invoiceCode" colSpan={2} />);
       queryMoreArray.push(<TextField key="invoiceNo" name="invoiceNo" colSpan={2} />);
-      queryMoreArray.push(<TextField key="salerName" name="salerName" colSpan={2} newLine />);
+      queryMoreArray.push(<Currency key="invoiceAmount" name="invoiceAmount" colSpan={2} />);
       queryMoreArray.push(<TextField key="buyerName" name="buyerName" colSpan={2} />);
-      queryMoreArray.push(<Currency key="invoiceAmount" name="invoiceAmount" />);
-      queryMoreArray.push(<Lov key="systemCodeObj" name="systemCodeObj" colSpan={2} newLine />);
+      queryMoreArray.push(<TextField key="salerName" name="salerName" colSpan={2} />);
+      queryMoreArray.push(<Select key="receiptsState" name="receiptsState" colSpan={2} />);
+      queryMoreArray.push(<Lov key="systemCodeObj" name="systemCodeObj" colSpan={2} />);
       queryMoreArray.push(<Lov key="documentTypeCodeObj" name="documentTypeCodeObj" colSpan={2} />);
       queryMoreArray.push(<Lov key="documentNumberObj" name="documentNumberObj" colSpan={2} />);
+      queryMoreArray.push(<Select key="abnormalSign" name="abnormalSign" colSpan={2} />);
 
       return (
         <div style={{ marginBottom: '0.1rem' }}>

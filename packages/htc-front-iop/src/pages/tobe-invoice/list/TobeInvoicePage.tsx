@@ -8,7 +8,6 @@
  */
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { Content, Header } from 'components/Page';
 import withProps from 'utils/withProps';
 import queryString from 'query-string';
@@ -86,7 +85,6 @@ interface InvoiceWorkbenchPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-@connect()
 export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps> {
   state = {
     curCompanyId: undefined,

@@ -107,7 +107,7 @@ const projectApplicationRouterConfig = [
             },
             // 租户明细
             {
-                path: '/htc-front-mdm/project-application/tenantDetail/:tenantId/:uniqueCode',
+                path: '/htc-front-mdm/project-application/tenant-detail/:tenantId/:uniqueCode',
                 component: '@/pages/project-application/detail/TenantApplyDetailPage',
             },
         ],
@@ -120,12 +120,12 @@ const projectApplicationRouterConfig = [
 ];
 const applicationInfoRouterConfig = [
     {
-        path: '/public/htc-front-mdm/apply/invalidResult',
+        path: '/public/htc-front-mdm/apply/invalid-result',
         component: '@/pages/apply-tenant/list/ResultPage',
         authorized: true,
     },
     {
-        path: '/public/htc-front-mdm/apply/successResult',
+        path: '/public/htc-front-mdm/apply/success-result',
         component: '@/pages/apply-tenant/list/SuccessPage',
         authorized: true,
     },

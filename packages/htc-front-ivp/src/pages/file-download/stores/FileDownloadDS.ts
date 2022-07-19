@@ -39,7 +39,7 @@ export default (): DataSetProps => {
     events: {
       query({ params }) {
         if (params.showInInvoiceFile === '0' && params.showOutInvoiceFile === '0') {
-          message.warning(intl.get('hivp.bill.notice.fileType').d('请勾选查询档案类型'));
+          message.warning(intl.get('hivp.bill.notice.fileType').d('请勾选查询档案类型'), undefined, undefined, 'rightBottom');
           return false;
         }
       },
