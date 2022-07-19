@@ -201,6 +201,7 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
       const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
       pathname = invoiceInfo.backPath;
     }
+    console.log('pathname', pathname);
     return (
       <>
         <Header backPath={ pathname } title={intl.get('hiop.invoiceReq.title.invoiceOrderInfo').d('开票订单信息')} />

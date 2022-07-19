@@ -9,7 +9,6 @@
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { connect } from 'dva';
 import { Content, Header } from 'components/Page';
 import withProps from 'utils/withProps';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
@@ -68,7 +67,7 @@ interface ProjectApplicationPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-@connect()
+
 export default class ProjectApplicationPage extends Component<ProjectApplicationPageProps> {
   state = {};
 
