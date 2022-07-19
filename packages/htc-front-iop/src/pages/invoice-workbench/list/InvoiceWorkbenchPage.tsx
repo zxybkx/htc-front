@@ -2,7 +2,7 @@
  * @Description:开票订单页面
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2020-12-10 11:18:22
- * @LastEditTime: 2022-07-13 18:01:38
+ * @LastEditTime: 2022-07-19 10:26:11
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -499,7 +499,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         .d('电票交付信息'),
       closable: true,
       footer: (_, cancelBtn) => (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div>
           {cancelBtn}
           <Button color={ButtonColor.primary} onClick={this.handleDeliverSave}>
             {
@@ -517,7 +517,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         </div>
       ),
       children: (
-        <Form dataSet={dataSet}>
+        <Form ref={(node) => this.modalDeliver = node} dataSet={dataSet}>
           <TextArea name='invoiceInformation' resize={ResizeType.vertical} />
           <TextField name='receiveNotificationEmail' />
           <TextField name='descr' />
@@ -533,7 +533,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     let dataSet;
     if (invoiceVariety === '51' || invoiceVariety === '52') {
       dataSet = this.deliverInfoDS({
-        invoiceOrderHeaderId: lineData.invoicingOrderHeaderId,
+        invoiceOrderHeaderIds: String(lineData.invoicingOrderHeaderId),
         invoiceInformation: `${lineData.invoiceCode} - ${lineData.invoiceNo}`,
         type: ModalType.electronic
       })
@@ -542,7 +542,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       this.modalElectronicDomRender(dataSet)
     } else {
       dataSet = this.deliverInfoDS({
-        invoiceOrderHeaderId: lineData.invoicingOrderHeaderId,
+        invoiceOrderHeaderIds: String(lineData.invoicingOrderHeaderId),
         invoiceInformation: `${lineData.invoiceCode} - ${lineData.invoiceNo}`,
         type: ModalType.paper
       })
@@ -558,29 +558,36 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   @Bind()
   async handleRePush() {
     this.modalDeliver.dataSet.current!.getField('receiveNotificationEmail')!.set('required', true);
-    const validate = await this.modalDeliver.dataSet.validate();
-    if (validate) {
-      // this.modalDeliver.dataSet.submit();
-      let params = this.modalDeliver.dataSet.toJSONData();
-      params.forEach(item => {
-        const invoiceOrderHeaderIds = item.invoiceOrderHeaderId.split(',');
-        params = item.invoiceInformation.split(',').map((inner, index) => {
-          return {
-            ...item,
-            invoiceInformation: inner,
-            invoiceOrderHeaderId: invoiceOrderHeaderIds[index],
-          }
-        })
+    let params = this.modalDeliver.dataSet.toData();
+    if (!params[0].receiveNotificationEmail) {
+      notification.info({
+        description: '',
+        message: intl.get('htc.common.validation.completeValue').d('请先完善必输数据'),
+      });
+      return;
+    }
+    params.forEach(item => {
+      const invoiceOrderHeaderIds = item.invoiceOrderHeaderId.split(',');
+      params = item.invoiceInformation.split(',').map((inner, index) => {
+        return {
+          ...item,
+          invoiceInformation: inner,
+          invoiceOrderHeaderId: Number(invoiceOrderHeaderIds[index]),
+        }
       })
-      const res = await electronicRePush(params);
-      if (res && res.failed) {
-        notification.error({
-          description: '',
-          message: res && res.message,
-        });
-      } else {
-        Modal.destroyAll();
-      }
+    })
+    const res = await electronicRePush(params);
+    if (res && res.failed) {
+      notification.error({
+        description: '',
+        message: res && res.message,
+      });
+    } else {
+      notification.success({
+        description: '',
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
+      });
+      Modal.destroyAll();
     }
   }
   /**
@@ -589,33 +596,40 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
    */
   @Bind()
   async handlePaperDeliverNotice() {
-    // console.log(this.modalDeliver.dataSet.getField('postLogisticsCompany'));
     this.modalDeliver.dataSet.current!.getField('postLogisticsCompany')!.set('required', true);
     this.modalDeliver.dataSet.current!.getField('postalLogisticsSingleNumber')!.set('required', true);
     this.modalDeliver.dataSet.current!.getField('receiveNotificationEmail')!.set('required', true);
-    const validate = await this.modalDeliver.dataSet.validate();
-    if (validate) {
-      // this.modalDeliver.dataSet.submit();
-      let params = this.modalDeliver.dataSet.toJSONData();
-      params.forEach(item => {
-        const invoiceOrderHeaderIds = item.invoiceOrderHeaderId.split(',');
-        params = item.invoiceInformation.split(',').map((inner, index) => {
-          return {
-            ...item,
-            invoiceInformation: inner,
-            invoiceOrderHeaderId: invoiceOrderHeaderIds[index],
-          }
-        })
+
+    let params = this.modalDeliver.dataSet.toData();
+    if (!params[0].postLogisticsCompany || !params[0].postalLogisticsSingleNumber || !params[0].receiveNotificationEmail) {
+      notification.info({
+        description: '',
+        message: intl.get('htc.common.validation.completeValue').d('请先完善必输数据'),
+      });
+      return;
+    }
+    params.forEach(item => {
+      const invoiceOrderHeaderIds = item.invoiceOrderHeaderId ? item.invoiceOrderHeaderId.split(',') : [];
+      params = item.invoiceInformation.split(',').map((inner, index) => {
+        return {
+          ...item,
+          invoiceInformation: inner,
+          invoiceOrderHeaderId: Number(invoiceOrderHeaderIds[index]),
+        }
       })
-      const res = await paperDeliverNotice(params);
-      if (res && res.failed) {
-        notification.error({
-          description: '',
-          message: res && res.message,
-        });
-      } else {
-        Modal.destroyAll();
-      }
+    })
+    const res = await paperDeliverNotice(params);
+    if (res && res.failed) {
+      notification.error({
+        description: '',
+        message: res && res.message,
+      });
+    } else {
+      notification.success({
+        description: '',
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
+      });
+      Modal.destroyAll();
     }
   }
   /**
@@ -658,6 +672,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         .d('存在未完成订单无法交付'));
       return;
     };
+    console.log('invoiceOrderHeaderIds', invoiceOrderHeaderIds);
+
     if ((invoiceVarietys.includes('51') || invoiceVarietys.includes('52'))
       && (invoiceVarietys.includes('0') || invoiceVarietys.includes('2') || invoiceVarietys.includes('41'))) {
       Modal.warning(intl
@@ -1096,8 +1112,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         type="c7n-pro"
         funcType={FuncType.link}
         onClick={params.onClick}
-        color={ButtonColor.primary}
-        style={{ color: 'rgba(56,137,255,0.8)' }}
+        // color={ButtonColor.primary}
+        // style={{ color: 'rgba(56,137,255,0.8)' }}
         permissionList={[
           {
             code: `${permissionPath}.${params.permissionCode}`,
@@ -1385,8 +1401,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           onClick={props.onClick}
           disabled={isDisabled}
           funcType={props.funcType}
-          color={props.color}
-          style={props.style}
+          // color={ButtonColor.primary}
+          // style={props.style}
           permissionList={[
             {
               code: `${permissionPath}.${props.permissionCode}`,
@@ -1527,28 +1543,25 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       <BatchButtons
         key="dataPermission"
         onClick={() => this.handlePermission()}
-        color={ButtonColor.default}
-        style={{ color: '#3889FF', borderColor: '#3889FF' }}
         dataSet={this.props.invoiceWorkbenchDS}
         title={intl.get('hiop.invoiceWorkbench.button.dataPermission').d('数据权限分配')}
         permissionCode="data-permission"
         permissionMeaning="按钮-数据权限分配"
       />,
       <Dropdown overlay={batchMene}>
-        <Button style={{ color: '#3889FF', borderColor: '#3889FF' }}>
+        <Button color={ButtonColor.primary}>
           {intl.get('hiop.invoiceWorkbench.button.batch').d('批量')}
           <Icon type="arrow_drop_down" />
         </Button>
       </Dropdown>,
       <Dropdown overlay={printingMene}>
-        <Button>
+        <Button color={ButtonColor.primary}>
           {intl.get('hiop.invoiceWorkbench.button.invoicePrintCollection').d('发票打印')}
           <Icon type="arrow_drop_down" />
         </Button>
       </Dropdown>,
       <BatchButtons
         key="permissionFresh"
-        color={ButtonColor.default}
         funcType={FuncType.raised}
         onClick={() => this.batchFresh()}
         dataSet={this.props.invoiceWorkbenchDS}

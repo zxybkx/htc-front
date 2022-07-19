@@ -73,7 +73,6 @@ interface InvoiceOrderPageProps extends RouteComponentProps {
   match: any;
 }
 
-
 @formatterCollections({
   code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq', 'hiop.tobeInvoice'],
 })
@@ -243,7 +242,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       // this.setState({ submitDisabled: !hasPermission });
       // console.log('!hasPermission', !hasPermission);
       // 开具预览
-      if(sourceType === 'issues') {
+      if (sourceType === 'issues') {
         this.issueModal({
           curEmployeeId: employeeId,
           ...res,
@@ -267,7 +266,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     if (
       prevProps.match.params.invoicingOrderHeaderId &&
       prevProps.match.params.invoicingOrderHeaderId !==
-        this.props.match.params.invoicingOrderHeaderId
+      this.props.match.params.invoicingOrderHeaderId
     ) {
       this.loadData(false);
     }
@@ -1011,9 +1010,8 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   get renderEmployeeDesc() {
     const { employeeInfo } = this.state;
     if (employeeInfo) {
-      return `${employeeInfo.companyCode || ''}-${employeeInfo.employeeNum || ''}-${
-        employeeInfo.employeeName || ''
-      }-${employeeInfo.mobile || ''}`;
+      return `${employeeInfo.companyCode || ''}-${employeeInfo.employeeNum || ''}-${employeeInfo.employeeName || ''
+        }-${employeeInfo.mobile || ''}`;
     }
     return '';
   }
@@ -1085,7 +1083,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   @Bind()
   async handleCommitIssue(modal, data, type) {
     modal.close();
-    if(type === 0) {
+    if (type === 0) {
       this.batchSave(1, null);
     } else {
       const { companyId, invoicingOrderHeaderId, sourceType } = this.props.match.params;
