@@ -7,7 +7,6 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
-import { connect } from 'dva';
 import intl from 'utils/intl';
 import { Modal } from 'choerodon-ui/pro';
 import { Col, Divider, Icon, Row } from 'choerodon-ui';
@@ -26,7 +25,7 @@ interface ArchiveOfdPageProps {
 @formatterCollections({
   code: [modelCode, 'htc.common'],
 })
-@connect()
+
 export default class ArchiveOfdPage extends Component<ArchiveOfdPageProps> {
   componentDidMount() {
     if (this.props.recordType === 'OFD') {

@@ -1,0 +1,45 @@
+{
+  "packages": [{
+    "name": "hzero-front-hiam"
+  },
+    {
+      "name": "hzero-front-hpfm"
+    },
+    {
+      "name": "hzero-front-hcnf"
+    },
+    {
+      "name": "hzero-front-hmsg"
+    },
+    {
+      "name": "hzero-front-himp"
+    },
+    {
+      "name": "hzero-front-hfile"
+    },
+    {
+      "name": "hzero-front-hadm"
+    },
+    {
+      "name": "hzero-front-hchg"
+    },
+    {
+      "name": "hzero-front-hrpt"
+    },
+    {
+      "name": "hzero-front-hsdr"
+    },
+    {
+      "name": "hzero-front-hitf"
+    },
+    {
+      "name": "hzero-front-hivc"
+    },
+    {
+      "name": "hzero-front-hocr"
+    },
+    {
+      "name": "hzero-front-hwfp"
+    }
+  ]
+}

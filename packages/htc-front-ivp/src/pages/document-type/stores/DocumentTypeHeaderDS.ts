@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-15 15:10:12
- * @LastEditTime: 2022-07-19 17:41:16
+ * @LastEditTime: 2022-07-20 13:47:32
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';

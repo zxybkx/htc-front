@@ -94,9 +94,9 @@ export default {
         packages: [
             // 子模块配置 在这里面配置后当执行build:ms的时候可以选择到对应的子模块
             // -- APPEND SUB MODULE ITEMS HERE --
-            {
-                'name': 'hzero-front',
-            },
+            // {
+            //     'name': 'hzero-front',
+            // },
             {
                 'name': 'hzero-front-hiam',
             },
