@@ -143,6 +143,7 @@
     "start:mock": "cross-env NODE_PROFILE=mock hzero-cli start",
     "build:dep-all:prod": "cross-env UMI_ENV=prod NODE_OPTIONS='--max_old_space_size=10240' node ./node_modules/umi/bin/umi.js hzero-build-dep --all",
     "build:app:prod": "cross-env UMI_ENV=prod umi hzero-build --only-build-parent",
+    "build:ms:prod": "cross-env NODE_OPTIONS='--max_old_space_size=8196' UMI_ENV=prod umi hzero-build --only-build-micro",
     "build:ms-all": "cross-env UMI_ENV=prod umi hzero-build --only-build-micro --all-packages",
     "build:dep-all": "cross-env umi hzero-build-dep --all",
     "build": "umi hzero-build",
