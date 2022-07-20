@@ -771,6 +771,13 @@ export default (): DataSetProps => {
             const employeeDesc = `${companyCode}-${employeeNum}-${employeeName}-${mobile}`;
             record.set('employeeDesc', employeeDesc);
           }
+          if(name === 'systemCodeObj' && !value) {
+            record.set('documentTypeCodeObj', null);
+            record.set('documentNumberObj', null);
+          }
+          if(name === 'documentTypeCodeObj' && !value) {
+            record.set('documentNumberObj', null);
+          }
         },
       },
       fields: [
