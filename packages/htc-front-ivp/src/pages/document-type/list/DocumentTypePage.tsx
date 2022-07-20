@@ -14,7 +14,7 @@ import { Bind } from 'lodash-decorators';
 import intl from 'utils/intl';
 import querystring from 'querystring';
 import { Col, Row, Tag } from 'choerodon-ui';
-import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
+import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import {
   DataSet,
   Button,
@@ -49,6 +49,9 @@ interface DocumentTypePageProps {
   code: [modelCode, 'htc.common', 'hiop.invoiceRule'],
 })
 export default class DocumentTypePage extends Component<DocumentTypePageProps> {
+  state = {
+    getMoreTag: true
+  };
   tableLineDS = new DataSet({
     autoQuery: false,
     ...DocumentTypeLineDS(),
@@ -478,7 +481,21 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
     });
     return <Bread dataSet={this.tableHeaderDS} />;
   }
-
+  //
+  /**
+   * @description: 租户数据滑动底部触发函数
+   * @function: tableHeaderScroll
+   */
+  @Bind()
+  tableHeaderScroll() {
+    if (this.tableHeaderDS.totalPage > this.tableHeaderDS.currentPage) {
+      this.tableHeaderDS.queryMore(this.tableHeaderDS.currentPage + 1);
+    } else {
+      this.setState({
+        getMoreTag: false
+      })
+    }
+  }
   render() {
     return (
       <>
@@ -507,9 +524,17 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
                 <AggregationTable
                   dataSet={this.tableHeaderDS}
                   columns={this.headerColumns}
+                  pagination={false}
                   showHeader={false}
                   aggregation
                 />
+                {
+                  this.state.getMoreTag && <div style={{ textAlign: 'center' }} >
+                    <Button funcType={FuncType.flat} color={ButtonColor.primary} onClick={this.tableHeaderScroll}>
+                      {intl.get('hzero.common.view.message.loadMore').d('加载更多')}
+                    </Button>
+                  </div>
+                }
               </div>
             </Content>
           </Col>
