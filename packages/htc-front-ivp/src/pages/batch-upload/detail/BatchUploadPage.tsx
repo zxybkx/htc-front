@@ -3,10 +3,11 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
 import { observer } from 'mobx-react-lite';
+import { chunk } from 'lodash';
 import { Bind } from 'lodash-decorators';
 import { Content, Header } from 'components/Page';
 import intl from 'utils/intl';
-import { Button, DataSet, Form, Output, Table, Upload } from 'choerodon-ui/pro';
+import { Button, DataSet, Form, Output, Pagination, Table, Upload } from 'choerodon-ui/pro';
 import { Col, Row, Spin, Tag, Icon } from 'choerodon-ui';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
@@ -51,6 +52,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
     employeeNum: '',
     loadingFlag: false,
     backPath: '',
+    uploadFileData: []
   };
 
   multipleDS = new DataSet({
@@ -115,6 +117,9 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
     // const { btnFlag } = this.state;
     try {
       const multipleData = JSON.parse(response);
+      this.setState({
+        uploadFileData: multipleData
+      })
       const res = getResponse(multipleData);
       if (res) {
         this.multipleDS = new DataSet({
@@ -352,8 +357,8 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
           key={props.key}
           onClick={props.onClick}
           disabled={isDisabled}
-          // funcType={FuncType.flat}
-          // color={ButtonColor.primary}
+        // funcType={FuncType.flat}
+        // color={ButtonColor.primary}
         >
           {props.title}
         </Button>
@@ -375,7 +380,16 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
       />,
     ];
   }
+  @Bind()
+  handleUploadDataChange(page, pageSize) {
+    console.log(this.multipleDS.data);
 
+    const totalData = this.state.uploadFileData;
+    const currentPageSize = this.multipleDS.pageSize;
+    const _page = currentPageSize === pageSize ? page : 1;
+    const chunkData = chunk(totalData, pageSize);
+    this.multipleDS.loadData(chunkData[_page - 1]);
+  }
   @Bind()
   renderQueryBar(tableProps) {
     const { buttons } = tableProps;
@@ -465,9 +479,16 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
               dataSet={this.multipleDS}
               columns={this.columns}
               queryFieldsLimit={4}
+              pagination={false}
               buttons={this.buttons}
               queryBar={this.renderQueryBar}
               style={{ height: 400 }}
+            />
+            <Pagination
+              total={this.multipleDS.totalCount}
+              onChange={this.handleUploadDataChange}
+              showPager
+              style={{ marginTop: '0.1rem', textAlign: 'right' }}
             />
           </Spin>
         </Content>
