@@ -2083,7 +2083,7 @@ export default class CheckCertificationPage extends Component<CheckCertification
         title={intl.get('hzero.common.button.delete').d('删除')}
       />,
       <Dropdown overlay={btnMenu}>
-        <Button color={ButtonColor.primary} style={{ float: 'right', marginRight: 10 }}>
+        <Button color={ButtonColor.primary} style={{ float: 'right' }}>
           {intl.get(`${modelCode}.button.batchVerifiable`).d('勾选')}
           <Icon type="arrow_drop_down" />
         </Button>
