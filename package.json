@@ -41,7 +41,7 @@
     "choerodon-ui": "1.5.4",
     "@hzerojs/plugin-hzero-ued": "0.1.50",
     "@hzerojs/mf-deps-preset": "0.13.191",
-    "@hzerojs/plugin-hzero-layout": "0.1.53",
+    "@hzerojs/plugin-hzero-layout": "0.1.54",
     "@hzerojs/preset-hzero": "0.13.193",
     "@babel/plugin-syntax-top-level-await": "^7.14.5",
     "babel-plugin-module-resolver": "^3.1.1",
