@@ -8,7 +8,6 @@
  */
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { RouteComponentProps } from 'react-router-dom';
 import { Bind } from 'lodash-decorators';
@@ -150,7 +149,7 @@ interface CheckCertificationPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-@connect()
+
 @formatterCollections({
   code: [
     modelCode,
@@ -1988,7 +1987,7 @@ export default class CheckCertificationPage extends Component<CheckCertification
           key={props.key}
           onClick={props.onClick}
           disabled={isDisabled}
-          style={{ float: 'right' }}
+          style={{ float: 'right',  marginLeft: '0.08rem' }}
           color={ButtonColor.primary}
         >
           {props.title}
@@ -2048,7 +2047,6 @@ export default class CheckCertificationPage extends Component<CheckCertification
     );
     return [
       <Upload
-        // ref={this.saveMultipleUpload}
         {...uploadProps}
         disabled={!companyId}
         accept={[
@@ -2085,7 +2083,7 @@ export default class CheckCertificationPage extends Component<CheckCertification
         title={intl.get('hzero.common.button.delete').d('删除')}
       />,
       <Dropdown overlay={btnMenu}>
-        <Button color={ButtonColor.primary} style={{ float: 'right', marginRight: 10 }}>
+        <Button color={ButtonColor.primary} style={{ float: 'right' }}>
           {intl.get(`${modelCode}.button.batchVerifiable`).d('勾选')}
           <Icon type="arrow_drop_down" />
         </Button>

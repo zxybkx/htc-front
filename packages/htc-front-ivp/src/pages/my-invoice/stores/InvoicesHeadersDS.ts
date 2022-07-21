@@ -189,21 +189,12 @@ export default (): DataSetProps => {
           if (record && name === 'sourceCode') {
             record.set('invoiceType', '');
           }
-          if (record && name === 'companyObj') {
-            record.set('employeeName', record.data.companyObj.employeeName);
-          }
+          // if (record && name === 'companyObj') {
+          //   record.set('employeeName', record.data.companyObj.employeeName);
+          // }
         },
       },
-      fields: [
-        // {
-        //   name: 'employeeName',
-        //   label: intl.get(`${modelCode}.view.employeeName`).d('员工姓名'),
-        //   type: FieldType.string,
-        //   // bind: 'companyObj.employeeName',
-        //   ignore: FieldIgnore.always,
-        //   readOnly: true,
-        // },
-        {
+      fields: [ {
           name: 'companyObj',
           label: intl.get('htc.common.modal.companyName').d('所属公司'),
           type: FieldType.object,
@@ -211,7 +202,6 @@ export default (): DataSetProps => {
           lovPara: { tenantId },
           ignore: FieldIgnore.always,
           required: true,
-          // defaultValue: dsParams.companyObj,
         },
         {
           name: 'companyId',
@@ -222,6 +212,11 @@ export default (): DataSetProps => {
           name: 'employeeId',
           type: FieldType.number,
           bind: 'companyObj.employeeId',
+        },
+        {
+          name: 'employeeName',
+          type: FieldType.string,
+          bind: 'companyObj.employeeName',
         },
         {
           name: 'employeeNum',

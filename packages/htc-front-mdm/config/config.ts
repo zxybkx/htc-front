@@ -107,7 +107,7 @@ const projectApplicationRouterConfig = [
             },
             // 租户明细
             {
-                path: '/htc-front-mdm/project-application/tenantDetail/:tenantId/:uniqueCode',
+                path: '/htc-front-mdm/project-application/tenant-detail/:tenantId/:uniqueCode',
                 component: '@/pages/project-application/detail/TenantApplyDetailPage',
             },
         ],

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { Header, Content } from 'components/Page';
 import intl from 'utils/intl';
 import { DataSet, Button, Form, Output, Spin } from 'choerodon-ui/pro';
@@ -26,7 +25,7 @@ interface ArchiveViewPubPageProps extends RouteComponentProps<RouterInfo> {
 @formatterCollections({
   code: [modelCode, 'htc.common', 'hivp.bill'],
 })
-@connect()
+
 export default class ArchiveViewPubPage extends Component<ArchiveViewPubPageProps> {
   state = {
     recordType: '',

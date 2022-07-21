@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-15 15:10:12
- * @LastEditTime: 2020-11-25 16:43:26
+ * @LastEditTime: 2022-07-20 13:47:32
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -19,7 +19,6 @@ const modelCode = 'hivp.documentType';
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
-  console.log('API_PREFIX', API_PREFIX);
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -44,7 +43,7 @@ export default (): DataSetProps => {
         };
       },
     },
-    paging: false,
+    pageSize: 20,
     selection: false,
     primaryKey: 'docTypeHeaderId',
     fields: [

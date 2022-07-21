@@ -2,7 +2,7 @@
  * @Description: 发票交付
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-07-08 16:22:07
- * @LastEditTime: 2022-07-13 17:57:39
+ * @LastEditTime: 2022-07-19 10:44:33
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -31,7 +31,7 @@ export default (dsParams): DataSetProps => {
                         return {
                             ...item,
                             invoiceInformation: inner,
-                            invoiceOrderHeaderId: invoiceOrderHeaderIds[index],
+                            invoiceOrderHeaderId: Number(invoiceOrderHeaderIds[index]),
                         }
                     })
                 })
@@ -52,7 +52,7 @@ export default (dsParams): DataSetProps => {
             },
             {
                 name: 'invoiceDeliveryInfoId',
-                type: FieldType.string,
+                type: FieldType.number,
             },
             {
                 name: 'invoiceInformation',
@@ -77,7 +77,6 @@ export default (dsParams): DataSetProps => {
                     intl.get('hiop.invoiceWorkbench.view.rePushEmail').d('重新推送邮箱')
                     : intl.get('hiop.invoiceWorkbench.view.receiveNotificationEmail').d('接收通知邮箱'),
                 type: FieldType.email,
-                required: dsParams.type === 0
             },
             {
                 name: 'whetherReceiv',

@@ -178,9 +178,12 @@ export default (): DataSetProps => {
         type: FieldType.string,
         lookupCode: 'HMDM.INVOICE_TYPE',
         computedProps: {
-          readOnly: ({ record }) =>
-            record.dataSet.parent.current.get('invoiceType') ||
-            !record.dataSet.parent.current.get('extNumber'),
+          readOnly: ({ record }) => {
+            if (record.dataSet.parent) {
+              return record.dataSet.parent.current.get('invoiceType') ||
+                !record.dataSet.parent.current.get('extNumber')
+            }
+          }
         },
       },
       {

@@ -9,7 +9,6 @@
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
 import { routerRedux } from 'dva/router';
-import { connect } from 'dva';
 import { API_HOST } from 'utils/config';
 import { Content, Header } from 'components/Page';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
@@ -82,7 +81,7 @@ interface InvoiceWorkbenchPageProps {
   },
   { cacheState: true }
 )
-@connect()
+
 export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPageProps> {
   state = {
     batchNum: [],
@@ -948,7 +947,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
             dataSet={this.props.batchCheckDS}
             columns={this.columns}
             queryBar={this.renderQueryBar}
-            style={{ height: 300 }}
+            style={{ height: 350 }}
           />
         </Content>
       </>

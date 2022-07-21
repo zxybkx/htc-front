@@ -413,23 +413,17 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
       {
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
-        width: 200,
+        width: 180,
         command: ({ record }): Commands[] => {
           return [
-            <Button
-              color={ButtonColor.default}
-              style={{ border: 'none', background: 'transparent' }}
-              onClick={() => this.handleGotoDocRelated(record)}
-            >
-              <a>{intl.get(`${modelCode}.button.relateDoc`).d('查看单据')}</a>
-            </Button>,
-            <Button
-              color={ButtonColor.default}
-              style={{ border: 'none', background: 'transparent' }}
-              onClick={() => this.handleDeleteInvoiceInfo(record)}
-            >
-              {intl.get('hzero.common.button.delete').d('删除')}
-            </Button>,
+            <span className="action-link" key="action">
+              <a onClick={() => this.handleGotoDocRelated(record)}>
+                {intl.get(`${modelCode}.button.relateDoc`).d('查看单据')}
+              </a>
+              <a onClick={() => this.handleDeleteInvoiceInfo(record)}>
+                {intl.get('hzero.common.button.delete').d('删除')}
+              </a>
+            </span>,
           ];
         },
         lock: ColumnLock.right,
