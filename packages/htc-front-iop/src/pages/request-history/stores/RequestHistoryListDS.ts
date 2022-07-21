@@ -39,9 +39,9 @@ export default (): DataSetProps => {
     selection: false,
     fields: [
       {
-        name: 'tenantName',
-        label: intl.get(`${modelCode}.view.tenantName`).d('请求id'),
-        type: FieldType.string,
+        name: 'requestId',
+        label: intl.get(`${modelCode}.view.requestId`).d('请求id'),
+        type: FieldType.number,
       },
       {
         name: 'tenantId',
@@ -69,13 +69,13 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
-        name: 'batchNo',
-        label: intl.get(`${modelCode}.view.batchNo`).d('请求报文'),
+        name: 'requestJson',
+        label: intl.get(`${modelCode}.view.requestJson`).d('请求报文'),
         type: FieldType.string,
       },
       {
-        name: 'statisticsDate',
-        label: intl.get(`${modelCode}.view.statisticsDate`).d('返回报文'),
+        name: 'responseJson',
+        label: intl.get(`${modelCode}.view.responseJson`).d('返回报文'),
         type: FieldType.string,
       },
       {
@@ -105,13 +105,13 @@ export default (): DataSetProps => {
         type: FieldType.dateTime,
       },
       {
-        name: 'processDateFrom',
-        label: intl.get(`${modelCode}.view.processDateFrom`).d('创建日期'),
+        name: 'creationDate',
+        label: intl.get(`${modelCode}.view.creationDate`).d('创建日期'),
         type: FieldType.dateTime,
       },
       {
-        name: 'processDateTo',
-        label: intl.get(`${modelCode}.view.processDateTo`).d('最后更新日期'),
+        name: 'lastUpdateDate',
+        label: intl.get(`${modelCode}.view.lastUpdateDate`).d('最后更新日期'),
         type: FieldType.dateTime,
       },
     ],
@@ -160,6 +160,16 @@ export default (): DataSetProps => {
         type: FieldType.dateTime,
         min: 'requestHistoryDateFrom',
         defaultValue: moment().format(DEFAULT_DATE_FORMAT),
+      },
+      {
+        name: 'requestJson',
+        label: intl.get(`${modelCode}.view.requestJson`).d('请求报文'),
+        type: FieldType.string,
+      },
+      {
+        name: 'responseJson',
+        label: intl.get(`${modelCode}.view.responseJson`).d('响应报文'),
+        type: FieldType.string,
       },
     ],
   };
