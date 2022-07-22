@@ -1987,7 +1987,7 @@ export default class CheckCertificationPage extends Component<CheckCertification
           key={props.key}
           onClick={props.onClick}
           disabled={isDisabled}
-          style={{ float: 'right',  marginLeft: '0.08rem' }}
+          style={{ float: 'right', marginLeft: '0.08rem' }}
           color={ButtonColor.primary}
         >
           {props.title}
@@ -2046,14 +2046,14 @@ export default class CheckCertificationPage extends Component<CheckCertification
       </Menu>
     );
     return [
-      <Upload
+      <span className="c7n-pro-btn"><Upload
         {...uploadProps}
         disabled={!companyId}
         accept={[
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
           'application/vnd.ms-excel',
         ]}
-      />,
+      /></span>,
       <HeaderButtons
         key="downloadFile"
         onClick={() => this.downLoad()}
@@ -2565,7 +2565,7 @@ export default class CheckCertificationPage extends Component<CheckCertification
             <div className={styles.header}>
               <Form
                 dataSet={this.props.checkCertificationListDS.queryDataSet}
-                // style={{ marginLeft: '-20px' }}
+              // style={{ marginLeft: '-20px' }}
               >
                 <Output name="employeeDesc" />
                 <Output name="curDate" />
