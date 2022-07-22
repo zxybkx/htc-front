@@ -95,8 +95,6 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
 
   multipleUploadUuid;
 
-  test;
-
   // 获取批次号
   @Bind()
   async getBatchNum(params) {
@@ -954,7 +952,6 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         </div>
         <Content>
           <Table
-            ref={(node)=>this.test=node}
             dataSet={this.props.batchCheckDS}
             columns={this.columns}
             queryBar={this.renderQueryBar}
