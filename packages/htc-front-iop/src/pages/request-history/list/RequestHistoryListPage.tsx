@@ -23,7 +23,6 @@ interface ApplyStatisticsHistoryListPageProps {
 
 export default class ApplyStatisticsHistoryListPage extends Component<ApplyStatisticsHistoryListPageProps> {
   tableDS = new DataSet({
-    autoQuery: true,
     ...RequestHistoryListDS(),
   });
 
@@ -46,17 +45,17 @@ export default class ApplyStatisticsHistoryListPage extends Component<ApplyStati
       { name: 'tenantId' },
       { name: 'companyCode' },
       { name: 'companyName', width: 210 },
-      { name: 'employeeNumber', width: 130 },
-      { name: 'employeeName', width: 270 },
-      { name: 'requestJson', width: 100 },
-      { name: 'responseJson', width: 120 },
-      { name: 'requestType', width: 100 },
-      { name: 'successFlag', width: 260 },
+      { name: 'employeeNumber' },
+      { name: 'employeeName' },
+      { name: 'requestJson' },
+      { name: 'responseJson' },
+      { name: 'requestType' },
+      { name: 'successFlag' },
       { name: 'processRemark', width: 160 },
       { name: 'processDateFrom' },
       { name: 'processDateTo' },
       { name: 'creationDate' },
-      { name: 'lastUpdateDate' },
+      { name: 'lastUpdateDate', width: 120 },
     ];
   }
 

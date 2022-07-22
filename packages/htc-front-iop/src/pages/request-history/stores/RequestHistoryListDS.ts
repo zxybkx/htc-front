@@ -17,7 +17,7 @@ import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 const modelCode = 'hiop.request-history';
 
 export default (): DataSetProps => {
-  const API_PREFIX = commonConfig.CHAN_API || '';
+  const API_PREFIX = commonConfig.IOP_API || '';
 
   return {
     transport: {
@@ -122,6 +122,7 @@ export default (): DataSetProps => {
         type: FieldType.object,
         lovCode: 'HPFM.TENANT',
         ignore: FieldIgnore.always,
+        required: true,
       },
       {
         name: 'tenantId',
@@ -150,16 +151,18 @@ export default (): DataSetProps => {
       {
         name: 'requestHistoryDateFrom',
         label: intl.get(`${modelCode}.view.requestHistoryDateFrom`).d('请求时间从'),
-        type: FieldType.dateTime,
+        type: FieldType.date,
         max: 'requestHistoryDateTo',
         defaultValue: moment().format(DEFAULT_DATE_FORMAT),
+        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'requestHistoryDateTo',
         label: intl.get(`${modelCode}.view.requestHistoryDateTo`).d('请求时间至'),
-        type: FieldType.dateTime,
+        type: FieldType.date,
         min: 'requestHistoryDateFrom',
         defaultValue: moment().format(DEFAULT_DATE_FORMAT),
+        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'requestJson',
