@@ -958,8 +958,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
             dataSet={this.props.batchCheckDS}
             columns={this.columns}
             queryBar={this.renderQueryBar}
-            onRow={({ record }) => this.rowStyle(record)}
-            className={styles.tableRow}
+            // onRow={({ record }) => this.rowStyle(record)}
+            // className={styles.tableRow}
             style={{ height: 350 }}
           />
         </Content>
