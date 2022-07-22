@@ -247,7 +247,7 @@ export async function confirmFile(params) {
  */
 export async function ofdInvoiceResolver(params) {
   return request(
-    `${process.env.CHECK_API}/v1/ofd-invoice-resolver-site/signature-info-front-end-call`,
+    `${HIVP_API}/v1/ofd-invoice-resolver-site/signature-info-front-end-call`,
     {
       method: 'GET',
       query: params,
@@ -263,7 +263,7 @@ export async function ofdInvoiceResolver(params) {
  */
 export async function urlTojpg(params) {
   const { tenantId, ...otherParams } = params;
-  return request(`${process.env.CHECK_API}/v1/${tenantId}/ofd-invoice-resolver/url-to-jpg`, {
+  return request(`${HIVP_API}/v1/${tenantId}/ofd-invoice-resolver/url-to-jpg`, {
     method: 'POST',
     query: otherParams,
   });
