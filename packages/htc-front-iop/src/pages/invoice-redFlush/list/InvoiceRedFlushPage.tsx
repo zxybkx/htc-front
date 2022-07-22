@@ -23,7 +23,6 @@ import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import {
   Button,
   Currency,
@@ -65,7 +64,7 @@ interface InvoiceVoidPageProps extends RouteComponentProps {
     'hiop.customerInfo',
   ],
 })
-@connect()
+
 export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps> {
   invoiceRedFlushLineDS = new DataSet({
     autoQuery: false,
