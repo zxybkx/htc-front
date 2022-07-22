@@ -12,7 +12,7 @@ import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import moment from 'moment';
-import { DEFAULT_DATE_FORMAT } from 'utils/constants';
+import { DEFAULT_DATETIME_FORMAT } from 'utils/constants';
 
 const modelCode = 'hiop.request-history';
 
@@ -151,18 +151,18 @@ export default (): DataSetProps => {
       {
         name: 'requestHistoryDateFrom',
         label: intl.get(`${modelCode}.view.requestHistoryDateFrom`).d('请求时间从'),
-        type: FieldType.date,
+        type: FieldType.dateTime,
         max: 'requestHistoryDateTo',
-        defaultValue: moment().format(DEFAULT_DATE_FORMAT),
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        defaultValue: moment().format(DEFAULT_DATETIME_FORMAT),
+        transformRequest: (value) => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
       },
       {
         name: 'requestHistoryDateTo',
         label: intl.get(`${modelCode}.view.requestHistoryDateTo`).d('请求时间至'),
-        type: FieldType.date,
+        type: FieldType.dateTime,
         min: 'requestHistoryDateFrom',
-        defaultValue: moment().format(DEFAULT_DATE_FORMAT),
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        defaultValue: moment().format(DEFAULT_DATETIME_FORMAT),
+        transformRequest: (value) => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
       },
       {
         name: 'requestJson',
