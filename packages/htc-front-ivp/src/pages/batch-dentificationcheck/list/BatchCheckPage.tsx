@@ -95,6 +95,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
 
   multipleUploadUuid;
 
+  test;
+
   // 获取批次号
   @Bind()
   async getBatchNum(params) {
@@ -876,6 +878,14 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     return this.props.batchCheckDS.submit();
   }
 
+  @Bind()
+  rowStyle(record) {
+    console.log('value', record);
+    return {
+      style: {backgroundColor: record.get('invoiceCode') === '033001900311' ? 'green' : ''}
+    }
+  }
+
   render() {
     const { companyCode, employeeNum } = this.state;
     const uploadProps = {
@@ -944,9 +954,12 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         </div>
         <Content>
           <Table
+            ref={(node)=>this.test=node}
             dataSet={this.props.batchCheckDS}
             columns={this.columns}
             queryBar={this.renderQueryBar}
+            onRow={({ record }) => this.rowStyle(record)}
+            className={styles.tableRow}
             style={{ height: 350 }}
           />
         </Content>
