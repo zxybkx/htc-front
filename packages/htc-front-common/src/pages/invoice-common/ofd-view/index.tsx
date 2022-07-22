@@ -12,6 +12,7 @@ import { Modal } from 'choerodon-ui/pro';
 import { Col, Divider, Icon, Row } from 'choerodon-ui';
 import { parseOfdDocument, renderOfdByScale, setPageScale } from 'ofd.js';
 import notification from 'utils/notification';
+import { isString } from 'lodash';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { ofdInvoiceResolver } from '../../../services/commonService';
 
@@ -55,7 +56,7 @@ export default class ArchiveOfdPage extends Component<ArchiveOfdPageProps> {
         fail(error) {
           notification.warning({
             message: intl.get(`${modelCode}.view.openOFDFail`).d('OFD打开失败'),
-            description: error,
+            description: isString(error) && error,
           });
         },
       });
