@@ -17,7 +17,7 @@
     "yarn": "^1.13.0"
   },
   "dependencies": {
-    "ofd.js": "~0.2.2",
+    "ofd.js": "0.2.6",
     "hzero-front": "1.9.1",
     "hzero-front-hadm": "~1.9.0",
     "hzero-front-hchg": "~1.6.0",

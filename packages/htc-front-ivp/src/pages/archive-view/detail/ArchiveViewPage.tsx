@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
 import { Header, Content } from 'components/Page';
 import intl from 'utils/intl';
@@ -35,7 +34,6 @@ interface ArchiveViewPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
 
-@connect()
 @formatterCollections({
   code: [modelCode, 'htc.common'],
 })

@@ -101,7 +101,7 @@ export default class ArchiveOfdPage extends Component<ArchiveOfdPageProps> {
         signDiv = scaleDiv.lastChild.previousSibling;
         signDiv.setAttribute('style', '');
       }
-      document.getElementById('ofdSignDiv')!.appendChild(signDiv);
+      document.getElementById('ofdSignDiv')?.appendChild(signDiv);
       setTimeout(() => {
         // 签章信息
         ofdInvoiceResolver(ofdInvoiceResolverParams).then((res) => {

@@ -116,7 +116,7 @@ export default class ArchiveViewPubPage extends Component<ArchiveViewPubPageProp
     });
   };
 
-  // 上一张
+  // 下一张
   handleShowNext = () => {
     this.queryDS.next();
     this.setState({
