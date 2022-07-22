@@ -231,6 +231,17 @@ const taxRateStatisticsReportRouterConfig = [
         ],
     },
 ];
+const requestHistoryRouterConfig = [
+    {
+        path: '/htc-front-iop/request-history',
+        routes: [
+            {
+                path: '/htc-front-iop/request-history/list',
+                component: '@/pages/request-history/list/RequestHistoryListPage',
+            },
+        ],
+    },
+];
 // const path = require('path');
 // import routes from './routers'
 export default extendParentConfig({
@@ -250,6 +261,7 @@ export default extendParentConfig({
         ...tobeInvoiceRouterConfig,
         ...invoiceOperationMaintenanceRouterConfig,
         ...taxRateStatisticsReportRouterConfig,
+      ...requestHistoryRouterConfig,
     ],
 
     extraBabelPlugins: [       //原/packages/xxx/.babelrc.js--plugins
