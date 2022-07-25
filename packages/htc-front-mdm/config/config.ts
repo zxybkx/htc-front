@@ -91,7 +91,7 @@ const billStatementRouterConfig = [
                 component: '@/pages/bill-statement/list/BillStatementPage',
             },
             {
-                path: '/htc-front-mdm/bill-statement/billViewPage',
+                path: '/htc-front-mdm/bill-statement/bill-view-page',
                 component: '@/pages/bill-statement/detail/BillViewPage',
             },
         ],
