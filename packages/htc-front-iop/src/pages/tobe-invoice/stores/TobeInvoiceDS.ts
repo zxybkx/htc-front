@@ -566,7 +566,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'materialDescription',
-          label: intl.get('hiop.tobeInvoice.modal.materialDescription').d('物料描述'),
+          label: intl.get('hiop.invoiceWorkbench.modal.projectNameSuffix').d('项目名称'),
           type: FieldType.string,
         },
         {
