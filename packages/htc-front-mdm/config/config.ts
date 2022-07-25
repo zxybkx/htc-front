@@ -10,7 +10,7 @@ const automaticCollectionManageRouterConfig = [
                 component: '@/pages/automatic-collection-manage/list/AutomaticCollectionManagePage',
             },
             {
-                path: '/htc-front-mdm/automatic-collection-manage/remindDetail',
+                path: '/htc-front-mdm/automatic-collection-manage/remind-detail',
                 component: '@/pages/automatic-collection-manage/detail/RemindDetailPage',
             },
         ],
