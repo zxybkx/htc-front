@@ -41,7 +41,7 @@ export default class ApplyStatisticsHistoryListPage extends Component<ApplyStati
           return record ? this.tableDS.indexOf(record) + 1 : '';
         },
       },
-      { name: 'requestId' },
+      { name: 'requestId' ,
       { name: 'tenantId' },
       { name: 'companyCode' },
       { name: 'companyName', width: 210 },
