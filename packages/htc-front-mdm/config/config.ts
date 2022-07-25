@@ -10,7 +10,7 @@ const automaticCollectionManageRouterConfig = [
                 component: '@/pages/automatic-collection-manage/list/AutomaticCollectionManagePage',
             },
             {
-                path: '/htc-front-mdm/automatic-collection-manage/remindDetail',
+                path: '/htc-front-mdm/automatic-collection-manage/remind-detail',
                 component: '@/pages/automatic-collection-manage/detail/RemindDetailPage',
             },
         ],
@@ -91,7 +91,7 @@ const billStatementRouterConfig = [
                 component: '@/pages/bill-statement/list/BillStatementPage',
             },
             {
-                path: '/htc-front-mdm/bill-statement/billViewPage',
+                path: '/htc-front-mdm/bill-statement/bill-view-page',
                 component: '@/pages/bill-statement/detail/BillViewPage',
             },
         ],
