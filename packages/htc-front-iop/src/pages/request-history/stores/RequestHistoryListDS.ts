@@ -154,7 +154,7 @@ export default (): DataSetProps => {
         type: FieldType.dateTime,
         max: 'requestHistoryDateTo',
         defaultValue: moment().format(DEFAULT_DATETIME_FORMAT),
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
+        // transformRequest: (value) => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
       },
       {
         name: 'requestHistoryDateTo',
@@ -162,7 +162,7 @@ export default (): DataSetProps => {
         type: FieldType.dateTime,
         min: 'requestHistoryDateFrom',
         defaultValue: moment().format(DEFAULT_DATETIME_FORMAT),
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
+        // transformRequest: (value) => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
       },
       {
         name: 'requestJson',

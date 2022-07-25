@@ -47,15 +47,15 @@ export default class ApplyStatisticsHistoryListPage extends Component<ApplyStati
       { name: 'companyName', width: 210 },
       { name: 'employeeNumber' },
       { name: 'employeeName' },
-      { name: 'requestJson' },
-      { name: 'responseJson' },
-      { name: 'requestType' },
+      { name: 'requestJson', width: 210 },
+      { name: 'responseJson', width: 210 },
+      { name: 'requestType', width: 210 },
       { name: 'successFlag' },
       { name: 'processRemark', width: 160 },
-      { name: 'processDateFrom' },
-      { name: 'processDateTo' },
-      { name: 'creationDate' },
-      { name: 'lastUpdateDate', width: 120 },
+      { name: 'processDateFrom', width: 150 },
+      { name: 'processDateTo', width: 150 },
+      { name: 'creationDate', width: 150 },
+      { name: 'lastUpdateDate', width: 150 },
     ];
   }
 
