@@ -65,7 +65,6 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
   state = {
     summaryData: [],
     detailData: [],
-    pageData: undefined,
   };
 
   headerDS = new DataSet({
@@ -127,7 +126,6 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
           this.setState({
             summaryData: deductionApplySummaryDtoList || [],
             detailData: detailList || [],
-            pageData: res,
           });
         }
       });
@@ -246,7 +244,6 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
   @Bind()
   async handlePrint() {
     const { search } = this.props.location;
-    const { pageData } = this.state;
     const statisticalConfirmInfoStr = new URLSearchParams(search).get('statisticalConfirmInfo');
     if (statisticalConfirmInfoStr) {
       const statisticalConfirmInfo = JSON.parse(decodeURIComponent(statisticalConfirmInfoStr));
@@ -276,7 +273,6 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
         rqq: invoiceDateFromStr,
         rqz: invoiceDateToStr,
         zgjgdm: authorityCode,
-        pageData,
       };
       const res = getResponse(await deductionReportDownload(params));
       if (res) {

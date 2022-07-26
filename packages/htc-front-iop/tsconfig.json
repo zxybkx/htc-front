@@ -6,7 +6,8 @@
     "baseUrl": "./", /* Base directory to resolve non-absolute module names. */
   },
   "include": [
-    "src"
+    "src",
+    "config/routers.ts"
   ],
   "exclude": [
     "lib",

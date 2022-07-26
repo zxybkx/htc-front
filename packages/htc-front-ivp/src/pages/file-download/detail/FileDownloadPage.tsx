@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { Content, Header } from 'components/Page';
 import intl from 'utils/intl';
 import { Bind } from 'lodash-decorators';
@@ -32,7 +31,6 @@ interface FileDownloadPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
 
-@connect()
 @formatterCollections({
   code: [modelCode, 'htc.common', 'hiop.invoiceRule', 'hivp.batchCheck', 'hivp.bill'],
 })

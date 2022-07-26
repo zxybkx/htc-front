@@ -282,6 +282,7 @@ export default (): DataSetProps => {
         name: 'paperTicketReceiverPhone',
         label: intl.get('hiop.invoiceWorkbench.modal.paperTicketReceiverPhone').d('纸票收件人电话'),
         type: FieldType.string,
+        pattern: phoneReg,
       },
       {
         name: 'paperTicketReceiverAddress',

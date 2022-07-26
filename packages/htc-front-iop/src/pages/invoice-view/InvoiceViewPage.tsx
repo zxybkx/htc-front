@@ -10,7 +10,7 @@ import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Content, Header } from 'components/Page';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
+// import { connect } from 'dva';
 import intl from 'utils/intl';
 import { observer } from 'mobx-react-lite';
 import { Button as PermissionButton } from 'components/Permission';
@@ -45,7 +45,7 @@ interface InvoiceViewPageProps extends RouteComponentProps<RouterInfo> {
 @formatterCollections({
   code: ['hiop.invoiceView', 'hiop.invoiceWorkbench'],
 })
-@connect()
+// @connect()
 export default class InvoiceViewPage extends Component<InvoiceViewPageProps> {
   state = {
     backPath: '',

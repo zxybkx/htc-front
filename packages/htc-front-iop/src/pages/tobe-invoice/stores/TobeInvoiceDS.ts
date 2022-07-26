@@ -171,9 +171,10 @@ export default (): DataSetProps => {
         }
         // 行类型
         if (name === 'documentLineType') {
+          const uprojectAmount = Number(record.get('uprojectAmount')) || 0; // 开票金额
           if (value === '4') {
-            record.set('udiscountAmount', amount);
-            record.set('discountAmount', amount);
+            record.set('udiscountAmount', uprojectAmount);
+            record.set('discountAmount', uprojectAmount);
             record.set('uprojectAmount', null);
             record.set('amount', null);
           }
@@ -565,7 +566,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'materialDescription',
-          label: intl.get('hiop.tobeInvoice.modal.materialDescription').d('物料描述'),
+          label: intl.get('hiop.invoiceWorkbench.modal.projectNameSuffix').d('项目名称'),
           type: FieldType.string,
         },
         {

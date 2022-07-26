@@ -1,3 +1,3 @@
-module.exports = {
-  'extends': '../../.babelrc',
-};
+// module.exports = {
+//   'extends': '../../.babelrc',
+// };

@@ -31,6 +31,7 @@ export default (): DataSetProps => {
         return axiosConfig;
       },
     },
+    pageSize: 10,
     primaryKey: 'invoicingOrderHeaderId',
     fields: [
       {

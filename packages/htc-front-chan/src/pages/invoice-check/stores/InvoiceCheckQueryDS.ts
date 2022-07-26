@@ -66,7 +66,7 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
         type: FieldType.string,
         computedProps: {
-          required: ({ record }) => record.get('invoiceNumber').length !== 20,
+          required: ({ record }) => record.get('invoiceNumber') && record.get('invoiceNumber').length !== 20,
         },
       },
       {

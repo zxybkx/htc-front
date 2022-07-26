@@ -3,14 +3,14 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-12-15 16:31:57
- * @LastEditTime: 2021-03-10 17:40:17
+ * @LastEditTime: 2022-06-20 10:02:59
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import { PageHeaderWrapper } from 'hzero-boot/lib/components/Page';
+// import { PageHeaderWrapper } from 'hzero-boot/lib/components/Page';
+import { Header } from 'components/Page';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import {
   Currency,
   DataSet,
@@ -44,7 +44,6 @@ interface InvoiceReqOrderListPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
 
-@connect()
 @formatterCollections({
   code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq', 'hiop.tobeInvoice'],
 })
@@ -188,20 +187,24 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
   get renderEmployeeDesc() {
     const { empInfo } = this.state;
     if (empInfo) {
-      return `${empInfo.companyCode || ''}-${empInfo.employeeNum || ''}-${
-        empInfo.employeeName || ''
-      }-${empInfo.mobile || ''}`;
+      return `${empInfo.companyCode || ''}-${empInfo.employeeNum || ''}-${empInfo.employeeName || ''
+        }-${empInfo.mobile || ''}`;
     }
     return '';
   }
 
   render() {
-    const { backPath } = this.state;
+    const { search } = this.props.location;
+    const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
+    let pathname;
+    if (invoiceInfoStr) {
+      const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
+      pathname = invoiceInfo.backPath;
+    }
+    console.log('pathname', pathname);
     return (
-      <PageHeaderWrapper
-        headerProps={{ backPath }}
-        title={intl.get('hiop.invoiceReq.title.invoiceOrderInfo').d('开票订单信息')}
-      >
+      <>
+        <Header backPath={ pathname } title={intl.get('hiop.invoiceReq.title.invoiceOrderInfo').d('开票订单信息')} />
         <Spin dataSet={this.reqHeaderDS}>
           <Form dataSet={this.reqHeaderDS} columns={5}>
             <Output
@@ -240,7 +243,7 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
           </Form>
         </Spin>
         <Table dataSet={this.orderLinesDS} columns={this.columns} style={{ height: 400 }} />
-      </PageHeaderWrapper>
+      </>
     );
   }
 }

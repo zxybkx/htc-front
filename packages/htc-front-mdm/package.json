@@ -17,19 +17,33 @@
     "url": "https://code.choerodon.com.cn/ora-hand-htc/htc-front.git"
   },
   "scripts": {
-    "start": "hzero-cli start",
-    "build": "hzero-cli build",
-    "build:analyze": "cross-env ANALYZE=true hzero-cli build",
-    "transpile": "hzero-cli transpile --non-interactive",
-    "lint": "eslint 'src/**/*.{js,jsx,tsx,ts}' && npm run lint:style && tsc --noEmit --emitDeclarationOnly false",
-    "lint:fix": "eslint --quiet --fix \"src/**/*.{js,jsx,tsx,ts}\" && npm run lint:style",
-    "lint:style": "stylelint \"src/**/*.less\" --syntax less",
-    "lint-staged": "lint-staged",
-    "test": "hzero-cli test",
-    "changelog": "node node_modules/.bin/conventional-changelog -p eslint -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
-    "prettier": "prettier --write ./src/**/**/**/*",
-    "tree": "tree -I node_modules -L 3",
-    "release": "standard-version"
+    "transpile": "umi hzero-transpile",
+    "start": "cross-env UMI_DEV_ENV=TRUE umi dev",
+    "build": "umi hzero-build",
+    "build:ms": "cross-env UMI_ENV=dev umi hzero-build --only-build-micro",
+    "hzero-build:dep-all": "umi hzero-build-dep --all",
+    "build:app": "cross-env BUILD_SINGLE_PUBLIC_MS=true umi hzero-build --only-build-parent",
+    "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
+    "test": "umi-test",
+    "start:additional": "cross-env ADDITIONAL=true umi dev",
+    "build:additional": "cross-env ADDITIONAL=true umi hzero-build",
+    "build:additional-dep": "cross-env ADDITIONAL_NAME=hcmp_front micro-prepare dep",
+    "build:dep": "micro-prepare dep",
+    "build:hzero": "micro-prepare hzero",
+    "test:coverage": "umi-test --coverage"
+  },
+  "peerDependencies": {
+    "@hzero-front-ui/cfg": "*",
+    "axios": "*",
+    "choerodon-ui": "*",
+    "dva": "*",
+    "hzero-front": "*",
+    "hzero-ui": "*",
+    "mobx": "*",
+    "react": "*",
+    "react-dom": "*",
+    "react-intl-universal": "*",
+    "mobx-react": "*"
   },
   "husky": {
     "hooks": {

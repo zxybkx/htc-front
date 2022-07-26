@@ -7,12 +7,12 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
-import { connect } from 'dva';
 import intl from 'utils/intl';
 import { Modal } from 'choerodon-ui/pro';
 import { Col, Divider, Icon, Row } from 'choerodon-ui';
 import { parseOfdDocument, renderOfdByScale, setPageScale } from 'ofd.js';
 import notification from 'utils/notification';
+import { isString } from 'lodash';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { ofdInvoiceResolver } from '../../../services/commonService';
 
@@ -26,7 +26,7 @@ interface ArchiveOfdPageProps {
 @formatterCollections({
   code: [modelCode, 'htc.common'],
 })
-@connect()
+
 export default class ArchiveOfdPage extends Component<ArchiveOfdPageProps> {
   componentDidMount() {
     if (this.props.recordType === 'OFD') {
@@ -56,7 +56,7 @@ export default class ArchiveOfdPage extends Component<ArchiveOfdPageProps> {
         fail(error) {
           notification.warning({
             message: intl.get(`${modelCode}.view.openOFDFail`).d('OFD打开失败'),
-            description: error,
+            description: isString(error) && error,
           });
         },
       });
@@ -102,7 +102,7 @@ export default class ArchiveOfdPage extends Component<ArchiveOfdPageProps> {
         signDiv = scaleDiv.lastChild.previousSibling;
         signDiv.setAttribute('style', '');
       }
-      document.getElementById('ofdSignDiv')!.appendChild(signDiv);
+      document.getElementById('ofdSignDiv')?.appendChild(signDiv);
       setTimeout(() => {
         // 签章信息
         ofdInvoiceResolver(ofdInvoiceResolverParams).then((res) => {
