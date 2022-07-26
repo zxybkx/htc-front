@@ -99,9 +99,12 @@ docker_build:
       # fi
       if  [[ $UPDATE_MICRO_MODULES =~ "ALL" ]] || [[ ! -n "$UPDATE_MICRO_MODULES" ]] ;then
         echo "全量编译"
-        yarn build:dll
-        yarn transpile
-        yarn build:production
+        yarn install
+        npx hzero-cli info
+        export NODE_OPTIONS="--max-old-space-size=8192"
+        yarn build:ms-all
+        yarn run build:dep-all:prod
+        yarn run build:app:prod
       else
         echo "增量编译子模块 $UPDATE_MICRO_MODULES"
         yarn hzero-cli transpile hdbsp-front-common #解决webpack别名中引入目录bug，生成hdbsp-front-common/lib文件夹
