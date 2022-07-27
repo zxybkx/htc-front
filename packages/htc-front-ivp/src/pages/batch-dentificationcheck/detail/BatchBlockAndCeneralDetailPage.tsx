@@ -47,7 +47,7 @@ interface BillPoolDetailPageProps extends RouteComponentProps<RouterInfo> {
 @formatterCollections({
   code: [modelCode, 'htc.common', 'hcan.invoiceDetail', 'hivp.bill', 'hivp.batchCheck'],
 })
-export default class BillDetailPage extends Component<BillPoolDetailPageProps> {
+export default class BatchBlockAndCeneralDetailPage extends Component<BillPoolDetailPageProps> {
   // 行DS
   linesDS = new DataSet({
     autoQuery: false,
@@ -95,8 +95,8 @@ export default class BillDetailPage extends Component<BillPoolDetailPageProps> {
       this.detailDS.submit();
     } else {
       let totalAmount = 0;
-      for (let i = 0; i < this.linesDS.toData().length; i++) {
-        const { amount }: any = this.linesDS.toData()[i];
+      for (const element of this.linesDS.toData()) {
+        const { amount }: any = element;
         if (amount === undefined) {
           return;
         }

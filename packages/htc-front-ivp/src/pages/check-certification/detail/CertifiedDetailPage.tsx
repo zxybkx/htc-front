@@ -27,7 +27,6 @@ import CertifiedDetailListDS from '../stores/CertifiedDetailListDS';
 const modelCode = 'hivp.checkCertification';
 const tenantId = getCurrentOrganizationId();
 
-// const API_PREFIX = `${commonConfig.IVP_API}-28090`;
 const API_PREFIX = commonConfig.IVP_API || '';
 
 interface CertifiedDetailPageProps {
@@ -113,7 +112,7 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
     });
   }
 
-  renderBar = (props) => {
+  renderBar = props => {
     const { queryFields, queryDataSet, queryFieldsLimit } = props;
     const { loadingFlag } = this.state;
     if (queryDataSet) {
@@ -139,9 +138,8 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
   // 导出
   @Bind()
   handleGetQueryParams() {
-    const queryParams = this.tableDS.queryDataSet!.map((data) => data.toData()) || {};
-    const exportParams = { ...queryParams[0] } || {};
-    return exportParams;
+    const queryParams = this.tableDS.queryDataSet!.map(data => data.toData()) || {};
+    return { ...queryParams[0] } || {};
   }
 
   get columns(): ColumnProps[] {
@@ -163,21 +161,21 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
       { name: 'invoiceAmount', width: 150, align: ColumnAlign.right },
       { name: 'taxAmount', width: 150, align: ColumnAlign.right },
       { name: 'validTaxAmount', width: 150, align: ColumnAlign.right },
-      { name: 'invoiceState', renderer: (value) => value.value && `${value.value}-${value.text}` },
-      { name: 'checkState', renderer: (value) => value.value && `${value.value}-${value.text}` },
+      { name: 'invoiceState', renderer: value => value.value && `${value.value}-${value.text}` },
+      { name: 'checkState', renderer: value => value.value && `${value.value}-${value.text}` },
       { name: 'checkDate', width: 130 },
       {
         name: 'authenticationState',
-        renderer: (value) => value.value && `${value.value}-${value.text}`,
+        renderer: value => value.value && `${value.value}-${value.text}`,
       },
       {
         name: 'authenticationType',
-        renderer: (value) => value.value && `${value.value}-${value.text}`,
+        renderer: value => value.value && `${value.value}-${value.text}`,
       },
-      { name: 'infoSource', renderer: (value) => value.value && `${value.value}-${value.text}` },
+      { name: 'infoSource', renderer: value => value.value && `${value.value}-${value.text}` },
       {
         name: 'taxBureauManageState',
-        renderer: (value) => value.value && `${value.value}-${value.text}`,
+        renderer: value => value.value && `${value.value}-${value.text}`,
       },
     ];
   }

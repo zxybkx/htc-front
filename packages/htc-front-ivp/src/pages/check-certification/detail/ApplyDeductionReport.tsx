@@ -61,7 +61,7 @@ interface ApplyDeductionPageProps extends RouteComponentProps<RouterInfo> {
     'hivp.bill',
   ],
 })
-export default class ApplyDeductionPage extends Component<ApplyDeductionPageProps> {
+export default class ApplyDeductionReport extends Component<ApplyDeductionPageProps> {
   state = {
     summaryData: [],
     detailData: [],
@@ -118,7 +118,7 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
       this.summaryDS.setQueryParameter('rqq', invoiceDateFromStr);
       this.summaryDS.setQueryParameter('rqz', invoiceDateToStr);
       this.summaryDS.setQueryParameter('zgjgdm', authorityCode);
-      this.summaryDS.query().then((res) => {
+      this.summaryDS.query().then(res => {
         if (res) {
           const { deductionApplySummaryDtoList, detailList } = res;
           this.summaryDS.loadData(deductionApplySummaryDtoList);
@@ -136,7 +136,7 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
   @Bind()
   renderColumnFooter(dataSet, name) {
     let total;
-    dataSet.map((record) => {
+    dataSet.map(record => {
       const _total = Number(total) || 0;
       const _amount = Number(record.get(name)) || 0;
       total = ((_total * 100 + _amount * 100) / 100).toFixed(2);
@@ -144,8 +144,8 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
     });
     total =
       total &&
-      total.toString().replace(/\d+/, (n) => {
-        return n.replace(/(\d)(?=(\d{3})+$)/g, (i) => {
+      total.toString().replace(/\d+/, n => {
+        return n.replace(/(\d)(?=(\d{3})+$)/g, i => {
           return `${i},`;
         });
       });
@@ -277,9 +277,9 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
       const res = getResponse(await deductionReportDownload(params));
       if (res) {
         const blob = new Blob([base64toBlob(res)]);
-        if (window.navigator.msSaveBlob) {
+        if ((window.navigator as any).msSaveBlob) {
           try {
-            window.navigator.msSaveBlob(blob, name);
+            (window.navigator as any).msSaveBlob(blob);
           } catch (e) {
             notification.error({
               description: '',

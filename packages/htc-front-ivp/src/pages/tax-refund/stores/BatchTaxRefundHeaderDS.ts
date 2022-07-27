@@ -20,7 +20,6 @@ const modelCode = 'hivp.tax-refund';
 export default (): DataSetProps => {
   const tenantId = getCurrentOrganizationId();
   const API_PREFIX = commonConfig.IVP_API || '';
-  // const API_PREFIX = `${commonConfig.IVP_API}-31183` || '';
   return {
     transport: {
       read: (config): AxiosRequestConfig => {

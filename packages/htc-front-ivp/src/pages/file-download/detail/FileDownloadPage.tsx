@@ -76,7 +76,7 @@ export default class FileDownloadPage extends Component<FileDownloadPageProps> {
     const lineList = record.toData().invoiceFileLines;
     const invoiceFileHeaderId = record.get('invoiceFileHeaderId');
     if (lineList) {
-      const urlList = lineList.map((item) => item.fileUrl);
+      const urlList = lineList.map(item => item.fileUrl);
       const params = {
         tenantId,
         companyCode,
@@ -88,9 +88,9 @@ export default class FileDownloadPage extends Component<FileDownloadPageProps> {
       if (res && res.status === '1000') {
         const date = moment().format('YYYY-MM-DD HH:mm:ss');
         const blob = new Blob([base64toBlob(res.data)]);
-        if (window.navigator.msSaveBlob) {
+        if ((window.navigator as any).msSaveBlob) {
           try {
-            window.navigator.msSaveBlob(blob, `${date}.zip`);
+            (window.navigator as any).msSaveBlob(blob, `${date}.zip`);
           } catch (e) {
             notification.error({
               description: '',

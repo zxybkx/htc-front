@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 16:19:48
- * @LastEditTime: 2020-12-25 11:42:23
+ * @LastEditTime: 2022-07-26 16:26:47
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -58,14 +58,12 @@ interface InvoiceCheckQueryPageProps {
   { cacheState: true }
 )
 export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPageProps> {
-  // state = { checkStatus: '', invoiceHeaderId: undefined, invoiceType: '' };
-
   tenantId = getCurrentOrganizationId();
 
   componentDidMount() {
     const dsData = this.props.queryDS.toData();
     const params = { tenantId: this.tenantId };
-    getCurrentEmployeeInfo(params).then((resp) => {
+    getCurrentEmployeeInfo(params).then(resp => {
       if (resp && resp.content) {
         if (isEmpty(dsData)) {
           if (resp.content.length === 1) {
@@ -116,11 +114,6 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
         description: '',
         message: res.message,
       });
-      // this.setState({
-      // checkStatus: res.status,
-      // invoiceHeaderId: res.data.invoiceHeaderId,
-      // invoiceType: res.data.invoiceType,
-      // });
       this.props.queryDS.current!.set({
         checkStatus: res.status,
         invoiceHeaderId: res.data.invoiceHeaderId,
@@ -137,7 +130,6 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
   // 查看发票明细
   @Bind()
   handleGotoDetailPage() {
-    // const { invoiceHeaderId, invoiceType } = this.state;
     const invoiceHeaderId = this.props.queryDS.current!.get('invoiceHeaderId');
     const invoiceType = this.props.queryDS.current!.get('invoiceType');
     const { dispatch } = this.props;
@@ -151,7 +143,6 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
 
   @Bind()
   async handleAddToInvoicePool() {
-    // const { invoiceHeaderId } = this.state;
     const curData = this.props.queryDS.current!.toData();
     if (curData) {
       const res = await addToInvoicePool({
@@ -182,12 +173,9 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
   @Bind()
   handleResetQuery() {
     this.props.queryDS.current!.reset();
-    // this.setState({ checkStatus: '', invoiceHeaderId: undefined, invoiceType: '' });
   }
 
   render() {
-    // const { checkStatus } = this.state;
-    // const detailFlag = checkStatus === '0001';
     const ObserverButtons = observer((props: any) => {
       if (props.dataSet.current && props.dataSet.current.get('checkStatus') === '0001') {
         return (

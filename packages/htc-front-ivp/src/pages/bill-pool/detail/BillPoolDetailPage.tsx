@@ -50,7 +50,7 @@ interface BillPoolDetailPageProps extends RouteComponentProps<RouterInfo> {
 @formatterCollections({
   code: [modelCode, 'hivp.bill', 'htc.common'],
 })
-export default class BillDetailPage extends Component<BillPoolDetailPageProps> {
+export default class BillPoolDetailPage extends Component<BillPoolDetailPageProps> {
   state = { billType: '' };
 
   // 行DS
@@ -112,8 +112,8 @@ export default class BillDetailPage extends Component<BillPoolDetailPageProps> {
     if (billType === 'BLOCK_CHAIN' || (billType === 'GENERAL_MACHINE_INVOICE' && judgeLength)) {
       const invoiceAmount = this.detailDS.current!.get('invoiceAmount');
       let totalAmount = 0;
-      for (let i = 0; i < this.linesDS.toData().length; i++) {
-        const { amount }: any = this.linesDS.toData()[i];
+      for (const element of this.linesDS.toData()) {
+        const { amount }: any = element;
         if (amount === undefined) {
           return;
         }
@@ -163,7 +163,7 @@ export default class BillDetailPage extends Component<BillPoolDetailPageProps> {
                   <Select
                     name="billType"
                     colSpan={2}
-                    onChange={(value) => this.setState({ billType: value })}
+                    onChange={value => this.setState({ billType: value })}
                   />
                   <TextField name="isInvoiceSeal" colSpan={2} />
                   {/* --- */}

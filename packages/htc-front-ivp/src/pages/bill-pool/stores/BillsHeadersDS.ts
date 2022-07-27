@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-12 16:29:24
- * @LastEditTime: 2021-03-03 17:48:08
+ * @LastEditTime: 2022-07-26 15:42:49
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -27,7 +27,7 @@ const requiredByBillType = (record, name) => {
 
 // 票价（fare)、aviationDevelopmentFund(民航发展基金)、total(发票总金额)、fuelSurcharge(燃油附加费)、otherTaxes(其他税费)
 // 行程单计算
-const flightAmount = (record) => {
+const flightAmount = record => {
   const total = Number(record.get('total')) || 0;
   const fare = Number(record.get('fare')) || 0;
   const aviationDevelopmentFund = Number(record.get('aviationDevelopmentFund')) || 0;
@@ -39,16 +39,11 @@ const flightAmount = (record) => {
   const invoiceAmount = Number(((1000 * totalAmount) / ((1 + taxRate) * 1000)).toFixed(2));
   const taxAmount = ((totalAmount * 100 - invoiceAmount * 100) / 100).toFixed(2);
   record.set({ totalAmount, invoiceAmount, taxAmount });
-  // if (total === calTotal) {
-  //   record.set({ totalAmount: fare + fuelSurcharge });
-  // } else {
-  //   record.set({ totalAmount: total - otherTaxes });
-  // }
 };
 
 // taxRate(税率)、totalAmount(价税合计)、invoiceAmount(发票金额)、taxAmount(发票税额)
 // 金额计算
-const getBillAmount = (record) => {
+const getBillAmount = record => {
   const taxRate = Number(record.get('taxRate')) || 0;
   const totalAmount = Number(record.get('totalAmount')) || 0;
   const invoiceAmount = Number(((1000 * totalAmount) / ((1 + taxRate) * 1000)).toFixed(2));
@@ -62,8 +57,12 @@ const getBillAmount = (record) => {
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
-  const halfYearStart = moment().subtract(6, 'months').startOf('month');
-  const yearStart = moment().subtract(12, 'months').startOf('month');
+  const halfYearStart = moment()
+    .subtract(6, 'months')
+    .startOf('month');
+  const yearStart = moment()
+    .subtract(12, 'months')
+    .startOf('month');
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -251,7 +250,7 @@ export default (): DataSetProps => {
         computedProps: {
           required: ({ record, name }) => requiredByBillType(record, name),
         },
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'invoiceAmount',
@@ -491,7 +490,7 @@ export default (): DataSetProps => {
         name: 'ticketCollectorDate',
         label: intl.get(`${modelCode}.view.ticketCollectorDate`).d('收票日期'),
         type: FieldType.date,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       // {
       //   name: 'abnormalSign',
@@ -531,7 +530,7 @@ export default (): DataSetProps => {
         name: 'entryAccountDate',
         label: intl.get(`${modelCode}.view.entryAccountDate`).d('入账日期'),
         type: FieldType.date,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'entryPoolDatetime',
@@ -674,14 +673,14 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.invoiceDateFrom`).d('开票日期从'),
           type: FieldType.date,
           bind: 'invoiceDate.invoiceDateFrom',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'invoiceDateTo',
           label: intl.get(`${modelCode}.view.invoiceDateTo`).d('开票日期至'),
           type: FieldType.date,
           bind: 'invoiceDate.invoiceDateTo',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'ticketCollectorDate',
@@ -700,14 +699,14 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.ticketCollectorDateFrom`).d('收票日期从'),
           type: FieldType.date,
           bind: 'ticketCollectorDate.ticketCollectorDateFrom',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'ticketCollectorDateTo',
           label: intl.get(`${modelCode}.view.ticketCollectorDateTo`).d('收票日期至'),
           type: FieldType.date,
           bind: 'ticketCollectorDate.ticketCollectorDateTo',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'ticketCollectorObj',
@@ -739,14 +738,14 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.entryAccountDateFrom`).d('入账日期从'),
           type: FieldType.date,
           bind: 'entryAccountDate.entryAccountDateFrom',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'entryAccountDateTo',
           label: intl.get(`${modelCode}.view.entryAccountDateTo`).d('入账日期至'),
           type: FieldType.date,
           bind: 'entryAccountDate.entryAccountDateTo',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'recordState',
@@ -783,8 +782,11 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.entryPoolDatetimeTo`).d('进池日期至'),
           type: FieldType.date,
           bind: 'entryPoolDatetime.entryPoolDatetimeTo',
-          transformRequest: (value) =>
-            value && moment(value).endOf('day').format(DEFAULT_DATETIME_FORMAT),
+          transformRequest: value =>
+            value &&
+            moment(value)
+              .endOf('day')
+              .format(DEFAULT_DATETIME_FORMAT),
         },
         {
           name: 'salerName',

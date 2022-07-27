@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-30 14:36:45
- * @LastEditTime:
+ * @LastEditTime: 2022-07-26 17:25:35
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -19,7 +19,6 @@ const modelCode = 'hivp.taxRefund.confirm';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
-  // const API_PREFIX = `${commonConfig.IVP_API}-31183`;
   const tenantId = getCurrentOrganizationId();
   return {
     transport: {
@@ -75,7 +74,7 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.invoiceDate`).d('开票日期'),
         type: FieldType.date,
         required: true,
-        transformResponse: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformResponse: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'buyerTaxNo',
@@ -241,14 +240,14 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.invoiceDateFrom`).d('勾选日期从'),
           type: FieldType.date,
           max: 'invoiceDateTo',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'invoiceDateTo',
           label: intl.get(`${modelCode}.view.invoiceDateTo`).d('勾选日期至'),
           type: FieldType.date,
           min: 'invoiceDateFrom',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'number',

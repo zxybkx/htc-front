@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-21 17:30:52
- * @LastEditTime: 2021-03-05 15:32:50
+ * @LastEditTime: 2022-07-26 15:36:47
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -30,7 +30,7 @@ interface InvoicesLinesPageProps extends RouteComponentProps<RouterInfo> {
 @formatterCollections({
   code: [modelCode, 'hcan.invoiceDetail', 'htc.common'],
 })
-export default class InvoicesLinesPage extends Component<InvoicesLinesPageProps> {
+export default class BillsLinesPage extends Component<InvoicesLinesPageProps> {
   lineDS = new DataSet({
     autoQuery: true,
     ...BillsLinesDS(this.props.match.params.billPoolHeaderId),

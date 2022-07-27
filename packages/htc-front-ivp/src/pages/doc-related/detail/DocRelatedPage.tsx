@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { Header, Content } from 'components/Page';
 import { Bind } from 'lodash-decorators';
 import intl from 'utils/intl';
@@ -46,7 +45,6 @@ interface DocRelatedPageProps extends RouteComponentProps<RouterInfo> {
 @formatterCollections({
   code: [modelCode, 'hivp.invoicesArchiveUpload', 'htc.common', 'hivp.batchCheck'],
 })
-@connect()
 @formatterCollections({
   code: [
     modelCode,
@@ -93,7 +91,6 @@ export default class DocRelatedPage extends Component<DocRelatedPageProps> {
     }
     await this.invoiceDS.query();
     const { search } = this.props.location;
-    // const { sourceCode } = this.props.match.params;
     const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
     if (invoiceInfoStr) {
       const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
@@ -243,14 +240,14 @@ export default class DocRelatedPage extends Component<DocRelatedPageProps> {
   }
 
   get columns(): ColumnProps[] {
-    const isEdit = (record) => !record.get('detailId');
+    const isEdit = record => !record.get('detailId');
     return [
-      { name: 'systemObj', editor: (record) => isEdit(record) },
-      { name: 'documentTypeObj', editor: (record) => isEdit(record) },
-      { name: 'documentNumber', editor: (record) => isEdit(record) },
+      { name: 'systemObj', editor: record => isEdit(record) },
+      { name: 'documentTypeObj', editor: record => isEdit(record) },
+      { name: 'documentNumber', editor: record => isEdit(record) },
       // { name: 'documentSourceId', width: 110, editor: true },
-      { name: 'documentSourceKey', editor: (record) => record.getState('editing') },
-      { name: 'documentRemark', width: 300, editor: (record) => record.getState('editing') },
+      { name: 'documentSourceKey', editor: record => record.getState('editing') },
+      { name: 'documentRemark', width: 300, editor: record => record.getState('editing') },
       {
         name: 'receiptsState',
         renderer: ({ record }) => {

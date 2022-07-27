@@ -22,8 +22,10 @@ const modelCode = 'hivp.invoices';
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
-  const halfYearStart = moment().subtract(6, 'months').startOf('month');
-  // const yearStart = moment().subtract(12, 'months').startOf('month');
+  const halfYearStart = moment()
+    .subtract(6, 'months')
+    .startOf('month');
+
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -146,7 +148,7 @@ export default (): DataSetProps => {
         label: intl.get(`htc.common.view.invoiceDate`).d('开票日期'),
         type: FieldType.date,
         required: true,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'invoiceAmount',
@@ -675,7 +677,7 @@ export default (): DataSetProps => {
         name: 'ticketCollectorDate',
         label: intl.get(`hivp.bill.view.ticketCollectorDate`).d('收票日期'),
         type: FieldType.date,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'abnormalSign',
@@ -712,7 +714,7 @@ export default (): DataSetProps => {
         name: 'entryAccountDate',
         label: intl.get(`hivp.bill.view.entryAccountDate`).d('入账日期'),
         type: FieldType.date,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'entryPoolDatetime',
@@ -771,11 +773,11 @@ export default (): DataSetProps => {
             const employeeDesc = `${companyCode}-${employeeNum}-${employeeName}-${mobile}`;
             record.set('employeeDesc', employeeDesc);
           }
-          if(name === 'systemCodeObj') {
+          if (name === 'systemCodeObj') {
             record.set('documentTypeCodeObj', null);
             record.set('documentNumberObj', null);
           }
-          if(name === 'documentTypeCodeObj') {
+          if (name === 'documentTypeCodeObj') {
             record.set('documentNumberObj', null);
           }
         },
@@ -866,14 +868,14 @@ export default (): DataSetProps => {
           label: intl.get(`hivp.bill.view.invoiceDateFrom`).d('开票日期从'),
           type: FieldType.date,
           bind: 'invoiceDate.invoiceDateFrom',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'invoiceDateTo',
           label: intl.get(`hivp.bill.view.invoiceDateTo`).d('开票日期至'),
           type: FieldType.date,
           bind: 'invoiceDate.invoiceDateTo',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'ticketCollectorDate',
@@ -892,14 +894,14 @@ export default (): DataSetProps => {
           label: intl.get(`hivp.bill.view.ticketCollectorDateFrom`).d('收票日期从'),
           type: FieldType.date,
           bind: 'ticketCollectorDate.ticketCollectorDateFrom',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'ticketCollectorDateTo',
           label: intl.get(`hivp.bill.view.ticketCollectorDateTo`).d('收票日期至'),
           type: FieldType.date,
           bind: 'ticketCollectorDate.ticketCollectorDateTo',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'entryAccountDate',
@@ -918,14 +920,14 @@ export default (): DataSetProps => {
           label: intl.get(`hivp.bill.view.entryAccountDateFrom`).d('入账日期从'),
           type: FieldType.date,
           bind: 'entryAccountDate.entryAccountDateFrom',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'entryAccountDateTo',
           label: intl.get(`hivp.bill.view.entryAccountDateTo`).d('入账日期至'),
           type: FieldType.date,
           bind: 'entryAccountDate.entryAccountDateTo',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'entryPoolDatetime',
@@ -950,8 +952,11 @@ export default (): DataSetProps => {
           label: intl.get(`hivp.bill.view.entryPoolDatetimeTo`).d('进池日期至'),
           type: FieldType.date,
           bind: 'entryPoolDatetime.entryPoolDatetimeTo',
-          transformRequest: (value) =>
-            value && moment(value).endOf('day').format(DEFAULT_DATETIME_FORMAT),
+          transformRequest: value =>
+            value &&
+            moment(value)
+              .endOf('day')
+              .format(DEFAULT_DATETIME_FORMAT),
         },
         {
           name: 'warehousingDate',
@@ -970,14 +975,14 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.warehousingDateFrom`).d('入库日期从'),
           type: FieldType.date,
           bind: 'warehousingDate.warehousingDateFrom',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'warehousingDateTo',
           label: intl.get(`${modelCode}.view.warehousingDateTo`).d('入库日期至'),
           type: FieldType.date,
           bind: 'warehousingDate.warehousingDateTo',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'checkDate',
@@ -996,14 +1001,14 @@ export default (): DataSetProps => {
           label: intl.get(`hivc.select.model.select.tickDateFrom`).d('勾选日期从'),
           type: FieldType.date,
           bind: 'checkDate.checkDateFrom',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'checkDateTo',
           label: intl.get(`hivc.select.model.select.tickDateTo`).d('勾选日期至'),
           type: FieldType.date,
           bind: 'checkDate.checkDateTo',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'displayOptions',

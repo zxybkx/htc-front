@@ -12,7 +12,7 @@ import { routerRedux } from 'dva/router';
 import { Header, Content } from 'components/Page';
 import { Bind } from 'lodash-decorators';
 import intl from 'utils/intl';
-import querystring from 'querystring';
+import queryString from 'query-string';
 import { Col, Row, Tag } from 'choerodon-ui';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import {
@@ -50,8 +50,9 @@ interface DocumentTypePageProps {
 })
 export default class DocumentTypePage extends Component<DocumentTypePageProps> {
   state = {
-    getMoreTag: true
+    getMoreTag: true,
   };
+
   tableLineDS = new DataSet({
     autoQuery: false,
     ...DocumentTypeLineDS(),
@@ -93,7 +94,7 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
       Modal.confirm({
         key: Modal.key,
         title,
-      }).then((button) => {
+      }).then(button => {
         if (button === 'ok') {
           record.set({ enabledFlag: 0, endDate: new Date() });
           if (sourceFlag === 'H') {
@@ -114,7 +115,7 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
     dispatch(
       routerRedux.push({
         pathname,
-        search: querystring.stringify({
+        search: queryString.stringify({
           linesInfo: encodeURIComponent(
             JSON.stringify({
               systemCode: headerRec.systemCode,
@@ -350,7 +351,6 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
    */
   @Bind()
   handleAddLine() {
-    // this.tableLineDS.reset();
     const docTypeHeaderId = this.tableHeaderDS.current!.get('docTypeHeaderId');
     if (docTypeHeaderId) {
       this.tableLineDS.create({ docTypeHeaderId }, 0);
@@ -481,6 +481,7 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
     });
     return <Bread dataSet={this.tableHeaderDS} />;
   }
+
   //
   /**
    * @description: 租户数据滑动底部触发函数
@@ -492,10 +493,11 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
       this.tableHeaderDS.queryMore(this.tableHeaderDS.currentPage + 1);
     } else {
       this.setState({
-        getMoreTag: false
-      })
+        getMoreTag: false,
+      });
     }
   }
+
   render() {
     return (
       <>
@@ -528,13 +530,17 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
                   showHeader={false}
                   aggregation
                 />
-                {
-                  this.state.getMoreTag && <div style={{ textAlign: 'center' }} >
-                    <Button funcType={FuncType.flat} color={ButtonColor.primary} onClick={this.tableHeaderScroll}>
+                {this.state.getMoreTag && (
+                  <div style={{ textAlign: 'center' }}>
+                    <Button
+                      funcType={FuncType.flat}
+                      color={ButtonColor.primary}
+                      onClick={this.tableHeaderScroll}
+                    >
                       {intl.get('hzero.common.view.message.loadMore').d('加载更多')}
                     </Button>
                   </div>
-                }
+                )}
               </div>
             </Content>
           </Col>

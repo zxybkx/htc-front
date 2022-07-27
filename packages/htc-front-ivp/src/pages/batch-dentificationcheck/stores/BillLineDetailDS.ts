@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-13 16:07:22
- * @LastEditTime: 2021-01-28 10:44:42
+ * @LastEditTime: 2022-07-26 15:06:26
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -124,8 +124,7 @@ export default (): DataSetProps => {
         name: 'taxRate',
         label: intl.get('htc.common.view.taxRate').d('税率'),
         type: FieldType.string,
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(taxRateValidator(value, name, record))),
+        validator: (value, name, record) => Promise.resolve(taxRateValidator(value, name, record)),
         required: true,
       },
       {

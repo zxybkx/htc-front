@@ -42,7 +42,7 @@ interface ApplyDeductionPageProps extends RouteComponentProps {
     'hivp.batchCheck',
   ],
 })
-export default class ApplyDeductionPage extends Component<ApplyDeductionPageProps> {
+export default class BatchCheckDetailTable extends Component<ApplyDeductionPageProps> {
   batchCheckDetailDS = new DataSet({
     ...BatchCheckDetailDS(this.props.match.params),
   });
@@ -169,8 +169,6 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
               textColor = '#FF9D23';
               break;
             default:
-              color = '';
-              textColor = '';
               break;
           }
           return (
@@ -192,7 +190,7 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
       { name: 'taxAmount', width: 150 },
       {
         name: 'validTaxAmount',
-        editor: (record) => record.getState('editing') && record.get('checkState') === '0',
+        editor: record => record.getState('editing') && record.get('checkState') === '0',
         width: 150,
       },
       { name: 'invoiceState' },
