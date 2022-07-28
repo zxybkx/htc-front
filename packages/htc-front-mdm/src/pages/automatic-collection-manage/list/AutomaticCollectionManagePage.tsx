@@ -300,7 +300,6 @@ export default class AutomaticCollectionManagePage extends Component<
         header: intl.get('hzero.common.action').d('操作'),
         width: 120,
         renderer: ({ record }) => this.operationsRender(record),
-        // lock: ColumnLock.right,
       },
     ];
   }
