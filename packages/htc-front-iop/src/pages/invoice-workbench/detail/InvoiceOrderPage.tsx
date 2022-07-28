@@ -199,14 +199,18 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     ) {
       if (sourceType !== 'invoiceReq' && invoiceSourceType !== 'APPLY') {
         this.setState({ isDisabled: false, submitDisabled: !!hasPermission });
+        this.invoiceOrderHeaderDS.current!.set({ readonly: false });
       } else {
         this.setState({ isDisabled: true, submitDisabled: !!hasPermission });
+        this.invoiceOrderHeaderDS.current!.set({ readonly: true });
       }
     } else {
       this.setState({ isDisabled: true, submitDisabled: false });
+      this.invoiceOrderHeaderDS.current!.set({ readonly: true });
     }
     if (orderStatus === 'N' && billingType === 2 && invoiceSourceType === 'RED_INFO') {
       this.setState({ isDisabled: false, submitDisabled: !!hasPermission });
+      this.invoiceOrderHeaderDS.current!.set({ readonly: false });
     }
   }
 
@@ -1309,7 +1313,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   };
 
   render() {
-    const { employeeInfo, invoiceVarietyOpt, purchaseMark } = this.state;
+    const { invoiceVarietyOpt, purchaseMark } = this.state;
     const { sourceType, companyId, invoicingOrderHeaderId } = this.props.match.params;
     let pathname;
     if (['issues', 'invoiceOrder'].includes(sourceType)) {
@@ -1344,17 +1348,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
               dataSet={this.invoiceOrderHeaderDS}
               excludeUseColonTagList={['Radio']}
             >
-              <TextField
-                label={intl.get('htc.common.modal.companyName').d('所属公司')}
-                value={(employeeInfo && employeeInfo.companyName) || ''}
-              />
-              {/* <TextField
-                label={intl.get(`${modelCode}.view.employeeDesc`).d('登录员工')}
-                value={this.renderEmployeeDesc}
-              /> */}
               <TextField name="orderNumber" />
               <Select name="invoiceSourceType" />
               <TextField name="invoiceSourceOrder" />
+              <TextField name="invoiceSourceFlag" />
 
               <Select name="purchaseInvoiceFlag" onChange={this.invoiceFlagChange}>
                 {purchaseMark.map((item: any) => (

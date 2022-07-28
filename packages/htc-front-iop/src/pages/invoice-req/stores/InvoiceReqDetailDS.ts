@@ -58,6 +58,12 @@ const headerReadOnlyRule = record => {
   );
 };
 
+const sourceReadOnlyRule = record => {
+  return (
+    headerReadOnlyRule(record) || !['1', '3', '4', '5', '6'].includes(record.get('sourceType'))
+  );
+};
+
 const setNextDefault = (record, value, oldValue, dsParams, receiptName) => {
   const invoiceType = record.get('invoiceType');
   if (value !== oldValue && receiptName && invoiceType) {
@@ -575,13 +581,17 @@ export default (dsParams): DataSetProps => {
         name: 'sourceNumber1',
         label: intl.get('hiop.invoiceReq.modal.sourceNumber1').d('来源单号1'),
         type: FieldType.string,
-        readOnly: true,
+        computedProps: {
+          readOnly: ({ record }) => sourceReadOnlyRule(record),
+        },
       },
       {
         name: 'sourceNumber2',
         label: intl.get('hiop.invoiceReq.modal.sourceNumber2').d('来源单号2'),
         type: FieldType.string,
-        readOnly: true,
+        computedProps: {
+          readOnly: ({ record }) => sourceReadOnlyRule(record),
+        },
       },
       {
         name: 'reservationCode',

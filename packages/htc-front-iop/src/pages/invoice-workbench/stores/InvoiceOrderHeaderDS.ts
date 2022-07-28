@@ -24,22 +24,9 @@ const tenantId = getCurrentOrganizationId();
  */
 const headerReadOnlyRule = record => {
   return (
-    judgeReadOnly(record) ||
+    record.get('readonly') ||
     (record.getPristineValue('billingType') === '2' && record.get('orderStatus') === 'Q')
   );
-};
-
-const judgeReadOnly = record => {
-  const headerData = record.toData();
-  const { orderStatus, billingType, sourceType, invoiceSourceType } = headerData;
-  if (
-    (orderStatus === 'N' && billingType === 1) ||
-    (orderStatus === 'Q' && [1, 2].includes(billingType))
-  ) {
-    return !(sourceType !== 'invoiceReq' && invoiceSourceType !== 'APPLY');
-  } else {
-    return !(orderStatus === 'N' && billingType === 2 && invoiceSourceType === 'RED_INFO');
-  }
 };
 
 /**
@@ -122,6 +109,13 @@ const setCustomerInfo = (value, oldValue, record, type, companyId) => {
     };
     setDefaultInvoiceInfo(params, record);
   }
+};
+
+const judgeSource = record => {
+  return (
+    record.get('readonly') ||
+    !['MANUAL', 'LEADING_IN', 'ORDER_COPY'].includes(record.get('invoiceSourceType'))
+  );
 };
 
 export default (dsParams): DataSetProps => {
@@ -380,7 +374,7 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         maxLength: 200,
         computedProps: {
-          readOnly: ({ record }) => judgeReadOnly(record),
+          readOnly: ({ record }) => record.get('readonly'),
         },
       },
       {
@@ -389,7 +383,7 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
-            judgeReadOnly(record) ||
+            record.get('readonly') ||
             record.get('invoiceVariety') === '51' ||
             record.get('invoiceVariety') === '52',
         },
@@ -410,7 +404,7 @@ export default (dsParams): DataSetProps => {
         trueValue: 1,
         falseValue: 0,
         computedProps: {
-          readOnly: ({ record }) => judgeReadOnly(record),
+          readOnly: ({ record }) => record.get('readonly'),
         },
       },
       {
@@ -436,7 +430,7 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         computedProps: {
           required: ({ record }) => record.get('deliveryWay') === '1',
-          readOnly: ({ record }) => judgeReadOnly(record) || record.get('deliveryWay') !== '1',
+          readOnly: ({ record }) => record.get('readonly') || record.get('deliveryWay') !== '1',
           pattern: ({ record }) => {
             if (record.get('electronicReceiverInfo')) {
               if (record.get('electronicReceiverInfo').indexOf('@') > -1) {
@@ -455,7 +449,7 @@ export default (dsParams): DataSetProps => {
         lovCode: 'HMDM.EMPLOYEE_NAME',
         cascadeMap: { companyId: 'companyId' },
         computedProps: {
-          readOnly: ({ record }) => judgeReadOnly(record),
+          readOnly: ({ record }) => record.get('readonly'),
         },
         ignore: FieldIgnore.always,
       },
@@ -472,7 +466,7 @@ export default (dsParams): DataSetProps => {
         lovCode: 'HMDM.EMPLOYEE_NAME',
         cascadeMap: { companyId: 'companyId' },
         computedProps: {
-          readOnly: ({ record }) => judgeReadOnly(record),
+          readOnly: ({ record }) => record.get('readonly'),
         },
         // required: true,
         ignore: FieldIgnore.always,
@@ -490,7 +484,7 @@ export default (dsParams): DataSetProps => {
         lovCode: 'HMDM.EMPLOYEE_NAME',
         cascadeMap: { companyId: 'companyId' },
         computedProps: {
-          readOnly: ({ record }) => judgeReadOnly(record),
+          readOnly: ({ record }) => record.get('readonly'),
         },
         required: true,
         ignore: FieldIgnore.always,
@@ -511,7 +505,7 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码'),
         type: FieldType.string,
         computedProps: {
-          readOnly: ({ record }) => record.get('isRedMark') !== 'Y' || judgeReadOnly(record),
+          readOnly: ({ record }) => record.get('isRedMark') !== 'Y' || record.get('readonly'),
         },
       },
       {
@@ -519,7 +513,7 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码'),
         type: FieldType.string,
         computedProps: {
-          readOnly: ({ record }) => record.get('isRedMark') !== 'Y' || judgeReadOnly(record),
+          readOnly: ({ record }) => record.get('isRedMark') !== 'Y' || record.get('readonly'),
         },
       },
       {
@@ -589,7 +583,17 @@ export default (dsParams): DataSetProps => {
         name: 'invoiceSourceOrder',
         label: intl.get('hiop.invoiceWorkbench.modal.invoiceSourceOrder').d('来源单号'),
         type: FieldType.string,
-        readOnly: true,
+        computedProps: {
+          readOnly: ({ record }) => judgeSource(record),
+        },
+      },
+      {
+        name: 'invoiceSourceFlag',
+        label: intl.get('hiop.invoiceWorkbench.modal.sourceIdentification').d('来源标识'),
+        type: FieldType.string,
+        computedProps: {
+          readOnly: ({ record }) => judgeSource(record),
+        },
       },
     ],
   };
