@@ -13,7 +13,7 @@ import { Result } from 'choerodon-ui';
 
 const modelCode = 'hmdm.apply-tenant-result';
 
-export default class ResultPage extends Component {
+export default class SuccessPage extends Component {
   render() {
     return (
       <Content>

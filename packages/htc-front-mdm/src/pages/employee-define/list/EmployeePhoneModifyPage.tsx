@@ -54,10 +54,10 @@ export default class EmployeePhoneModifyPage extends Component<EmployeePhoneModi
   componentDidMount() {
     const { companyId } = this.props;
     this.headerDS.create({}, 0);
-    this.linesDS.query().then((res) => {
+    this.linesDS.query().then(res => {
       if (res && res.length > 0) {
         remove(res, (item: any) => toNumber(item.companyId) === toNumber(companyId));
-        if (res && res.length > 0) {
+        if (res.length > 0) {
           this.setState({ isDisabled: false });
         }
       }
@@ -97,15 +97,15 @@ export default class EmployeePhoneModifyPage extends Component<EmployeePhoneModi
       return;
     }
     const { email, mobile, companyId } = this.props;
-    const list = this.linesDS.map((record) => record.toData());
-    const selectlist = this.linesDS.selected.map((record) => record.toData());
+    const list = this.linesDS.map(record => record.toData());
+    const selectlist = this.linesDS.selected.map(record => record.toData());
     remove(list, (item: any) => toNumber(item.companyId) === toNumber(companyId));
     const listLen = list.length;
     const selectLen = selectlist.length;
     let companyIds = companyId;
     if (selectLen > 0) {
       companyIds += ',';
-      companyIds += this.linesDS.selected.map((rec) => rec.toData().companyId).join(',');
+      companyIds += this.linesDS.selected.map(rec => rec.toData().companyId).join(',');
     }
     const curInfo = this.headerDS.current!.toData();
     if (createAccountFlag === 1) {
@@ -166,7 +166,7 @@ export default class EmployeePhoneModifyPage extends Component<EmployeePhoneModi
             dataSet={this.linesDS}
             columns={this.columns}
             queryBar={TableQueryBarType.none}
-            filter={(record) => record.get('companyId') !== this.props.companyId}
+            filter={record => record.get('companyId') !== this.props.companyId}
             // style={{ height: 400 }}
           />
           <div style={{ position: 'absolute', right: '0.3rem', bottom: '0.3rem' }}>

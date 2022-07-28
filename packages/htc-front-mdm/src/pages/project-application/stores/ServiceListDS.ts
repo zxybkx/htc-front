@@ -15,7 +15,6 @@ import { AxiosRequestConfig } from 'axios';
 const modelCode = 'hmdm.apply-tenantList';
 
 export default (dsParams): DataSetProps => {
-  // const API_PREFIX = `${commonConfig.MDM_API}-30455` || '';
   const API_PREFIX = commonConfig.MDM_API || '';
   return {
     transport: {

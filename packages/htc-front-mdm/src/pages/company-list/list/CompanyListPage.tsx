@@ -9,7 +9,6 @@ import React, { Component } from 'react';
 import { Content, Header } from 'components/Page';
 import { Bind } from 'lodash-decorators';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import queryString from 'query-string';
 import commonConfig from '@htccommon/config/commonConfig';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
@@ -39,7 +38,6 @@ interface CompanyListPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
 }
 
-@connect()
 export default class CompanyListPage extends Component<CompanyListPageProps> {
   tableDS = new DataSet({
     autoQuery: true,
@@ -133,7 +131,7 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
       Modal.confirm({
         key: modalKey,
         title,
-      }).then((button) => {
+      }).then(button => {
         if (button === 'ok') {
           this.tableDS.current!.set({ enabledFlag: 0 });
           this.handleSave();
@@ -152,11 +150,6 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
     const companyId = record.get('companyId');
     const pathname = `/htc-front-mdm/company/detail/${companyId}`;
     history.push(pathname);
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname,
-    //   })
-    // );
   }
 
   /**
@@ -171,7 +164,7 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
       },
-      onClick: (e) => {
+      onClick: e => {
         const { target } = e;
         if (target.style.whiteSpace === 'normal') {
           target.style.whiteSpace = 'nowrap';
@@ -187,16 +180,15 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
    */
   @Bind
   getFilterFormValues() {
-    const selectList = this.tableDS.selected.map((item) => item.toData());
-    const selectRowKeys = selectList.map((item) => item.archivesId);
-    const exportParam = selectRowKeys
+    const selectList = this.tableDS.selected.map(item => item.toData());
+    const selectRowKeys = selectList.map(item => item.archivesId);
+    return selectRowKeys
       ? {
           archivesIdList: selectRowKeys.join(','),
         }
       : {
           archivesIdList: null,
         };
-    return exportParam;
   }
 
   /**
@@ -372,14 +364,13 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
    */
   @Bind()
   handleGetQueryParams() {
-    const queryParams = this.tableDS.queryDataSet!.map((data) => data.toData()) || {};
+    const queryParams = this.tableDS.queryDataSet!.map(data => data.toData()) || {};
     for (const key in queryParams[0]) {
       if (queryParams[0][key] === '' || queryParams[0][key] === null) {
         delete queryParams[0][key];
       }
     }
-    const exportParams = { ...queryParams[0] } || {};
-    return exportParams;
+    return { ...queryParams[0] } || {};
   }
 
   /**
