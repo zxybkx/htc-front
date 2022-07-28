@@ -2,7 +2,7 @@
  * @Description:开票订单页面
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2020-12-10 11:18:22
- * @LastEditTime: 2022-07-20 13:41:57
+ * @LastEditTime: 2022-07-28 10:22:02
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -58,13 +58,15 @@ import {
 import { judgeRedFlush } from '@src/services/invoiceReqService';
 import { paperDeliverNotice, electronicRePush } from '@src/services/deliverInvoiceService';
 import MenuItem from 'choerodon-ui/lib/menu/MenuItem';
-import InvoiceWorkbenchDS from '../stores/InvoiceWorkbenchDS';
-import DeliverInfoDS from "../stores/DeliverInfoDs";
 import { ResizeType } from 'choerodon-ui/pro/lib/text-area/enum';
+import InvoiceWorkbenchDS from '../stores/InvoiceWorkbenchDS';
+import DeliverInfoDS from '../stores/DeliverInfoDs';
+
 enum ModalType {
   electronic,
   paper,
 }
+
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.IOP_API || '';
 const permissionPath = `${getPresentMenu().name}.ps`;
@@ -83,7 +85,7 @@ interface InvoiceWorkbenchPageProps extends RouteComponentProps {
 
     return { invoiceWorkbenchDS };
   },
-  { cacheState: true }
+  { cacheState: true },
 )
 @formatterCollections({
   code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.tobeInvoice', 'hiop.invoiceReq'],
@@ -92,12 +94,14 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   state = {
     curCompanyId: undefined,
     showMore: false,
-    deliverModalTag: true,//true 批量交付 false 单个交付
+    deliverModalTag: true, // true 批量交付 false 单个交付
   };
+
   deliverInfoDS = dsParams => new DataSet({
     autoCreate: true,
     ...DeliverInfoDS(dsParams),
   });
+
   async componentDidMount() {
     const { queryDataSet } = this.props.invoiceWorkbenchDS;
     if (queryDataSet) {
@@ -145,8 +149,6 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       queryMoreArray.push(<TextField name="invoiceNo" />);
       queryMoreArray.push(<Select name="printFlag" />);
       queryMoreArray.push(<DateTimePicker name="submitDates" />);
-      // queryMoreArray.push(<DateTimePicker name="submitDate" />);
-      // queryMoreArray.push(<DateTimePicker name="submitDateTo" />);
 
       queryMoreArray.push(<Select name="purchaseInvoiceFlag" />);
       queryMoreArray.push(<Select name="billingType" />);
@@ -337,7 +339,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       const curInfo = queryDataSet.current!.toData();
       const { companyObj } = curInfo;
       history.push(
-        `/htc-front-iop/invoice-workbench/invoice-order/invoiceOrder/${companyObj.companyId}`
+        `/htc-front-iop/invoice-workbench/invoice-order/invoiceOrder/${companyObj.companyId}`,
       );
     }
   }
@@ -361,11 +363,11 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   @Bind()
   async handleBatchSubmit() {
     const submitOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
-      record.toData()
+      record.toData(),
     );
     const unNew = find(
       submitOrderHeaderList,
-      (item) => item.orderStatus !== 'N' && item.orderStatus !== 'Q'
+      (item) => item.orderStatus !== 'N' && item.orderStatus !== 'Q',
     );
     if (unNew) {
       return notification.warning({
@@ -404,11 +406,11 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   @Bind()
   async handleBatchCancel() {
     const cancelOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
-      record.toData()
+      record.toData(),
     );
     const unCancel = find(
       cancelOrderHeaderList,
-      (item) => item.orderStatus !== 'E' && item.orderStatus !== 'I'
+      (item) => item.orderStatus !== 'E' && item.orderStatus !== 'I',
     );
     if (unCancel) {
       return notification.warning({
@@ -427,11 +429,11 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   @Bind()
   async handleBatchDelete() {
     const invoicingOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
-      record.toData()
+      record.toData(),
     );
     const unNew = find(
       invoicingOrderHeaderList,
-      (item) => item.orderStatus !== 'N' && item.orderStatus !== 'Q'
+      (item) => item.orderStatus !== 'N' && item.orderStatus !== 'Q',
     );
     if (unNew) {
       return notification.warning({
@@ -443,7 +445,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     }
     this.handledDeleteOrder(invoicingOrderHeaderList);
   }
-  modalDeliver;//批量交付form对象
+
+  modalDeliver;
+
+// 批量交付form对象
   /**
    * @description:纸质交付模态框
    * @function: modalPaperDomRender
@@ -473,11 +478,12 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
             color={ButtonColor.primary}
             onClick={this.handlePaperDeliverNotice}
           >{intl.get('hiop.invoiceWorkbench.btn.sendNotice')
-            .d('发送交付通知')}</Button>
+            .d('发送交付通知')}
+          </Button>
         </div>
       ),
       children: (
-        <Form ref={(node) => this.modalDeliver = node} dataSet={dataSet}>
+        <Form ref={(node) => { this.modalDeliver = node; }} dataSet={dataSet}>
           <TextArea name='invoiceInformation' resize={ResizeType.vertical} />
           <Select name='postLogisticsCompany' />
           <TextField name='postalLogisticsSingleNumber' />
@@ -488,6 +494,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       ),
     });
   }
+
   /**
    * @description: 电子交付模态框
    * @function: modalElectronicDomRender
@@ -517,7 +524,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         </div>
       ),
       children: (
-        <Form ref={(node) => this.modalDeliver = node} dataSet={dataSet}>
+        <Form ref={(node) => { this.modalDeliver = node; }} dataSet={dataSet}>
           <TextArea name='invoiceInformation' resize={ResizeType.vertical} />
           <TextField name='receiveNotificationEmail' />
           <TextField name='descr' />
@@ -525,32 +532,50 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       ),
     });
   }
+
   @Bind()
   async handleInvoiceDeliverInfo(record) {
     this.setState({ deliverModalTag: false });
     const lineData = record.toData();
-    const invoiceVariety = lineData.invoiceVariety;
+    const { invoiceVariety } = lineData;
     let dataSet;
     if (invoiceVariety === '51' || invoiceVariety === '52') {
       dataSet = this.deliverInfoDS({
         invoiceOrderHeaderIds: String(lineData.invoicingOrderHeaderId),
         invoiceInformation: `${lineData.invoiceCode} - ${lineData.invoiceNo}`,
-        type: ModalType.electronic
-      })
+        type: ModalType.electronic,
+      });
       // 电子
 
-      this.modalElectronicDomRender(dataSet)
+      this.modalElectronicDomRender(dataSet);
     } else {
       dataSet = this.deliverInfoDS({
         invoiceOrderHeaderIds: String(lineData.invoicingOrderHeaderId),
         invoiceInformation: `${lineData.invoiceCode} - ${lineData.invoiceNo}`,
-        type: ModalType.paper
-      })
+        type: ModalType.paper,
+      });
       // 纸质
-      this.modalPaperDomRender(dataSet)
+      this.modalPaperDomRender(dataSet);
     }
     dataSet.query(1, { params: lineData.invoicingOrderHeaderId });
   }
+
+  @Bind()
+  handleParams(params) {
+    let paramsObj = [];
+    params.forEach(item => {
+      const invoiceOrderHeaderIds = item.invoiceOrderHeaderId ? item.invoiceOrderHeaderId.split(',') : [];
+      paramsObj = item.invoiceInformation.split(',').map((inner, index) => {
+        return {
+          ...item,
+          invoiceInformation: inner,
+          invoiceOrderHeaderId: Number(invoiceOrderHeaderIds[index]),
+        };
+      });
+    });
+    return paramsObj;
+  }
+
   /**
    * @description: 电子发票=>重新推送
    * @function: handleRePush
@@ -558,7 +583,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   @Bind()
   async handleRePush() {
     this.modalDeliver.dataSet.current!.getField('receiveNotificationEmail')!.set('required', true);
-    let params = this.modalDeliver.dataSet.toData();
+    const params = this.modalDeliver.dataSet.toData();
     if (!params[0].receiveNotificationEmail) {
       notification.info({
         description: '',
@@ -566,23 +591,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       });
       return;
     }
-    params.forEach(item => {
-      const invoiceOrderHeaderIds = item.invoiceOrderHeaderId.split(',');
-      params = item.invoiceInformation.split(',').map((inner, index) => {
-        return {
-          ...item,
-          invoiceInformation: inner,
-          invoiceOrderHeaderId: Number(invoiceOrderHeaderIds[index]),
-        }
-      })
-    })
-    const res = await electronicRePush(params);
-    if (res && res.failed) {
-      notification.error({
-        description: '',
-        message: res && res.message,
-      });
-    } else {
+    const res = getResponse(await electronicRePush(this.handleParams(params)));
+    if (res) {
       notification.success({
         description: '',
         message: intl.get('hzero.common.notification.success').d('操作成功'),
@@ -590,6 +600,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       Modal.destroyAll();
     }
   }
+
   /**
    * @description: 发送交付通知
    * @function: handlePaperDeliverNotice
@@ -600,7 +611,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     this.modalDeliver.dataSet.current!.getField('postalLogisticsSingleNumber')!.set('required', true);
     this.modalDeliver.dataSet.current!.getField('receiveNotificationEmail')!.set('required', true);
 
-    let params = this.modalDeliver.dataSet.toData();
+    const params = this.modalDeliver.dataSet.toData();
     if (!params[0].postLogisticsCompany || !params[0].postalLogisticsSingleNumber || !params[0].receiveNotificationEmail) {
       notification.info({
         description: '',
@@ -608,23 +619,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       });
       return;
     }
-    params.forEach(item => {
-      const invoiceOrderHeaderIds = item.invoiceOrderHeaderId ? item.invoiceOrderHeaderId.split(',') : [];
-      params = item.invoiceInformation.split(',').map((inner, index) => {
-        return {
-          ...item,
-          invoiceInformation: inner,
-          invoiceOrderHeaderId: Number(invoiceOrderHeaderIds[index]),
-        }
-      })
-    })
-    const res = await paperDeliverNotice(params);
-    if (res && res.failed) {
-      notification.error({
-        description: '',
-        message: res && res.message,
-      });
-    } else {
+    const res = getResponse(await paperDeliverNotice(this.handleParams(params)));
+    if (res) {
       notification.success({
         description: '',
         message: intl.get('hzero.common.notification.success').d('操作成功'),
@@ -632,6 +628,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       Modal.destroyAll();
     }
   }
+
   /**
    * @description: 批量保存
    * @function: handlePaperDeliver
@@ -641,7 +638,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     if (this.state.deliverModalTag) {
       Modal.confirm({
         children: intl.get('hiop.invoiceWorkbench.notice.saveNoEdit')
-          .d('是否确认保存？保存后无法批量修改。')
+          .d('是否确认保存？保存后无法批量修改。'),
       }).then(async (button) => {
         if (button === 'ok') {
           await this.modalDeliver.dataSet.submit();
@@ -653,6 +650,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       Modal.destroyAll();
     }
   }
+
   /**
    * @description: 电子交付=>批量交付
    * @function: handleBatchDeliver
@@ -661,18 +659,17 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   async handleBatchDeliver() {
     this.setState({ deliverModalTag: true });
     const invoicingOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
-      record.toData()
+      record.toData(),
     );
     const invoiceVarietys = invoicingOrderHeaderList.map(item => item.invoiceVariety);
     const invoiceOrderHeaderIds = invoicingOrderHeaderList.map(item => item.invoicingOrderHeaderId);
-    const invoiceInfos = invoicingOrderHeaderList.map(item => `${item.invoiceCode}-${item.invoiceNo}`)
+    const invoiceInfos = invoicingOrderHeaderList.map(item => `${item.invoiceCode}-${item.invoiceNo}`);
     if (invoicingOrderHeaderList.some(item => item.orderStatus !== 'F')) {
       Modal.warning(intl
         .get('hiop.invoiceWorkbench.notification.waring.noFinish')
         .d('存在未完成订单无法交付'));
       return;
-    };
-    console.log('invoiceOrderHeaderIds', invoiceOrderHeaderIds);
+    }
 
     if ((invoiceVarietys.includes('51') || invoiceVarietys.includes('52'))
       && (invoiceVarietys.includes('0') || invoiceVarietys.includes('2') || invoiceVarietys.includes('41'))) {
@@ -685,8 +682,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       const dataSet = this.deliverInfoDS({
         invoiceOrderHeaderIds: invoiceOrderHeaderIds.join(','),
         invoiceInformation: invoiceInfos.join(','),
-        type: ModalType.electronic
-      })
+        type: ModalType.electronic,
+      });
       // 电子
       this.modalElectronicDomRender(dataSet);
     } else {
@@ -694,8 +691,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       const dataSet = this.deliverInfoDS({
         invoiceOrderHeaderIds: invoiceOrderHeaderIds.join(','),
         invoiceInformation: invoiceInfos.join(','),
-        type: ModalType.paper
-      })
+        type: ModalType.paper,
+      });
       this.modalPaperDomRender(dataSet);
     }
   }
@@ -720,7 +717,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     const invoicingOrderHeaderId = record.get('invoicingOrderHeaderId');
     const companyId = record.get('companyId');
     history.push(
-      `/htc-front-iop/invoice-workbench/invoice-line-void/${invoicingOrderHeaderId}/${companyId}`
+      `/htc-front-iop/invoice-workbench/invoice-line-void/${invoicingOrderHeaderId}/${companyId}`,
     );
   }
 
@@ -737,15 +734,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       tenantId,
       orderHeaderId: invoicingOrderHeaderId,
     };
-    const res = await judgeRedFlush(params);
-    if (res && res.failed) {
-      notification.error({
-        description: '',
-        message: res && res.message,
-      });
-    } else {
+    const res = getResponse(await judgeRedFlush(params));
+    if (res) {
       history.push(
-        `/htc-front-iop/invoice-workbench/invoice-red-flush/${invoicingOrderHeaderId}/${companyId}`
+        `/htc-front-iop/invoice-workbench/invoice-red-flush/${invoicingOrderHeaderId}/${companyId}`,
       );
     }
   }
@@ -780,17 +772,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     });
   }
 
-  /**
-   * 导出打印文件/打印发票
-   * @params {number} type 0-导出打印文件 1-打印发票/打印清单
-   * @params {array} printType-打印类型
-   */
   @Bind()
-  async handleExport(type, printType) {
-    const exportOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
-      record.toData()
-    );
-    const incompatible = find(exportOrderHeaderList, (item) => item.orderStatus !== 'F');
+  async validateExport(type, incompatible, exportOrderHeaderList) {
     const tips = type === 0 ? '无法导出打印文件' : '无法打印发票';
     if (incompatible) {
       return notification.warning({
@@ -802,32 +785,121 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     }
     const unInvoiceState = find(
       exportOrderHeaderList,
-      (item) => item.invoiceVariety === '51' || item.invoiceVariety === '52'
+      (item) => item.invoiceVariety === '51' || item.invoiceVariety === '52',
     );
     if (unInvoiceState) {
-      return notification.warning({
+      notification.warning({
         description: '',
         message: intl
           .get('hiop.invoiceWorkbench.notification.error.type.batchExport', { tips })
           .d(`存在发票种类为电子普票或电子专票的发票，${tips}`),
       });
+      return false;
     }
     const unBillType = find(exportOrderHeaderList, (item) =>
-      ['3', '4', '5'].includes(item.billingType)
+      ['3', '4', '5'].includes(item.billingType),
     );
     if (unBillType) {
-      return notification.warning({
+      notification.warning({
         description: '',
         message: intl
           .get('hiop.invoiceWorkbench.notification.error.invalid.batchExport', { tips })
           .d(`存在作废的发票，${tips}`),
       });
+      return false;
     }
+    return true;
+  }
+
+  @Bind()
+  async handleExportInterface(params) {
+    const res = await batchExport(params);
+    if (res && res.status === '1000') {
+      const { data } = res;
+      if (isEmpty(data.skipList)) {
+        // 导出打印
+        this.printZip(data.invoiceTypeMap);
+      } else {
+        Modal.confirm({
+          children: `您本次选择的发票${data.skipList.join('、')}存在断号，是否批量导出打印？`,
+        }).then((button) => {
+          if (button === 'ok') {
+            // 导出打印
+            updatePrintNum(params);
+            this.printZip(data.invoiceTypeMap);
+          }
+        });
+      }
+    } else {
+      notification.error({
+        description: '',
+        message: res && res.message,
+      });
+    }
+  }
+
+  @Bind()
+  async printInvoiceInterface(params, printType) {
+    const res = getResponse(await batchExportNoZip(params));
+    let regName = 'Webshell1://';
+    if (printType) {
+      if (printType === 'INVOICE') {
+        regName = 'Webshell2://';
+      } else if (printType === 'LIST') {
+        regName = 'Webshell3://';
+      }
+    }
+    if (res) {
+      res.forEach((item) => {
+        const blob = new Blob([base64toBlob(item.data)]);
+        if (window.navigator.msSaveBlob) {
+          try {
+            window.navigator.msSaveBlob(blob, item.fileName);
+          } catch (e) {
+            notification.error({
+              description: '',
+              message: intl.get('hzero.common.notification.error').d('下载失败'),
+            });
+          }
+        } else {
+          const aElement = document.createElement('a');
+          const blobUrl = window.URL.createObjectURL(blob);
+          aElement.href = blobUrl; // 设置a标签路径
+          aElement.download = item.fileName;
+          aElement.click();
+          window.URL.revokeObjectURL(blobUrl);
+        }
+      });
+      const printElement = document.createElement('a');
+      printElement.href = regName; // 设置a标签路径
+      printElement.click();
+    }
+  }
+
+  /**
+   * 导出打印文件/打印发票
+   * @params {number} type 0-导出打印文件 1-打印发票/打印清单
+   * @params {array} printType-打印类型
+   */
+  @Bind()
+  async handleExport(type, printType) {
+    const exportOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
+      record.toData(),
+    );
+    const incompatible = find(exportOrderHeaderList, (item) => item.orderStatus !== 'F');
+    const validateRes = await this.validateExport(type, incompatible, exportOrderHeaderList);
     const { queryDataSet } = this.props.invoiceWorkbenchDS;
-    if (queryDataSet) {
+    if (validateRes && queryDataSet) {
       const curInfo = queryDataSet.current!.toData(true);
       const { companyCode, employeeNumber, allCheckFlag } = curInfo;
-      let params = {};
+      let params = {
+        tenantId,
+        companyCode,
+        employeeNumber,
+        allCheckFlag,
+        exportOrderHeaderList,
+        printType,
+      };
       if (allCheckFlag === 'Y') {
         params = {
           tenantId,
@@ -835,77 +907,13 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           printType,
           exportOrderHeaderList,
         };
-      } else {
-        params = {
-          tenantId,
-          companyCode,
-          employeeNumber,
-          allCheckFlag,
-          exportOrderHeaderList,
-          printType,
-        };
       }
       // 导出打印(zip)
       if (type === 0) {
-        const res = await batchExport(params);
-        if (res && res.status === '1000') {
-          const { data } = res;
-          if (isEmpty(data.skipList)) {
-            // 导出打印
-            this.printZip(data.invoiceTypeMap);
-          } else {
-            Modal.confirm({
-              children: `您本次选择的发票${data.skipList.join('、')}存在断号，是否批量导出打印？`,
-            }).then((button) => {
-              if (button === 'ok') {
-                // 导出打印
-                updatePrintNum(params);
-                this.printZip(data.invoiceTypeMap);
-              }
-            });
-          }
-        } else {
-          notification.error({
-            description: '',
-            message: res && res.message,
-          });
-        }
+        this.handleExportInterface(params);
       } else {
         // 打印发票
-        const res = getResponse(await batchExportNoZip(params));
-        let regName = 'Webshell1://';
-        if (printType) {
-          if (printType === 'INVOICE') {
-            regName = 'Webshell2://';
-          } else if (printType === 'LIST') {
-            regName = 'Webshell3://';
-          }
-        }
-        if (res) {
-          res.forEach((item) => {
-            const blob = new Blob([base64toBlob(item.data)]);
-            if (window.navigator.msSaveBlob) {
-              try {
-                window.navigator.msSaveBlob(blob, item.fileName);
-              } catch (e) {
-                notification.error({
-                  description: '',
-                  message: intl.get('hzero.common.notification.error').d('下载失败'),
-                });
-              }
-            } else {
-              const aElement = document.createElement('a');
-              const blobUrl = window.URL.createObjectURL(blob);
-              aElement.href = blobUrl; // 设置a标签路径
-              aElement.download = item.fileName;
-              aElement.click();
-              window.URL.revokeObjectURL(blobUrl);
-            }
-          });
-          const printElement = document.createElement('a');
-          printElement.href = regName; // 设置a标签路径
-          printElement.click();
-        }
+        this.printInvoiceInterface(params, printType);
       }
     }
   }
@@ -920,8 +928,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     const invoicingOrderHeaderId = record.get('invoicingOrderHeaderId');
     history.push(
       `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${record.get(
-        'companyId'
-      )}/${invoicingOrderHeaderId}`
+        'companyId',
+      )}/${invoicingOrderHeaderId}`,
     );
   }
 
@@ -1075,22 +1083,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         invoiceInfo: encodeURIComponent(
           JSON.stringify({
             backPath: '/htc-front-iop/invoice-workbench/list',
-          })
+          }),
         ),
       }),
     });
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname,
-    //     search: queryString.stringify({
-    //       invoiceInfo: encodeURIComponent(
-    //         JSON.stringify({
-    //           backPath: '/htc-front-iop/invoice-workbench/list',
-    //         })
-    //       ),
-    //     }),
-    //   })
-    // );
   }
 
   /**
@@ -1310,7 +1306,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
               };
               color = '#D6FFD7';
               break;
-            case 'C' || 'I':
+            case 'C':
+            case 'I':
               style = {
                 color: '#FF8F07',
               };
@@ -1597,9 +1594,9 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       <div>
         <span>
           {`当前页：合计含税金额：${totalPriceTaxAmount.toFixed(
-            2
+            2,
           )}，合计不含税金额：${totalExcludingTaxAmount.toFixed(2)}，合计税额：${totalTax.toFixed(
-            2
+            2,
           )}`}
         </span>
         <span style={{ float: 'right' }}>累加当前页所有状态的蓝票红票、蓝废红废</span>

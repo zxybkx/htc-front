@@ -8,7 +8,6 @@
  */
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { Content, Header } from 'components/Page';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
@@ -54,7 +53,6 @@ interface InvoiceWhitelistPageProps {
 @formatterCollections({
   code: [modelCode, 'htc.common', 'hivp.bill', 'hiop.invoiceRule'],
 })
-@connect()
 export default class InvoiceWhitelistPage extends Component<InvoiceWhitelistPageProps> {
   state = {
     companyCode: '',
@@ -75,7 +73,7 @@ export default class InvoiceWhitelistPage extends Component<InvoiceWhitelistPage
   // 查询
   @Bind()
   handleQuery(empInfo) {
-    this.invoiceWhitelistDS.query().then((res) => {
+    this.invoiceWhitelistDS.query().then(res => {
       if (res && !res.failed) {
         if (!res.companyCode) {
           this.invoiceWhitelistDS.current!.set({
@@ -114,7 +112,7 @@ export default class InvoiceWhitelistPage extends Component<InvoiceWhitelistPage
   // 导出
   @Bind()
   exportParams() {
-    const queryParams = this.lineDS.queryDataSet!.map((data) => data.toData(true)) || {};
+    const queryParams = this.lineDS.queryDataSet!.map(data => data.toData(true)) || {};
     return { ...queryParams[0] } || {};
   }
 
@@ -150,7 +148,7 @@ export default class InvoiceWhitelistPage extends Component<InvoiceWhitelistPage
       Modal.confirm({
         key: modalKey,
         title,
-      }).then((button) => {
+      }).then(button => {
         if (button === 'ok') {
           this.lineDS.current!.set({ enabledFlag: 0 });
           this.lineSave();
@@ -227,7 +225,7 @@ export default class InvoiceWhitelistPage extends Component<InvoiceWhitelistPage
       },
       {
         name: 'buyerName',
-        editor: (record) => record.getState('editing') && !record.get('blackListKey'),
+        editor: record => record.getState('editing') && !record.get('blackListKey'),
         renderer: ({ value, record }) => {
           const enabledFlag = record?.get('enabledFlag');
           const enabledText =
@@ -244,14 +242,14 @@ export default class InvoiceWhitelistPage extends Component<InvoiceWhitelistPage
       },
       {
         name: 'buyerTaxNo',
-        editor: (record) => record.getState('editing') && !record.get('blackListKey'),
+        editor: record => record.getState('editing') && !record.get('blackListKey'),
       },
       {
         name: 'blackListKey',
-        editor: (record) =>
+        editor: record =>
           record.getState('editing') && !record.get('buyerName') && !record.get('buyerTaxNo'),
       },
-      { name: 'limitRange', editor: (record) => record.getState('editing') },
+      { name: 'limitRange', editor: record => record.getState('editing') },
       {
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
@@ -394,14 +392,23 @@ export default class InvoiceWhitelistPage extends Component<InvoiceWhitelistPage
   render() {
     return (
       <>
-        <Header title={
-          <div>
-            {intl.get(`${modelCode}.view.title`).d('发票入池规则')}
-            <Form dataSet={this.invoiceWhitelistDS} style={{display: 'inline-block'}} layout={FormLayout.none}>
-              <Switch name="enabledFlag" onChange={() => this.saveHeader()} style={{marginLeft: '10px'}} />
-            </Form>
-          </div>
-        }
+        <Header
+          title={
+            <div>
+              {intl.get(`${modelCode}.view.title`).d('发票入池规则')}
+              <Form
+                dataSet={this.invoiceWhitelistDS}
+                style={{ display: 'inline-block' }}
+                layout={FormLayout.none}
+              >
+                <Switch
+                  name="enabledFlag"
+                  onChange={() => this.saveHeader()}
+                  style={{ marginLeft: '10px' }}
+                />
+              </Form>
+            </div>
+          }
         >
           <ExcelExport
             requestUrl={`${API_PREFIX}/v1/${tenantId}/invoice-white-lists/export-whitelist`}
@@ -418,7 +425,7 @@ export default class InvoiceWhitelistPage extends Component<InvoiceWhitelistPage
               name="timeRange"
               colSpan={1}
               onChange={() => this.saveHeader()}
-              renderer={(value) =>
+              renderer={value =>
                 value.text &&
                 `${value.text}${intl.get('hzero.common.message.priority.day').d('天')}`
               }

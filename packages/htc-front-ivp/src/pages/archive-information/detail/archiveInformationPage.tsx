@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
 import { Header, Content } from 'components/Page';
 import intl from 'utils/intl';
@@ -15,9 +14,12 @@ import commonConfig from '@htccommon/config/commonConfig';
 import { API_HOST } from 'utils/config';
 import { getCurrentOrganizationId, getAccessToken, getResponse } from 'utils/utils';
 import notification from 'utils/notification';
-import querystring from 'querystring';
+import queryString from 'query-string';
 import { openTab } from 'utils/menuTab';
-import { getCurrentEmployeeInfo, getTenantAgreementCompany } from '@htccommon/services/commonService';
+import {
+  getCurrentEmployeeInfo,
+  getTenantAgreementCompany,
+} from '@htccommon/services/commonService';
 import SubPageBillHeadersDS from '@src/pages/bill-pool/stores/SubPageBillHeadersDS';
 import SubPageInvoicesHeadersDS from '@src/pages/invoices/stores/SubPageInvoicesHeadersDS';
 import InvoiceChildSwitchPage from '@src/utils/invoiceChildSwitch/invoiceChildSwitchPage';
@@ -39,8 +41,7 @@ const acceptType = ['.pdf', '.jpg', '.png', '.ofd'];
 @formatterCollections({
   code: [modelCode, 'hivp.invoicesArchiveUpload', 'htc.common', 'hivp.batchCheck'],
 })
-@connect()
-export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps> {
+export default class ArchiveInformationPage extends Component<ArchiveUploadPageProps> {
   state = {
     companyDesc: '',
     companyId: '',
@@ -67,7 +68,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
 
   mutipleUploadUuid;
 
-  saveSingleUpload = (node) => {
+  saveSingleUpload = node => {
     this.singleUpload = node;
   };
 
@@ -87,7 +88,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
     if (invoiceInfoStr) {
       const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
       const params = { tenantId, companyId: invoiceInfo.companyId };
-      getTenantAgreementCompany(params).then((resCom) => {
+      getTenantAgreementCompany(params).then(resCom => {
         if (resCom) {
           this.setState({ inChannelCode: resCom.inChannelCode });
         }
@@ -115,22 +116,20 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
     }
   }
 
-  handleUploadSuccess = (response) => {
+  handleUploadSuccess = response => {
     const { btnFlag } = this.state;
     if (btnFlag === 'S') {
       // 单个文件
       try {
-        let ntfFlag = true;
         const resp = JSON.parse(response);
         if (resp.failed && resp.code === 'H1025') {
-          ntfFlag = false;
           const title = intl
             .get(`${modelCode}.view.uploadConfirm`)
             .d('OCR识别信息与发票信息不一致，是否继续上传？');
           Modal.confirm({
             key: Modal.key,
             title,
-          }).then((button) => {
+          }).then(button => {
             if (button === 'ok') {
               this.singleIsCheck = 'N';
               this.singleUpload.startUpload();
@@ -138,8 +137,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
               this.setState({ btnFlag: '', loadingFlag: false });
             }
           });
-        }
-        if (ntfFlag) {
+        } else {
           const res = getResponse(resp);
           if (res) {
             notification.success({
@@ -161,7 +159,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
     }
   };
 
-  handleUploadError = (response) => {
+  handleUploadError = response => {
     this.setState({ btnFlag: '', loadingFlag: false, uploadTempFile: {} });
     notification.error({
       description: '',
@@ -172,18 +170,11 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
   // 查看档案
   @Bind()
   handleGotoArchiveView() {
-    // const { dispatch } = this.props;
     const { sourceCode, sourceHeaderId } = this.props.match.params;
     const pathname =
       sourceCode === 'BILL_POOL'
         ? `/htc-front-ivp/bills/archive-view/${sourceCode}/${sourceHeaderId}`
         : `/htc-front-ivp/invoices/archive-view/${sourceCode}/${sourceHeaderId}`;
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname:pathname,
-    //   })
-    // );
-
     openTab({
       key: pathname,
       path: pathname,
@@ -242,7 +233,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
     dispatch(
       routerRedux.push({
         pathname: comParams.pathname,
-        search: querystring.stringify({
+        search: queryString.stringify({
           invoiceInfo: encodeURIComponent(
             JSON.stringify({
               companyDesc: `${curQueryInfo.companyCode}-${curQueryInfo.companyName}`,

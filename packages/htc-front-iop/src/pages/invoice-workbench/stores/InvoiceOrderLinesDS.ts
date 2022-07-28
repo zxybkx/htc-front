@@ -19,7 +19,7 @@ import { Modal } from 'choerodon-ui/pro';
  * @params {number} value-当前值
  * @returns {string}
  */
-const getTaxRate = (value) => {
+const getTaxRate = value => {
   if (value.indexOf('%') > 0) {
     return value.replace('%', '') / 100;
   } else {
@@ -32,11 +32,11 @@ const getTaxRate = (value) => {
  * @params {[]} records-行数组
  * @returns {*[]}
  */
-const calculateArr = (records) => {
+const calculateArr = records => {
   const temps: number[] = [];
-  records.forEach((item) => {
-    const amount = item.getField('amount')?.getValue() || 0; // 金额
-    const discountAmount = Number(item.getField('deduction')?.getValue()) || 0; // 扣除额
+  records.forEach(item => {
+    const amount = item.get('amount') || 0; // 金额
+    const discountAmount = Number(item.get('deduction')) || 0; // 扣除额
     if (amount - discountAmount > 0) {
       temps.push(amount - discountAmount);
     }
@@ -75,44 +75,49 @@ const getIndexRecord = (records, index) => {
   return records[index];
 };
 
-/**
- * 金额校验规则
- * @params {number} value-当前值
- * @params {string} name-标签名
- * @params {object} record-行记录
- * @returns {modal/string/undefined}
- */
-const amountValidator = (value, name, record) => {
-  const invoiceLineNature = record.getField('invoiceLineNature')?.getValue() || 0; // 发票行性质
-  const amount = Math.abs(record.getField('amount')?.getValue()) || 0; // 金额
-  const deductionAmount = record.getField('deduction')?.getValue() || 0; // 扣除额
-  if (deductionAmount >= amount) {
-    return intl.get('hiop.invoiceReq.validate.deductionAmount').d('扣除额不能大于等于金额');
-  }
-  if (invoiceLineNature !== '1') return; // 当不为折扣行时返回
-
-  if (value && name && record) {
-    const sum = calculateArr(record.dataSet.records).reduce((prev, next) => prev + next, 0);
-    if (amount >= sum) {
-      return intl
-        .get('hiop.invoiceReq.validate.alldeductionAmount')
-        .d('总折扣金额不能大于等于总金额-总扣除额');
+const handleModalOk = (record, amount) => {
+  record.dataSet.parent.current!.set({ calculateSpin: true }); // 增加字段判断是否进行了折扣分摊
+  record.dataSet.records.forEach(item => {
+    // 删除所有折扣行
+    const lineNature = item.get('invoiceLineNature') || 0; // 发票行性质
+    if (lineNature === '1') {
+      record.dataSet.remove(item);
     }
-    // 获取折扣行上方商品行信息
-    const indexAmount =
-      getIndexRecord(record.dataSet.records, record.index - 1)
-        .getField('amount')
-        ?.getValue() || 0;
-    const indexDeductionAmount =
-      getIndexRecord(record.dataSet.records, record.index - 1)
-        .getField('deduction')
-        ?.getValue() || 0;
-    if (amount && amount >= indexAmount - indexDeductionAmount) {
-      if (
-        record.dataSet.records.some(
-          (item) => item.status === 'sync' && item.getField('invoiceLineNature')?.getValue() === '1'
-        )
-      ) {
+  });
+  const resultArr = calculateSpin(amount, record.dataSet.records);
+  const sunLength = record.dataSet.records.length;
+  let initNum = 0;
+  for (let index = 0; index < sunLength; index++) {
+    const taxIncludedFlag = record.dataSet.records[initNum].get('taxIncludedFlag');
+    const taxRate = Number(record.dataSet.records[initNum].get('taxRate'));
+    let taxAmount = 0;
+    if (taxIncludedFlag === '1') {
+      taxAmount = (resultArr[index] / (1 + taxRate)) * taxRate;
+    } else {
+      taxAmount = resultArr[index] * taxRate;
+    }
+    record.dataSet.create(
+      {
+        invoiceLineNature: 1,
+        taxRate: record.dataSet.records[initNum].get('taxRate'),
+        amount: -resultArr[index],
+        taxIncludedFlag,
+        taxAmount: -taxAmount.toFixed(2),
+      },
+      initNum + 1
+    );
+    initNum += 2;
+  }
+};
+
+const handleAmountCompare = (amount, indexAmount, indexDeductionAmount, record) => {
+  if (amount && amount >= indexAmount - indexDeductionAmount) {
+    if (
+      record.dataSet.records.some(
+        item => item.status === 'sync' && item.get('invoiceLineNature') === '1'
+      )
+    ) {
+      return Promise.resolve(
         Modal.confirm({
           key: Modal.key(),
           okText: intl.get('hzero.common.button.ok').d('是'),
@@ -125,61 +130,66 @@ const amountValidator = (value, name, record) => {
           onOk: () => {
             record.dataSet.remove(record);
           },
-        });
-        return;
-      }
-      Modal.confirm({
-        key: Modal.key(),
-        okText: intl.get('hzero.common.button.ok').d('是'),
-        cancelText: intl.get('hzero.common.button.cancel').d('否'),
-        title: intl.get('hzero.hzeroTheme.components.prompt').d('提示'),
-        center: true,
-        children: intl
-          .get('hiop.invoiceReq.validate.spin')
-          .d('该行折扣金额大于金额-扣除额，是否按（金额-扣除额）比例自动分摊折扣金额？'),
-        onOk: async () => {
-          record.dataSet.parent.current!.set({ calculateSpin: true }); // 增加字段判断是否进行了折扣分摊
-          record.dataSet.records.forEach((item) => {
-            // 删除所有折扣行
-            const lineNature = item.getField('invoiceLineNature')?.getValue() || 0; // 发票行性质
-            if (lineNature === '1') {
-              record.dataSet.remove(item);
-            }
-          });
-          const resultArr = calculateSpin(amount, record.dataSet.records);
-          const sunLength = record.dataSet.records.length;
-          let initNum = 0;
-          for (let index = 0; index < sunLength; index++) {
-            const taxIncludedFlag = record.dataSet.records[initNum]
-              .getField('taxIncludedFlag')
-              ?.getValue();
-            const taxRate = Number(record.dataSet.records[initNum].getField('taxRate')?.getValue());
-            let taxAmount = 0;
-            if (taxIncludedFlag === '1') {
-              taxAmount = (resultArr[index] / (1 + taxRate)) * taxRate;
-            } else {
-              taxAmount = resultArr[index] * taxRate;
-            }
-            record.dataSet.create(
-              {
-                invoiceLineNature: 1,
-                taxRate: record.dataSet.records[initNum].getField('taxRate')?.getValue(),
-                amount: -resultArr[index],
-                taxIncludedFlag,
-                taxAmount: -taxAmount.toFixed(2),
-              },
-              initNum + 1
-            );
-            initNum += 2;
-          }
-        },
-      });
-      return intl
-        .get('hiop.invoiceReq.validate.discountAmount')
-        .d('折扣金额不能大于等于金额-扣除额');
+        })
+      );
     }
+    Modal.confirm({
+      key: Modal.key(),
+      okText: intl.get('hzero.common.button.ok').d('是'),
+      cancelText: intl.get('hzero.common.button.cancel').d('否'),
+      title: intl.get('hzero.hzeroTheme.components.prompt').d('提示'),
+      center: true,
+      children: intl
+        .get('hiop.invoiceReq.validate.spin')
+        .d('该行折扣金额大于金额-扣除额，是否按（金额-扣除额）比例自动分摊折扣金额？'),
+      onOk: () => {
+        handleModalOk(record, amount);
+      },
+    });
+    return Promise.resolve(
+      intl.get('hiop.invoiceReq.validate.discountAmount').d('折扣金额不能大于等于金额-扣除额')
+    );
   }
-  return undefined;
+};
+
+const handleDeduction = (amount, value, name, record) => {
+  if (value && name && record) {
+    const sum = calculateArr(record.dataSet.records).reduce((prev, next) => prev + next, 0);
+    if (amount >= sum) {
+      return Promise.resolve(
+        intl
+          .get('hiop.invoiceReq.validate.alldeductionAmount')
+          .d('总折扣金额不能大于等于总金额-总扣除额')
+      );
+    }
+    // 获取折扣行上方商品行信息
+    const indexAmount = getIndexRecord(record.dataSet.records, record.index - 1).get('amount') || 0;
+    const indexDeductionAmount =
+      getIndexRecord(record.dataSet.records, record.index - 1).get('deduction') || 0;
+    handleAmountCompare(amount, indexAmount, indexDeductionAmount, record);
+  }
+};
+
+/**
+ * 金额校验规则
+ * @params {number} value-当前值
+ * @params {string} name-标签名
+ * @params {object} record-行记录
+ * @returns {modal/string/undefined}
+ */
+const amountValidator = (value, name, record) => {
+  const invoiceLineNature = record.get('invoiceLineNature'); // 发票行性质
+  const amount = Math.abs(record.get('amount') || 0); // 金额
+  const deductionAmount = record.get('deduction') || 0; // 扣除额
+  if (deductionAmount >= amount) {
+    return Promise.resolve(
+      intl.get('hiop.invoiceReq.validate.deductionAmount').d('扣除额不能大于等于金额')
+    );
+  }
+  if (invoiceLineNature !== '1') return Promise.resolve(true); // 当不为折扣行时返回
+
+  handleDeduction(amount, value, name, record);
+  return Promise.resolve(true);
 };
 
 /**
@@ -190,43 +200,43 @@ const amountValidator = (value, name, record) => {
  * @returns {modal/undefined}
  */
 const lineNatureValidator = (value, name, record) => {
-  const currLineNature = record.getField('invoiceLineNature')?.getValue() || 0; // 发票行性质
+  const currLineNature = record.get('invoiceLineNature') || 0; // 发票行性质
   if (currLineNature !== '1') return; // 当不为折扣行时返回
   if (record.index === 0) {
-    Modal.confirm({
-      key: Modal.key(),
-      okText: intl.get('hzero.common.button.ok').d('是'),
-      title: intl.get('hzero.hzeroTheme.components.prompt').d('提示'),
-      center: true,
-      children: intl.get('hiop.invoiceReq.validate.directSpin').d('不能直接添加折扣行'),
-      okCancel: false,
-      onOk: () => {
-        record.dataSet.remove(record);
-      },
-    });
-    return;
-  }
-  if (value && name && record) {
-    const prevLineNature =
-      getIndexRecord(record.dataSet.records, record.index - 1)
-        .getField('invoiceLineNature')
-        ?.getValue() || 0; // 发票行性质
-    if (value === prevLineNature) {
+    return Promise.resolve(
       Modal.confirm({
         key: Modal.key(),
         okText: intl.get('hzero.common.button.ok').d('是'),
         title: intl.get('hzero.hzeroTheme.components.prompt').d('提示'),
         center: true,
-        children: intl.get('hiop.invoiceReq.validate.againSpin').d('折扣行后面不能再加折扣行'),
+        children: intl.get('hiop.invoiceReq.validate.directSpin').d('不能直接添加折扣行'),
         okCancel: false,
         onOk: () => {
           record.dataSet.remove(record);
         },
-      });
-      return;
+      })
+    );
+  }
+  if (value && name && record) {
+    const prevLineNature =
+      getIndexRecord(record.dataSet.records, record.index - 1).get('invoiceLineNature') || 0; // 发票行性质
+    if (value === prevLineNature) {
+      return Promise.resolve(
+        Modal.confirm({
+          key: Modal.key(),
+          okText: intl.get('hzero.common.button.ok').d('是'),
+          title: intl.get('hzero.hzeroTheme.components.prompt').d('提示'),
+          center: true,
+          children: intl.get('hiop.invoiceReq.validate.againSpin').d('折扣行后面不能再加折扣行'),
+          okCancel: false,
+          onOk: () => {
+            record.dataSet.remove(record);
+          },
+        })
+      );
     }
   }
-  return undefined;
+  return Promise.resolve(true);
 };
 
 /**
@@ -238,13 +248,171 @@ const lineNatureValidator = (value, name, record) => {
  */
 const deductionValidator = (value, name, record) => {
   if (value && name && record) {
-    const amount = record.getField('amount')?.getValue() || 0; // 金额
-    const deduction = record.getField('deduction')?.getValue() || 0; // 扣除额
+    const amount = record.get('amount') || 0; // 金额
+    const deduction = record.get('deduction') || 0; // 扣除额
     if (deduction >= amount) {
-      return intl.get('hiop.invoiceReq.validate.deductionAmount').d('扣除额不能大于等于金额');
+      return Promise.resolve(
+        intl.get('hiop.invoiceReq.validate.deductionAmount').d('扣除额不能大于等于金额')
+      );
     }
   }
-  return undefined;
+  return Promise.resolve(true);
+};
+
+const toNonExponential = num => {
+  const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
+  return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
+};
+
+const handleZeroAndNature = (dataSet, name, value, record) => {
+  if (name === 'zeroTaxRateFlag') {
+    if (['0', '1', '2'].includes(value)) {
+      record.set('preferentialPolicyFlag', '1');
+    } else {
+      record.set('preferentialPolicyFlag', '0');
+    }
+  }
+  if (name === 'invoiceLineNature' && value === '1') {
+    const index = dataSet.indexOf(record);
+    const previous = index - 1 > -1 && dataSet.get(index - 1).toData();
+    record.set({
+      projectObj: null,
+      commodityNumberObj: null,
+      projectName: null,
+      taxIncludedFlag: previous.taxIncludedFlag ? previous.taxIncludedFlag : '1',
+      amount: null,
+      taxAmount: null,
+      deduction: null,
+      preferentialPolicyFlag: null,
+      zeroTaxRateFlag: null,
+      specialVatManagement: null,
+      projectUnitPrice: null,
+      taxRate: previous.taxRate ? previous.taxRate : '',
+    });
+  }
+};
+
+const setAmount = (price, _price, _quantity, record) => {
+  if (price && _price !== 0 && _quantity !== 0) {
+    const amount = _quantity * _price;
+    record.set('amount', amount.toFixed(2));
+  } else {
+    const amount = record.get('amount');
+    const _amount = amount ? Number(amount) : 0;
+    if (amount && _amount !== 0 && _quantity !== 0) {
+      const calPrice = _amount / _quantity;
+      if (calPrice.toString().length > 8) {
+        record.set({
+          projectUnitPrice: calPrice.toFixed(8),
+        });
+      } else {
+        record.set({ projectUnitPrice: calPrice });
+      }
+    }
+  }
+};
+
+const handleNUmber = (name, value, record) => {
+  if (name === 'quantity' && value) {
+    const price = record.get('projectUnitPrice');
+    const _price = price ? Number(price) : 0;
+    const _quantity = value ? Number(value) : 0;
+    setAmount(price, _price, _quantity, record);
+  }
+};
+
+const handleQuantity = (amount, _amount, _price, record) => {
+  if (amount && _amount !== 0 && _price !== 0) {
+    const calQuantity = _amount / _price;
+    if (calQuantity.toString().length > 8) {
+      record.set({
+        quantity: calQuantity.toFixed(8),
+      });
+    } else {
+      record.set({ quantity: calQuantity });
+    }
+  }
+};
+
+const handlePrice = (name, value, record) => {
+  if (name === 'projectUnitPrice' && value) {
+    const quantity = record.get('quantity');
+    const _price = Number(value) || 0;
+    const _quantity = Number(quantity) || 0;
+    if (quantity && _price !== 0 && _quantity !== 0) {
+      const amount = _quantity * _price;
+      record.set('amount', amount.toFixed(2));
+    } else {
+      const amount = record.get('amount');
+      const _amount = amount ? Number(amount) : 0;
+      handleQuantity(amount, _amount, _price, record);
+    }
+  }
+};
+
+const handleTaxRate = (name, record) => {
+  if (
+    ['invoiceLineNature', 'taxIncludedFlag', 'amount', 'taxRateObj', 'deduction'].includes(name)
+  ) {
+    const taxIncludedFlag = record.get('taxIncludedFlag');
+    const amount = record.get('amount');
+    const taxRate = Number(record.get('taxRate')) || 0;
+    const deduction = record.get('deduction') || 0;
+    const invoiceLineNature = record.get('invoiceLineNature');
+    let taxAmount = 0;
+    if (taxIncludedFlag === '1') {
+      // 当【含税标志】为1时
+      if (invoiceLineNature === '1') {
+        // 税额=【（金额/（1+税率）】*税率
+        taxAmount = (amount / (1 + taxRate)) * taxRate;
+      } else {
+        // 税额=【（金额-扣除额）/（1+税率）】*税率
+        taxAmount = ((amount - deduction) / (1 + taxRate)) * taxRate;
+      }
+    } else if (taxIncludedFlag === '0') {
+      // 当【含税标志】为0时
+      if (invoiceLineNature === '1') {
+        // 税额=金额 *税率
+        taxAmount = amount * taxRate;
+      } else {
+        // 税额=（金额-扣除额）*税率
+        taxAmount = (amount - deduction) * taxRate;
+      }
+    }
+    record.set('taxAmount', taxAmount.toFixed(2));
+  }
+};
+
+const handleProjectObj = (name, value, record) => {
+  if (name === 'projectObj' && value) {
+    const { zeroTaxRateFlag, projectUnit, model, ...otherData } = value;
+    record.set('zeroTaxRateFlag', zeroTaxRateFlag);
+    record.set('projectUnit', projectUnit);
+    record.set('model', model);
+    record.set({
+      commodityNumberObj: otherData,
+      projectNameSuffix: value.projectName || '',
+    });
+  }
+};
+
+const handleCommodityNumberObj = (name, value, record) => {
+  if (name === 'commodityNumberObj') {
+    record.set({
+      projectName: `*${record.get('abbreviation') || ''}*${record.get('projectNameSuffix') || ''}`,
+      taxRateObj: (value && value.taxRate && { value: getTaxRate(value.taxRate) }) || {},
+      projectNameSuffix: value && value.projectName,
+    });
+  }
+};
+
+const handleProjectName = (name, record) => {
+  if (['abbreviation', 'projectNameSuffix'].includes(name)) {
+    record.set(
+      'projectName',
+      `*${record.get('abbreviation') || ''}*${record.get('projectNameSuffix') || ''}`
+    );
+  }
 };
 
 export default (): DataSetProps => {
@@ -272,149 +440,22 @@ export default (): DataSetProps => {
     events: {
       update: ({ dataSet, record, name, value }) => {
         // 零税率标识(zeroTaxRateFlag)、税率（taxRate）、优惠政策标识（preferentialPolicyFlag）
-        if (name === 'taxRateObj') {
-          if (!value || Number(value.value) !== 0) {
-            record.set('zeroTaxRateFlag', '');
-          }
+        if (name === 'taxRateObj' && (!value || Number(value.value) !== 0)) {
+          record.set('zeroTaxRateFlag', '');
         }
-        if (name === 'zeroTaxRateFlag') {
-          if (['0', '1', '2'].includes(value)) {
-            record.set('preferentialPolicyFlag', '1');
-          } else {
-            record.set('preferentialPolicyFlag', '0');
-          }
-        }
-        if (name === 'invoiceLineNature' && value === '1') {
-          const index = dataSet.indexOf(record);
-          const previous = index - 1 > -1 && dataSet.get(index - 1).toData();
-          record.set({
-            projectObj: null,
-            commodityNumberObj: null,
-            projectName: null,
-            taxIncludedFlag: previous.taxIncludedFlag ? previous.taxIncludedFlag : '1',
-            amount: null,
-            taxAmount: null,
-            deduction: null,
-            preferentialPolicyFlag: null,
-            zeroTaxRateFlag: null,
-            specialVatManagement: null,
-            projectUnitPrice: null,
-            taxRate: previous.taxRate ? previous.taxRate : '',
-          });
-        }
+        handleZeroAndNature(dataSet, name, value, record);
         // 数量
-        if (name === 'quantity' && value) {
-          const price = record.get('projectUnitPrice');
-          const _price = Number(price) || 0;
-          const _quantity = Number(value) || 0;
-          if (price && _price !== 0 && _quantity !== 0) {
-            const amount = _quantity * _price;
-            record.set('amount', amount.toFixed(2));
-          } else {
-            const amount = record.get('amount');
-            const _amount = Number(amount) || 0;
-            if (amount && _amount !== 0 && _quantity !== 0) {
-              const calPrice = _amount / _quantity;
-              if (calPrice.toString().length > 8) {
-                record.set({
-                  projectUnitPrice: calPrice.toFixed(8),
-                });
-              } else {
-                record.set({ projectUnitPrice: calPrice });
-              }
-            }
-          }
-        }
+        handleNUmber(name, value, record);
         // 单价
-        if (name === 'projectUnitPrice' && value) {
-          const quantity = record.get('quantity');
-          const _price = Number(value) || 0;
-          const _quantity = Number(quantity) || 0;
-          if (quantity && _price !== 0 && _quantity !== 0) {
-            const amount = _quantity * _price;
-            record.set('amount', amount.toFixed(2));
-          } else {
-            const amount = record.get('amount');
-            const _amount = Number(amount) || 0;
-            if (amount && _amount !== 0 && _price !== 0) {
-              const calQuantity = _amount / _price;
-              if (calQuantity.toString().length > 8) {
-                record.set({
-                  quantity: calQuantity.toFixed(8),
-                });
-              } else {
-                record.set({ quantity: calQuantity });
-              }
-            }
-          }
-        }
+        handlePrice(name, value, record);
         // 税额
-        if (
-          ['invoiceLineNature', 'taxIncludedFlag', 'amount', 'taxRateObj', 'deduction'].includes(
-            name
-          )
-        ) {
-          const taxIncludedFlag = record.get('taxIncludedFlag');
-          const amount = record.get('amount');
-          const taxRate = Number(record.get('taxRate')) || 0;
-          const deduction = record.get('deduction') || 0;
-          const invoiceLineNature = record.get('invoiceLineNature');
-          let taxAmount = 0;
-          if (taxIncludedFlag === '1') {
-            // 当【含税标志】为1时
-            if (invoiceLineNature === '1') {
-              // 税额=【（金额/（1+税率）】*税率
-              taxAmount = (amount / (1 + taxRate)) * taxRate;
-            } else {
-              // 税额=【（金额-扣除额）/（1+税率）】*税率
-              taxAmount = ((amount - deduction) / (1 + taxRate)) * taxRate;
-            }
-          } else if (taxIncludedFlag === '0') {
-            // 当【含税标志】为0时
-            if (invoiceLineNature === '1') {
-              // 税额=金额 *税率
-              taxAmount = amount * taxRate;
-            } else {
-              // 税额=（金额-扣除额）*税率
-              taxAmount = (amount - deduction) * taxRate;
-            }
-          }
-          record.set('taxAmount', taxAmount.toFixed(2));
-          // if (amount > 0 && invoiceLineNature === '1') {
-          //   message.config({
-          //     top: 300,
-          //   });
-          //   message.error('折扣金额只能为负数！', undefined, undefined, 'top');
-          //   record.set('amount', -amount);
-          // }
-        }
+        handleTaxRate(name, record);
         // 商品自行编码
-        if (name === 'projectObj' && value) {
-          const { zeroTaxRateFlag, projectUnit, model, ...otherData } = value;
-          record.set('zeroTaxRateFlag', zeroTaxRateFlag);
-          record.set('projectUnit', projectUnit);
-          record.set('model', model);
-          record.set({
-            commodityNumberObj: otherData,
-            projectNameSuffix: value.projectName || '',
-          });
-        }
+        handleProjectObj(name, value, record);
         // 商品编码
-        if (name === 'commodityNumberObj') {
-          record.set({
-            projectName: `*${record.get('abbreviation') || ''}*${
-              record.get('projectNameSuffix') || ''
-            }`,
-            taxRateObj: (value && value.taxRate && { value: getTaxRate(value.taxRate) }) || {},
-            projectNameSuffix: value && value.projectName,
-          });
-        }
-        if (['abbreviation', 'projectNameSuffix'].includes(name)) {
-          record.set(
-            'projectName',
-            `*${record.get('abbreviation') || ''}*${record.get('projectNameSuffix') || ''}`
-          );
-        }
+        handleCommodityNumberObj(name, value, record);
+        // 处理项目名称
+        handleProjectName(name, record);
       },
     },
     fields: [
@@ -440,8 +481,7 @@ export default (): DataSetProps => {
           readOnly: ({ record }) =>
             record.get('invoiceLineNature') === '1' && record.status !== 'add',
         },
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(lineNatureValidator(value, name, record))),
+        validator: (value, name, record) => lineNatureValidator(value, name, record),
         defaultValue: '0',
       },
       {
@@ -532,13 +572,7 @@ export default (): DataSetProps => {
         defaultValidationMessages: {
           rangeUnderflow: intl.get('hiop.invoiceWorkbench.notification.number').d('数量必须大于0'),
         },
-        transformResponse(value) {
-          const toNonExponential = (num) => {
-            const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
-            return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
-          };
-          return value && toNonExponential(value);
-        },
+        transformResponse: value => value && toNonExponential(value),
       },
       {
         name: 'projectUnitPrice',
@@ -549,13 +583,7 @@ export default (): DataSetProps => {
           min: ({ record }) => (record.get('invoiceLineNature') !== '1' ? 0.001 : -9999999999),
           readOnly: ({ record }) => record.get('invoiceLineNature') === '1',
         },
-        transformResponse(value) {
-          const toNonExponential = (num) => {
-            const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
-            return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
-          };
-          return value && toNonExponential(value);
-        },
+        transformResponse: value => value && toNonExponential(value),
       },
       {
         name: 'extNumber',
@@ -605,8 +633,7 @@ export default (): DataSetProps => {
             record.get('invoiceLineNature') === '1' && record.status !== 'add',
         },
         required: true,
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(amountValidator(value, name, record))),
+        validator: (value, name, record) => amountValidator(value, name, record),
       },
       {
         name: 'taxIncludedFlag',
@@ -631,8 +658,7 @@ export default (): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.deduction').d('扣除额'),
         type: FieldType.currency,
         min: 0,
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(deductionValidator(value, name, record))),
+        validator: (value, name, record) => deductionValidator(value, name, record),
       },
       {
         name: 'model',

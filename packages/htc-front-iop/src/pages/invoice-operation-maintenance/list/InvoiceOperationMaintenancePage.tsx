@@ -9,7 +9,6 @@ import React, { Component } from 'react';
 import { Button, DataSet, Form, Lov, Modal, Table, TextField } from 'choerodon-ui/pro';
 import { Content, Header } from 'components/Page';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import intl from 'utils/intl';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { Bind } from 'lodash-decorators';
@@ -30,24 +29,13 @@ interface InvoiceOperationMaintenancePageProps {
 @formatterCollections({
   code: ['hiop.invoiceOptMain', 'htc.common', 'hiop.invoiceWorkbench', 'hiop.invoiceReq'],
 })
-@connect()
-export default class InvoiceOperationMaintenancePage extends Component<InvoiceOperationMaintenancePageProps> {
+export default class InvoiceOperationMaintenancePage extends Component<
+  InvoiceOperationMaintenancePageProps
+> {
   tableDS = new DataSet({
     autoQuery: false,
     ...InvoiceOperationMaintenanceDS(),
   });
-
-  /**
-   * 导出
-   */
-  @Bind()
-  handleGetQueryParams() {}
-
-  /**
-   * 导入
-   */
-  @Bind()
-  handleImport() {}
 
   /**
    * 保存修改
@@ -117,7 +105,7 @@ export default class InvoiceOperationMaintenancePage extends Component<InvoiceOp
         <Form record={record}>
           <TextField name="invoicingOrderHeaderId" />
           <TextField name="orderNumber" />
-          <Lov name="updateFieldObj" onChange={(value) => this.queryOrder(value, record)} />
+          <Lov name="updateFieldObj" onChange={value => this.queryOrder(value, record)} />
           <TextField name="beforeValue" />
           <TextField name="afterValue" />
           <TextField name="maintenanceOperator" />

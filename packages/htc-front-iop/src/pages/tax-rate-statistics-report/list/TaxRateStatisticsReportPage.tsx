@@ -12,7 +12,6 @@ import ExcelExport from 'components/ExcelExport';
 import { Dispatch } from 'redux';
 import intl from 'utils/intl';
 import { RouteComponentProps } from 'react-router-dom';
-import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
 import { Content, Header } from 'components/Page';
 import commonConfig from '@htccommon/config/commonConfig';
@@ -42,11 +41,12 @@ interface TaxRateStatisticsReportPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-@connect()
 @formatterCollections({
   code: ['htc.common', 'hiop.taxRateStatistic', 'hiop.invoiceWorkbench'],
 })
-export default class TaxRateStatisticsReportPage extends Component<TaxRateStatisticsReportPageProps> {
+export default class TaxRateStatisticsReportPage extends Component<
+  TaxRateStatisticsReportPageProps
+> {
   async componentDidMount() {
     const { queryDataSet } = this.props.taxRateStatisticsReport;
     if (queryDataSet) {
@@ -109,14 +109,6 @@ export default class TaxRateStatisticsReportPage extends Component<TaxRateStatis
         recordInfo: encodeURIComponent(JSON.stringify({ record: record.toData() })),
       }),
     });
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname: '/htc-front-iop/tax-rate-statistics-report/detail',
-    //     search: queryString.stringify({
-    //       recordInfo: encodeURIComponent(JSON.stringify({ record: record.toData() })),
-    //     }),
-    //   })
-    // );
   }
 
   /**
@@ -127,7 +119,7 @@ export default class TaxRateStatisticsReportPage extends Component<TaxRateStatis
   @Bind()
   renderColumnFooter(dataSet, name) {
     let total;
-    dataSet.map((record) => {
+    dataSet.map(record => {
       const _total = Number(total) || 0;
       const _amount = Number(record.get(name)) || 0;
       total = ((_total * 100 + _amount * 100) / 100).toFixed(2);
@@ -135,12 +127,21 @@ export default class TaxRateStatisticsReportPage extends Component<TaxRateStatis
     });
     total =
       total &&
-      total.toString().replace(/\d+/, (n) => {
-        return n.replace(/(\d)(?=(\d{3})+$)/g, (i) => {
+      total.toString().replace(/\d+/, n => {
+        return n.replace(/(\d)(?=(\d{3})+$)/g, i => {
           return `${i},`;
         });
       });
     return `${total || ''}`;
+  }
+
+  @Bind()
+  renderAmount(value, text, record, name) {
+    if (value === 0) {
+      return text;
+    } else {
+      return <a onClick={() => this.handleGotoDetailPage(record, name)}>{text}</a>;
+    }
   }
 
   /**
@@ -158,135 +159,69 @@ export default class TaxRateStatisticsReportPage extends Component<TaxRateStatis
         name: 'blueAmountValue',
         width: 120,
         // header: (_, __, title) => <span style={{ fontWeight: 'bold' }}>{title}</span>,
-        renderer: ({ value, text, record, name }) => {
-          if (value === 0) {
-            return text;
-          } else {
-            return <a onClick={() => this.handleGotoDetailPage(record, name)}>{text}</a>;
-          }
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'blueWasteAmountValue',
         // header: (_, __, title) => <span style={{ fontWeight: 'bold' }}>{title}</span>,
-        renderer: ({ value, text, record, name }) => {
-          if (value === 0) {
-            return text;
-          } else {
-            return <a onClick={() => this.handleGotoDetailPage(record, name)}>{text}</a>;
-          }
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'redAmountValue',
         // header: (_, __, title) => <span style={{ fontWeight: 'bold' }}>{title}</span>,
-        renderer: ({ value, text, record, name }) => {
-          if (value === 0) {
-            return text;
-          } else {
-            return <a onClick={() => this.handleGotoDetailPage(record, name)}>{text}</a>;
-          }
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'redWasteAmountValue',
         // header: (_, __, title) => <span style={{ fontWeight: 'bold' }}>{title}</span>,
-        renderer: ({ value, text, record, name }) => {
-          if (value === 0) {
-            return text;
-          } else {
-            return <a onClick={() => this.handleGotoDetailPage(record, name)}>{text}</a>;
-          }
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'actualSalesAmountValue',
         width: 120,
         // header: (_, __, title) => <span style={{ fontWeight: 'bold' }}>{title}</span>,
-        renderer: ({ value, text, record, name }) => {
-          if (value === 0) {
-            return text;
-          } else {
-            return <a onClick={() => this.handleGotoDetailPage(record, name)}>{text}</a>;
-          }
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'blueTaxAmountValue',
         // header: (_, __, title) => <span style={{ fontWeight: 'bold' }}>{title}</span>,
-        renderer: ({ value, text, record, name }) => {
-          if (value === 0) {
-            return text;
-          } else {
-            return <a onClick={() => this.handleGotoDetailPage(record, name)}>{text}</a>;
-          }
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'blueWasteTaxAmountValue',
         // header: (_, __, title) => <span style={{ fontWeight: 'bold' }}>{title}</span>,
-        renderer: ({ value, text, record, name }) => {
-          if (value === 0) {
-            return text;
-          } else {
-            return <a onClick={() => this.handleGotoDetailPage(record, name)}>{text}</a>;
-          }
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'redTaxAmountValue',
         // header: (_, __, title) => <span style={{ fontWeight: 'bold' }}>{title}</span>,
-        renderer: ({ value, text, record, name }) => {
-          if (value === 0) {
-            return text;
-          } else {
-            return <a onClick={() => this.handleGotoDetailPage(record, name)}>{text}</a>;
-          }
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'redWasteTaxAmountValue',
         // header: (_, __, title) => <span style={{ fontWeight: 'bold' }}>{title}</span>,
-        renderer: ({ value, text, record, name }) => {
-          if (value === 0) {
-            return text;
-          } else {
-            return <a onClick={() => this.handleGotoDetailPage(record, name)}>{text}</a>;
-          }
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'actualSalesTaxAmountValue',
         // header: (_, __, title) => <span style={{ fontWeight: 'bold' }}>{title}</span>,
-        renderer: ({ value, text, record, name }) => {
-          if (value === 0) {
-            return text;
-          } else {
-            return <a onClick={() => this.handleGotoDetailPage(record, name)}>{text}</a>;
-          }
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'totalAmountValue',
         width: 120,
         // header: (_, __, title) => <span style={{ fontWeight: 'bold' }}>{title}</span>,
-        renderer: ({ value, text, record, name }) => {
-          if (value === 0) {
-            return text;
-          } else {
-            return <a onClick={() => this.handleGotoDetailPage(record, name)}>{text}</a>;
-          }
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
     ];
@@ -298,7 +233,7 @@ export default class TaxRateStatisticsReportPage extends Component<TaxRateStatis
   @Bind()
   exportParams() {
     const queryParams =
-      this.props.taxRateStatisticsReport.queryDataSet!.map((data) => data.toData()) || {};
+      this.props.taxRateStatisticsReport.queryDataSet!.map(data => data.toData()) || {};
     for (const key in queryParams[0]) {
       if (queryParams[0][key] === '' || queryParams[0][key] === null) {
         delete queryParams[0][key];

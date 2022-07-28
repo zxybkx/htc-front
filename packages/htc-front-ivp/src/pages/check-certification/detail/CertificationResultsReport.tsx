@@ -47,7 +47,7 @@ interface ApplyDeductionPageProps {
 @formatterCollections({
   code: [modelCode, 'htc.common', 'hiop.invoiceRule', 'hivp.bill'],
 })
-export default class ApplyDeductionPage extends Component<ApplyDeductionPageProps> {
+export default class CertificationResultsReport extends Component<ApplyDeductionPageProps> {
   state = {
     summaryData: [],
     detailData: [],
@@ -103,7 +103,7 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
       this.summaryDS.setQueryParameter('spmm', taxDiskPassword);
       this.summaryDS.setQueryParameter('rqq', invoiceDateFromStr);
       this.summaryDS.setQueryParameter('rqz', invoiceDateToStr);
-      this.summaryDS.query().then((res) => {
+      this.summaryDS.query().then(res => {
         if (res) {
           const { certifiedResultStatisticSummaryDtoList, detailList, queryTime } = res;
           this.headerDS.current!.set({ queryTime });
@@ -180,9 +180,9 @@ export default class ApplyDeductionPage extends Component<ApplyDeductionPageProp
       const res = getResponse(await statisticReportDownload(params));
       if (res) {
         const blob = new Blob([base64toBlob(res)]);
-        if (window.navigator.msSaveBlob) {
+        if ((window.navigator as any).msSaveBlob) {
           try {
-            window.navigator.msSaveBlob(blob, name);
+            (window.navigator as any).msSaveBlob(blob);
           } catch (e) {
             notification.error({
               description: '',

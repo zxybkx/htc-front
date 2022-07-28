@@ -64,7 +64,6 @@ interface InvoiceVoidPageProps extends RouteComponentProps {
     'hiop.customerInfo',
   ],
 })
-
 export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps> {
   invoiceRedFlushLineDS = new DataSet({
     autoQuery: false,
@@ -97,7 +96,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
    */
   @Bind()
   queryLines() {
-    this.invoiceRedFlushLineDS.query().then((lineRes) => {
+    this.invoiceRedFlushLineDS.query().then(lineRes => {
       if (isEmpty(lineRes)) {
         this.setState({ redFinished: true });
         this.invoiceRedFlushHeaderDS.current!.set({ readonly: true });
@@ -130,7 +129,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
       queryDataSet.current!.set({ companyObj: currentEmployee });
       queryDataSet.current!.set({ employeeDesc });
       this.invoiceRedFlushHeaderDS.create({}, 0);
-      this.invoiceRedFlushHeaderDS.query().then(async (res) => {
+      this.invoiceRedFlushHeaderDS.query().then(async res => {
         if (res) {
           const { invoiceVariety, listFlag, invoicingOrderId } = res;
           if (invoicingReqHeaderId) {
@@ -177,14 +176,14 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
    */
   get columns(): ColumnProps[] {
     const { listFlag } = this.state;
-    const judgeEdit = (record) => Number(listFlag) !== 1 || !record.get('invoicingOrderHeaderId');
-    const judgeTaxMount = (record) =>
+    const judgeEdit = record => Number(listFlag) !== 1 || !record.get('invoicingOrderHeaderId');
+    const judgeTaxMount = record =>
       Number(listFlag) === 1 && record.get('invoicingOrderHeaderId') && !record.get('taxRate');
-    const toNonExponential = (num) => {
+    const toNonExponential = num => {
       const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
       return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
     };
-    const regExp = /(^[0-9]*.[0]*$)/;
+    const regExp = /(^\d*.[0]*$)/;
     return [
       {
         header: intl.get('htc.common.orderSeq').d('序号'),
@@ -193,17 +192,17 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
           return dataSet && record ? dataSet.indexOf(record) + 1 : '';
         },
       },
-      { name: 'invoiceLineNature', editor: (record) => judgeEdit(record) },
-      { name: 'projectObj', width: 150, editor: (record) => judgeEdit(record) },
-      { name: 'projectName', width: 150, editor: (record) => judgeEdit(record) },
+      { name: 'invoiceLineNature', editor: record => judgeEdit(record) },
+      { name: 'projectObj', width: 150, editor: record => judgeEdit(record) },
+      { name: 'projectName', width: 150, editor: record => judgeEdit(record) },
       {
         name: 'quantity',
-        editor: (record) => judgeEdit(record),
+        editor: record => judgeEdit(record),
         renderer: ({ value }) => <span>{value}</span>,
       },
       {
         name: 'projectUnitPrice',
-        editor: (record) => judgeEdit(record),
+        editor: record => judgeEdit(record),
         width: 150,
         renderer: ({ value }) =>
           value &&
@@ -211,12 +210,12 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
       },
       {
         name: 'taxRateObj',
-        editor: (record) => judgeEdit(record),
+        editor: record => judgeEdit(record),
       },
       {
         name: 'amount',
         editor: (record, name) => (
-          <Currency onChange={(value) => this.handleAmount(value, record, name, 1)} />
+          <Currency onChange={value => this.handleAmount(value, record, name, 1)} />
         ),
         width: 130,
       },
@@ -226,7 +225,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         width: 150,
         editor: (record, name) =>
           (judgeTaxMount(record) || record.get('invoiceLineNature') === '6') && (
-            <Currency onChange={(value) => this.handleAmount(value, record, name, 2)} />
+            <Currency onChange={value => this.handleAmount(value, record, name, 2)} />
           ),
       },
       { name: 'deduction', width: 150 },
@@ -244,7 +243,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         editor: true,
       },
       { name: 'specialVatManagement', width: 140 },
-      { name: 'commodityNumberObj', width: 150, editor: (record) => judgeEdit(record) },
+      { name: 'commodityNumberObj', width: 150, editor: record => judgeEdit(record) },
       {
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
@@ -266,68 +265,20 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     ];
   }
 
-  /**
-   * 订单保存
-   * @params {number} type 0-保存 1-提交
-   */
   @Bind()
-  async handleSaveRedFlush(type) {
+  async handleSaveResult(params, classify, type) {
     const { history } = this.props;
-    const { empInfo, redRemainAmount, taxIncludedFlag, originTotalAmount } = this.state;
-    const validate = await this.invoiceRedFlushHeaderDS.validate(false, false);
-    const lineValidate = await this.invoiceRedFlushLineDS.validate(false, false);
-    if (!validate || !lineValidate) {
-      notification.error({
-        description: '',
-        message: intl.get('hzero.common.notification.invalid').d('校验不通过！'),
-      });
-      return;
+    let res = getResponse(type === 0 ? await batchSave(params) : await review(params));
+    if (classify === 'request') {
+      res = getResponse(await batchInvalid(params));
     }
-    const headerData = this.invoiceRedFlushHeaderDS.current!.toData();
-    const { redMarkReason } = headerData;
-    if (!redMarkReason) {
-      notification.error({
-        description: '红冲原因未填',
-        message: intl.get('hzero.common.notification.invalid').d('校验不通过！'),
-      });
-      return;
-    }
-    const lineList: any = this.invoiceRedFlushLineDS.toData();
-    let totalAmount = 0;
-    lineList.forEach((item) => {
-      if (item.taxIncludedFlag === '1') {
-        totalAmount += Math.abs(item.amount);
-      } else {
-        totalAmount += Math.abs(item.amount) + Math.abs(item.taxAmount);
-      }
-    });
-    const originalAmount = taxIncludedFlag === '1' ? redRemainAmount : originTotalAmount;
-    if (totalAmount > originalAmount) {
-      notification.error({
-        description: '',
-        message: `红冲超限！该发票本次红冲${totalAmount.toFixed(2)}, 剩余红冲金额${originalAmount}`,
-      });
-      return;
-    }
-    const _lineList = lineList.map((record: any) => {
-      const { projectObj, ...otherItem } = record;
-      return {
-        ...otherItem,
-        ...projectObj,
-        projectName: projectObj.invoiceProjectName,
-      };
-    });
-    const params = {
-      tenantId,
-      curEmployeeId: empInfo.employeeId,
-      ...headerData,
-      lines: _lineList,
-    };
-    // 保存（红冲订单）0|红冲审核（提交）1
-    const res = getResponse(type === 0 ? await batchSave(params) : await review(params));
     if (res) {
       if (type === 1) {
-        history.push('/htc-front-iop/invoice-workbench/list');
+        const pathname =
+          classify === 'request'
+            ? '/htc-front-iop/invoice-req/list'
+            : '/htc-front-iop/invoice-workbench/list';
+        history.push(pathname);
       } else {
         notification.success({
           description: '',
@@ -340,35 +291,11 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     }
   }
 
-  /**
-   * 申请单保存
-   * @params {number} type 0-保存 1-提交
-   */
   @Bind()
-  async requestSave(type) {
-    const { history } = this.props;
-    const { empInfo, redRemainAmount, taxIncludedFlag, originTotalAmount } = this.state;
-    const validate = await this.invoiceRedFlushHeaderDS.validate(false, false);
-    const lineValidate = await this.invoiceRedFlushLineDS.validate(false, false);
-    if (!validate || !lineValidate) {
-      notification.error({
-        description: '',
-        message: intl.get('hzero.common.notification.invalid').d('校验不通过！'),
-      });
-      return;
-    }
-    const headerData = this.invoiceRedFlushHeaderDS.current!.toData();
-    const { redMarkReason } = headerData;
-    if (!redMarkReason) {
-      notification.error({
-        description: '红冲原因未填',
-        message: intl.get('hzero.common.notification.invalid').d('校验不通过！'),
-      });
-      return;
-    }
-    const lineList: any = this.invoiceRedFlushLineDS.toData();
+  handleRedPunchOver(lineList) {
+    const { redRemainAmount, taxIncludedFlag, originTotalAmount } = this.state;
     let totalAmount = 0;
-    lineList.forEach((item) => {
+    lineList.forEach(item => {
       if (item.taxIncludedFlag === '1') {
         totalAmount += Math.abs(item.amount);
       } else {
@@ -381,43 +308,59 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         description: '',
         message: `红冲超限！该发票本次红冲${totalAmount.toFixed(2)}, 剩余红冲金额${originalAmount}`,
       });
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * 订单保存
+   * @params {number} type 0-保存 1-提交
+   */
+  @Bind()
+  async handleSaveRedFlush(type, classify) {
+    const { empInfo } = this.state;
+    const validate = await this.invoiceRedFlushHeaderDS.validate(false, false);
+    const lineValidate = await this.invoiceRedFlushLineDS.validate(false, false);
+    if (!validate || !lineValidate) {
+      notification.error({
+        description: '',
+        message: intl.get('hzero.common.notification.invalid').d('校验不通过！'),
+      });
       return;
     }
-    const _lineList = lineList.map((record: any) => {
-      const { projectObj, ...otherItem } = record;
-      return {
-        ...otherItem,
-        ...projectObj,
-        projectName: projectObj.invoiceProjectName,
+    const headerData = this.invoiceRedFlushHeaderDS.current!.toData();
+    const lineList: any = this.invoiceRedFlushLineDS.toData();
+    const redPunchOverResult = await this.handleRedPunchOver(lineList);
+    if (redPunchOverResult) {
+      const _lineList = lineList.map((record: any) => {
+        const { projectObj, ...otherItem } = record;
+        return {
+          ...otherItem,
+          ...projectObj,
+          projectName: projectObj.invoiceProjectName,
+        };
+      });
+      let params = {
+        tenantId,
+        curEmployeeId: empInfo.employeeId,
+        ...headerData,
+        lines: _lineList,
       };
-    });
-    const { companyCode, employeeNum, employeeId } = empInfo;
-    const params = {
-      organizationId: tenantId,
-      headerCompanyCode: companyCode,
-      headerEmployeeNumber: employeeNum,
-      headerReviewerId: employeeId,
-      submit: type === 1 && true,
-      ...headerData,
-      lines: _lineList,
-    };
-    const res = getResponse(await batchInvalid(params));
-    if (res) {
-      if (type === 1) {
-        notification.success({
-          description: '',
-          message: intl.get('hzero.common.notification.success').d('操作成功'),
-        });
-        history.push('/htc-front-iop/invoice-req/list');
-      } else {
-        notification.success({
-          description: '',
-          message: intl.get('hzero.common.notification.success').d('保存成功'),
-        });
-        const { lines, ..._otherData } = res[0];
-        this.invoiceRedFlushHeaderDS.loadData([_otherData]);
-        this.invoiceRedFlushLineDS.loadData(lines);
+      if (classify === 'request') {
+        const { companyCode, employeeNum, employeeId } = empInfo;
+        params = {
+          organizationId: tenantId,
+          headerCompanyCode: companyCode,
+          headerEmployeeNumber: employeeNum,
+          headerReviewerId: employeeId,
+          submit: type === 1,
+          ...headerData,
+          lines: _lineList,
+        };
       }
+      // 保存（红冲订单）0|红冲审核（提交）1
+      this.handleSaveResult(params, classify, type);
     }
   }
 
@@ -428,7 +371,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
   @Bind()
   redInfoSerialChange(value) {
     if (value) {
-      const validateNumber = new RegExp(/^[0-9]{16}$/);
+      const validateNumber = new RegExp(/^\d{16}$/);
       if (validateNumber.test(value)) {
         this.invoiceRedFlushLineDS.setQueryParameter('redInvoiceHeaderId', null);
         this.queryLines();
@@ -529,7 +472,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
             type="c7n-pro"
             // color={ButtonColor.dark}
             disabled={redFinished || invoiceVariety === ''}
-            onClick={() => this.requestSave(1)}
+            onClick={() => this.handleSaveRedFlush(1, 'request')}
             permissionList={[
               {
                 code: `${permissionPath}.redflush-reqsubmit`,
@@ -544,7 +487,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
             type="c7n-pro"
             // color={ButtonColor.dark}
             disabled={redFinished || invoiceVariety === ''}
-            onClick={() => this.requestSave(0)}
+            onClick={() => this.handleSaveRedFlush(0, 'request')}
             permissionList={[
               {
                 code: `${permissionPath}.redflush-reqsave`,
@@ -563,7 +506,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
           <PermissionButton
             type="c7n-pro"
             // color={ButtonColor.dark}
-            onClick={() => this.handleSaveRedFlush(0)}
+            onClick={() => this.handleSaveRedFlush(0, 'order')}
             disabled={redFinished || invoiceVariety === ''}
             permissionList={[
               {
@@ -578,7 +521,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
           <PermissionButton
             type="c7n-pro"
             // color={ButtonColor.dark}
-            onClick={() => this.handleSaveRedFlush(1)}
+            onClick={() => this.handleSaveRedFlush(1, 'order')}
             disabled={redFinished || invoiceVariety === ''}
             permissionList={[
               {
@@ -639,7 +582,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     const AddBtn = observer((props: any) => {
       const isDisabled =
         Number(listFlag) === 1 &&
-        props.dataSet!.some((record) => record.get('invoicingOrderHeaderId'));
+        props.dataSet!.some(record => record.get('invoicingOrderHeaderId'));
       return (
         <Button
           icon={props.icon}

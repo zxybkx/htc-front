@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-12 16:29:24
- * @LastEditTime: 2021-01-28 10:44:06
+ * @LastEditTime: 2022-07-26 15:38:08
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -17,21 +17,21 @@ import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 
 const modelCode = 'hivp.bill';
 
-const editAble = (record) =>
+const editAble = record =>
   // !record.get('recordType') &&
   !(
     record.get('recordState') === 'ARCHIVED' ||
     record.get('receiptsState') === '1' ||
     record.get('entryAccountState') === '1'
   );
-const amountEditable = (record) =>
+const amountEditable = record =>
   // !record.get('recordType') &&
   !(
     record.get('recordState') === 'ARCHIVED' ||
     record.get('receiptsState') === '1' ||
     (record.get('entryAccountState') === '1' && record.get('billType') !== 'FLIGHT_ITINERARY')
   );
-const flightEditable = (record) =>
+const flightEditable = record =>
   // !record.get('recordType') &&
   !(
     record.get('recordState') === 'ARCHIVED' ||
@@ -47,7 +47,7 @@ const requiredByBillType = (record, name) => {
 
 // 票价（fare)、aviationDevelopmentFund(民航发展基金)、total(发票总金额)、fuelSurcharge(燃油附加费)、otherTaxes(其他税费)
 // 行程单计算
-const flightAmount = (record) => {
+const flightAmount = record => {
   const total = Number(record.get('total')) || 0;
   const fare = Number(record.get('fare')) || 0;
   const aviationDevelopmentFund = Number(record.get('aviationDevelopmentFund')) || 0;
@@ -59,15 +59,10 @@ const flightAmount = (record) => {
   const invoiceAmount = Number(((1000 * totalAmount) / ((1 + taxRate) * 1000)).toFixed(2));
   const taxAmount = ((totalAmount * 100 - invoiceAmount * 100) / 100).toFixed(2);
   record.set({ totalAmount, invoiceAmount, taxAmount });
-  // if (total === calTotal) {
-  //   record.set({ totalAmount: fare + fuelSurcharge });
-  // } else {
-  //   record.set({ totalAmount: total - otherTaxes });
-  // }
 };
 
 // 金额计算
-const getBillAmount = (record) => {
+const getBillAmount = record => {
   const taxRate = Number(record.get('taxRate')) || 0;
   const totalAmount = Number(record.get('totalAmount')) || 0;
   const invoiceAmount = Number(((1000 * totalAmount) / ((1 + taxRate) * 1000)).toFixed(2));
@@ -229,7 +224,7 @@ export default (dsParams): DataSetProps => {
           readOnly: ({ record }) => !editAble(record),
           required: ({ record, name }) => requiredByBillType(record, name),
         },
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'totalAmount',

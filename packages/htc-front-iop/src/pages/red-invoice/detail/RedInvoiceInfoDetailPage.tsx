@@ -36,7 +36,7 @@ interface RedInvoiceRequisitionPageProps extends RouteComponentProps<RouterInfo>
 @formatterCollections({
   code: ['hiop.redInvoiceInfo', 'hiop.invoiceWorkbench', 'htc.common', 'hiop.customerInfo'],
 })
-export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequisitionPageProps> {
+export default class RedInvoiceInfoDetailPage extends Component<RedInvoiceRequisitionPageProps> {
   state = {
     empInfo: undefined as any,
   };
@@ -118,9 +118,8 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
   get renderEmployeeDesc() {
     const { empInfo } = this.state;
     if (empInfo) {
-      return `${empInfo.companyCode || ''}-${empInfo.employeeNum || ''}-${
-        empInfo.employeeName || ''
-      }-${empInfo.mobile || ''}`;
+      return `${empInfo.companyCode || ''}-${empInfo.employeeNum || ''}-${empInfo.employeeName ||
+        ''}-${empInfo.mobile || ''}`;
     }
     return '';
   }

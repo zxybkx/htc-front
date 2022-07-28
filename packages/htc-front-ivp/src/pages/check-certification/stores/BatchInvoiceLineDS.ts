@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-26 11:01:10
- * @LastEditTime:
+ * @LastEditTime: 2022-07-26 16:14:16
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -19,7 +19,6 @@ const modelCode = 'hivp.taxRefund';
 export default (): DataSetProps => {
   const tenantId = getCurrentOrganizationId();
   const API_PREFIX = commonConfig.IVP_API || '';
-  // const API_PREFIX = `${commonConfig.IVP_API}-31183` || '';
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -27,8 +26,6 @@ export default (): DataSetProps => {
         const _dataSet: any = config.dataSet;
         const { queryDataSet } = _dataSet.parent;
         const parentQueryData = queryDataSet && queryDataSet.current!.toData(true);
-        // const { companyId, companyCode, employeeId, employeeNumber, ...otherParams } =
-        //   parentQueryData || {};
         const { companyCode, ...otherParams } = parentQueryData || {};
         assign(data, otherParams);
         const url = `${API_PREFIX}/v1/${tenantId}/batch-check/query-batch-check-log`;

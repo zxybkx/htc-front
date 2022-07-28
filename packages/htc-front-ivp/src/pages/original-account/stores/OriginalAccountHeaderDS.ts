@@ -12,7 +12,6 @@ import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldType, FieldIgnore } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
-// import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import moment from 'moment';
 
 const modelCode = 'hivp.invoicesOriginalAccount';
@@ -20,7 +19,9 @@ const modelCode = 'hivp.invoicesOriginalAccount';
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
-  const yearStart = moment().subtract(1, 'years').startOf('month');
+  const yearStart = moment()
+    .subtract(1, 'years')
+    .startOf('month');
   return {
     transport: {
       read: (config): AxiosRequestConfig => {

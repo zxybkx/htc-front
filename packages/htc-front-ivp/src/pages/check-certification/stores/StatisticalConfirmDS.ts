@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: shan.zhang@hand-china.com
  * @Date: 2020-10-29 10:20:22
- * @LastEditTime:
+ * @LastEditTime: 2022-07-26 16:15:13
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -19,8 +19,6 @@ const modelCode = 'hivp.checkCertification';
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
-  // const monthStart = moment(dsParams.statisticalPeriod).startOf('month');
-  // const dayEnd = moment().endOf('day');
   return {
     transport: {
       read: (config): AxiosRequestConfig => {

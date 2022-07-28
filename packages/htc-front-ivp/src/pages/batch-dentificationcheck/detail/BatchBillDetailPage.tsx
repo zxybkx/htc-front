@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-14 15:05:58
- * @LastEditTime: 2021-01-28 10:53:59
+ * @LastEditTime: 2022-07-26 14:26:02
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -18,7 +18,7 @@ interface BillPoolDetailPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
 
-export default class BillDetailPage extends Component<BillPoolDetailPageProps> {
+export default class BatchBillDetailPage extends Component<BillPoolDetailPageProps> {
   render() {
     const { invoiceHeaderId } = this.props.match.params;
     return (

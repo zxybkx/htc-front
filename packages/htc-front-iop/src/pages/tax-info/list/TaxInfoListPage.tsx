@@ -45,7 +45,7 @@ const permissionPath = `${getPresentMenu().name}.ps`;
 @formatterCollections({
   code: ['hiop.taxInfo', 'hiop.invoiceWorkbench', 'htc.common', 'hiop.redInvoiceInfo'],
 })
-export default class TaxInfoPage extends Component<TaxInfoPageProps> {
+export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
   tableLineDS = new DataSet({
     autoQuery: false,
     ...TaxLinesDS(),
@@ -186,7 +186,7 @@ export default class TaxInfoPage extends Component<TaxInfoPageProps> {
       if (res.status === '1000') {
         showContent = (
           <span>
-            {res.data.map((data) => (
+            {res.data.map(data => (
               <p>
                 {intl.get('hiop.taxInfo.view.extNumber').d('分机号：')}
                 {data.extNumber}&nbsp;&nbsp;&nbsp;

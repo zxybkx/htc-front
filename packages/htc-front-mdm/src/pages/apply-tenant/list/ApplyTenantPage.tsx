@@ -8,7 +8,6 @@
  */
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { Header } from 'components/Page';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
@@ -70,8 +69,7 @@ interface ProjectApplicationPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
 
-@connect()
-export default class ProjectApplicationPage extends Component<ProjectApplicationPageProps> {
+export default class ApplyTenantPage extends Component<ProjectApplicationPageProps> {
   state = {
     showButtons: true,
     uniqueCode: undefined,
@@ -88,11 +86,6 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
     feedback: {
       loadFailed: () => {
         this.props.history.push('/public/htc-front-mdm/apply/invalid-result');
-        // this.props.dispatch(
-        //   routerRedux.push({
-        //     pathname: '/public/htc-front-mdm/apply/invalid-result',
-        //   })
-        // );
       },
     },
     children: {
@@ -102,7 +95,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
 
   singleUpload;
 
-  saveSingleUpload = (node) => {
+  saveSingleUpload = node => {
     this.singleUpload = node;
   };
 
@@ -146,6 +139,15 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
   get columns(): ColumnProps[] {
     const { search } = this.props.location;
     const linksType = new URLSearchParams(search).get('linksType');
+    const commonCommand = ({ record }): Commands[] => {
+      return [
+        <span className="action-link" key="action">
+          <a onClick={() => this.handleEdit(record)}>
+            {intl.get(`${modelCode}.button.edit`).d('编辑')}
+          </a>
+        </span>,
+      ];
+    };
     const type1 = [
       { name: 'openFunc', width: 200 },
       { name: 'companyCode' },
@@ -160,15 +162,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
         width: 80,
-        command: ({ record }): Commands[] => {
-          return [
-            <span className="action-link" key="action">
-              <a onClick={() => this.handleEdit(record)}>
-                {intl.get(`${modelCode}.button.edit`).d('编辑')}
-              </a>
-            </span>,
-          ];
-        },
+        command: commonCommand,
         lock: ColumnLock.right,
         align: ColumnAlign.center,
       },
@@ -192,15 +186,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
         width: 80,
-        command: ({ record }): Commands[] => {
-          return [
-            <span className="action-link" key="action">
-              <a onClick={() => this.handleEdit(record)}>
-                {intl.get(`${modelCode}.button.edit`).d('编辑')}
-              </a>
-            </span>,
-          ];
-        },
+        command: commonCommand,
         lock: ColumnLock.right,
         align: ColumnAlign.center,
       },
@@ -227,15 +213,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
         width: 80,
-        command: ({ record }): Commands[] => {
-          return [
-            <span className="action-link" key="action">
-              <a onClick={() => this.handleEdit(record)}>
-                {intl.get(`${modelCode}.button.edit`).d('编辑')}
-              </a>
-            </span>,
-          ];
-        },
+        command: commonCommand,
         lock: ColumnLock.right,
         align: ColumnAlign.center,
       },
@@ -436,24 +414,19 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
   @Bind()
   async handleSubmit() {
     const validateValue = await Promise.all(
-      this.applyTenantDS.map((record) => record.validate(true, false))
+      this.applyTenantDS.map(record => record.validate(true, false))
     );
-    if (validateValue.some((item) => !item)) {
+    if (validateValue.some(item => !item)) {
       notification.error({
         description: '',
         message: intl.get('hzero.common.notification.invalid').d('数据校验不通过！'),
       });
       return;
     }
-    const data = this.applyTenantDS.map((record) => record.toData(true));
+    const data = this.applyTenantDS.map(record => record.toData(true));
     const res = getResponse(await saveInfo(data));
     if (res) {
       this.props.history.push('/public/htc-front-mdm/apply/success-result');
-      // this.props.dispatch(
-      //   routerRedux.push({
-      //     pathname: '/public/htc-front-mdm/apply/success-result',
-      //   })
-      // );
     }
   }
 
@@ -464,9 +437,6 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
   handleExit() {
     window.location.href = 'about:blank';
     window.close();
-    // window.opener = null;
-    // window.open('', '_self');
-    // window.close();
   }
 
   /**
@@ -517,7 +487,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
   /**
    * 上传附件成功回调
    */
-  handleUploadSuccess = (response) => {
+  handleUploadSuccess = response => {
     if (isString(response)) {
       Modal.destroyAll();
       this.getUploadInfo();
@@ -532,9 +502,9 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
   };
 
   /**
-   * 上传附件失败回调
+   * 失败回调
    */
-  handleUploadError = (response) => {
+  handleFnError = response => {
     notification.error({
       description: '',
       message: response,
@@ -549,9 +519,9 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
   @Bind()
   downLoadFile(name, text) {
     const blob = new Blob([base64toBlob(text)]);
-    if (window.navigator.msSaveBlob) {
+    if ((window.navigator as any).msSaveBlob) {
       try {
-        window.navigator.msSaveBlob(blob, name);
+        (window.navigator as any).msSaveBlob(blob, name);
       } catch (e) {
         notification.error({
           description: '',
@@ -669,7 +639,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
       partialUpload: false,
       id: 'upload',
       onUploadSuccess: this.handleUploadSuccess,
-      onUploadError: this.handleUploadError,
+      onUploadError: this.handleFnError,
     };
     const modal = Modal.open({
       title: intl.get(`${modelCode}.view.uploadAttachment`).d('上传附件'),
@@ -718,7 +688,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
   /**
    * 导入成功回调
    */
-  handleImportSuccess = (response) => {
+  handleImportSuccess = response => {
     try {
       const multipleData = JSON.parse(response);
       const res = getResponse(multipleData);
@@ -735,16 +705,6 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
         message: intl.get(`${modelCode}.view.uploadInvalid`).d('上传返回数据无效'),
       });
     }
-  };
-
-  /**
-   * 导入失败回调
-   */
-  handleImportError = (response) => {
-    notification.error({
-      description: '',
-      message: response,
-    });
   };
 
   /**
@@ -765,7 +725,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
       partialUpload: false,
       id: 'import',
       onUploadSuccess: this.handleImportSuccess,
-      onUploadError: this.handleImportError,
+      onUploadError: this.handleFnError,
     };
     return (
       <>

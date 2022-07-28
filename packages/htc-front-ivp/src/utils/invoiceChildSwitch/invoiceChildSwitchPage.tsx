@@ -3,17 +3,16 @@
  * @version: 1.0
  * @Author: huishan.yu@hand-china.com
  * @Date: 2021-10-29 12:00:48
- * @LastEditTime: 2021-10-29 12:00:48
+ * @LastEditTime: 2022-07-26 17:28:22
  * @Copyright: Copyright (c) 2021, Hand
  */
 import React, { Component } from 'react';
 import { routerRedux } from 'dva/router';
 import { Dispatch } from 'redux';
 import intl from 'utils/intl';
-import { connect } from 'dva';
 import { Icon } from 'choerodon-ui/pro';
-import querystring from 'querystring';
 import formatterCollections from 'utils/intl/formatterCollections';
+import queryString from 'query-string';
 import style from './invoiceChildSwitchPage.model.less';
 
 interface InvoiceChildSwitchPageProps {
@@ -25,7 +24,6 @@ const modelCode = 'hivp.invoices';
 @formatterCollections({
   code: [modelCode, 'hivp.invoicesArchiveUpload', 'hivp.invoicesDocRelated'],
 })
-@connect()
 export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitchPageProps> {
   // 通过头跳转
   goToByHeaderParams(record, comParams) {
@@ -35,7 +33,7 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
       dispatch(
         routerRedux.push({
           pathname: comParams.pathname,
-          search: querystring.stringify({
+          search: queryString.stringify({
             invoiceInfo: encodeURIComponent(
               JSON.stringify({
                 companyId: headerData.companyId,

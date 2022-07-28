@@ -8,7 +8,6 @@
 import React, { Component } from 'react';
 import { Content, Header } from 'components/Page';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import intl from 'utils/intl';
 import { TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
 import { DataSet, Table } from 'choerodon-ui/pro';
@@ -23,8 +22,9 @@ interface AutomaticCollectionRulesPageProps {
   dispatch: Dispatch<any>;
 }
 
-@connect()
-export default class AutomaticCollectionRulesPage extends Component<AutomaticCollectionRulesPageProps> {
+export default class AutomaticCollectionRulesPage extends Component<
+  AutomaticCollectionRulesPageProps
+> {
   rulesLineDS = new DataSet({
     ...AutomaticCollectionLinesDS(),
   });

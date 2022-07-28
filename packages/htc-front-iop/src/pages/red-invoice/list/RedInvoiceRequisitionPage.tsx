@@ -80,6 +80,107 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     return !headerId;
   }
 
+  @Bind()
+  calculateNum(record, value) {
+    const unitPrice = Number(record.get('unitPrice')) || 0;
+    if (unitPrice !== 0) {
+      const num = value / unitPrice;
+      if (num.toString().length > 8) {
+        record.set({
+          num: num.toFixed(8),
+        });
+      } else {
+        record.set({ num });
+      }
+    }
+  }
+
+  @Bind()
+  setTaxAmount(record, value) {
+    if (record.get('deductionAmount') && !isNaN(record.get('deductionAmount'))) {
+      record.set({
+        taxAmount: ((value - record.get('deductionAmount')) * record.get('taxRate')).toFixed(2),
+      });
+    } else {
+      record.set({
+        taxAmount: (value * record.get('taxRate')).toFixed(2),
+      });
+    }
+  }
+
+  @Bind()
+  handleZeroTaxRateFlagChange(name, value, dataSet, record) {
+    if (name === 'zeroTaxRateFlag') {
+      if (['0', '1', '2'].includes(value)) {
+        record.set('preferentialPolicyFlag', '1');
+        record.set(
+          'specialManagementVat',
+          dataSet.current!.getField('zeroTaxRateFlag')!.getText(value)
+        );
+      } else {
+        record.set('preferentialPolicyFlag', '0');
+        record.set('specialManagementVat', '');
+      }
+    }
+  }
+
+  @Bind()
+  setNum(unitPrice, record, detailAmount) {
+    if (unitPrice !== 0) {
+      const num = detailAmount / unitPrice;
+      if (num.toString().length > 8) {
+        record.set({
+          num: num.toFixed(8),
+        });
+      } else {
+        record.set({ num });
+      }
+    }
+  }
+
+  @Bind()
+  handleDeductionAmountChange(record) {
+    if (record.get('deductionAmount') && !isNaN(record.get('deductionAmount'))) {
+      record.set({
+        taxAmount: (
+          (record.get('detailAmount') - record.get('deductionAmount')) *
+          record.get('taxRate')
+        ).toFixed(2),
+      });
+    } else {
+      const unitPrice = record.get('unitPrice') || 0;
+      const detailAmount = record.get('detailAmount') || 0;
+      this.setNum(unitPrice, record, detailAmount);
+      record.set({
+        taxAmount: (record.get('detailAmount') * record.get('taxRate')).toFixed(2),
+      });
+    }
+  }
+
+  @Bind()
+  handleTaxRateObjChange(name, value, record) {
+    if (name === 'taxRateObj') {
+      if (!(value && Number(value) === 0)) {
+        record.set('zeroTaxRateFlag', '');
+        record.set('preferentialPolicyFlag', 0);
+      }
+      this.handleDeductionAmountChange(record);
+    }
+  }
+
+  @Bind()
+  handleProjectObjChange(name, value, record) {
+    if (name === 'projectObj' && value) {
+      record.set({
+        goodsName: value.invoiceProjectName,
+        unit: value.projectUnit,
+        specificationModel: value.model,
+        unitPrice: value.projectUnitPrice,
+        goodsCode: value.commodityNumber,
+      });
+    }
+  }
+
   linesDS = new DataSet({
     autoQuery: false,
     ...RedInvoiceRequisitionDS(this.isCreatePage),
@@ -89,29 +190,8 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
         this.calAmount(dataSet);
         // 金额变动
         if (name === 'detailAmount') {
-          const unitPrice = Number(record.get('unitPrice')) || 0;
-          if (unitPrice !== 0) {
-            const num = value / unitPrice;
-            if (num.toString().length > 8) {
-              record.set({
-                num: num.toFixed(8),
-              });
-            } else {
-              record.set({ num });
-            }
-          }
-          if (record.get('deductionAmount') && !isNaN(record.get('deductionAmount'))) {
-            record.set({
-              taxAmount: ((value - record.get('deductionAmount')) * record.get('taxRate')).toFixed(
-                2
-              ),
-            });
-          } else {
-            record.set({
-              // num: value / record.get('unitPrice'),
-              taxAmount: (value * record.get('taxRate')).toFixed(2),
-            });
-          }
+          this.calculateNum(record, value);
+          this.setTaxAmount(record, value);
         }
         // 单价变动、数量变动
         if (['unitPrice', 'num'].includes(name)) {
@@ -121,60 +201,11 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
           record.set({ detailAmount: detailAmount.toFixed(2) });
         }
         // 优惠政策标识
-        if (name === 'zeroTaxRateFlag') {
-          if (['0', '1', '2'].includes(value)) {
-            record.set('preferentialPolicyFlag', '1');
-            record.set(
-              'specialManagementVat',
-              dataSet.current!.getField('zeroTaxRateFlag')!.getText(value)
-            );
-          } else {
-            record.set('preferentialPolicyFlag', '0');
-            record.set('specialManagementVat', '');
-          }
-        }
+        this.handleZeroTaxRateFlagChange(name, value, dataSet, record);
         // 税率
-        if (name === 'taxRateObj') {
-          if (!(value && Number(value) === 0)) {
-            record.set('zeroTaxRateFlag', '');
-            record.set('preferentialPolicyFlag', 0);
-          }
-          if (record.get('deductionAmount') && !isNaN(record.get('deductionAmount'))) {
-            record.set({
-              taxAmount: (
-                (record.get('detailAmount') - record.get('deductionAmount')) *
-                record.get('taxRate')
-              ).toFixed(2),
-            });
-          } else {
-            const unitPrice = record.get('unitPrice') || 0;
-            const detailAmount = record.get('detailAmount') || 0;
-            if (unitPrice !== 0) {
-              const num = detailAmount / unitPrice;
-              if (num.toString().length > 8) {
-                record.set({
-                  num: num.toFixed(8),
-                });
-              } else {
-                record.set({ num });
-              }
-            }
-            record.set({
-              taxAmount: (record.get('detailAmount') * record.get('taxRate')).toFixed(2),
-            });
-          }
-        }
+        this.handleTaxRateObjChange(name, value, record);
         // 自行编码
-        if (name === 'projectObj' && value) {
-          record.set({
-            goodsName: value.invoiceProjectName,
-            unit: value.projectUnit,
-            specificationModel: value.model,
-            unitPrice: value.projectUnitPrice,
-            // taxRateObj: value.taxRate && { value: this.getTaxRate(value.taxRate) } || {},
-            goodsCode: value.commodityNumber,
-          });
-        }
+        this.handleProjectObjChange(name, value, record);
       },
       remove: ({ dataSet }) => {
         if (this.isCreatePage) {
@@ -200,17 +231,13 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
   calAmount(dataSet) {
     // 合计金额
     let invoiceAmount = 0;
-    // 合计税额
     let taxAmount = 0;
-    for (let i = 0; i < dataSet.toData().length; i++) {
-      if (
-        dataSet.toData()[i].detailAmount === undefined ||
-        dataSet.toData()[i].taxAmount === undefined
-      ) {
+    for (const element of dataSet.toData()) {
+      if (element.detailAmount === undefined || element.taxAmount === undefined) {
         return;
       }
-      invoiceAmount += dataSet.toData()[i].detailAmount;
-      taxAmount += dataSet.toData()[i].taxAmount;
+      invoiceAmount += element.detailAmount;
+      taxAmount += element.taxAmount;
     }
     this.headerDS.current!.set('invoiceAmount', invoiceAmount.toFixed(2));
     this.headerDS.current!.set('taxAmount', taxAmount.toFixed(2));
@@ -222,7 +249,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
   @Bind()
   handleTaxRateNotZero() {
     if (this.linesDS.length > 0) {
-      this.linesDS.forEach((line) => {
+      this.linesDS.forEach(line => {
         if (line.get('taxRate') && Number(line.get('taxRate')) !== 0) {
           line.set('preferentialPolicyFlag', 0);
         }
@@ -255,7 +282,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
       empInfo,
     });
     if (!this.isCreatePage) {
-      this.headerDS.query().then((res) => {
+      this.headerDS.query().then(res => {
         if (this.headerDS) {
           const { blueInvoiceCode, blueInvoiceNo } = res;
           this.headerDS.current!.set({
@@ -316,7 +343,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     if (deductionStatus !== '01') {
       const lineRes = await createRedInvoiceReqLines(params);
       if (lineRes && lineRes.length > 0) {
-        lineRes.forEach((line) => this.linesDS.create(line));
+        lineRes.forEach(line => this.linesDS.create(line));
       }
     }
   }
@@ -376,11 +403,6 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
       const { history } = this.props;
       const pathname = `/htc-front-iop/red-invoice-requisition/list/`;
       history.push(pathname);
-      // dispatch(
-      //   routerRedux.push({
-      //     pathname,
-      //   })
-      // );
     }
   }
 
@@ -394,7 +416,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
       const originalAmount = this.headerDS.current!.get('originalAmount');
       const lineList: any = this.linesDS.toData();
       let totalAmount = 0;
-      for (let i = 0; i < lineList.length; i++) {
+      for (const i of lineList.length) {
         totalAmount += Math.abs(lineList[i].detailAmount);
       }
       if (totalAmount > Math.abs(originalAmount)) {
@@ -418,7 +440,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
   @Bind()
   handleTaxRateLovChange(field, value) {
     if (this.linesDS.length > 0) {
-      this.linesDS.forEach((line) => line.set(field, value));
+      this.linesDS.forEach(line => line.set(field, value));
     }
   }
 
@@ -444,9 +466,9 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
    */
   get columns(): ColumnProps[] {
     const { editable, isMultipleTaxRate } = this.state;
-    const taxRateIsZero = (record) =>
+    const taxRateIsZero = record =>
       record.get('taxRate') && Number(record.get('taxRate')) === 0 && editable;
-    const taxAmountEdit = (record) =>
+    const taxAmountEdit = record =>
       ((record.get('taxRate') && Number(record.get('taxRate')) === 0) ||
         isMultipleTaxRate === 'Y') &&
       editable;
@@ -461,20 +483,20 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
       {
         name: 'goodsName',
         width: 200,
-        editor: (record) => editable && <TextField onChange={() => record.set('projectObj', '')} />,
+        editor: record => editable && <TextField onChange={() => record.set('projectObj', '')} />,
       },
       {
         name: 'unit',
-        editor: (record) => editable && <TextField onChange={() => record.set('projectObj', '')} />,
+        editor: record => editable && <TextField onChange={() => record.set('projectObj', '')} />,
       },
       {
         name: 'specificationModel',
         width: 150,
-        editor: (record) => editable && <TextField onChange={() => record.set('projectObj', '')} />,
+        editor: record => editable && <TextField onChange={() => record.set('projectObj', '')} />,
       },
       {
         name: 'unitPrice',
-        editor: (record) => editable && <TextField onChange={() => record.set('projectObj', '')} />,
+        editor: record => editable && <TextField onChange={() => record.set('projectObj', '')} />,
         width: 150,
       },
       {
@@ -490,8 +512,8 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
         width: 200,
         // headerStyle: { color: 'red' },
         // header: (_, __, title) => <span style={{ color: 'red' }}>{title}</span>,
-        editor: (record) =>
-          editable && <Currency onChange={(value) => this.handleAmount(value, record)} />,
+        editor: record =>
+          editable && <Currency onChange={value => this.handleAmount(value, record)} />,
       },
       {
         name: 'deductionAmount',
@@ -505,14 +527,14 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
         width: 150,
         // headerStyle: { color: 'red' },
         // header: (_, __, title) => <span style={{ color: 'red' }}>{title}</span>,
-        editor: (record) => taxAmountEdit(record),
+        editor: record => taxAmountEdit(record),
       },
       { name: 'goodsCode', width: 150 },
       { name: 'projectObj', width: 150, editor: editable },
       {
         name: 'zeroTaxRateFlag',
         width: 150,
-        editor: (record) => taxRateIsZero(record),
+        editor: record => taxRateIsZero(record),
       },
       { name: 'preferentialPolicyFlag', width: 110 },
       { name: 'specialManagementVat', width: 110 },
@@ -558,27 +580,13 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
       });
       return;
     }
-    if (this.linesDS.length > 0) {
-      // const list = this.linesDS.toData();
-      // const maxDetailNoObj: any = maxBy(list, (item: any) => item.detailNo);
-      this.linesDS.create(
-        {
-          // detailNo: maxDetailNoObj.detailNo + 1,
-          companyId: empInfo.companyId,
-          companyCode: empInfo.companyCode,
-        },
-        0
-      );
-    } else {
-      this.linesDS.create(
-        {
-          // detailNo: 1,
-          companyId: empInfo.companyId,
-          companyCode: empInfo.companyCode,
-        },
-        0
-      );
-    }
+    this.linesDS.create(
+      {
+        companyId: empInfo.companyId,
+        companyCode: empInfo.companyCode,
+      },
+      0
+    );
   }
 
   /**
@@ -589,7 +597,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     const { status, listFlag } = this.state;
     const AddBtn = observer((props: any) => {
       const isDisabled = props.dataSet!.some(
-        (record) => record.get('lineNum') && Number(listFlag === 1)
+        record => record.get('lineNum') && Number(listFlag === 1)
       );
       return (
         <Button
@@ -639,9 +647,8 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
   get renderEmployeeDesc() {
     const { empInfo } = this.state;
     if (empInfo) {
-      return `${empInfo.companyCode || ''}-${empInfo.employeeNum || ''}-${
-        empInfo.employeeName || ''
-      }-${empInfo.mobile || ''}`;
+      return `${empInfo.companyCode || ''}-${empInfo.employeeNum || ''}-${empInfo.employeeName ||
+        ''}-${empInfo.mobile || ''}`;
     }
     return '';
   }
@@ -776,7 +783,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
                 <TextField name="taxDiskNumber" />
                 <Lov
                   name="extensionNumberObj"
-                  onChange={(value) => this.handleTaxRateLovChange('extNumber', value.value)}
+                  onChange={value => this.handleTaxRateLovChange('extNumber', value.value)}
                 />
               </Form>
               <Row gutter={8}>

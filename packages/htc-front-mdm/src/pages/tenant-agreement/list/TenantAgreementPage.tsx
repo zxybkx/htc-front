@@ -10,8 +10,6 @@ import { Content, Header } from 'components/Page';
 import { Bind } from 'lodash-decorators';
 import ExcelExport from 'components/ExcelExport';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
-import { isUndefined } from 'util';
 import commonConfig from '@htccommon/config/commonConfig';
 import {
   ColumnAlign,
@@ -35,7 +33,6 @@ interface TenantAgreementPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
 }
 
-@connect()
 export default class TenantAgreementPage extends Component<TenantAgreementPageProps> {
   tableDS = new DataSet({
     autoQuery: true,
@@ -61,11 +58,6 @@ export default class TenantAgreementPage extends Component<TenantAgreementPagePr
     const { history } = this.props;
     const pathname = `/htc-front-mdm/tenant-agreement/detail/${tenantId}/${agreementId}`;
     history.push(pathname);
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname,
-    //   })
-    // );
   }
 
   /**
@@ -73,16 +65,15 @@ export default class TenantAgreementPage extends Component<TenantAgreementPagePr
    */
   @Bind
   getFilterFormValues() {
-    const selectList = this.tableDS.selected.map((item) => item.toData());
-    const selectRowKeys = selectList.map((item) => item.archivesId);
-    const exportParam = selectRowKeys
+    const selectList = this.tableDS.selected.map(item => item.toData());
+    const selectRowKeys = selectList.map(item => item.archivesId);
+    return selectRowKeys
       ? {
           archivesIdList: selectRowKeys.join(','),
         }
       : {
           archivesIdList: null,
         };
-    return exportParam;
   }
 
   /**
@@ -121,7 +112,7 @@ export default class TenantAgreementPage extends Component<TenantAgreementPagePr
             <Button
               key="detial"
               onClick={() => this.handleShowDetial(record)}
-              disabled={isUndefined(agreementId)}
+              disabled={agreementId === undefined}
             >
               {intl.get('hzero.common.status.detial').d('明细')}
             </Button>,
@@ -139,7 +130,7 @@ export default class TenantAgreementPage extends Component<TenantAgreementPagePr
    */
   @Bind()
   exportParams() {
-    const queryParams = this.tableDS.queryDataSet!.map((data) => data.toData()) || {};
+    const queryParams = this.tableDS.queryDataSet!.map(data => data.toData()) || {};
     const { companyObj, ...otherData } = queryParams[0];
     const _queryParams = {
       ...companyObj,

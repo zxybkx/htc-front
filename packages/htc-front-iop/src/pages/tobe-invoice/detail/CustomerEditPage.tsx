@@ -9,7 +9,6 @@
 import React, { Component } from 'react';
 import intl from 'utils/intl';
 import formatterCollections from 'utils/intl/formatterCollections';
-import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { synchronizeSaveCustomer } from '@src/services/tobeInvoiceService';
@@ -30,7 +29,6 @@ interface CustomerInfoPageProps {
   dataSet: any;
 }
 
-@connect()
 @formatterCollections({
   code: [
     'hiop.tobeInvoice',
@@ -40,7 +38,7 @@ interface CustomerInfoPageProps {
     'hiop.invoiceReq',
   ],
 })
-export default class CustomerInfoPage extends Component<CustomerInfoPageProps> {
+export default class CustomerEditPage extends Component<CustomerInfoPageProps> {
   customerInfoDS = new DataSet({
     autoQuery: false,
     ...CustomerInfoDS(this.props),
@@ -89,7 +87,7 @@ export default class CustomerInfoPage extends Component<CustomerInfoPageProps> {
       } else {
         notification.error({
           description: '',
-          message: res && res.message,
+          message: res.message,
         });
       }
     }

@@ -24,16 +24,17 @@ import { phoneReg } from '@htccommon/utils/utils';
  */
 const redInfoSerialNumberValidator = (value, name, record) => {
   if (value && name && record) {
-    const validateNumber = new RegExp(/^[0-9]{16}$/);
+    const validateNumber = new RegExp(/^\d{16}$/);
     if (!validateNumber.test(value)) {
-      return intl.get('hiop.tobeInvoice.validate.serialNumber').d('请输入16位数字');
+      return Promise.resolve(
+        intl.get('hiop.tobeInvoice.validate.serialNumber').d('请输入16位数字')
+      );
     }
   }
-  return undefined;
+  return Promise.resolve(true);
 };
 
 export default (): DataSetProps => {
-  // const API_PREFIX = `${commonConfig.IOP_API}-28090` || '';
   const API_PREFIX = commonConfig.IOP_API || '';
   const tenantId = getCurrentOrganizationId();
   return {
@@ -120,8 +121,7 @@ export default (): DataSetProps => {
           required: ({ record }) =>
             record.get('amount') < 0 && ['0', '52'].includes(record.get('invoiceType')),
         },
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(redInfoSerialNumberValidator(value, name, record))),
+        validator: (value, name, record) => redInfoSerialNumberValidator(value, name, record),
       },
       {
         name: 'electronicType',

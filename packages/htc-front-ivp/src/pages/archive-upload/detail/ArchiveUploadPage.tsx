@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { observer } from 'mobx-react-lite';
 import { Bind } from 'lodash-decorators';
 import { Header, Content } from 'components/Page';
@@ -45,7 +44,6 @@ interface ArchiveUploadPageProps extends RouteComponentProps<RouterInfo> {
 @formatterCollections({
   code: [modelCode, 'hivp.bill', 'htc.common', 'hivp.batchCheck'],
 })
-@connect()
 export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps> {
   state = {
     companyDesc: '',
@@ -82,11 +80,11 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
 
   multipleUploadTimer;
 
-  saveSingleUpload = (node) => {
+  saveSingleUpload = node => {
     this.singleUpload = node;
   };
 
-  saveMutipleUpload = (node) => {
+  saveMutipleUpload = node => {
     this.mutipleUpload = node;
   };
 
@@ -127,7 +125,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
     }
   }
 
-  handleUploadSuccess = (response) => {
+  handleUploadSuccess = response => {
     const { btnFlag } = this.state;
     if (btnFlag === 'S') {
       // 单个文件
@@ -142,7 +140,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
           Modal.confirm({
             key: Modal.key,
             title,
-          }).then((button) => {
+          }).then(button => {
             if (button === 'ok') {
               this.singleIsCheck = 'N';
               this.singleUpload.startUpload();
@@ -189,7 +187,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
     }
   };
 
-  handleUploadError = (response) => {
+  handleUploadError = response => {
     this.setState({ uploadResult: response, btnFlag: '', loadingFlag: false });
     notification.error({
       description: '',
@@ -200,7 +198,6 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
   // 批量上传
   @Bind()
   async handleMultipleUpload(startFlag) {
-    // const { companyCode, employeeNum, loadingFlag } = this.state;
     let curProgress: number = -1;
     if (startFlag) {
       // 开始上传
@@ -234,7 +231,6 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
         }
       }
     }
-    // if ((startFlag || loadingFlag) && curProgress > -1 && curProgress < 100) {
     if (curProgress > -1 && curProgress < 100) {
       this.setState({
         progressValue: curProgress,
@@ -251,7 +247,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
   // 自动勾选
   @Bind()
   handleAutoChecked() {
-    this.multipleDS.forEach((rec) => {
+    this.multipleDS.forEach(rec => {
       // console.log(rec.get('identifyState'), rec.get('dataCheckState'));
       // “自动勾选”只勾选“识别状态”为“识别完成”且“数据校验状态”为“校验通过”的档案
       if (
@@ -268,10 +264,10 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
   async handleConfirmArchive() {
     const { sourceCode } = this.props.match.params;
     const { companyCode, employeeNum } = this.state;
-    const selectedList = this.multipleDS.selected.map((rec) => rec.toData());
+    const selectedList = this.multipleDS.selected.map(rec => rec.toData());
     if (
       selectedList.some(
-        (sl) => !(sl.identifyState === 'RECOGNITION_FINISHED' && sl.dataCheckState === 'PASSED')
+        sl => !(sl.identifyState === 'RECOGNITION_FINISHED' && sl.dataCheckState === 'PASSED')
       )
     ) {
       notification.error({
@@ -282,7 +278,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
       });
       return;
     }
-    const selectedRowKeys = selectedList.map((record) => record.invoiceUploadFileId);
+    const selectedRowKeys = selectedList.map(record => record.invoiceUploadFileId);
     const params = {
       tenantId,
       companyCode,
@@ -303,7 +299,6 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
   // 查看档案
   @Bind()
   handleGotoArchiveView() {
-    // const { dispatch, location } = this.props;
     const { sourceCode, sourceHeaderId } = this.props.match.params;
     const pathname =
       sourceCode === 'BILL_POOL'
@@ -316,18 +311,6 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
       closable: true,
       type: 'menu',
     });
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname,
-    //     search: querystring.stringify({
-    //       invoiceInfo: encodeURIComponent(
-    //         JSON.stringify({
-    //           backPath: location && `${location.pathname}${location.search}`,
-    //         })
-    //       ),
-    //     }),
-    //   })
-    // );
   }
 
   get columns(): ColumnProps[] {
@@ -469,13 +452,6 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
                   label={intl.get(`${modelCode}.view.curDate`).d('当前日期')}
                 />
                 <div>
-                  {/* <Button */}
-                  {/*  disabled={!this.invoiceDS.current?.get('fileUrl')} */}
-                  {/*  color={ButtonColor.primary} */}
-                  {/*  onClick={() => this.handleGotoArchiveView()} */}
-                  {/* > */}
-                  {/*  {intl.get(`${modelCode}.button.viewArchive`).d('查看档案')} */}
-                  {/* </Button> */}
                   <ViewArchiveBtn
                     key="viewArchive"
                     onClick={() => this.handleGotoArchiveView()}

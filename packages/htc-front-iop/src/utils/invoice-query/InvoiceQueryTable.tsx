@@ -16,8 +16,6 @@ import { SelectionMode } from 'choerodon-ui/pro/lib/table/enum';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import { Bind } from 'lodash-decorators';
 import { concat } from 'lodash';
-// import { enterpriseInfo } from '@src/services/invoiceOrderService';
-// import notification from 'utils/notification';
 import InvoiceQueryListDS from './stores/InvoiceQueryListDS';
 
 interface InvoiceQueryTableProps {
@@ -26,7 +24,6 @@ interface InvoiceQueryTableProps {
   sourceRecord: any; // 来源行
   sourceField: string; // 来源字段
   onCloseModal: any; // 关闭modal
-  // 查询条件
   companyCode: string;
   employeeNum: string;
 }
@@ -124,7 +121,7 @@ export default class InvoiceQueryTable extends Component<InvoiceQueryTableProps>
   @Bind()
   chooseCompany() {
     const { sourceRecord, sourceField } = this.props;
-    const lists = this.invoiceQueryListDS.selected.map((rec) => rec.toData());
+    const lists = this.invoiceQueryListDS.selected.map(rec => rec.toData());
     sourceRecord.set(sourceField, lists[0]);
     this.props.onCloseModal();
   }

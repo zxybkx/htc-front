@@ -17,7 +17,6 @@ const modelCode = 'hmdm.company-program';
 
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
-  // const API_PREFIX = `${commonConfig.MDM_API}-30455` || '';
   return {
     transport: {
       read: (config): AxiosRequestConfig => {

@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
- * @LastEditTime: 2021-01-28 17:58:48
+ * @LastEditTime: 2022-07-26 17:13:02
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -21,7 +21,9 @@ const modelCode = 'hivp.myInvoice';
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
-  const halfYearStart = moment().subtract(6, 'months').startOf('month');
+  const halfYearStart = moment()
+    .subtract(6, 'months')
+    .startOf('month');
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -134,7 +136,7 @@ export default (): DataSetProps => {
         label: intl.get(`htc.common.view.invoiceDate`).d('开票日期'),
         type: FieldType.date,
         required: true,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'invoiceAmount',
@@ -189,12 +191,10 @@ export default (): DataSetProps => {
           if (record && name === 'sourceCode') {
             record.set('invoiceType', '');
           }
-          // if (record && name === 'companyObj') {
-          //   record.set('employeeName', record.data.companyObj.employeeName);
-          // }
         },
       },
-      fields: [ {
+      fields: [
+        {
           name: 'companyObj',
           label: intl.get('htc.common.modal.companyName').d('所属公司'),
           type: FieldType.object,
@@ -263,14 +263,14 @@ export default (): DataSetProps => {
           type: FieldType.date,
           max: 'invoiceDateTo',
           defaultValue: halfYearStart,
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'invoiceDateTo',
           label: intl.get(`hivp.bill.view.invoiceDateTo`).d('开票日期至'),
           type: FieldType.date,
           min: 'invoiceDateFrom',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'invoiceStatus',

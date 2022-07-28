@@ -40,7 +40,7 @@ interface GenerateApplicationProps extends RouteComponentProps<RouterInfo> {
 @formatterCollections({
   code: ['hiop.tobeInvoice', 'hiop.invoiceWorkbench', 'hiop.invoiceReq'],
 })
-export default class GenerateApplication extends Component<GenerateApplicationProps> {
+export default class GenerateApplicationPage extends Component<GenerateApplicationProps> {
   generateApplicationDS = new DataSet({
     autoQuery: false,
     ...GenerateApplicationDS(),
@@ -74,7 +74,7 @@ export default class GenerateApplication extends Component<GenerateApplicationPr
     if (validateValue) {
       const { empInfo } = this.state;
       const { companyId, companyCode, employeeNum } = empInfo;
-      const selectedList = this.generateApplicationDS.selected.map((record) => record.toData());
+      const selectedList = this.generateApplicationDS.selected.map(record => record.toData());
       const params = {
         tenantId,
         companyId,
@@ -93,7 +93,7 @@ export default class GenerateApplication extends Component<GenerateApplicationPr
         } else {
           notification.error({
             description: '',
-            message: res && res.message,
+            message: res.message,
           });
         }
       }
@@ -111,9 +111,9 @@ export default class GenerateApplication extends Component<GenerateApplicationPr
   @Bind()
   async generateApplication() {
     const validateValue = await Promise.all(
-      this.generateApplicationDS.selected.map((record) => record.validate(true, false))
+      this.generateApplicationDS.selected.map(record => record.validate(true, false))
     );
-    if (validateValue.some((item) => !item)) {
+    if (validateValue.some(item => !item)) {
       notification.error({
         description: '',
         message: intl.get('hzero.common.notification.invalid').d('数据校验不通过！'),
@@ -121,7 +121,7 @@ export default class GenerateApplication extends Component<GenerateApplicationPr
     } else {
       const { empInfo } = this.state;
       const { companyId, companyCode, employeeNum } = empInfo;
-      const selectedList = this.generateApplicationDS.selected.map((record) => record.toData());
+      const selectedList = this.generateApplicationDS.selected.map(record => record.toData());
       const params = {
         tenantId,
         companyId,
@@ -140,7 +140,7 @@ export default class GenerateApplication extends Component<GenerateApplicationPr
         } else {
           notification.error({
             description: '',
-            message: res && res.message,
+            message: res.message,
           });
         }
       }
@@ -199,29 +199,29 @@ export default class GenerateApplication extends Component<GenerateApplicationPr
       { name: 'amount' },
       { name: 'taxAmount' },
       { name: 'discountAmount' },
-      { name: 'blueInvoiceCode', editor: (record) => record.get('amount') < 0 },
-      { name: 'blueInvoiceNo', editor: (record) => record.get('amount') < 0 },
+      { name: 'blueInvoiceCode', editor: record => record.get('amount') < 0 },
+      { name: 'blueInvoiceNo', editor: record => record.get('amount') < 0 },
       {
         name: 'redInfoSerialNumber',
-        editor: (record) =>
+        editor: record =>
           record.get('amount') < 0 && ['0', '52'].includes(record.get('invoiceType')),
       },
       {
         name: 'electronicReceiverInfo',
         width: 160,
-        editor: (record) => ['51', '52'].includes(record.get('invoiceType')),
+        editor: record => ['51', '52'].includes(record.get('invoiceType')),
       },
       {
         name: 'paperTicketReceiverName',
-        editor: (record) => ['0', '2', '41'].includes(record.get('invoiceType')),
+        editor: record => ['0', '2', '41'].includes(record.get('invoiceType')),
       },
       {
         name: 'paperTicketReceiverAddress',
-        editor: (record) => ['0', '2', '41'].includes(record.get('invoiceType')),
+        editor: record => ['0', '2', '41'].includes(record.get('invoiceType')),
       },
       {
         name: 'paperTicketReceiverPhone',
-        editor: (record) => ['0', '2', '41'].includes(record.get('invoiceType')),
+        editor: record => ['0', '2', '41'].includes(record.get('invoiceType')),
       },
     ];
   }

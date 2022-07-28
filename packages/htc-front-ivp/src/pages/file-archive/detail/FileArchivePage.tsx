@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Bind } from 'lodash-decorators';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Content, Header } from 'components/Page';
 import intl from 'utils/intl';
@@ -23,7 +22,7 @@ import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import notification from 'utils/notification';
 import { DEFAULT_DATE_FORMAT } from 'hzero-front/lib/utils/constants';
 import moment from 'moment';
-import querystring from 'querystring';
+import queryString from 'query-string';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { batchArchiveFiles, updateEntryAccount } from '@src/services/invoicesService';
 import { Button as PermissionButton } from 'components/Permission';
@@ -48,7 +47,6 @@ interface FileArchivePageProps extends RouteComponentProps<RouterInfo> {
 @formatterCollections({
   code: [modelCode, 'hivp.invoicesArchiveUpload', 'hivp.bill', 'htc.common', 'hivp.batchCheck'],
 })
-@connect()
 export default class FileArchivePage extends Component<FileArchivePageProps> {
   state = {
     updateEnteredFlag: 0,
@@ -101,8 +99,8 @@ export default class FileArchivePage extends Component<FileArchivePageProps> {
   @Bind()
   async handleUpdateEntryAccount() {
     const { sourceCode } = this.props.match.params;
-    const selectedList = this.tableDS.selected.map((rec) => rec.toData());
-    const selectedRowKeys = selectedList.map((record) => record.invoicePoolHeaderId);
+    const selectedList = this.tableDS.selected.map(rec => rec.toData());
+    const selectedRowKeys = selectedList.map(record => record.invoicePoolHeaderId);
     if (selectedList.length === 0) {
       notification.info({
         description: '',
@@ -145,8 +143,8 @@ export default class FileArchivePage extends Component<FileArchivePageProps> {
   async handleBatchArchive() {
     const { sourceCode } = this.props.match.params;
     const { companyId, companyCode, employeeNo } = this.state;
-    const selectedList = this.tableDS.selected.map((rec) => rec.toData());
-    const selectedRowKeys = selectedList.map((record) => record.invoicePoolHeaderId);
+    const selectedList = this.tableDS.selected.map(rec => rec.toData());
+    const selectedRowKeys = selectedList.map(record => record.invoicePoolHeaderId);
     if (selectedList.length === 0) {
       notification.info({
         description: '',
@@ -188,7 +186,7 @@ export default class FileArchivePage extends Component<FileArchivePageProps> {
   }
 
   // 查看档案
-  handleGotoArchiveView = (record) => {
+  handleGotoArchiveView = record => {
     const { dispatch, location } = this.props;
     const { sourceCode } = this.props.match.params;
     const sourceHeaderId = record.get('invoicePoolHeaderId');
@@ -199,7 +197,7 @@ export default class FileArchivePage extends Component<FileArchivePageProps> {
     dispatch(
       routerRedux.push({
         pathname,
-        search: querystring.stringify({
+        search: queryString.stringify({
           invoiceInfo: encodeURIComponent(
             JSON.stringify({
               backPath: location && `${location.pathname}${location.search}`,
@@ -298,7 +296,7 @@ export default class FileArchivePage extends Component<FileArchivePageProps> {
           <Form dataSet={this.headerDS} columns={4}>
             <Switch
               name="updateEnteredFlag"
-              onChange={(value) => this.setState({ updateEnteredFlag: value })}
+              onChange={value => this.setState({ updateEnteredFlag: value })}
             />
             <DatePicker name="entryAccountDate" />
             <Select name="archiveMethod" onChange={this.handleArchiveChange} />

@@ -19,12 +19,11 @@ const modelCode = 'hmdm.apply-tenantHeader';
 /**
  * 必输受控于类型
  */
-const requiredBylinksType = (linksType) => {
+const requiredBylinksType = linksType => {
   return linksType !== '1';
 };
 
 export default (dsProps): DataSetProps => {
-  // const API_PREFIX = `${commonConfig.MDM_API}-30455` || '';
   const API_PREFIX = commonConfig.MDM_API || '';
   const { search } = dsProps;
   const typeCode = new URLSearchParams(search).get('typeCode');

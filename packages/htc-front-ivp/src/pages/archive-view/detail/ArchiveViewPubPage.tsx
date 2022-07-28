@@ -25,7 +25,6 @@ interface ArchiveViewPubPageProps extends RouteComponentProps<RouterInfo> {
 @formatterCollections({
   code: [modelCode, 'htc.common', 'hivp.bill'],
 })
-
 export default class ArchiveViewPubPage extends Component<ArchiveViewPubPageProps> {
   state = {
     recordType: '',
@@ -143,7 +142,6 @@ export default class ArchiveViewPubPage extends Component<ArchiveViewPubPageProp
       } else if (recordType === 'OFD') {
         return <ArchiveOfdPage recordType={recordType} curImgUrl={tokenUrl} />;
       } else {
-        // return <img alt="archive" src={curImgUrl} />;
         return (
           <div>
             <img

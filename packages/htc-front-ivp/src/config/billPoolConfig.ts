@@ -1,6 +1,6 @@
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 
-const billFieldConfig = [
+const billPoolConfig = [
   {
     name: 'billType',
     type: FieldType.string,
@@ -86,4 +86,4 @@ const billFieldConfig = [
     type: FieldType.string,
   },
 ];
-export default billFieldConfig;
+export default billPoolConfig;

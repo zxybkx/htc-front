@@ -7,6 +7,7 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
+import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
 import { routerRedux } from 'dva/router';
 import { Bind } from 'lodash-decorators';
@@ -35,11 +36,10 @@ import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
 import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
-import querystring from 'querystring';
+import queryString from 'query-string';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import withProps from 'utils/withProps';
 import notification from 'utils/notification';
-import { isNullOrUndefined } from 'util';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { queryMapIdpValue } from 'hzero-front/lib/services/api';
 import ExcelExport from 'components/ExcelExport';
@@ -59,7 +59,7 @@ const permissionPath = `${getPresentMenu().name}.ps`;
 const sourceCode = 'BILL_POOL';
 const { Item: MenuItem } = Menu;
 
-interface BillsHeadersPageProps {
+interface BillsHeadersPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   headerDS: DataSet;
 }
@@ -85,7 +85,6 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
   };
 
   async componentDidMount() {
-    // const { dispatch } = this.props;
     const { queryDataSet } = this.props.headerDS;
     if (queryDataSet && !queryDataSet.current) {
       const res = await Promise.all([
@@ -127,15 +126,15 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
     if (lovList) {
       queryDataSet.getField('invoiceStates')!.set(
         'defaultValue',
-        lovList.invoiceState.map((is) => is.value)
+        lovList.invoiceState.map(is => is.value)
       );
       queryDataSet.getField('entryAccountStates')!.set(
         'defaultValue',
-        lovList.accountState.map((is) => is.value)
+        lovList.accountState.map(is => is.value)
       );
       queryDataSet.getField('receiptsStates')!.set(
         'defaultValue',
-        lovList.interfaceDocsState.map((is) => is.value)
+        lovList.interfaceDocsState.map(is => is.value)
       );
     }
     queryDataSet.reset();
@@ -171,7 +170,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
                 <Lov
                   name="companyObj"
                   colSpan={2}
-                  onChange={(value) => this.handleCompanyChange(value)}
+                  onChange={value => this.handleCompanyChange(value)}
                 />
                 <TextField name="employeeDesc" colSpan={2} />
                 <Select
@@ -269,8 +268,8 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
     const fieldArray: JSX.Element[] = [
       <Select name="billType" onChange={() => this.handleBillTypeChange(modal, record)} />,
     ];
-    billTagArray.forEach((item) => {
-      billPoolConfig.forEach((field) => {
+    billTagArray.forEach(item => {
+      billPoolConfig.forEach(field => {
         if (item === field.name) {
           switch (field.type) {
             case 'string':
@@ -350,13 +349,12 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
   goToByQueryParams(comParams) {
     const { dispatch } = this.props;
     const { queryDataSet } = this.props.headerDS;
-    // const { inChannelCode } = this.state;
     if (queryDataSet) {
       const curQueryInfo = queryDataSet.current!.toData();
       dispatch(
         routerRedux.push({
           pathname: comParams.pathname,
-          search: querystring.stringify({
+          search: queryString.stringify({
             invoiceInfo: encodeURIComponent(
               JSON.stringify({
                 companyDesc: `${curQueryInfo.companyCode}-${curQueryInfo.companyName}`,
@@ -383,8 +381,8 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
    */
   @Bind()
   handleGotoBillArchive() {
-    const selectedHeaderList = this.props.headerDS.selected.map((record) => record.toData());
-    const selectedRowKeys = selectedHeaderList.map((record) => record.billPoolHeaderId);
+    const selectedHeaderList = this.props.headerDS.selected.map(record => record.toData());
+    const selectedRowKeys = selectedHeaderList.map(record => record.billPoolHeaderId);
     const sourceHeaderIds = selectedRowKeys.join(',');
     if (!sourceHeaderIds) return;
     const comParams = {
@@ -413,7 +411,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
   @Bind()
   handleDeleteHeaders() {
     const headersList = this.props.headerDS.selected;
-    const checkedFlag = headersList.some((hl) => {
+    const checkedFlag = headersList.some(hl => {
       const { entryAccountState, receiptsState, recordState } = hl.toData();
       return (
         (entryAccountState && entryAccountState !== '0') ||
@@ -435,7 +433,9 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
   @Bind()
   handleSaveBill() {
     const unCheckedFlag = this.props.headerDS.some(
-      (hh) => isNullOrUndefined(hh.get('invoiceType')) && hh.get('billType') === 'BLOCK_CHAIN'
+      hh =>
+        (hh.get('invoiceType') === undefined || hh.get('invoiceType') === null) &&
+        hh.get('billType') === 'BLOCK_CHAIN'
     );
     if (unCheckedFlag) {
       notification.warning({
@@ -532,16 +532,14 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
   handleGotoDetailPage(record) {
     const billPoolHeaderId = record.get('billPoolHeaderId');
     const billType = record.get('billType');
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const pathname = `/htc-front-ivp/bills/detail/${billPoolHeaderId}/${billType}`;
     localStorage.setItem('currentBillrecord', JSON.stringify(record.data)); // 添加跳转record缓存
-    dispatch(
-      routerRedux.push(
-        {
-          pathname,
-        },
-        { currentInvoicerecord: JSON.stringify(record.data) }
-      )
+    history.push(
+      {
+        pathname,
+      },
+      { currentInvoicerecord: JSON.stringify(record.data) }
     );
   }
 
@@ -567,7 +565,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
     dispatch(
       routerRedux.push({
         pathname: comParams.pathname,
-        search: querystring.stringify({
+        search: queryString.stringify({
           invoiceInfo: encodeURIComponent(
             JSON.stringify({
               companyId: headerData.companyId,
@@ -647,7 +645,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
     dispatch(
       routerRedux.push({
         pathname,
-        search: querystring.stringify({
+        search: queryString.stringify({
           invoiceInfo: encodeURIComponent(
             JSON.stringify({
               backPath: '/htc-front-ivp/bills/list',
@@ -663,14 +661,13 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
    */
   @Bind()
   handleGetQueryParams() {
-    const queryParams = this.props.headerDS.queryDataSet!.map((data) => data.toData(true)) || {};
-    const exportParams = { ...queryParams[0] } || {};
-    return exportParams;
+    const queryParams = this.props.headerDS.queryDataSet!.map(data => data.toData(true)) || {};
+    return { ...queryParams[0] } || {};
   }
 
   @Bind()
   optionsRender(record) {
-    const renderPermissionButton = (params) => (
+    const renderPermissionButton = params => (
       <PermissionButton
         type="c7n-pro"
         funcType={FuncType.flat}
@@ -779,7 +776,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
     }
     const btnMenu = (
       <Menu>
-        {operators.map((action) => {
+        {operators.map(action => {
           const { key } = action;
           return <Menu.Item key={key}>{action.ele}</Menu.Item>;
         })}
@@ -805,13 +802,6 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
   }
 
   get columns(): ColumnProps[] {
-    // const editAble = (record) =>
-    //   !record.get('recordType') &&
-    //   !(
-    //     record.get('recordState') === 'ARCHIVED' ||
-    //     record.get('receiptsState') === '1' ||
-    //     record.get('entryAccountState') === '1'
-    //   );
     return [
       {
         name: 'billType',
@@ -842,24 +832,16 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
               textColor = '#959595';
               break;
             case '3':
-              color = '#FFDFCA';
-              textColor = '#FB6D3B';
-              break;
             case '4':
               color = '#FFDFCA';
               textColor = '#FB6D3B';
               break;
             case '5':
-              color = '#FFDCD4';
-              textColor = '#FF5F57';
-              break;
             case '6':
               color = '#FFDCD4';
               textColor = '#FF5F57';
               break;
             default:
-              color = '';
-              textColor = '';
               break;
           }
           return (
@@ -922,7 +904,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
       { name: 'ticketCollectorObj', editor: true, width: 280 },
       {
         name: 'internationalTelCode',
-        editor: (record) =>
+        editor: record =>
           record.get('employeeTypeCode') === 'PRESET' && (
             <Select onChange={() => this.props.headerDS.submit()} />
           ),
@@ -930,7 +912,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
       },
       {
         name: 'employeeIdentify',
-        editor: (record) =>
+        editor: record =>
           record.get('employeeTypeCode') === 'PRESET' && (
             <TextField onBlur={() => this.props.headerDS.submit()} />
           ),
@@ -980,7 +962,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
     dispatch(
       routerRedux.push({
         pathname: `/htc-front-ivp/bills/batch-upload/${sourceCode}/${curCompanyId}`,
-        search: querystring.stringify({
+        search: queryString.stringify({
           invoiceInfo: encodeURIComponent(
             JSON.stringify({
               backPath: '/htc-front-ivp/bills/list',
@@ -1047,7 +1029,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
     ];
     const btnMenu = (
       <Menu>
-        {topBtns.map((action) => {
+        {topBtns.map(action => {
           return <MenuItem>{action}</MenuItem>;
         })}
       </Menu>

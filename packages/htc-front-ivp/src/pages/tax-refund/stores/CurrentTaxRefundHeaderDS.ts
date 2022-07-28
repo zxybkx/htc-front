@@ -20,7 +20,6 @@ const modelCode = 'hivp.tax-refund';
 export default (): DataSetProps => {
   const tenantId = getCurrentOrganizationId();
   const API_PREFIX = commonConfig.IVP_API || '';
-  // const API_PREFIX = `${commonConfig.IVP_API}-31183` || '';
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -60,10 +59,10 @@ export default (): DataSetProps => {
       selectAll: ({ dataSet }) => {
         let amount = 0;
         let taxAmount = 0;
-        dataSet.forEach((record) => {
+        dataSet.forEach(record => {
           amount += record.get('invoiceAmountGross');
         });
-        dataSet.forEach((record) => {
+        dataSet.forEach(record => {
           taxAmount += record.get('invoiceTheAmount');
         });
         const { queryDataSet } = dataSet;
@@ -361,7 +360,7 @@ export default (): DataSetProps => {
           name: 'invoiceDisplayOptions',
           label: intl.get(`${modelCode}.view.invoiceDisplayOptions`).d('发票显示选项'),
           type: FieldType.string,
-          transformRequest: (value) => value && value.join(','),
+          transformRequest: value => value && value.join(','),
           // computedProps: {
           //   defaultValue: ({ record }) =>
           //     ['CURRENT_PERIOD_CHECKED', 'ABNORMAL_FLAGED', 'DISPLAY_CHECK_REQUESTING'].includes(

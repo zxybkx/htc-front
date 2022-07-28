@@ -64,7 +64,6 @@ interface CommodityInfoPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-
 export default class CustomerInfoPage extends Component<CommodityInfoPageProps> {
   async componentDidMount() {
     const { queryDataSet } = this.props.customerInfoListDS;
@@ -303,11 +302,52 @@ export default class CustomerInfoPage extends Component<CommodityInfoPageProps> 
       Modal.confirm({
         key: Modal.key,
         title,
-      }).then((button) => {
+      }).then(button => {
         if (button === 'ok') {
           record.set({ enabledFlag: 0 });
           this.props.customerInfoListDS.submit();
         }
+      });
+    }
+  }
+
+  @Bind()
+  async handleModalBtn(button, record, modal, isNew) {
+    if (button === 'ok') {
+      const secParams = {
+        tenantId,
+        checkDataSameFlag: '0',
+        data: record.toData(true),
+      };
+      const secRes = getResponse(await batchSave(secParams));
+      if (secRes) {
+        modal.close();
+        notification.success({
+          description: '',
+          message: intl.get('hzero.common.notification.success').d('操作成功'),
+        });
+        this.props.customerInfoListDS.query();
+      }
+    } else {
+      this.handleCancelCustomer(record, modal, isNew);
+    }
+  }
+
+  handleSaveRes(result, record, modal, isNew) {
+    if (result.status === '1000') {
+      modal.close();
+      notification.success({
+        description: '',
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
+      });
+      this.props.customerInfoListDS.query();
+    } else {
+      Modal.confirm({
+        title: result.message,
+        okText: '继续',
+        mask: false,
+      }).then(button => {
+        this.handleModalBtn(button, record, modal, isNew);
       });
     }
   }
@@ -330,39 +370,7 @@ export default class CustomerInfoPage extends Component<CommodityInfoPageProps> 
       };
       const res = getResponse(await batchSave(params));
       if (res) {
-        if (res.status === '1000') {
-          modal.close();
-          notification.success({
-            description: '',
-            message: intl.get('hzero.common.notification.success').d('操作成功'),
-          });
-          this.props.customerInfoListDS.query();
-        } else {
-          Modal.confirm({
-            title: res && res.message,
-            okText: '继续',
-            mask: false,
-          }).then(async (button) => {
-            if (button === 'ok') {
-              const secParams = {
-                tenantId,
-                checkDataSameFlag: '0',
-                data,
-              };
-              const secRes = getResponse(await batchSave(secParams));
-              if (secRes) {
-                modal.close();
-                notification.success({
-                  description: '',
-                  message: intl.get('hzero.common.notification.success').d('操作成功'),
-                });
-                this.props.customerInfoListDS.query();
-              }
-            } else {
-              this.handleCancelCustomer(record, modal, isNew);
-            }
-          });
-        }
+        this.handleSaveRes(res, record, modal, isNew);
       }
     }
   }
@@ -438,8 +446,6 @@ export default class CustomerInfoPage extends Component<CommodityInfoPageProps> 
               textColor = '#19A633';
               break;
             default:
-              color = '';
-              textColor = '';
               break;
           }
           return (
@@ -560,14 +566,13 @@ export default class CustomerInfoPage extends Component<CommodityInfoPageProps> 
   @Bind()
   handleGetQueryParams() {
     const queryParams =
-      this.props.customerInfoListDS.queryDataSet!.map((data) => data.toData(true)) || {};
+      this.props.customerInfoListDS.queryDataSet!.map(data => data.toData(true)) || {};
     for (const key in queryParams[0]) {
       if (queryParams[0][key] === '' || queryParams[0][key] === null) {
         delete queryParams[0][key];
       }
     }
-    const exportParams = { ...queryParams[0] } || {};
-    return exportParams;
+    return { ...queryParams[0] } || {};
   }
 
   render() {

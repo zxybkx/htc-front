@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { connect } from 'dva';
 import { DataSet, Spin } from 'choerodon-ui/pro';
 import { Tag, Timeline, Row, Col } from 'choerodon-ui';
 import { isEmpty } from 'lodash';
@@ -16,7 +15,6 @@ interface InvoiceHistoryPageProps {
   record: any; // 行数据
 }
 
-@connect()
 @formatterCollections({
   code: [modelCode, 'htc.common', 'hcan.invoiceDetail', 'hivp.bill'],
 })
@@ -31,7 +29,7 @@ export default class InvoiceHistoryPage extends Component<InvoiceHistoryPageProp
   });
 
   async componentDidMount() {
-    this.tableDS.query().then((res) => {
+    this.tableDS.query().then(res => {
       if (res && res.length > 0) {
         this.setState({ listData: res });
       }
@@ -69,8 +67,8 @@ export default class InvoiceHistoryPage extends Component<InvoiceHistoryPageProp
           <Timeline className={styles.list}>
             {listData.map((item: any) => {
               const { incidentDetail } = item;
-              const employeeInfo = incidentDetail.split(/;|；/);
-              const splitName = employeeInfo[0].split(/:|：/);
+              const employeeInfo = incidentDetail.split(/[;；]/);
+              const splitName = employeeInfo[0].split(/[:：]/);
               const detail = employeeInfo[1] || employeeInfo[0];
               const employeeName = splitName[1];
               return (

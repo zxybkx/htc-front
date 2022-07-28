@@ -22,7 +22,7 @@ interface BillViewPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
 
-export default class BillViewPage extends Component<BillViewPageProps> {
+export default class RemindDetailPage extends Component<BillViewPageProps> {
   /**
    * 渲染自动催收提醒内容
    */

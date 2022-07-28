@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-30 14:18:54
- * @LastEditTime:
+ * @LastEditTime: 2022-07-26 17:19:42
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -42,7 +42,6 @@ const modelCode = 'hivp.checkCertification';
 const tenantId = getCurrentOrganizationId();
 const permissionPath = `${getPresentMenu().name}.ps`;
 
-// const API_PREFIX = `${commonConfig.IVP_API}-31183`;
 const API_PREFIX = commonConfig.IVP_API || '';
 
 interface CertifiedDetailPageProps {
@@ -51,7 +50,7 @@ interface CertifiedDetailPageProps {
   match: any;
 }
 
-export default class CertifiedDetailPage extends Component<CertifiedDetailPageProps> {
+export default class TaxRefundConfirmPage extends Component<CertifiedDetailPageProps> {
   state = {};
 
   taxRefundComfirmDS = new DataSet({
@@ -85,7 +84,7 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
     }
   }
 
-  renderQueryBar = (props) => {
+  renderQueryBar = props => {
     const { queryDataSet, buttons, dataSet } = props;
     if (queryDataSet) {
       return (
@@ -104,8 +103,9 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
             <TextField
               name="number"
               newLine
-              renderer={(value) =>
-                value.text && `${value.text} ${intl.get(`${modelCode}.view.share`).d('份')}`
+              renderer={value =>
+                value.text &&
+                `${value.text} ${intl.get('hivp.checkCertification.view.share').d('份')}`
               }
             />
             <Currency name="amount" />
@@ -127,14 +127,13 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
   // 导出
   @Bind()
   handleGetQueryParams() {
-    const queryParams = this.taxRefundComfirmDS.queryDataSet!.map((data) => data.toData()) || {};
+    const queryParams = this.taxRefundComfirmDS.queryDataSet!.map(data => data.toData()) || {};
     for (const key in queryParams[0]) {
       if (queryParams[0][key] === '' || queryParams[0][key] === null) {
         delete queryParams[0][key];
       }
     }
-    const exportParams = { ...queryParams[0] } || {};
-    return exportParams;
+    return { ...queryParams[0] } || {};
   }
 
   get columns(): ColumnProps[] {
@@ -157,26 +156,26 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
       { name: 'invoiceAmountGross', width: 150, align: ColumnAlign.right },
       { name: 'invoiceTheAmount', width: 150, align: ColumnAlign.right },
       { name: 'validTaxAmount', width: 150, align: ColumnAlign.right },
-      { name: 'invoiceState', renderer: (value) => value.value && `${value.value}-${value.text}` },
-      { name: 'checkState', renderer: (value) => value.value && `${value.value}-${value.text}` },
+      { name: 'invoiceState', renderer: value => value.value && `${value.value}-${value.text}` },
+      { name: 'checkState', renderer: value => value.value && `${value.value}-${value.text}` },
       { name: 'checkDate', width: 130 },
       { name: 'confirmState' },
       { name: 'qrsj' },
       {
         name: 'authenticationMethod',
-        renderer: (value) => value.value && `${value.value}-${value.text}`,
+        renderer: value => value.value && `${value.value}-${value.text}`,
       },
-      { name: 'infoSource', renderer: (value) => value.value && `${value.value}-${value.text}` },
+      { name: 'infoSource', renderer: value => value.value && `${value.value}-${value.text}` },
       {
         name: 'managementState',
-        renderer: (value) => value.value && `${value.value}-${value.text}`,
+        renderer: value => value.value && `${value.value}-${value.text}`,
       },
     ];
   }
 
   @Bind()
   async handleConfirm() {
-    const unPass = this.taxRefundComfirmDS.some((record) => record.get('confirmFlag') === '1');
+    const unPass = this.taxRefundComfirmDS.some(record => record.get('confirmFlag') === '1');
     const { queryDataSet } = this.taxRefundComfirmDS;
     if (unPass) {
       notification.warning({
