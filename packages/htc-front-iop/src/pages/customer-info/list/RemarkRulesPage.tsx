@@ -21,7 +21,7 @@ interface InvoiceQueryTableProps {
 @formatterCollections({
   code: ['hiop.customerInfo', 'htc.common'],
 })
-export default class InvoiceQueryTable extends Component<InvoiceQueryTableProps> {
+export default class RemarkRulesPage extends Component<InvoiceQueryTableProps> {
   remarkRulesHeaderDS = new DataSet({
     autoQuery: true,
     ...RemarkRulesHeaderDS(this.props),

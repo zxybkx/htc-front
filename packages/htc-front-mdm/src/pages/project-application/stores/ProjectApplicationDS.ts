@@ -19,7 +19,6 @@ import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import { getCurrentUser } from 'utils/utils';
 
 const modelCode = 'hmdm.project-application';
-// const API_PREFIX = `${commonConfig.MDM_API}-30455` || '';
 const loginInfo = getCurrentUser();
 const API_PREFIX = commonConfig.MDM_API || '';
 
@@ -280,13 +279,25 @@ const LinkDS = (): DataSetProps => {
         if (name === 'linksType') {
           record.set({ linksAccountStart: moment().format(DEFAULT_DATE_FORMAT) });
           if (value === '1') {
-            record.set({ linksAccountEnd: moment().add(7, 'days').format(DEFAULT_DATE_FORMAT) });
+            record.set({
+              linksAccountEnd: moment()
+                .add(7, 'days')
+                .format(DEFAULT_DATE_FORMAT),
+            });
           }
           if (value === '2') {
-            record.set({ linksAccountEnd: moment().add(60, 'days').format(DEFAULT_DATE_FORMAT) });
+            record.set({
+              linksAccountEnd: moment()
+                .add(60, 'days')
+                .format(DEFAULT_DATE_FORMAT),
+            });
           }
           if (value === '3') {
-            record.set({ linksAccountEnd: moment().add(1, 'years').format(DEFAULT_DATE_FORMAT) });
+            record.set({
+              linksAccountEnd: moment()
+                .add(1, 'years')
+                .format(DEFAULT_DATE_FORMAT),
+            });
           }
         }
       },
@@ -307,7 +318,9 @@ const LinkDS = (): DataSetProps => {
         type: FieldType.date,
         defaultValue: {
           linksAccountStart: moment().format(DEFAULT_DATE_FORMAT),
-          linksAccountEnd: moment().add(60, 'days').format(DEFAULT_DATE_FORMAT),
+          linksAccountEnd: moment()
+            .add(60, 'days')
+            .format(DEFAULT_DATE_FORMAT),
         },
         ignore: FieldIgnore.always,
         required: true,

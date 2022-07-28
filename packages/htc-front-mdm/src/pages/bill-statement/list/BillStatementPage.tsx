@@ -18,7 +18,6 @@ import withProps from 'utils/withProps';
 import { RouteComponentProps } from 'react-router-dom';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
-import { connect } from 'dva';
 import notification from 'utils/notification';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
@@ -33,7 +32,6 @@ interface BillStatementPageProps extends RouteComponentProps {
   tableDS: DataSet;
 }
 
-@connect()
 @withProps(
   () => {
     const tableDS = new DataSet({
@@ -75,14 +73,6 @@ export default class BillStatementPage extends Component<BillStatementPageProps>
         fileUrlInfo: encodeURIComponent(JSON.stringify({ fileUrl })),
       }),
     });
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname,
-    //     search: queryString.stringify({
-    //       fileUrlInfo: encodeURIComponent(JSON.stringify({ fileUrl })),
-    //     }),
-    //   })
-    // );
   }
 
   /**
@@ -157,7 +147,7 @@ export default class BillStatementPage extends Component<BillStatementPageProps>
    */
   @Bind()
   async batchSend() {
-    const selectedList = this.props.tableDS.selected.map((record) => record.toData());
+    const selectedList = this.props.tableDS.selected.map(record => record.toData());
     const res = getResponse(await sendEmail(selectedList));
     if (res && res.status === 'H1014') {
       notification.success({
@@ -173,7 +163,7 @@ export default class BillStatementPage extends Component<BillStatementPageProps>
    */
   @Bind()
   async batchGenerateBill() {
-    const selectedList = this.props.tableDS.selected.map((record) => record.toData());
+    const selectedList = this.props.tableDS.selected.map(record => record.toData());
     this.generateBill(selectedList);
   }
 

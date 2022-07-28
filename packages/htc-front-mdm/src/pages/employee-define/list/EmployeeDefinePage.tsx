@@ -9,7 +9,6 @@ import React, { Component } from 'react';
 import { Content, Header } from 'components/Page';
 import { Bind } from 'lodash-decorators';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import uuidv4 from 'uuid/v4';
 import commonConfig from '@htccommon/config/commonConfig';
 import queryString from 'query-string';
@@ -60,8 +59,7 @@ interface CompanyListPageProps {
   tableDS: DataSet;
 }
 
-@connect()
-export default class CompanyListPage extends Component<CompanyListPageProps> {
+export default class EmployeeDefinePage extends Component<CompanyListPageProps> {
   state = {
     treeData: [],
     expandedKeys: [],
@@ -78,7 +76,7 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
   async componentDidMount() {
     const { queryDataSet } = this.tableDS;
     if (queryDataSet && queryDataSet.current) {
-      const companyId = queryDataSet.current!.get('companyId');
+      const companyId = queryDataSet.current.get('companyId');
       if (companyId) {
         this.tableDS.query(this.tableDS.currentPage);
       }
@@ -93,9 +91,9 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
     if (companyOptions && roleOptions) {
       // 处理树形数据
       const treeData: any = [];
-      companyOptions.forEach((item) => {
+      companyOptions.forEach(item => {
         const employeeData: any = [];
-        roleOptions.forEach((record) => {
+        roleOptions.forEach(record => {
           const node = {
             title: record.name,
             key: `${item.companyId}-${record.id}`,
@@ -217,7 +215,7 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
       Modal.confirm({
         key: modalKey,
         title,
-      }).then((button) => {
+      }).then(button => {
         if (button === 'ok') {
           this.tableDS.current!.set({ enabledFlag: 0 });
           this.handleSave(records);
@@ -231,14 +229,13 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
    */
   @Bind()
   handleGetQueryParams() {
-    const queryParams = this.tableDS.queryDataSet!.map((data) => data.toData()) || {};
+    const queryParams = this.tableDS.queryDataSet!.map(data => data.toData()) || {};
     for (const key in queryParams[0]) {
       if (queryParams[0][key] === '' || queryParams[0][key] === null) {
         delete queryParams[0][key];
       }
     }
-    const exportParams = { ...queryParams[0] } || {};
-    return exportParams;
+    return { ...queryParams[0] } || {};
   }
 
   /**
@@ -283,7 +280,7 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
     if (res && res.data) {
       notification.success({
         description: '',
-        message: res && res.message,
+        message: res.message,
       });
       this.tableDS.unSelectAll();
     }
@@ -294,7 +291,7 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
    */
   @Bind()
   async batchCreate() {
-    const employeeInfosList = this.tableDS.selected.map((rec) => rec.toData());
+    const employeeInfosList = this.tableDS.selected.map(rec => rec.toData());
     if (isEmpty(employeeInfosList)) {
       notification.warning({
         description: '',
@@ -470,7 +467,7 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
           ];
           const btnMenu = (
             <Menu>
-              {operators.map((action) => {
+              {operators.map(action => {
                 const { key } = action;
                 return <Menu.Item key={key}>{action.ele}</Menu.Item>;
               })}
@@ -723,8 +720,8 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
         </Button>
       );
     });
-    const loop = (data) =>
-      data.map((item) => {
+    const loop = data =>
+      data.map(item => {
         const title = <span>{item.title}</span>;
         if (item.children) {
           return (

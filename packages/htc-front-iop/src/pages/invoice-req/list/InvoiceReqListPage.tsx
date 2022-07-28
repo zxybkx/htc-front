@@ -76,7 +76,6 @@ interface InvoiceReqListPageProps extends RouteComponentProps {
 @formatterCollections({
   code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq', 'hiop.tobeInvoice'],
 })
-
 @withProps(
   () => {
     const reqListDS = new DataSet({
@@ -137,7 +136,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
               <Form columns={3} dataSet={queryDataSet} labelTooltip={Tooltip.overflow}>
                 <Lov
                   name="companyObj"
-                  onChange={(value) => this.handleCompanyChange(value)}
+                  onChange={value => this.handleCompanyChange(value)}
                   clearButton={false}
                 />
                 <TextField name="taxpayerNumber" />
@@ -225,7 +224,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
   handleGotoPermissionPage() {
     const { history } = this.props;
     const { curCompanyId } = this.state;
-    const selectedList = this.props.reqListDS.selected.map((rec) => rec.get('headerId')).join(',');
+    const selectedList = this.props.reqListDS.selected.map(rec => rec.get('headerId')).join(',');
     const pathname = `/htc-front-iop/permission-assign/REQUEST/${curCompanyId}/${selectedList}`;
     history.push(pathname);
   }
@@ -329,9 +328,9 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
     };
     const res = getResponse(await downloadQrCode(params));
     const blob = new Blob([base64toBlob(res.data.fileBase)]);
-    if (window.navigator.msSaveBlob) {
+    if ((window.navigator as any).msSaveBlob) {
       try {
-        window.navigator.msSaveBlob(blob);
+        (window.navigator as any).msSaveBlob(blob);
       } catch (e) {
         notification.error({
           description: '',
@@ -372,7 +371,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       okText: '确定',
       title: intl.get('hiop.invoiceReq.title.receiverEmail').d('收件人邮箱：'),
       center: true,
-      children: <EmailField onBlur={(e) => toggleOkDisabled(e, myModal)} />,
+      children: <EmailField onBlur={e => toggleOkDisabled(e, myModal)} />,
       okProps: { disabled: true },
       onOk: async () => {
         const params = {
@@ -441,10 +440,10 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
    */
   @Bind()
   handleBatchApplySubmit() {
-    const selectedList = this.props.reqListDS.selected.map((rec) => rec.toData());
+    const selectedList = this.props.reqListDS.selected.map(rec => rec.toData());
     if (
-      selectedList.some((sl) => !['N', 'Q'].includes(sl.requestStatus)) ||
-      selectedList.some((sl) => ['Y'].includes(sl.deleteFlag))
+      selectedList.some(sl => !['N', 'Q'].includes(sl.requestStatus)) ||
+      selectedList.some(sl => ['Y'].includes(sl.deleteFlag))
     ) {
       notification.warning({
         message: intl
@@ -454,7 +453,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       });
       return;
     }
-    this.handleApplySubmit(selectedList.map((sl) => sl.headerId));
+    this.handleApplySubmit(selectedList.map(sl => sl.headerId));
   }
 
   /**
@@ -464,7 +463,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
   @Bind()
   async handleMerge(lists) {
     const { queryDataSet } = this.props.reqListDS;
-    const headerIds = lists.map((rec) => rec.headerId).join(',');
+    const headerIds = lists.map(rec => rec.headerId).join(',');
     if (queryDataSet) {
       const companyCode = queryDataSet.current!.get('companyCode');
       const employeeNumber = queryDataSet.current!.get('employeeNum');
@@ -495,10 +494,10 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
    */
   @Bind()
   async handleBatchMerge() {
-    const selectedList = this.props.reqListDS.selected.map((rec) => rec.toData());
+    const selectedList = this.props.reqListDS.selected.map(rec => rec.toData());
     if (
       selectedList.some(
-        (item) =>
+        item =>
           !['N', 'Q'].includes(item.requestStatus) ||
           item.deleteFlag === 'H' ||
           ['7', '8', '9', '10'].includes(item.sourceType)
@@ -523,7 +522,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
    */
   @Bind()
   async handleMerCancel(lists) {
-    const headerIds = lists.map((rec) => rec.headerId).join(',');
+    const headerIds = lists.map(rec => rec.headerId).join(',');
     const params = {
       tenantId,
       headerIds,
@@ -548,11 +547,9 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
    */
   @Bind()
   handleMergeCancel() {
-    const selectedList = this.props.reqListDS.selected.map((rec) => rec.toData());
+    const selectedList = this.props.reqListDS.selected.map(rec => rec.toData());
     if (
-      selectedList.some(
-        (item) => item.deleteFlag === 'Y' || !['N', 'Q'].includes(item.requestStatus)
-      )
+      selectedList.some(item => item.deleteFlag === 'Y' || !['N', 'Q'].includes(item.requestStatus))
     ) {
       notification.warning({
         message: intl
@@ -570,8 +567,8 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
    */
   @Bind()
   handleBatchApplyCancel() {
-    const selectedList = this.props.reqListDS.selected.map((rec) => rec.toData());
-    if (selectedList.some((sl) => !['N', 'E', 'C'].includes(sl.requestStatus))) {
+    const selectedList = this.props.reqListDS.selected.map(rec => rec.toData());
+    if (selectedList.some(sl => !['N', 'E', 'C'].includes(sl.requestStatus))) {
       notification.warning({
         message: intl
           .get('hiop.invoiceReq.notification.error.batchCancel')
@@ -588,8 +585,8 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
    */
   @Bind()
   handleBatchApplyDelete() {
-    const selectedList = this.props.reqListDS.selected.map((rec) => rec.toData());
-    if (selectedList.some((sl) => !['N', 'Q'].includes(sl.requestStatus))) {
+    const selectedList = this.props.reqListDS.selected.map(rec => rec.toData());
+    if (selectedList.some(sl => !['N', 'Q'].includes(sl.requestStatus))) {
       notification.warning({
         message: intl
           .get('hiop.invoiceReq.notification.error.batchDelete')
@@ -611,9 +608,9 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       const date = moment().format('YYYY-MM-DD HH:mm:ss');
       const zipName = `${date}-${key}`;
       const blob = new Blob([base64toBlob(item)]);
-      if (window.navigator.msSaveBlob) {
+      if ((window.navigator as any).msSaveBlob) {
         try {
-          window.navigator.msSaveBlob(blob, `${zipName}.zip`);
+          (window.navigator as any).msSaveBlob(blob, `${zipName}.zip`);
         } catch (e) {
           notification.error({
             description: '',
@@ -629,7 +626,111 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
         window.URL.revokeObjectURL(blobUrl);
       }
     });
-    // this.props.reqListDS.query();
+  }
+
+  @Bind()
+  validateExport(selectedList) {
+    if (selectedList.some(sl => ['N', 'Q'].includes(sl.requestStatus))) {
+      notification.warning({
+        description: '',
+        message: intl
+          .get('hiop.invoiceReq.notification.error.status')
+          .d('存在新建/取消状态的发票，无法导出打印文件'),
+      });
+      return false;
+    }
+    if (!selectedList.some(sl => sl.completedQuantity > 0)) {
+      notification.warning({
+        description: '',
+        message: intl
+          .get('hiop.invoiceReq.notification.error.finish')
+          .d('不存在完成的发票，无法导出打印文件'),
+      });
+      return false;
+    }
+    if (selectedList.some(sl => ['51', '52'].includes(sl.invoiceType))) {
+      notification.warning({
+        description: '',
+        message: intl
+          .get('hiop.invoiceReq.notification.error.invoiceType')
+          .d('存在发票种类为电子普票或者电子专票发票，无法导出打印文件'),
+      });
+      return false;
+    }
+    if (selectedList.some(sl => sl.sourceType === '8')) {
+      notification.warning({
+        description: '',
+        message: intl
+          .get('hiop.invoiceReq.notification.error.invalid')
+          .d('存在作废的发票，无法导出打印文件'),
+      });
+      return false;
+    }
+    return true;
+  }
+
+  @Bind()
+  async handleExportInterface(params) {
+    const res = await exportPrintFiles(params);
+    if (res && res.status === '1000') {
+      const { data } = res;
+      if (isEmpty(data.skipList)) {
+        // 导出打印
+        this.printZip(data.invoiceTypeMap);
+      } else {
+        Modal.confirm({
+          children: `您本次选择的发票${data.skipList.join('、')}存在断号，是否批量导出打印？`,
+        }).then(button => {
+          if (button === 'ok') {
+            // 导出打印
+            this.printZip(data.invoiceTypeMap);
+          }
+        });
+      }
+    } else {
+      notification.error({
+        description: '',
+        message: res && res.message,
+      });
+    }
+  }
+
+  @Bind()
+  async printInvoiceInterface(params, printType) {
+    const res = getResponse(await exportNotZip(params));
+    let regName = 'Webshell1://';
+    if (printType) {
+      if (printType === 'INVOICE') {
+        regName = 'Webshell2://';
+      } else if (printType === 'LIST') {
+        regName = 'Webshell3://';
+      }
+    }
+    if (res) {
+      res.forEach(item => {
+        const blob = new Blob([base64toBlob(item.data)]);
+        if ((window.navigator as any).msSaveBlob) {
+          try {
+            (window.navigator as any).msSaveBlob(blob, item.fileName);
+          } catch (e) {
+            notification.error({
+              description: '',
+              message: intl.get('hzero.common.notification.download.error').d('下载失败'),
+            });
+          }
+        } else {
+          const aElement = document.createElement('a');
+          const blobUrl = window.URL.createObjectURL(blob);
+          aElement.href = blobUrl; // 设置a标签路径
+          aElement.download = item.fileName;
+          aElement.click();
+          window.URL.revokeObjectURL(blobUrl);
+        }
+      });
+      const printElement = document.createElement('a');
+      printElement.href = regName; // 设置a标签路径
+      printElement.click();
+    }
   }
 
   /**
@@ -640,111 +741,24 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
   @Bind()
   async handleExportPrintFiles(type, printType) {
     const { queryDataSet } = this.props.reqListDS;
-    const selectedList = this.props.reqListDS.selected.map((rec) => rec.toData());
+    const selectedList = this.props.reqListDS.selected.map(rec => rec.toData());
     const companyCode = queryDataSet && queryDataSet.current?.get('companyCode');
     const employeeNumber = queryDataSet && queryDataSet.current?.get('employeeNum');
-    if (selectedList.some((sl) => ['N', 'Q'].includes(sl.requestStatus))) {
-      notification.warning({
-        description: '',
-        message: intl
-          .get('hiop.invoiceReq.notification.error.status')
-          .d('存在新建/取消状态的发票，无法导出打印文件'),
-      });
-      return;
-    }
-    if (!selectedList.some((sl) => sl.completedQuantity > 0)) {
-      notification.warning({
-        description: '',
-        message: intl
-          .get('hiop.invoiceReq.notification.error.finish')
-          .d('不存在完成的发票，无法导出打印文件'),
-      });
-      return;
-    }
-    if (selectedList.some((sl) => ['51', '52'].includes(sl.invoiceType))) {
-      notification.warning({
-        description: '',
-        message: intl
-          .get('hiop.invoiceReq.notification.error.invoiceType')
-          .d('存在发票种类为电子普票或者电子专票发票，无法导出打印文件'),
-      });
-      return;
-    }
-    if (selectedList.some((sl) => sl.sourceType === '8')) {
-      notification.warning({
-        description: '',
-        message: intl
-          .get('hiop.invoiceReq.notification.error.invalid')
-          .d('存在作废的发票，无法导出打印文件'),
-      });
-      return;
-    }
-    const params = {
-      tenantId,
-      companyCode,
-      employeeNumber,
-      printType,
-      invoiceRequisitionHeaderIds: selectedList.map((d) => d.headerId).join(','),
-    };
-    // 导出打印(zip)
-    if (type === 0) {
-      const res = await exportPrintFiles(params);
-      if (res && res.status === '1000') {
-        const { data } = res;
-        if (isEmpty(data.skipList)) {
-          // 导出打印
-          this.printZip(data.invoiceTypeMap);
-        } else {
-          Modal.confirm({
-            children: `您本次选择的发票${data.skipList.join('、')}存在断号，是否批量导出打印？`,
-          }).then((button) => {
-            if (button === 'ok') {
-              // 导出打印
-              this.printZip(data.invoiceTypeMap);
-            }
-          });
-        }
+    const validateRes = await this.validateExport(selectedList);
+    if (validateRes) {
+      const params = {
+        tenantId,
+        companyCode,
+        employeeNumber,
+        printType,
+        invoiceRequisitionHeaderIds: selectedList.map(d => d.headerId).join(','),
+      };
+      // 导出打印(zip)
+      if (type === 0) {
+        this.handleExportInterface(params);
       } else {
-        notification.error({
-          description: '',
-          message: res && res.message,
-        });
-      }
-    } else {
-      // 打印发票
-      const res = getResponse(await exportNotZip(params));
-      let regName = 'Webshell1://';
-      if (printType) {
-        if (printType === 'INVOICE') {
-          regName = 'Webshell2://';
-        } else if (printType === 'LIST') {
-          regName = 'Webshell3://';
-        }
-      }
-      if (res) {
-        res.forEach((item) => {
-          const blob = new Blob([base64toBlob(item.data)]);
-          if (window.navigator.msSaveBlob) {
-            try {
-              window.navigator.msSaveBlob(blob, item.fileName);
-            } catch (e) {
-              notification.error({
-                description: '',
-                message: intl.get('hzero.common.notification.download.error').d('下载失败'),
-              });
-            }
-          } else {
-            const aElement = document.createElement('a');
-            const blobUrl = window.URL.createObjectURL(blob);
-            aElement.href = blobUrl; // 设置a标签路径
-            aElement.download = item.fileName;
-            aElement.click();
-            window.URL.revokeObjectURL(blobUrl);
-          }
-        });
-        const printElement = document.createElement('a');
-        printElement.href = regName; // 设置a标签路径
-        printElement.click();
+        // 打印发票
+        this.printInvoiceInterface(params, printType);
       }
     }
   }
@@ -791,13 +805,8 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
         orderHeaderId: headerId,
         headerId,
       };
-      const res = await judgeInvoiceVoid(params);
-      if (res && res.failed) {
-        notification.error({
-          description: '',
-          message: res && res.message,
-        });
-      } else {
+      const res = getResponse(await judgeInvoiceVoid(params));
+      if (res) {
         history.push(
           `/htc-front-iop/invoice-req/invoice-main-void/REQUEST/${headerId}/${curCompanyId}`
         );
@@ -818,13 +827,8 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       tenantId,
       headerId,
     };
-    const res = await judgeRedFlush(params);
-    if (res && res.failed) {
-      notification.error({
-        description: '',
-        message: res && res.message,
-      });
-    } else {
+    const res = getResponse(await judgeRedFlush(params));
+    if (res) {
       history.push(
         `/htc-front-iop/invoice-req/invoice-main-red-flush/REQUEST/${headerId}/${curCompanyId}`
       );
@@ -839,7 +843,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
   optionsRender(record) {
     const headerId = record.get('headerId');
     const recordData = record.toData();
-    const renderPermissionButton = (params) => (
+    const renderPermissionButton = params => (
       <PermissionButton
         type="c7n-pro"
         funcType={FuncType.link}
@@ -970,24 +974,26 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
     const invoiceMonth = invoiceDate && invoiceDate.substring(0, 7);
     const nowMonth = moment().format('YYYY-MM');
 
-    if (['N', 'Q'].includes(requestStatus) && deleteFlag === 'N') {
-      operators.push(applySubmitBtn);
-    }
-    // “新建”、“异常”、“提交”
-    if (['N', 'E', 'C'].includes(requestStatus) && deleteFlag === 'N') {
-      operators.push(applyCancelBtn);
-    }
-    // “新建”、“取消”
-    if (['N', 'Q'].includes(requestStatus) && deleteFlag === 'N') {
-      operators.push(applyDeleteBtn);
-    }
-    // 提交”、“完成”
-    if (['C', 'F', 'E'].includes(requestStatus) && deleteFlag === 'N') {
-      operators.push(viewOrderBtn);
-    }
-    // 完成”、“异常”
-    if (['F', 'E'].includes(requestStatus) && deleteFlag === 'N') {
-      operators.push(viewInvoiceBtn);
+    if (deleteFlag === 'N') {
+      switch (requestStatus) {
+        case 'N':
+          operators.push(applySubmitBtn, applyCancelBtn, applyDeleteBtn);
+          break;
+        case 'Q':
+          operators.push(applySubmitBtn, applyDeleteBtn);
+          break;
+        case 'E':
+          operators.push(applyCancelBtn, viewOrderBtn, viewInvoiceBtn);
+          break;
+        case 'C':
+          operators.push(applyCancelBtn, viewOrderBtn);
+          break;
+        case 'F':
+          operators.push(viewInvoiceBtn, viewOrderBtn);
+          break;
+        default:
+          break;
+      }
     }
     // 发票作废
     if (
@@ -1010,32 +1016,11 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       operators.push(invoiceRedBtn);
     }
     // 生成二维码
-    if (requestType === 'PURCHASE_INVOICE_SUBSCRIBE' || requestType === 'SALES_INVOICE_SUBSCRIBE') {
+    if (['PURCHASE_INVOICE_SUBSCRIBE', 'SALES_INVOICE_SUBSCRIBE'].includes(requestType)) {
       operators.push(downloadQrCodeBtn, sendQrCodeBtn);
     }
-    // const btnMenu = (
-    //   <Menu>
-    //     {operators.map((action) => {
-    //       const { key } = action;
-    //       return <Menu.Item key={key}>{action.ele}</Menu.Item>;
-    //     })}
-    //   </Menu>
-    // );
     const newOperators = operators.filter(Boolean);
     return operatorRender(newOperators, record, { limit: 2 });
-    // return (
-    //   <span className="action-link">
-    //     <a onClick={() => this.handleGotoDetailPage(false, record)}>
-    //       {intl.get(`${modelCode}.button.viewDetail`).d('详情/编辑')}
-    //     </a>
-    //     <Dropdown overlay={btnMenu}>
-    //       <a>
-    //         {intl.get('hzero.common.button.action').d('操作')}
-    //         <Icon type="arrow_drop_down" />
-    //       </a>
-    //     </Dropdown>
-    //   </span>
-    // );
   }
 
   /**
@@ -1068,14 +1053,13 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
    */
   @Bind()
   handleGetQueryParams() {
-    const queryParams = this.props.reqListDS.queryDataSet?.map((data) => data.toData()) || {};
+    const queryParams = this.props.reqListDS.queryDataSet?.map(data => data.toData()) || {};
     for (const key in queryParams[0]) {
       if (queryParams[0][key] === '' || queryParams[0][key] === null) {
         delete queryParams[0][key];
       }
     }
-    const exportParams = { ...queryParams[0] } || {};
-    return exportParams;
+    return { ...queryParams[0] } || {};
   }
 
   /**
@@ -1089,7 +1073,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       let isDisabled = props.dataSet!.selected.length === 0;
       const { condition } = props;
       if (condition === 'batchDelete' || condition === 'batchSubmit') {
-        isDisabled = !props.dataSet!.selected.some((sl) => sl.get('deleteFlag') !== 'Y');
+        isDisabled = !props.dataSet!.selected.some(sl => sl.get('deleteFlag') !== 'Y');
       }
       return (
         <PermissionButton
@@ -1113,7 +1097,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
     const MergeBtn = observer((props: any) => {
       let isDisabled = props.dataSet!.selected.length < 2;
       if (props.condition === 'batchDelete') {
-        isDisabled = !props.dataSet!.selected.some((sl) => sl.get('deleteFlag') !== 'Y');
+        isDisabled = !props.dataSet!.selected.some(sl => sl.get('deleteFlag') !== 'Y');
       }
       return (
         <PermissionButton
@@ -1216,21 +1200,21 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
     ];
     const batchMenu = (
       <Menu>
-        {batchButtons.map((action) => (
+        {batchButtons.map(action => (
           <MenuItem>{action}</MenuItem>
         ))}
       </Menu>
     );
     const mergeMenu = (
       <Menu>
-        {mergeButtons.map((action) => (
+        {mergeButtons.map(action => (
           <MenuItem>{action}</MenuItem>
         ))}
       </Menu>
     );
     const printMenu = (
       <Menu>
-        {printButtons.map((action) => (
+        {printButtons.map(action => (
           <MenuItem>{action}</MenuItem>
         ))}
       </Menu>
@@ -1338,8 +1322,6 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
               textColor = '#959595';
               break;
             default:
-              color = '';
-              textColor = '';
               break;
           }
           return (

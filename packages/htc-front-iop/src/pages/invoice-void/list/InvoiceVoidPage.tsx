@@ -14,7 +14,6 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Button as PermissionButton } from 'components/Permission';
 import { getPresentMenu } from '@htccommon/utils/utils';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
@@ -37,7 +36,6 @@ interface InvoiceVoidPageProps extends RouteComponentProps {
 @formatterCollections({
   code: ['hiop.invoiceVoid', 'hiop.invoiceWorkbench', 'hiop.invoiceReq', 'htc.common'],
 })
-@connect()
 export default class InvoiceVoidPage extends Component<InvoiceVoidPageProps> {
   invoiceVoidHeaderDS = new DataSet({
     autoQuery: false,
@@ -64,7 +62,7 @@ export default class InvoiceVoidPage extends Component<InvoiceVoidPageProps> {
         this.invoiceVoidHeaderDS.setQueryParameter('orderHeaderId', invoicingReqHeaderId);
         this.invoiceVoidHeaderDS.setQueryParameter('headerId', invoicingReqHeaderId);
       }
-      this.invoiceVoidHeaderDS.query().then((res) => {
+      this.invoiceVoidHeaderDS.query().then(res => {
         const { billingType } = res;
         this.setState({ billingType, empInfo: currentEmployee });
       });
@@ -166,7 +164,7 @@ export default class InvoiceVoidPage extends Component<InvoiceVoidPageProps> {
       headerCompanyCode: companyCode,
       headerEmployeeNumber: employeeNum,
       headerReviewerId: employeeId,
-      submit: type === 1 && true,
+      submit: type === 1,
       ...pageData,
     };
     const res = getResponse(await batchInvalid(params));
@@ -301,7 +299,7 @@ export default class InvoiceVoidPage extends Component<InvoiceVoidPageProps> {
             <Form dataSet={this.invoiceVoidHeaderDS} columns={3}>
               <Select
                 name="invoiceVariety"
-                optionsFilter={(record) => !['51', '52'].includes(record.get('value'))}
+                optionsFilter={record => !['51', '52'].includes(record.get('value'))}
               />
               <Lov name="extNumberObj" />
             </Form>

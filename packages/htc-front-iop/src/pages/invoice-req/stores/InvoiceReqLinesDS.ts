@@ -19,9 +19,9 @@ import { Modal } from 'choerodon-ui/pro';
  * @params {[]} records-行数组
  * @returns {*[]}
  */
-const calculateArr = (records) => {
+const calculateArr = records => {
   const temps: number[] = [];
-  records.forEach((item) => {
+  records.forEach(item => {
     const amount = item.getField('amount')?.getValue() || 0; // 金额
     const deductionAmount = Number(item.getField('deductionAmount')?.getValue()) || 0; // 扣除额
     if (amount - deductionAmount > 0) {
@@ -60,11 +60,13 @@ const priceQuantityValidator = (_, __, record) => {
   const quantity = record.getField('quantity')?.getValue();
   const price = record.getField('price')?.getValue();
   if ((price && quantity) || (!price && !quantity)) {
-    return undefined;
+    return Promise.resolve(true);
   } else {
-    return intl
-      .get('hiop.invoiceReq.validate.priceQuantity')
-      .d('商品数量和单价必须同时为空，或都不能为空');
+    return Promise.resolve(
+      intl
+        .get('hiop.invoiceReq.validate.priceQuantity')
+        .d('商品数量和单价必须同时为空，或都不能为空')
+    );
   }
 };
 
@@ -82,17 +84,21 @@ const amountValidator = (value, name, record) => {
     const discountAmount = record.getField('discountAmount')?.getValue() || 0; // 折扣金额
     const sum = calculateArr(record.dataSet.records).reduce((prev, next) => prev + next, 0);
     if (name === 'discountAmount' && value < 0) {
-      return intl
-        .get('hiop.invoiceReq.validate.discountAmountGreaterThan0')
-        .d('折扣金额不能为负数');
+      return Promise.resolve(
+        intl.get('hiop.invoiceReq.validate.discountAmountGreaterThan0').d('折扣金额不能为负数')
+      );
     }
     if (deductionAmount >= amount) {
-      return intl.get('hiop.invoiceReq.validate.deductionAmount').d('扣除额不能大于等于金额');
+      return Promise.resolve(
+        intl.get('hiop.invoiceReq.validate.deductionAmount').d('扣除额不能大于等于金额')
+      );
     }
     if (discountAmount >= sum) {
-      return intl
-        .get('hiop.invoiceReq.validate.alldeductionAmount')
-        .d('总折扣金额不能大于等于总金额-总扣除额');
+      return Promise.resolve(
+        intl
+          .get('hiop.invoiceReq.validate.alldeductionAmount')
+          .d('总折扣金额不能大于等于总金额-总扣除额')
+      );
     }
     if (discountAmount && amount && discountAmount >= amount - deductionAmount) {
       Modal.confirm({
@@ -108,12 +114,12 @@ const amountValidator = (value, name, record) => {
           calculateSpin(discountAmount, record.dataSet.records);
         },
       });
-      return intl
-        .get('hiop.invoiceReq.validate.discountAmount')
-        .d('折扣金额不能大于等于金额-扣除额');
+      return Promise.resolve(
+        intl.get('hiop.invoiceReq.validate.discountAmount').d('折扣金额不能大于等于金额-扣除额')
+      );
     }
   }
-  return undefined;
+  return Promise.resolve(true);
 };
 
 /**
@@ -121,11 +127,127 @@ const amountValidator = (value, name, record) => {
  * @params {number} value-当前值
  * @returns {string}
  */
-const getTaxRate = (value) => {
+const getTaxRate = value => {
   if (value.indexOf('%') > 0) {
     return value.replace('%', '') / 100;
   } else {
     return value;
+  }
+};
+
+const toNonExponential = num => {
+  const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
+  return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
+};
+
+const setPrice = (record, _quantity) => {
+  const amount = record.get('amount');
+  const _amount = Number(amount) || 0;
+  if (amount && _amount !== 0 && _quantity !== 0) {
+    const calPrice = _amount / _quantity;
+    if (calPrice.toString().length > 8) {
+      record.set({
+        price: calPrice.toFixed(8),
+      });
+    } else {
+      record.set({ price: calPrice });
+    }
+  }
+};
+
+const handleQuantityChange = (name, value, record) => {
+  if (name === 'quantity' && value) {
+    const price = record.get('price');
+    const _price = Number(price) || 0;
+    const _quantity = Number(value) || 0;
+    if (price && _price !== 0 && _quantity !== 0) {
+      const amount = _quantity * _price;
+      record.set('amount', amount.toFixed(2));
+    } else {
+      setPrice(record, _quantity);
+    }
+  }
+};
+
+const setQuantity = (amount, _amount, _price, record) => {
+  if (amount && _amount !== 0 && _price !== 0) {
+    const calQuantity = _amount / _price;
+    if (calQuantity.toString().length > 8) {
+      record.set({
+        quantity: calQuantity.toFixed(8),
+      });
+    } else {
+      record.set({ quantity: calQuantity });
+    }
+  }
+};
+
+const handlePriceChange = (name, value, record) => {
+  if (name === 'price' && value) {
+    const quantity = record.get('quantity');
+    const _price = Number(value) || 0;
+    const _quantity = Number(quantity) || 0;
+    if (quantity && _price !== 0 && _quantity !== 0) {
+      const amount = _quantity * _price;
+      record.set('amount', amount.toFixed(2));
+    } else {
+      const amount = record.get('amount');
+      const _amount = Number(amount) || 0;
+      setQuantity(amount, _amount, _price, record);
+    }
+  }
+};
+
+const setTaxAmount = (name, record) => {
+  if (
+    ['taxIncludedFlag', 'amount', 'taxRateObj', 'deductionAmount', 'discountAmount'].includes(name)
+  ) {
+    const taxIncludedFlag = record.get('taxIncludedFlag');
+    const amount = record.get('amount');
+    const taxRate = Number(record.get('taxRate')) || 0;
+    const deductionAmount = record.get('deductionAmount') || 0;
+    const discountAmount = record.get('discountAmount') || 0;
+    let taxAmount = 0;
+    if (taxIncludedFlag === '1') {
+      // 当【含税标志】为1时，税额=(金额-扣除额)/(1+税率) *税率-折扣金额*税率/(1+税率)
+      taxAmount =
+        ((amount - deductionAmount) / (1 + taxRate)) * taxRate -
+        (discountAmount * taxRate) / (1 + taxRate);
+    } else if (taxIncludedFlag === '0') {
+      // 当【含税标志】为0时，税额=（金额-扣除额）*税率-折扣金额*税率
+      taxAmount = (amount - deductionAmount) * taxRate - discountAmount * taxRate;
+    }
+    record.set('taxAmount', taxAmount.toFixed(2));
+  }
+};
+
+const setPreferentialPolicyFlag = (name, record, value) => {
+  if (name === 'zeroTaxRateFlag') {
+    if (['0', '1', '2'].includes(value)) {
+      record.set('preferentialPolicyFlag', '1');
+    } else {
+      record.set('preferentialPolicyFlag', '0');
+    }
+  }
+};
+
+const handleCommodityNumberObjChange = (name, value, record) => {
+  if (name === 'commodityNumberObj') {
+    const zeroTaxRateFlag = value && value.zeroTaxRateFlag;
+    record.set({
+      projectName: `*${record.get('commodityShortName') || ''}*${record.get('issues') || ''}`,
+      taxRateObj: (value && value.taxRate && { value: getTaxRate(value.taxRate) }) || {},
+      preferentialPolicyFlag: ['0', '1', '2'].includes(zeroTaxRateFlag) ? '1' : '0',
+    });
+  }
+};
+
+const setProjectName = (name, record) => {
+  if (['commodityShortName', 'issues'].includes(name)) {
+    record.set(
+      'projectName',
+      `*${record.get('commodityShortName') || ''}*${record.get('issues') || ''}`
+    );
   }
 };
 
@@ -169,113 +291,26 @@ export default (): DataSetProps => {
     events: {
       update: ({ record, name, value }) => {
         // 数量
-        if (name === 'quantity' && value) {
-          const price = record.get('price');
-          const _price = Number(price) || 0;
-          const _quantity = Number(value) || 0;
-          if (price && _price !== 0 && _quantity !== 0) {
-            const amount = _quantity * _price;
-            record.set('amount', amount.toFixed(2));
-          } else {
-            const amount = record.get('amount');
-            const _amount = Number(amount) || 0;
-            if (amount && _amount !== 0 && _quantity !== 0) {
-              const calPrice = _amount / _quantity;
-              if (calPrice.toString().length > 8) {
-                record.set({
-                  price: calPrice.toFixed(8),
-                });
-              } else {
-                record.set({ price: calPrice });
-              }
-            }
-          }
-        }
+        handleQuantityChange(name, value, record);
         // 单价
-        if (name === 'price' && value) {
-          const quantity = record.get('quantity');
-          const _price = Number(value) || 0;
-          const _quantity = Number(quantity) || 0;
-          if (quantity && _price !== 0 && _quantity !== 0) {
-            const amount = _quantity * _price;
-            record.set('amount', amount.toFixed(2));
-          } else {
-            const amount = record.get('amount');
-            const _amount = Number(amount) || 0;
-            if (amount && _amount !== 0 && _price !== 0) {
-              const calQuantity = _amount / _price;
-              if (calQuantity.toString().length > 8) {
-                record.set({
-                  quantity: calQuantity.toFixed(8),
-                });
-              } else {
-                record.set({ quantity: calQuantity });
-              }
-            }
-          }
-        }
-
+        handlePriceChange(name, value, record);
         // 税额
-        if (
-          ['taxIncludedFlag', 'amount', 'taxRateObj', 'deductionAmount', 'discountAmount'].includes(
-            name
-          )
-        ) {
-          const taxIncludedFlag = record.get('taxIncludedFlag');
-          const amount = record.get('amount');
-          const taxRate = Number(record.get('taxRate')) || 0;
-          const deductionAmount = record.get('deductionAmount') || 0;
-          const discountAmount = record.get('discountAmount') || 0;
-          let taxAmount = 0;
-          if (taxIncludedFlag === '1') {
-            // 当【含税标志】为1时，税额=(金额-扣除额)/(1+税率) *税率-折扣金额*税率/(1+税率)
-            taxAmount =
-              ((amount - deductionAmount) / (1 + taxRate)) * taxRate -
-              (discountAmount * taxRate) / (1 + taxRate);
-          } else if (taxIncludedFlag === '0') {
-            // 当【含税标志】为0时，税额=（金额-扣除额）*税率-折扣金额*税率
-            taxAmount = (amount - deductionAmount) * taxRate - discountAmount * taxRate;
-          }
-          record.set('taxAmount', taxAmount.toFixed(2));
-        }
+        setTaxAmount(name, record);
 
-        if (name === 'taxRateObj') {
-          if (!value || Number(value.value) !== 0) {
-            record.set('zeroTaxRateFlag', '');
-          }
+        if (name === 'taxRateObj' && (!value || Number(value.value) !== 0)) {
+          record.set('zeroTaxRateFlag', '');
         }
-
         // 优惠政策标识
-        if (name === 'zeroTaxRateFlag') {
-          if (['0', '1', '2'].includes(value)) {
-            record.set('preferentialPolicyFlag', '1');
-          } else {
-            record.set('preferentialPolicyFlag', '0');
-          }
-        }
+        setPreferentialPolicyFlag(name, record, value);
 
         // 商品自行编码
         if (name === 'projectNumberObj' && value) {
           record.set({ commodityNumberObj: value, issues: value.projectName || '' });
         }
-
         // 商品编码
-        if (name === 'commodityNumberObj') {
-          const zeroTaxRateFlag = value && value.zeroTaxRateFlag;
-          record.set({
-            projectName: `*${record.get('commodityShortName') || ''}*${record.get('issues') || ''}`,
-            taxRateObj: (value && value.taxRate && { value: getTaxRate(value.taxRate) }) || {},
-            preferentialPolicyFlag: ['0', '1', '2'].includes(zeroTaxRateFlag) ? '1' : '0',
-          });
-        }
-
+        handleCommodityNumberObjChange(name, value, record);
         // 票面项目名称
-        if (['commodityShortName', 'issues'].includes(name)) {
-          record.set(
-            'projectName',
-            `*${record.get('commodityShortName') || ''}*${record.get('issues') || ''}`
-          );
-        }
+        setProjectName(name, record);
       },
     },
     fields: [
@@ -375,30 +410,16 @@ export default (): DataSetProps => {
         defaultValidationMessages: {
           rangeUnderflow: intl.get('hiop.invoiceWorkbench.notification.number').d('数量必须大于0'),
         },
-        transformResponse(value) {
-          const toNonExponential = (num) => {
-            const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
-            return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
-          };
-          return value && toNonExponential(value);
-        },
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(priceQuantityValidator(value, name, record))),
+        transformResponse: value => value && toNonExponential(value),
+        validator: (value, name, record) => priceQuantityValidator(value, name, record),
       },
       {
         name: 'price',
         label: intl.get('hiop.invoiceWorkbench.modal.price').d('单价'),
         type: FieldType.string,
         min: 0.001,
-        transformResponse(value) {
-          const toNonExponential = (num) => {
-            const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
-            return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
-          };
-          return value && toNonExponential(value);
-        },
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(priceQuantityValidator(value, name, record))),
+        transformResponse: value => value && toNonExponential(value),
+        validator: (value, name, record) => priceQuantityValidator(value, name, record),
       },
       {
         name: 'amount',
@@ -406,15 +427,13 @@ export default (): DataSetProps => {
         type: FieldType.currency,
         required: true,
         min: 0.01,
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(amountValidator(value, name, record))),
+        validator: (value, name, record) => amountValidator(value, name, record),
       },
       {
         name: 'discountAmount',
         label: intl.get('hiop.invoiceReq.modal.discountAmount').d('折扣金额'),
         type: FieldType.currency,
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(amountValidator(value, name, record))),
+        validator: (value, name, record) => amountValidator(value, name, record),
       },
       {
         name: 'taxIncludedFlag',
@@ -474,8 +493,7 @@ export default (): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.deduction').d('扣除额'),
         type: FieldType.currency,
         min: 0,
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(amountValidator(value, name, record))),
+        validator: (value, name, record) => amountValidator(value, name, record),
       },
       {
         name: 'preferentialPolicyFlag',

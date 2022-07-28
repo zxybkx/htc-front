@@ -25,16 +25,15 @@ import { phoneReg } from '@htccommon/utils/utils';
  */
 const redInfoSerialNumberValidator = (value, name, record) => {
   if (value && name && record) {
-    const validateNumber = new RegExp(/^[0-9]{16}$/);
+    const validateNumber = new RegExp(/^\d{16}$/);
     if (!validateNumber.test(value)) {
-      return '请输入16位数字';
+      return Promise.resolve('请输入16位数字');
     }
   }
-  return undefined;
+  return Promise.resolve(true);
 };
 
 export default (dsParams): DataSetProps => {
-  // const API_PREFIX = `${commonConfig.IOP_API}-28090` || '';
   const API_PREFIX = commonConfig.IOP_API || '';
   const tenantId = getCurrentOrganizationId();
   const { invoicingOrderHeaderId, invoicingReqHeaderId } = dsParams;
@@ -112,8 +111,7 @@ export default (dsParams): DataSetProps => {
           required: ({ record }) =>
             record.get('invoiceVariety') === '0' || record.get('invoiceVariety') === '52',
         },
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(redInfoSerialNumberValidator(value, name, record))),
+        validator: (value, name, record) => redInfoSerialNumberValidator(value, name, record),
       },
       {
         name: 'invoiceVariety',

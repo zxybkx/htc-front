@@ -7,7 +7,6 @@
  * @Copyright: Copyright (c) 2021, Hand
  */
 import React, { Component } from 'react';
-import { connect } from 'dva';
 import { DataSet, Spin } from 'choerodon-ui/pro';
 import { Col, Row, Timeline } from 'choerodon-ui';
 import { isEmpty } from 'lodash';
@@ -25,11 +24,10 @@ interface InvoiceHistoryPageProps {
   prepareInvoiceId: number;
 }
 
-@connect()
 @formatterCollections({
   code: ['hiop.tobeInvoice', 'hiop.redInvoiceInfo'],
 })
-export default class InvoiceHistoryPage extends Component<InvoiceHistoryPageProps> {
+export default class HistoryModal extends Component<InvoiceHistoryPageProps> {
   state = {
     listData: [],
   };
@@ -40,7 +38,7 @@ export default class InvoiceHistoryPage extends Component<InvoiceHistoryPageProp
   });
 
   async componentDidMount() {
-    this.tableDS.query().then((res) => {
+    this.tableDS.query().then(res => {
       if (res && res.length > 0) {
         this.setState({ listData: res });
       }

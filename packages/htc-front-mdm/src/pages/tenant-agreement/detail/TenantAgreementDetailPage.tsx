@@ -9,7 +9,6 @@ import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Bind } from 'lodash-decorators';
 import { Content, Header } from 'components/Page';
-import { connect } from 'dva';
 import { Button, DataSet, Form, message, Modal, Output, Spin, Table } from 'choerodon-ui/pro';
 import { Tabs } from 'choerodon-ui';
 import { TabsType } from 'choerodon-ui/lib/tabs/enum';
@@ -42,7 +41,6 @@ interface State {
   planStatus: string;
 }
 
-@connect()
 export default class TenantAgreementDetailPage extends Component<Props, State> {
   // 公司信息-公司协议
   companyProtocolDS = new DataSet({
@@ -103,7 +101,6 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
     this.companyInfoColDS.queryParameter = { agreementId };
     await this.detailDS.query();
     await this.agreementClauseColDS.query();
-    // await this.companyInfoColDS.query();
     await this.billInfo.query();
   }
 
@@ -153,7 +150,7 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
       tenantId: record.get('tenantId'),
       companyCode: record.get('companyCode'),
     });
-    message.info(`${intl.get(`${modelCode}.button.refToken`).d('令牌刷新')}:${res}`);
+    message.info(`${intl.get('hpln.index-plan.button.refToken').d('令牌刷新')}:${res}`);
   }
 
   /**
@@ -177,7 +174,7 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
       if (res.status === '1000') {
         showContent = (
           <span>
-            {res.data.map((data) => (
+            {res.data.map(data => (
               <p>
                 {intl.get(`${modelCode}.view.extNumber`).d('分机号：')}
                 {data.extNumber}&nbsp;&nbsp;&nbsp;
@@ -211,7 +208,7 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
       {
         name: 'companyObject',
         width: 150,
-        editor: (record) => !record.get('agreementCompanyId'),
+        editor: record => !record.get('agreementCompanyId'),
       },
       { name: 'companyName', width: 150 },
       { name: 'administrator', width: 150, editor: true },

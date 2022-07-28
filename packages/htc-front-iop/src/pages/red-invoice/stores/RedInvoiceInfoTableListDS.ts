@@ -20,7 +20,6 @@ import { queryUnifyIdpValue } from 'hzero-front/lib/services/api';
 export default (): DataSetProps => {
   const HIOP_API = commonConfig.IOP_API || '';
   const organizationId = getCurrentOrganizationId();
-  // const yesterdayStart = moment().subtract(1, 'days').startOf('day');
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -63,7 +62,7 @@ export default (): DataSetProps => {
         name: 'redInvoiceDate',
         label: intl.get('hiop.redInvoiceInfo.modal.redInvoiceDate').d('填开时间'),
         type: FieldType.dateTime,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
         required: true,
       },
       {

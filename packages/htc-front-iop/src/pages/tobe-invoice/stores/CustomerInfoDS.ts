@@ -20,7 +20,7 @@ import { phoneReg } from '@htccommon/utils/utils';
  * @params {object} record-行记录
  * @returns {boolean}
  */
-const requiredByRequestType = (record) => {
+const requiredByRequestType = record => {
   const businessType = record.get('businessType');
   return !['SALES_INVOICE_SUBSCRIBE', 'PURCHASE_INVOICE_SUBSCRIBE'].includes(businessType);
 };
@@ -30,13 +30,12 @@ const requiredByRequestType = (record) => {
  * @params {object} record-行记录
  * @returns {boolean}
  */
-const requiredByRequestTypeAndInvoiceType = (record) => {
+const requiredByRequestTypeAndInvoiceType = record => {
   const invoiceType = record.get('invoiceType');
   return requiredByRequestType(record) && invoiceType === '0';
 };
 
 export default (dsProps): DataSetProps => {
-  // const API_PREFIX = `${commonConfig.IOP_API}-28090` || '';
   const API_PREFIX = commonConfig.IOP_API || '';
   const tenantId = getCurrentOrganizationId();
   const { companyId, companyCode, employeeNumber } = dsProps || {};

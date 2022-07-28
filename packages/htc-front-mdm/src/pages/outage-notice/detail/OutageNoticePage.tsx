@@ -8,7 +8,6 @@
  */
 import React, { Component } from 'react';
 import { Content, Header } from 'components/Page';
-import { connect } from 'dva';
 import { Dispatch } from 'redux';
 import intl from 'utils/intl';
 import notification from 'utils/notification';
@@ -19,8 +18,7 @@ import OutageNoticeDS, { modelCode } from '../stores/OutageNoticeDS';
 interface OutageNoticeDetailPageProps {
   dispatch: Dispatch<any>;
 }
-@connect()
-export default class OutageNoticeDetailPage extends Component<OutageNoticeDetailPageProps> {
+export default class OutageNoticePage extends Component<OutageNoticeDetailPageProps> {
   outageNoticeDS = new DataSet({
     autoQuery: true,
     ...OutageNoticeDS(),

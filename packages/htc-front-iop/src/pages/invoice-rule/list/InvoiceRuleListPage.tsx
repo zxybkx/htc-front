@@ -79,22 +79,27 @@ export default class InvoiceRuleListPage extends Component<InvoiceRuleListPagePr
       const empInfo = res.content[0];
       const { queryDataSet } = this.invoiceHeaderDS;
       if (queryDataSet && queryDataSet.current) {
-        queryDataSet.current!.set({ companyObj: empInfo });
-        this.invoiceHeaderDS.query().then(() => {
-          if (this.invoiceHeaderDS.length === 0) {
-            this.invoiceHeaderDS.create(
-              {
-                companyId: empInfo.companyId,
-                companyName: empInfo.companyName,
-              },
-              0
-            );
-          }
-        });
-        const companyInfo = queryDataSet && queryDataSet.current!.get('companyObj');
+        queryDataSet.current.set({ companyObj: empInfo });
+        this.loadData(empInfo);
+        const companyInfo = queryDataSet.current.get('companyObj');
         this.setState({ curCompanyId: companyInfo.companyId });
       }
     }
+  }
+
+  @Bind()
+  loadData(empInfo) {
+    this.invoiceHeaderDS.query().then(() => {
+      if (this.invoiceHeaderDS.length === 0) {
+        this.invoiceHeaderDS.create(
+          {
+            companyId: empInfo.companyId,
+            companyName: empInfo.companyName,
+          },
+          0
+        );
+      }
+    });
   }
 
   /**
@@ -206,17 +211,7 @@ export default class InvoiceRuleListPage extends Component<InvoiceRuleListPagePr
     } else {
       const { queryDataSet } = this.invoiceHeaderDS;
       const empInfo = queryDataSet?.current?.get('companyObj');
-      this.invoiceHeaderDS.query().then(() => {
-        if (this.invoiceHeaderDS.length === 0) {
-          this.invoiceHeaderDS.create(
-            {
-              companyId: empInfo.companyId,
-              companyName: empInfo.companyName,
-            },
-            0
-          );
-        }
-      });
+      this.loadData(empInfo);
     }
   }
 
@@ -320,6 +315,35 @@ export default class InvoiceRuleListPage extends Component<InvoiceRuleListPagePr
     ];
   }
 
+  @Bind()
+  setHeaderValue(queryDataSet, value) {
+    if (queryDataSet) {
+      queryDataSet.current!.set({ companyObj: value });
+      if (value) {
+        this.invoiceHeaderDS.query().then(() => {
+          if (this.invoiceHeaderDS.length === 0) {
+            this.invoiceHeaderDS.create(
+              {
+                companyId: value.companyId,
+                companyName: value.companyName,
+              },
+              0
+            );
+          }
+        });
+      }
+    }
+  }
+
+  @Bind()
+  handleModalOk(queryDataSet, oldValue) {
+    this.handleSaveInvoiceRule().then(res => {
+      if (res === false) {
+        queryDataSet?.current!.set({ companyObj: oldValue });
+      }
+    });
+  }
+
   /**
    * 公司改变回调
    * @params {object} value-当前值
@@ -328,24 +352,6 @@ export default class InvoiceRuleListPage extends Component<InvoiceRuleListPagePr
   @Bind()
   async handleCompanyChange(value, oldValue) {
     const { queryDataSet } = this.invoiceHeaderDS;
-    const querySelect = () => {
-      if (queryDataSet) {
-        queryDataSet.current!.set({ companyObj: value });
-        if (value) {
-          this.invoiceHeaderDS.query().then(() => {
-            if (this.invoiceHeaderDS.length === 0) {
-              this.invoiceHeaderDS.create(
-                {
-                  companyId: value.companyId,
-                  companyName: value.companyName,
-                },
-                0
-              );
-            }
-          });
-        }
-      }
-    };
     const { current } = this.invoiceLinesDS;
     if (current) current.set({ operationType: undefined });
     if (this.invoiceHeaderDS.dirty) {
@@ -359,18 +365,14 @@ export default class InvoiceRuleListPage extends Component<InvoiceRuleListPagePr
           </span>
         ),
         onOk: async () => {
-          this.handleSaveInvoiceRule().then((res) => {
-            if (res === false) {
-              queryDataSet?.current!.set({ companyObj: oldValue });
-            }
-          });
+          this.handleModalOk(queryDataSet, oldValue);
         },
         onCancel: () => {
-          querySelect();
+          this.setHeaderValue(queryDataSet, value);
         },
       });
     } else {
-      querySelect();
+      this.setHeaderValue(queryDataSet, value);
     }
   }
 
@@ -401,19 +403,6 @@ export default class InvoiceRuleListPage extends Component<InvoiceRuleListPagePr
   async handleModalCancel(record, modalCallBack) {
     modalCallBack.close();
     this.invoiceLinesDS.remove(record);
-    // Modal.confirm({
-    //   title: intl.get(`${modelCode}.confirm.title`).d('当前页面有修改信息未保存！'),
-    //   children: <span style={{fontSize:'12px'}}>{intl
-    //   .get(`${modelCode}.confirm.content`)
-    //   .d('点击下方“确定”按钮，即可保存，或点击“取消”放弃保存内容')}</span>,
-    //   onOk() {
-    //     modalCallBack.close();
-    //   },
-    //   onCancel: () => {
-    //     this.invoiceLinesDS.remove(record);
-    //     modalCallBack.close();
-    //   },
-    // });
   }
 
   /**

@@ -10,7 +10,6 @@ import React, { Component } from 'react';
 import { synchronizeSaveGood } from '@src/services/tobeInvoiceService';
 import intl from 'utils/intl';
 import formatterCollections from 'utils/intl/formatterCollections';
-import { connect } from 'dva';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { Bind } from 'lodash-decorators';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
@@ -38,8 +37,7 @@ interface CommodityInfoProps {
     'hiop.invoiceReq',
   ],
 })
-@connect()
-export default class CommodityInfoPage extends Component<CommodityInfoProps> {
+export default class CommodityEditPage extends Component<CommodityInfoProps> {
   commodityInfoDS = new DataSet({
     autoQuery: false,
     ...CommodityInfoDS(this.props),
@@ -86,7 +84,7 @@ export default class CommodityInfoPage extends Component<CommodityInfoProps> {
       } else {
         notification.error({
           description: '',
-          message: res && res.message,
+          message: res.message,
         });
       }
     }

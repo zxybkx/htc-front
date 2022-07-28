@@ -54,7 +54,7 @@ import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import TobeInvoiceDS from '../stores/TobeInvoiceDS';
 import CommodityEdit from '../detail/CommodityEditPage';
 import CustomerEdit from '../detail/CustomerEditPage';
-import History from '../detail/HistoryModaL';
+import History from '../detail/HistoryModal';
 
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.IOP_API || '';
@@ -144,7 +144,7 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
           <Row>
             <Col span={20}>
               <Form columns={3} dataSet={queryDataSet}>
-                <Lov name="companyObj" onChange={(value) => this.handleCompanyChange(value)} />
+                <Lov name="companyObj" onChange={value => this.handleCompanyChange(value)} />
                 <TextField name="taxpayerNumber" />
                 <TextField name="receiptName" />
                 {/*---*/}
@@ -189,7 +189,7 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
    */
   @Bind()
   exportParams() {
-    const queryParams = this.props.tobeInvoiceDS.queryDataSet!.map((data) => data.toData()) || {};
+    const queryParams = this.props.tobeInvoiceDS.queryDataSet!.map(data => data.toData()) || {};
     const { companyObj, ...otherData } = queryParams[0];
     const _queryParams = {
       ...companyObj,
@@ -297,7 +297,7 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
       } else {
         notification.error({
           description: '',
-          message: res && res.message,
+          message: res.message,
         });
         return false;
       }
@@ -323,18 +323,6 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
         ),
       }),
     });
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname: `/htc-front-iop/tobe-invoice/req-detail/TOBE/${curCompanyId}/${requisitionHeaderId}`,
-    //     search: queryString.stringify({
-    //       invoiceInfo: encodeURIComponent(
-    //         JSON.stringify({
-    //           backPath: '/htc-front-iop/tobe-invoice/list',
-    //         })
-    //       ),
-    //     }),
-    //   })
-    // );
   }
 
   /**
@@ -370,7 +358,7 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     } else {
       notification.error({
         description: '',
-        message: res && res.message,
+        message: res.message,
       });
     }
   }
@@ -413,7 +401,7 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     const uprojectAmount = record.get('uprojectAmount');
     const discountAmount = record.get('discountAmount');
     const deduction = record.get('deduction');
-    const renderPermissionButton = (params) => (
+    const renderPermissionButton = params => (
       <PermissionButton
         type="c7n-pro"
         funcType={FuncType.link}
@@ -532,30 +520,30 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
    */
   get columns(): ColumnProps[] {
     // 状态为‘已删除、已生成、已开具’的数据不允许修改
-    const adjustEditAble = (record) => !['2', '8', '9'].includes(record.get('state'));
+    const adjustEditAble = record => !['2', '8', '9'].includes(record.get('state'));
     // 行类型為‘折扣行’，不允許修改開票金額
-    const adjustUAmount = (record) =>
+    const adjustUAmount = record =>
       adjustEditAble(record) && record.get('documentLineType') !== '4';
-    const adjustUdiscountAmount = (record) =>
+    const adjustUdiscountAmount = record =>
       adjustEditAble(record) && record.get('documentLineType') === '4';
     // 状态=【导入行】、【已合并】、【被拆分行】、【部分勾选】、【已拆分】可以修改开票单位
     // const adjustUunitAble = (record) => ['1', '3', '5', '6', '7'].includes(record.get('state'));
     // 金额>0且状态=【导入行】、【已合并】、【被拆分行】、【部分勾选】、【已拆分】且【行类型】=“赠品行”的行，可以允许在待开票列表界面上将【行类型】由“赠品行”修改为“折扣行”
-    const _adjustLineTypeEditAble = (record) =>
+    const _adjustLineTypeEditAble = record =>
       record.get('documentLineType') === '3' &&
       ['1', '3', '5', '6', '7'].includes(record.get('state')) &&
       record.get('amount') > 0;
-    const renderLineType = (record) => {
+    const renderLineType = record => {
       if (_adjustLineTypeEditAble(record)) {
         return (
-          <Select optionsFilter={(rec) => rec.get('value') === '3' || rec.get('value') === '4'} />
+          <Select optionsFilter={rec => rec.get('value') === '3' || rec.get('value') === '4'} />
         );
       } else {
         return false;
       }
     };
     const regExp = /(^[1-9]\d*$)/;
-    const renderUPrice = (record) => {
+    const renderUPrice = record => {
       if (record.get('uprojectUnit') !== record.getPristineValue('uprojectUnit')) {
         return (
           <Currency
@@ -582,29 +570,10 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
               color = '#DBEEFF';
               textColor = '#3889FF';
               break;
-            case '2':
-              color = '#D6FFD7';
-              textColor = '#19A633';
-              break;
-            case '3':
-              color = '#D6FFD7';
-              textColor = '#19A633';
-              break;
             case '5':
-              color = '#FFECC4';
-              textColor = '#FF9D23';
-              break;
             case '6':
               color = '#FFECC4';
               textColor = '#FF9D23';
-              break;
-            case '7':
-              color = '#D6FFD7';
-              textColor = '#19A633';
-              break;
-            case '8':
-              color = '#D6FFD7';
-              textColor = '#19A633';
               break;
             case '9':
               color = '#FFDCD4';
@@ -614,13 +583,15 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
               color = '#F0F0F0';
               textColor = '#959595';
               break;
+            case '2':
+            case '3':
+            case '7':
+            case '8':
             case '11':
               color = '#D6FFD7';
               textColor = '#19A633';
               break;
             default:
-              color = '';
-              textColor = '';
               break;
           }
           return (
@@ -636,18 +607,18 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
       { name: 'sourceLineNumber' },
       { name: 'documentDate', width: 180 },
       { name: 'businessDate', width: 120 },
-      { name: 'documentLineType', editor: (record) => renderLineType(record) },
+      { name: 'documentLineType', editor: record => renderLineType(record) },
       { name: 'projectNumber', width: 150 },
       // { name: 'uprojectUnit', editor: (record) => adjustUunitAble(record) },
-      { name: 'uquantity', editor: (record) => adjustEditAble(record) },
+      { name: 'uquantity', editor: record => adjustEditAble(record) },
       {
         name: 'uprojectUnitPrice',
-        editor: (record) => renderUPrice(record),
+        editor: record => renderUPrice(record),
         renderer: ({ value }) =>
           value && (regExp.test(value) ? value.toFixed(2) : parseFloat(value)),
       },
-      { name: 'uprojectAmount', editor: (record) => adjustUAmount(record) },
-      { name: 'udiscountAmount', editor: (record) => adjustUdiscountAmount(record) },
+      { name: 'uprojectAmount', editor: record => adjustUAmount(record) },
+      { name: 'udiscountAmount', editor: record => adjustUdiscountAmount(record) },
       { name: 'udeduction' },
       { name: 'utaxAmount' },
       { name: 'projectName', width: 150 },
@@ -719,11 +690,23 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
       } else {
         notification.error({
           description: '',
-          message: res && res.message,
+          message: res.message,
         });
         return false;
       }
     }
+  }
+
+  @Bind()
+  judgeStateAndAmount(selectedList) {
+    return selectedList.some(
+      item =>
+        (item.state === '5' || item.state === '6') &&
+        item.uquantity === 0 &&
+        item.uprojectAmount === 0 &&
+        item.discountAmount === 0 &&
+        item.deduction === 0
+    );
   }
 
   /**
@@ -732,27 +715,18 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
    */
   @Bind()
   async commonFuc(type) {
-    const selectedList = this.props.tobeInvoiceDS.selected.map((record) => record.toData());
+    const selectedList = this.props.tobeInvoiceDS.selected.map(record => record.toData());
     const validateValue = await this.props.tobeInvoiceDS.validate(false, false);
     let message = '';
     if (type === 0) message = '合并';
     if (type === 1) message = '拆分';
     let notiMess = '';
-    new Promise((resolve) => {
-      if (selectedList.some((item) => ['2', '4', '8', '9'].includes(item.state))) {
+    new Promise(resolve => {
+      if (selectedList.some(item => ['2', '4', '8', '9'].includes(item.state))) {
         notiMess = `存在状态为已生成、被合并行、已开具或已删除的数据，不允许${message}！`;
         throw new Error();
       }
-      if (
-        selectedList.some(
-          (item) =>
-            (item.state === '5' || item.state === '6') &&
-            item.uquantity === 0 &&
-            item.uprojectAmount === 0 &&
-            item.discountAmount === 0 &&
-            item.deduction === 0
-        )
-      ) {
+      if (this.judgeStateAndAmount(selectedList)) {
         notiMess = `存在状态为被拆分行或部分勾选且行中【开票数量、开票金额、折扣金额、扣除额】均为0的数据，不允许${message}！`;
         throw new Error();
       }
@@ -786,10 +760,10 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
    */
   @Bind()
   async generateApplication() {
-    const selectedList = this.props.tobeInvoiceDS.selected.map((record) => record.toData());
+    const selectedList = this.props.tobeInvoiceDS.selected.map(record => record.toData());
     if (
-      selectedList.some((item) => ['2', '4', '8', '9'].includes(item.state)) ||
-      selectedList.some((item) => item.documentLineType === '4')
+      selectedList.some(item => ['2', '4', '8', '9'].includes(item.state)) ||
+      selectedList.some(item => item.documentLineType === '4')
     ) {
       notification.warning({
         description: '',
@@ -800,16 +774,7 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
       });
       return;
     }
-    if (
-      selectedList.some(
-        (item) =>
-          (item.state === '5' || item.state === '6') &&
-          item.uquantity === 0 &&
-          item.uprojectAmount === 0 &&
-          item.discountAmount === 0 &&
-          item.deduction === 0
-      )
-    ) {
+    if (this.judgeStateAndAmount(selectedList)) {
       notification.warning({
         description: '',
         duration: 8,
@@ -823,13 +788,8 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     }
     const { history } = this.props;
     const { curCompanyId } = this.state;
-    const ids = selectedList.map((rec) => rec.prepareInvoiceId).join(',');
+    const ids = selectedList.map(rec => rec.prepareInvoiceId).join(',');
     history.push(`/htc-front-iop/tobe-invoice/generate-application/${curCompanyId}/${ids}`);
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname: `/htc-front-iop/tobe-invoice/generate-application/${curCompanyId}/${ids}`,
-    //   })
-    // );
   }
 
   /**
@@ -839,8 +799,8 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
   handlePermission() {
     const { history } = this.props;
     const { curCompanyId } = this.state;
-    const selectedList = this.props.tobeInvoiceDS.selected.map((record) => record.toData());
-    if (selectedList.some((item) => item.state === '9')) {
+    const selectedList = this.props.tobeInvoiceDS.selected.map(record => record.toData());
+    if (selectedList.some(item => item.state === '9')) {
       notification.warning({
         description: '',
         message: intl
@@ -850,14 +810,9 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
       return;
     }
     const prepareInvoiceId = this.props.tobeInvoiceDS.selected
-      .map((rec) => rec.get('prepareInvoiceId'))
+      .map(rec => rec.get('prepareInvoiceId'))
       .join(',');
     history.push(`/htc-front-iop/permission-assign/PREPARE/${curCompanyId}/${prepareInvoiceId}`);
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname: `/htc-front-iop/permission-assign/PREPARE/${curCompanyId}/${prepareInvoiceId}`,
-    //   })
-    // );
   }
 
   /**
@@ -865,8 +820,8 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
    */
   @Bind()
   async cancelMerge() {
-    const selectedList = this.props.tobeInvoiceDS.selected.map((record) => record.toData());
-    if (selectedList.some((item) => item.state !== '3')) {
+    const selectedList = this.props.tobeInvoiceDS.selected.map(record => record.toData());
+    if (selectedList.some(item => item.state !== '3')) {
       notification.warning({
         description: '',
         message: intl
@@ -897,7 +852,7 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
       } else {
         notification.error({
           description: '',
-          message: res && res.message,
+          message: res.message,
         });
       }
     }
@@ -908,11 +863,11 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
    */
   @Bind()
   async batchDeleteTobeInvoice() {
-    const selectedList = this.props.tobeInvoiceDS.selected.map((record) => record.toData());
+    const selectedList = this.props.tobeInvoiceDS.selected.map(record => record.toData());
     const { queryDataSet } = this.props.tobeInvoiceDS;
     const companyCode = queryDataSet && queryDataSet.current!.get('companyCode');
     const employeeNumber = queryDataSet && queryDataSet.current!.get('employeeNumber');
-    if (selectedList.some((item) => !['1', '7', '10'].includes(item.state))) {
+    if (selectedList.some(item => !['1', '7', '10'].includes(item.state))) {
       notification.warning({
         description: '',
         message: intl
@@ -921,13 +876,12 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
       });
       return;
     }
-    const _selectedList = selectedList.map((lineData) => {
-      const item = {
+    const _selectedList = selectedList.map(lineData => {
+      return {
         ...lineData,
         state: '9',
         enabledFlag: 0,
       };
-      return item;
     });
     const params = {
       tenantId,
@@ -945,7 +899,7 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     } else {
       notification.error({
         description: '',
-        message: res && res.message,
+        message: res.message,
       });
     }
   }
@@ -955,10 +909,10 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
    */
   @Bind()
   batchSaveTobeInvoice() {
-    const submitList = this.props.tobeInvoiceDS.filter((record) => record.dirty);
+    const submitList = this.props.tobeInvoiceDS.filter(record => record.dirty);
     if (submitList.length !== 0) {
       if (
-        submitList.some((record) => {
+        submitList.some(record => {
           const data = record.toData();
           const {
             documentLineType,
@@ -1043,7 +997,7 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
     ];
     const btnMenu = (
       <Menu>
-        {topBtns.map((action) => (
+        {topBtns.map(action => (
           <MenuItem>{action}</MenuItem>
         ))}
       </Menu>

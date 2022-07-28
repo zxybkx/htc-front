@@ -11,7 +11,6 @@ import request from 'utils/request';
 import commonConfig from '@htccommon/config/commonConfig';
 
 const HMDM_API = commonConfig.MDM_API || '';
-// const HMDM_API = `${commonConfig.MDM_API}-30455` || '';
 
 /**
  * 客户申请-下载导入模板

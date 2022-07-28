@@ -14,7 +14,6 @@ import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 
 export default (dsProps): DataSetProps => {
-  // const API_PREFIX = `${commonConfig.IOP_API}-28946` || '';
   const API_PREFIX = commonConfig.IOP_API || '';
   const tenantId = getCurrentOrganizationId();
   const { customerInformationId } = dsProps;

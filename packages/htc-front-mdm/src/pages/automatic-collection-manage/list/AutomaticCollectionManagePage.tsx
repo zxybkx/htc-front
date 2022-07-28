@@ -9,7 +9,6 @@ import React, { Component } from 'react';
 import intl from 'utils/intl';
 import { Button, DataSet, notification, Table } from 'choerodon-ui/pro';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
 import { RouteComponentProps } from 'react-router-dom';
 import queryString from 'query-string';
@@ -54,8 +53,9 @@ interface AutomaticCollectionManagePageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-@connect()
-export default class AutomaticCollectionManagePage extends Component<AutomaticCollectionManagePageProps> {
+export default class AutomaticCollectionManagePage extends Component<
+  AutomaticCollectionManagePageProps
+> {
   /**
    * 创建自动催收调接口
    * @params {[]} data-选中的记录组
@@ -93,7 +93,7 @@ export default class AutomaticCollectionManagePage extends Component<AutomaticCo
    */
   @Bind()
   handelBatchCreate() {
-    const data = this.props.tableDS.selected.map((record) => record.toData());
+    const data = this.props.tableDS.selected.map(record => record.toData());
     this.createNewAuto(data);
   }
 
@@ -102,8 +102,8 @@ export default class AutomaticCollectionManagePage extends Component<AutomaticCo
    */
   @Bind()
   handelBatchSend() {
-    const data = this.props.tableDS.selected.map((record) => record.toData());
-    if (data.some((item) => item.collectionStatus !== 'PENDING_DUNNING')) {
+    const data = this.props.tableDS.selected.map(record => record.toData());
+    if (data.some(item => item.collectionStatus !== 'PENDING_DUNNING')) {
       notification.warning({
         message: intl.get(`${modelCode}.createMessage`).d('请先生成催收提醒'),
         description: '',
@@ -264,14 +264,6 @@ export default class AutomaticCollectionManagePage extends Component<AutomaticCo
         fileUrlInfo: encodeURIComponent(JSON.stringify({ fileUrl })),
       }),
     });
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname,
-    //     search: queryString.stringify({
-    //       fileUrlInfo: encodeURIComponent(JSON.stringify({ fileUrl })),
-    //     }),
-    //   })
-    // );
   }
 
   /**
@@ -349,7 +341,7 @@ export default class AutomaticCollectionManagePage extends Component<AutomaticCo
    */
   @Bind()
   exportParams() {
-    const queryParams = this.props.tableDS.queryDataSet!.map((data) => data.toData()) || {};
+    const queryParams = this.props.tableDS.queryDataSet!.map(data => data.toData()) || {};
     for (const key in queryParams[0]) {
       if (queryParams[0][key] === '' || queryParams[0][key] === null) {
         delete queryParams[0][key];

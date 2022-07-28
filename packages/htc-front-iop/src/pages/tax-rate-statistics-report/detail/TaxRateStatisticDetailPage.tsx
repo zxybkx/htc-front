@@ -33,7 +33,9 @@ interface TaxRateStatisticsReportPageProps extends RouteComponentProps<RouterInf
     'hiop.tobeInvoice',
   ],
 })
-export default class TaxRateStatisticsReportPage extends Component<TaxRateStatisticsReportPageProps> {
+export default class TaxRateStatisticDetailPage extends Component<
+  TaxRateStatisticsReportPageProps
+> {
   taxRateStatisticsReport = new DataSet({
     autoQuery: false,
     ...TaxRateStatisticDetailDS(),
@@ -54,7 +56,7 @@ export default class TaxRateStatisticsReportPage extends Component<TaxRateStatis
    * 分税率统计报表明细查看详情
    * @params {object} record-行记录
    */
-  handleGotoOrderDetailPage = (record) => {
+  handleGotoOrderDetailPage = record => {
     const invoicingOrderHeaderId = record.get('invoicingOrderHeaderId');
     const companyId = record.get('companyId');
     openTab({

@@ -42,7 +42,7 @@ interface TenantAgreementPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
 
-export default class CompanyProgramPage extends Component<TenantAgreementPageProps> {
+export default class TenantApplyDetailPage extends Component<TenantAgreementPageProps> {
   serviceListDS = new DataSet({
     autoQuery: false,
     ...ServiceListDS(this.props.match.params),
@@ -67,7 +67,7 @@ export default class CompanyProgramPage extends Component<TenantAgreementPagePro
   state = { subAccountStatus: undefined };
 
   async componentDidMount() {
-    this.tenantDetailDS.query().then((res) => {
+    this.tenantDetailDS.query().then(res => {
       const { subAccountStatus } = res;
       this.setState({ subAccountStatus });
     });
@@ -402,12 +402,13 @@ export default class CompanyProgramPage extends Component<TenantAgreementPagePro
   }
 
   /**
-   * 返回表格头按钮
-   * @returns {*[]}
+   * @description: 抽取的公共按钮
+   * @function: commonButton
+   * @param {string} subAccountStatus
+   * @return {Element}
    */
-  get buttons(): Buttons[] {
-    const { subAccountStatus } = this.state;
-    const HeaderButtons = observer((props: any) => {
+  commonButton(subAccountStatus) {
+    return observer((props: any) => {
       const isDisabled = subAccountStatus === '2' || props.dataSet!.selected.length === 0;
       return (
         <Button
@@ -421,6 +422,15 @@ export default class CompanyProgramPage extends Component<TenantAgreementPagePro
         </Button>
       );
     });
+  }
+
+  /**
+   * 返回表格头按钮
+   * @returns {*[]}
+   */
+  get buttons(): Buttons[] {
+    const { subAccountStatus } = this.state;
+    const HeaderButtons = this.commonButton(subAccountStatus);
     return [
       <Button onClick={this.handleAdd} icon="add" key="add" disabled={subAccountStatus === '2'}>
         {intl.get('hzero.common.button.add ').d('新增')}
@@ -455,20 +465,7 @@ export default class CompanyProgramPage extends Component<TenantAgreementPagePro
         </Button>
       );
     });
-    const HeaderButtons = observer((props: any) => {
-      const isDisabled = subAccountStatus === '2' || props.dataSet!.selected.length === 0;
-      return (
-        <Button
-          key={props.key}
-          icon={props.icon}
-          onClick={props.onClick}
-          disabled={isDisabled}
-          color={ButtonColor.default}
-        >
-          {props.title}
-        </Button>
-      );
-    });
+    const HeaderButtons = this.commonButton(subAccountStatus);
     return [
       <AddButton
         onClick={this.handleServiceAdd}
