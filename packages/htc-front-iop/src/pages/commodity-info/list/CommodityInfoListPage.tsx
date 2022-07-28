@@ -47,7 +47,7 @@ interface CommodityInfoPageProps {}
 @formatterCollections({
   code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq', 'hiop.commodityInfo'],
 })
-export default class CommodityInfoPage extends Component<CommodityInfoPageProps> {
+export default class CommodityInfoListPage extends Component<CommodityInfoPageProps> {
   tableDS = new DataSet({
     autoQuery: false,
     ...CommodityListDS(),
@@ -79,7 +79,7 @@ export default class CommodityInfoPage extends Component<CommodityInfoPageProps>
       Modal.confirm({
         key: Modal.key,
         title,
-      }).then((button) => {
+      }).then(button => {
         if (button === 'ok') {
           record.set({ enabledFlag: 0 });
           this.tableDS.submit();
@@ -317,8 +317,6 @@ export default class CommodityInfoPage extends Component<CommodityInfoPageProps>
               textColor = '#19A633';
               break;
             default:
-              color = '';
-              textColor = '';
               break;
           }
           return (
@@ -381,14 +379,13 @@ export default class CommodityInfoPage extends Component<CommodityInfoPageProps>
    */
   @Bind()
   handleGetQueryParams() {
-    const queryParams = this.tableDS.queryDataSet!.map((data) => data.toData(true)) || {};
+    const queryParams = this.tableDS.queryDataSet!.map(data => data.toData(true)) || {};
     for (const key in queryParams[0]) {
       if (queryParams[0][key] === '' || queryParams[0][key] === null) {
         delete queryParams[0][key];
       }
     }
-    const exportParams = { ...queryParams[0] } || {};
-    return exportParams;
+    return { ...queryParams[0] } || {};
   }
 
   /**
