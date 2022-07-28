@@ -17,20 +17,115 @@ import { phoneReg } from '@htccommon/utils/utils';
 import { isEmpty } from 'lodash';
 import { getCurrentOrganizationId } from 'utils/utils';
 
+const tenantId = getCurrentOrganizationId();
 /**
  * 只读验证规则
  * @params {object} record-行记录
  */
-const headerReadOnlyRule = (record) => {
+const headerReadOnlyRule = record => {
   return (
-    record.get('readonly') ||
+    judgeReadOnly(record) ||
     (record.getPristineValue('billingType') === '2' && record.get('orderStatus') === 'Q')
   );
 };
 
+const judgeReadOnly = record => {
+  const headerData = record.toData();
+  const { orderStatus, billingType, sourceType, invoiceSourceType } = headerData;
+  if (
+    (orderStatus === 'N' && billingType === 1) ||
+    (orderStatus === 'Q' && [1, 2].includes(billingType))
+  ) {
+    return !(sourceType !== 'invoiceReq' && invoiceSourceType !== 'APPLY');
+  } else {
+    return !(orderStatus === 'N' && billingType === 2 && invoiceSourceType === 'RED_INFO');
+  }
+};
+
+/**
+ * 设置默认值
+ * @params {object} params-默认发票交付信息参数
+ */
+const setDefaultInvoiceInfo = (params, record) => {
+  defaultInvoiceInfo(params).then(res => {
+    if (!isEmpty(res)) {
+      record.set({
+        paperTicketReceiverName: res.paperTicketReceiverName,
+        paperTicketReceiverPhone: res.paperTicketReceiverPhone,
+        paperTicketReceiverAddress: res.paperTicketReceiverAddress,
+        electronicReceiverInfo: res.electronicReceiverInfo,
+        nextDefaultFlag: 1,
+      });
+    }
+  });
+};
+
+/**
+ * 判断纸票收件人标签是否只读
+ * @params {object} record-当前行
+ */
+const judgePaperReadonly = record => {
+  return (
+    record.get('readonly') ||
+    record.get('invoiceVariety') === '51' ||
+    record.get('invoiceVariety') === '52'
+  );
+};
+
+/**
+ * 设置销方/购方信息
+ * @params {object} value-当前值
+ * @params {object} record-当前行
+ * @params {number} type 0-购方 1-销方
+ */
+const setCustomerInfo = (value, oldValue, record, type, companyId) => {
+  if (type === 0) {
+    const buyerName = value.enterpriseName || value.buyerName;
+    const buyerTaxpayerNumber = value.buyerTaxpayerNumber || value.taxpayerNumber;
+    const buyerCompanyAddressPhone = value.businessAddressPhone || value.buyerCompanyAddressPhone;
+    const buyerBankNumber = value.corporateBankAccount || value.buyerBankNumber;
+    const { buyerCompanyType } = value;
+    // 赋值
+    record.set({
+      buyerName,
+      buyerTaxpayerNumber,
+      buyerCompanyAddressPhone,
+      buyerBankNumber,
+      buyerCompanyType,
+    });
+  } else {
+    const sellerName = value.enterpriseName || value.sellerName;
+    const sellerTaxpayerNumber = value.sellerTaxpayerNumber || value.taxpayerNumber;
+    const sellerCompanyAddressPhone = value.businessAddressPhone || value.sellerCompanyAddressPhone;
+    const sellerBankNumber = value.corporateBankAccount || value.sellerBankNumber;
+    const { sellerCompanyType } = value;
+    // 赋值
+    record.set({
+      sellerName,
+      sellerTaxpayerNumber,
+      sellerCompanyAddressPhone,
+      sellerBankNumber,
+      sellerCompanyType,
+    });
+  }
+  const _buyerName = record.get('buyerName');
+  const _sellerName = record.get('sellerName');
+  const invoiceVariety = record.get('invoiceVariety');
+  if (value !== oldValue && _buyerName && _sellerName && invoiceVariety) {
+    // 下次默认
+    const params = {
+      tenantId,
+      companyId,
+      invoiceVariety,
+      buyerName: _buyerName,
+      sellerName: _sellerName,
+    };
+    setDefaultInvoiceInfo(params, record);
+  }
+};
+
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.IOP_API || '';
-  const tenantId = getCurrentOrganizationId();
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -48,87 +143,12 @@ export default (dsParams): DataSetProps => {
     events: {
       update: ({ record, name, value, oldValue }) => {
         // 购方名称
-        if (name === 'buyerObj') {
-          const buyerName = value && (value.enterpriseName || value.buyerName);
-          const buyerTaxpayerNumber = value && (value.buyerTaxpayerNumber || value.taxpayerNumber);
-          const buyerCompanyAddressPhone =
-            value && (value.businessAddressPhone || value.buyerCompanyAddressPhone);
-          const buyerBankNumber = value && (value.corporateBankAccount || value.buyerBankNumber);
-          const buyerCompanyType = value && value.buyerCompanyType;
-          // 赋值
-          record.set({
-            buyerName,
-            buyerTaxpayerNumber,
-            buyerCompanyAddressPhone,
-            buyerBankNumber,
-            buyerCompanyType,
-          });
-          const sellerName = record.get('sellerName');
-          const invoiceVariety = record.get('invoiceVariety');
-          if (value !== oldValue && buyerName && sellerName && invoiceVariety) {
-            // 下次默认
-            const params = {
-              tenantId,
-              companyId: dsParams.companyId,
-              invoiceVariety,
-              buyerName,
-              sellerName,
-            };
-            defaultInvoiceInfo(params).then((res) => {
-              if (!isEmpty(res)) {
-                record.set({
-                  paperTicketReceiverName: res.paperTicketReceiverName,
-                  paperTicketReceiverPhone: res.paperTicketReceiverPhone,
-                  paperTicketReceiverAddress: res.paperTicketReceiverAddress,
-                  // deliveryWay: res.deliveryWay,
-                  electronicReceiverInfo: res.electronicReceiverInfo,
-                  nextDefaultFlag: 1,
-                });
-              }
-            });
-          }
+        if (name === 'buyerObj' && value) {
+          setCustomerInfo(value, oldValue, record, 0, dsParams.companyId);
         }
         // 销方名称
-        if (name === 'sellerObj') {
-          const sellerName = value && (value.enterpriseName || value.sellerName);
-          const sellerTaxpayerNumber =
-            value && (value.sellerTaxpayerNumber || value.taxpayerNumber);
-          const sellerCompanyAddressPhone =
-            value && (value.businessAddressPhone || value.sellerCompanyAddressPhone);
-          const sellerBankNumber = value && (value.corporateBankAccount || value.sellerBankNumber);
-          const sellerCompanyType = value && value.sellerCompanyType;
-          // 赋值
-          record.set({
-            sellerName,
-            sellerTaxpayerNumber,
-            sellerCompanyAddressPhone,
-            sellerBankNumber,
-            sellerCompanyType,
-          });
-          const buyerName = record.get('buyerName');
-          const invoiceVariety = record.get('invoiceVariety');
-          if (value !== oldValue && buyerName && sellerName && invoiceVariety) {
-            // 下次默认
-            const params = {
-              tenantId,
-              companyId: dsParams.companyId,
-              invoiceVariety,
-              buyerName,
-              sellerName,
-            };
-            defaultInvoiceInfo(params).then((res) => {
-              if (!isEmpty(res)) {
-                record.set({
-                  paperTicketReceiverName: res.paperTicketReceiverName,
-                  paperTicketReceiverPhone: res.paperTicketReceiverPhone,
-                  paperTicketReceiverAddress: res.paperTicketReceiverAddress,
-                  // deliveryWay: res.deliveryWay,
-                  electronicReceiverInfo: res.electronicReceiverInfo,
-                  nextDefaultFlag: 1,
-                });
-              }
-            });
-          }
+        if (name === 'sellerObj' && value) {
+          setCustomerInfo(value, oldValue, record, 1, dsParams.companyId);
         }
         if (name === 'invoiceVariety') {
           if (value !== '51' && value !== '52') {
@@ -360,7 +380,7 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         maxLength: 200,
         computedProps: {
-          readOnly: ({ record }) => record.get('readonly'),
+          readOnly: ({ record }) => judgeReadOnly(record),
         },
       },
       {
@@ -369,7 +389,7 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
-            record.get('readonly') ||
+            judgeReadOnly(record) ||
             record.get('invoiceVariety') === '51' ||
             record.get('invoiceVariety') === '52',
         },
@@ -380,10 +400,7 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         pattern: phoneReg,
         computedProps: {
-          readOnly: ({ record }) =>
-            record.get('readonly') ||
-            record.get('invoiceVariety') === '51' ||
-            record.get('invoiceVariety') === '52',
+          readOnly: ({ record }) => judgePaperReadonly(record),
         },
       },
       {
@@ -393,7 +410,7 @@ export default (dsParams): DataSetProps => {
         trueValue: 1,
         falseValue: 0,
         computedProps: {
-          readOnly: ({ record }) => record.get('readonly'),
+          readOnly: ({ record }) => judgeReadOnly(record),
         },
       },
       {
@@ -403,10 +420,7 @@ export default (dsParams): DataSetProps => {
           .d('纸票收件人地址'),
         type: FieldType.string,
         computedProps: {
-          readOnly: ({ record }) =>
-            record.get('readonly') ||
-            record.get('invoiceVariety') === '51' ||
-            record.get('invoiceVariety') === '52',
+          readOnly: ({ record }) => judgePaperReadonly(record),
         },
       },
       {
@@ -422,7 +436,7 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         computedProps: {
           required: ({ record }) => record.get('deliveryWay') === '1',
-          readOnly: ({ record }) => record.get('readonly') || record.get('deliveryWay') !== '1',
+          readOnly: ({ record }) => judgeReadOnly(record) || record.get('deliveryWay') !== '1',
           pattern: ({ record }) => {
             if (record.get('electronicReceiverInfo')) {
               if (record.get('electronicReceiverInfo').indexOf('@') > -1) {
@@ -441,7 +455,7 @@ export default (dsParams): DataSetProps => {
         lovCode: 'HMDM.EMPLOYEE_NAME',
         cascadeMap: { companyId: 'companyId' },
         computedProps: {
-          readOnly: ({ record }) => record.get('readonly'),
+          readOnly: ({ record }) => judgeReadOnly(record),
         },
         ignore: FieldIgnore.always,
       },
@@ -458,7 +472,7 @@ export default (dsParams): DataSetProps => {
         lovCode: 'HMDM.EMPLOYEE_NAME',
         cascadeMap: { companyId: 'companyId' },
         computedProps: {
-          readOnly: ({ record }) => record.get('readonly'),
+          readOnly: ({ record }) => judgeReadOnly(record),
         },
         // required: true,
         ignore: FieldIgnore.always,
@@ -476,7 +490,7 @@ export default (dsParams): DataSetProps => {
         lovCode: 'HMDM.EMPLOYEE_NAME',
         cascadeMap: { companyId: 'companyId' },
         computedProps: {
-          readOnly: ({ record }) => record.get('readonly'),
+          readOnly: ({ record }) => judgeReadOnly(record),
         },
         required: true,
         ignore: FieldIgnore.always,
@@ -497,7 +511,7 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码'),
         type: FieldType.string,
         computedProps: {
-          readOnly: ({ record }) => record.get('isRedMark') !== 'Y' || record.get('readonly'),
+          readOnly: ({ record }) => record.get('isRedMark') !== 'Y' || judgeReadOnly(record),
         },
       },
       {
@@ -505,7 +519,7 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码'),
         type: FieldType.string,
         computedProps: {
-          readOnly: ({ record }) => record.get('isRedMark') !== 'Y' || record.get('readonly'),
+          readOnly: ({ record }) => record.get('isRedMark') !== 'Y' || judgeReadOnly(record),
         },
       },
       {

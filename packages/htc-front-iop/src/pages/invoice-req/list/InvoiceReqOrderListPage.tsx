@@ -8,7 +8,6 @@
  */
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-// import { PageHeaderWrapper } from 'hzero-boot/lib/components/Page';
 import { Header } from 'components/Page';
 import { Dispatch } from 'redux';
 import {
@@ -48,7 +47,7 @@ interface InvoiceReqOrderListPageProps extends RouteComponentProps<RouterInfo> {
   code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq', 'hiop.tobeInvoice'],
 })
 export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderListPageProps> {
-  state = { empInfo: {} as any, backPath: '' };
+  state = { empInfo: {} as any };
 
   orderLinesDS = new DataSet({
     ...OrderLinesDS(),
@@ -63,14 +62,6 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
   });
 
   componentDidMount() {
-    const { search } = this.props.location;
-    const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
-    if (invoiceInfoStr) {
-      const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
-      this.setState({
-        backPath: invoiceInfo.backPath,
-      });
-    }
     this.handleQuery();
   }
 
@@ -89,9 +80,9 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
   handleQuery = () => {
     this.reqHeaderDS.setQueryParameter('headerId', this.props.match.params.headerId);
     this.orderLinesDS.setQueryParameter('headerId', this.props.match.params.headerId);
-    this.reqHeaderDS.query().then((res) => {
+    this.reqHeaderDS.query().then(res => {
       if (res) {
-        getCurrentEmployeeInfo({ tenantId, companyId: res.companyId }).then((empRes) => {
+        getCurrentEmployeeInfo({ tenantId, companyId: res.companyId }).then(empRes => {
           if (empRes && empRes.content) {
             this.setState({ empInfo: empRes.content[0] });
           }
@@ -104,7 +95,7 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
    * 订单详情
    * @params {object} record-行记录
    */
-  handleGotoOrderDetailPage = (record) => {
+  handleGotoOrderDetailPage = record => {
     const orderHeaderId = record.get('orderHeaderId');
     const companyId = this.reqHeaderDS.current?.get('companyId');
     openTab({
@@ -187,8 +178,8 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
   get renderEmployeeDesc() {
     const { empInfo } = this.state;
     if (empInfo) {
-      return `${empInfo.companyCode || ''}-${empInfo.employeeNum || ''}-${empInfo.employeeName || ''
-        }-${empInfo.mobile || ''}`;
+      return `${empInfo.companyCode || ''}-${empInfo.employeeNum || ''}-${empInfo.employeeName ||
+        ''}-${empInfo.mobile || ''}`;
     }
     return '';
   }
@@ -204,7 +195,10 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
     console.log('pathname', pathname);
     return (
       <>
-        <Header backPath={ pathname } title={intl.get('hiop.invoiceReq.title.invoiceOrderInfo').d('开票订单信息')} />
+        <Header
+          backPath={pathname}
+          title={intl.get('hiop.invoiceReq.title.invoiceOrderInfo').d('开票订单信息')}
+        />
         <Spin dataSet={this.reqHeaderDS}>
           <Form dataSet={this.reqHeaderDS} columns={5}>
             <Output

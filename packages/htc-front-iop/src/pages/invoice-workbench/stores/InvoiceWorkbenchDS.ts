@@ -15,8 +15,14 @@ import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import moment from 'moment';
 import { getCurrentOrganizationId } from 'utils/utils';
 
+const setCheckFlag = dataSet => {
+  const { queryDataSet } = dataSet;
+  if (queryDataSet) {
+    queryDataSet.current!.set({ allCheckFlag: 'N' });
+  }
+};
+
 export default (): DataSetProps => {
-  // const API_PREFIX = `${commonConfig.IOP_API}-28090` || '';
   const API_PREFIX = commonConfig.IOP_API || '';
   const tenantId = getCurrentOrganizationId();
   return {
@@ -283,16 +289,10 @@ export default (): DataSetProps => {
         }
       },
       unSelectAll: ({ dataSet }) => {
-        const { queryDataSet } = dataSet;
-        if (queryDataSet) {
-          queryDataSet.current!.set({ allCheckFlag: 'N' });
-        }
+        setCheckFlag(dataSet);
       },
       unSelect: ({ dataSet }) => {
-        const { queryDataSet } = dataSet;
-        if (queryDataSet) {
-          queryDataSet.current!.set({ allCheckFlag: 'N' });
-        }
+        setCheckFlag(dataSet);
       },
     },
     queryDataSet: new DataSet({

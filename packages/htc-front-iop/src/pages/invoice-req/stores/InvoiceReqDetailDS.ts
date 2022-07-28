@@ -19,19 +19,6 @@ import { phoneReg } from '@htccommon/utils/utils';
 const API_PREFIX = commonConfig.IOP_API || '';
 const tenantId = getCurrentOrganizationId();
 
-// const ReceiptNameDS = (companyId): DataSetProps => {
-//   return {
-//     // paging: false,
-//     transport: {
-//       read: ({ data }) => ({
-//         url: `${API_PREFIX}/v1/${tenantId}/requisition-headers/receipt-lov`,
-//         method: 'GET',
-//         params: { ...data, companyId },
-//       }),
-//     },
-//   };
-// };
-
 /**
  * 收票方5项信息必输验证规则
  * @params {string} name-标签名
@@ -49,16 +36,11 @@ const receiptRequiredRule = (record, name) => {
     return true;
   } else if (['2', '41', '51'].includes(invoiceType)) {
     if (requestType === 'PURCHASE_INVOICE') {
-      if (name !== 'receiptAccount') {
-        return true;
-      }
+      return name !== 'receiptAccount';
     } else if (requestType === 'SALES_INVOICE') {
-      if (name === 'receiptName') {
-        return true;
-      }
-      if (name === 'receiptTaxNo' && ['01', '02'].includes(receiptType)) {
-        return true;
-      }
+      return (
+        name === 'receiptName' || (name === 'receiptTaxNo' && ['01', '02'].includes(receiptType))
+      );
     }
   }
   return false;
@@ -68,12 +50,66 @@ const receiptRequiredRule = (record, name) => {
  * 只读验证规则
  * @params {object} record-行记录
  */
-const headerReadOnlyRule = (record) => {
+const headerReadOnlyRule = record => {
   return (
     !(['N', 'Q'].includes(record.get('requestStatus')) && record.get('deleteFlag') === 'N') ||
     record.get('sourceType') === '8' ||
     record.get('readonly')
   );
+};
+
+const setNextDefault = (record, value, oldValue, dsParams, receiptName) => {
+  const invoiceType = record.get('invoiceType');
+  if (value !== oldValue && receiptName && invoiceType) {
+    const params = {
+      tenantId,
+      receiptName,
+      companyId: dsParams.companyId,
+      invoiceVariety: invoiceType,
+    };
+    // 下次默认
+    reqNextDefault(params).then(res => {
+      if (res && res.nextDefaultFlag === 1) {
+        if (invoiceType === '51') {
+          record.set({
+            paperRecipient: '',
+            paperPhone: '',
+            nextDefaultFlag: res.nextDefaultFlag,
+            paperAddress: '',
+            emailPhone: res.emailPhone,
+          });
+        } else {
+          record.set({
+            paperRecipient: res.paperRecipient,
+            paperPhone: res.paperPhone,
+            nextDefaultFlag: res.nextDefaultFlag,
+            paperAddress: res.paperAddress,
+            emailPhone: '',
+          });
+        }
+      }
+    });
+  }
+};
+
+const handleInvoiceTypeObjChange = (name, value, record) => {
+  if (name === 'invoiceTypeObj' && value) {
+    const invoiceTypeTag = value.tag || '';
+    const electronicType = invoiceTypeTag === 'E' ? '1' : '';
+    if (invoiceTypeTag === 'E') {
+      record.set({
+        paperRecipient: '',
+        paperPhone: '',
+        paperAddress: '',
+        electronicType,
+      });
+    } else {
+      record.set({
+        electronicType,
+        emailPhone: '',
+      });
+    }
+  }
 };
 
 export default (dsParams): DataSetProps => {
@@ -112,7 +148,6 @@ export default (dsParams): DataSetProps => {
           const receiptTaxNo = value && value.taxpayerNumber;
           const receiptAddressPhone = value && (value.businessAddressPhone || value.addressPhone);
           const receiptAccount = value && (value.corporateBankAccount || value.accountNumber);
-          const invoiceType = record.get('invoiceType');
           // 赋值
           record.set({
             receiptName,
@@ -120,57 +155,10 @@ export default (dsParams): DataSetProps => {
             receiptAddressPhone,
             receiptAccount,
           });
-          if (value !== oldValue && receiptName && invoiceType) {
-            const params = {
-              tenantId,
-              receiptName,
-              companyId: dsParams.companyId,
-              invoiceVariety: invoiceType,
-            };
-            // 下次默认
-            reqNextDefault(params).then((res) => {
-              if (res && res.nextDefaultFlag === 1) {
-                if (invoiceType === '51') {
-                  record.set({
-                    paperRecipient: '',
-                    paperPhone: '',
-                    nextDefaultFlag: res.nextDefaultFlag,
-                    paperAddress: '',
-                    // electronicType: res.electronicType,
-                    emailPhone: res.emailPhone,
-                  });
-                } else {
-                  record.set({
-                    paperRecipient: res.paperRecipient,
-                    paperPhone: res.paperPhone,
-                    nextDefaultFlag: res.nextDefaultFlag,
-                    paperAddress: res.paperAddress,
-                    // electronicType: '',
-                    emailPhone: '',
-                  });
-                }
-              }
-            });
-          }
+          setNextDefault(record, value, oldValue, dsParams, receiptName);
         }
         // 发票种类标记
-        if (name === 'invoiceTypeObj' && value) {
-          const invoiceTypeTag = (value && value.tag) || '';
-          const electronicType = invoiceTypeTag === 'E' ? '1' : '';
-          if (invoiceTypeTag === 'E') {
-            record.set({
-              paperRecipient: '',
-              paperPhone: '',
-              paperAddress: '',
-              electronicType,
-            });
-          } else {
-            record.set({
-              electronicType,
-              emailPhone: '',
-            });
-          }
-        }
+        handleInvoiceTypeObjChange(name, value, record);
       },
     },
     fields: [

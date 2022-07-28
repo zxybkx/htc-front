@@ -25,10 +25,12 @@ import { phoneReg } from '@htccommon/utils/utils';
 const priceValidator = (value, name, record) => {
   if ((value || value === 0) && name && record) {
     if (value <= 0 || value >= 100) {
-      return intl.get('hiop.invoiceRule.validate.price').d('请输入0-100之间的数字');
+      return Promise.resolve(
+        intl.get('hiop.invoiceRule.validate.price').d('请输入0-100之间的数字')
+      );
     }
   }
-  return undefined;
+  return Promise.resolve(true);
 };
 
 export default (): DataSetProps => {
@@ -63,24 +65,6 @@ export default (): DataSetProps => {
     primaryKey: 'rulesHeaderId',
     events: {
       update: ({ record, name }) => {
-        // 开票完成通知变更
-        // if (name === 'invoiceCompletionNotice') {
-        //   record.set({
-        //     letterCompletionApplicantFlag: '',
-        //     letterCompletionReviewerFlag: '',
-        //     emailCompletionApplicantFlag: '',
-        //     emailCompletionReviewerFlag: '',
-        //   });
-        // }
-        // 开票异常通知变更
-        // if (name === 'invoiceExceptionFlag') {
-        //   record.set({
-        //     letterExceptionApplicantFlag: '',
-        //     letterExceptionReviewerFlag: '',
-        //     emailExceptionApplicantFlag: '',
-        //     emailExceptionReviewerFlag: '',
-        //   });
-        // }
         // 限制发票订单数据权限变更
         if (name === 'invoiceWorkbenchFlag') {
           record.set({ invoiceWorkbenchListObj: '' });
@@ -249,8 +233,7 @@ export default (): DataSetProps => {
         label: intl.get('hiop.invoiceRule.modal.unitPriceTolerance').d('待开票导入单价合并允差'),
         type: FieldType.number,
         precision: 8,
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(priceValidator(value, name, record))),
+        validator: (value, name, record) => priceValidator(value, name, record),
       },
       {
         name: 'globalDrawerObj',
@@ -429,9 +412,8 @@ export default (): DataSetProps => {
         lovPara: { tenantId },
         cascadeMap: { companyId: 'companyId' },
         multiple: true,
-        // labelWidth: '155',
         computedProps: {
-          disabled: ({ record }) => !(record.get('invoiceWorkbenchFlag') === 'Y'),
+          disabled: ({ record }) => record.get('invoiceWorkbenchFlag') !== 'Y',
         },
       },
       {
@@ -468,7 +450,7 @@ export default (): DataSetProps => {
         multiple: true,
         // labelWidth: '155',
         computedProps: {
-          disabled: ({ record }) => !(record.get('invoiceApplyFlag') === 'Y'),
+          disabled: ({ record }) => record.get('invoiceApplyFlag') !== 'Y',
         },
       },
       {
@@ -502,7 +484,7 @@ export default (): DataSetProps => {
         cascadeMap: { companyId: 'companyId' },
         multiple: true,
         computedProps: {
-          disabled: ({ record }) => !(record.get('invoicePrepareFlag') === 'Y'),
+          disabled: ({ record }) => record.get('invoiceApplyFlag') !== 'Y',
         },
       },
       {
@@ -534,7 +516,7 @@ export default (): DataSetProps => {
         defaultValue: 'N',
         labelWidth: '190',
         computedProps: {
-          disabled: ({ record }) => !(record.get('enableRulesFlag') === 'Y'),
+          disabled: ({ record }) => record.get('enableRulesFlag') !== 'Y',
         },
       },
       {
@@ -542,7 +524,7 @@ export default (): DataSetProps => {
         label: intl.get('hiop.invoiceRule.modal.dynamicPrefixOne').d('前缀1'),
         type: FieldType.string,
         computedProps: {
-          disabled: ({ record }) => !(record.get('enableRulesFlag') === 'Y'),
+          disabled: ({ record }) => record.get('enableRulesFlag') !== 'Y',
         },
       },
       {
@@ -554,7 +536,7 @@ export default (): DataSetProps => {
         defaultValue: 'N',
         labelWidth: '190',
         computedProps: {
-          disabled: ({ record }) => !(record.get('enableRulesFlag') === 'Y'),
+          disabled: ({ record }) => record.get('enableRulesFlag') !== 'Y',
         },
       },
       {
@@ -562,7 +544,7 @@ export default (): DataSetProps => {
         label: intl.get('hiop.invoiceRule.modal.dynamicPrefixTwo').d('前缀2'),
         type: FieldType.string,
         computedProps: {
-          disabled: ({ record }) => !(record.get('enableRulesFlag') === 'Y'),
+          disabled: ({ record }) => record.get('enableRulesFlag') !== 'Y',
         },
       },
       {
@@ -574,7 +556,7 @@ export default (): DataSetProps => {
         defaultValue: 'N',
         labelWidth: '190',
         computedProps: {
-          disabled: ({ record }) => !(record.get('enableRulesFlag') === 'Y'),
+          disabled: ({ record }) => record.get('enableRulesFlag') !== 'Y',
         },
       },
       {
@@ -582,7 +564,7 @@ export default (): DataSetProps => {
         label: intl.get('hiop.invoiceRule.modal.dynamicPrefixThree').d('前缀3'),
         type: FieldType.string,
         computedProps: {
-          disabled: ({ record }) => !(record.get('enableRulesFlag') === 'Y'),
+          disabled: ({ record }) => record.get('enableRulesFlag') !== 'Y',
         },
       },
       {
@@ -594,7 +576,7 @@ export default (): DataSetProps => {
         defaultValue: 'N',
         labelWidth: '190',
         computedProps: {
-          disabled: ({ record }) => !(record.get('enableRulesFlag') === 'Y'),
+          disabled: ({ record }) => record.get('enableRulesFlag') !== 'Y',
         },
       },
       {
@@ -602,7 +584,7 @@ export default (): DataSetProps => {
         label: intl.get('hiop.invoiceRule.modal.dynamicPrefixFour').d('前缀4'),
         type: FieldType.string,
         computedProps: {
-          disabled: ({ record }) => !(record.get('enableRulesFlag') === 'Y'),
+          disabled: ({ record }) => record.get('enableRulesFlag') !== 'Y',
         },
       },
       {

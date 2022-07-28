@@ -67,7 +67,9 @@ interface RedInvoiceRequisitionListPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceRequisitionListPageProps> {
+export default class RedInvoiceRequisitionListPage extends Component<
+  RedInvoiceRequisitionListPageProps
+> {
   redInvoiceCreateDS = new DataSet({
     autoQuery: false,
     ...RedInvoiceCreateDS(),
@@ -167,14 +169,6 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
           invoiceInfo: encodeURIComponent(JSON.stringify(record.toData(true))),
         }),
       });
-      // this.props.dispatch(
-      //   routerRedux.push({
-      //     pathname,
-      //     search: queryString.stringify({
-      //       invoiceInfo: encodeURIComponent(JSON.stringify(record.toData(true))),
-      //     }),
-      //   }),
-      // );
     }
   }
 
@@ -255,11 +249,6 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
       'companyId'
     )}/${redInvoiceApplyHeaderId}`;
     history.push(pathname);
-    // this.props.dispatch(
-    //   routerRedux.push({
-    //     pathname,
-    //   }),
-    // );
   }
 
   /**
@@ -268,8 +257,8 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
   @Bind()
   async handleUploadLocalSide() {
     const { queryDataSet } = this.props.headerDS;
-    const selectedList = this.props.headerDS.selected.map((rec) => rec.toData());
-    if (selectedList.some((rec) => rec.status !== 'N')) {
+    const selectedList = this.props.headerDS.selected.map(rec => rec.toData());
+    if (selectedList.some(rec => rec.status !== 'N')) {
       notification.warning({
         description: '',
         message: '存在状态不为新建的申请单！',
@@ -284,7 +273,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
           organizationId,
           companyCode,
           employeeNumber: employeeNum,
-          requisitionHeaderIds: selectedList.map((rec) => rec.redInvoiceApplyHeaderId).join(','),
+          requisitionHeaderIds: selectedList.map(rec => rec.redInvoiceApplyHeaderId).join(','),
         })
       );
       if (res) {
@@ -331,7 +320,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
   @Bind()
   async handleDeleteHeaders() {
     const requisitionHeaderIds = this.props.headerDS.selected
-      .map((rec) => rec.get('redInvoiceApplyHeaderId'))
+      .map(rec => rec.get('redInvoiceApplyHeaderId'))
       .join(',');
     this.deleteOrCancel(requisitionHeaderIds);
   }
@@ -377,15 +366,15 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
    */
   @Bind()
   async handleUpdateState() {
-    const selectedList = this.props.headerDS.selected.map((record) => record.toData());
-    if (selectedList.some((rec) => !['U'].includes(rec.status))) {
+    const selectedList = this.props.headerDS.selected.map(record => record.toData());
+    if (selectedList.some(rec => !['U'].includes(rec.status))) {
       notification.warning({
         description: '',
         message: '存在状态不为上传的申请单！',
       });
       return;
     }
-    const requisitionHeaderIds = selectedList.map((rec) => rec.redInvoiceApplyHeaderId).join(',');
+    const requisitionHeaderIds = selectedList.map(rec => rec.redInvoiceApplyHeaderId).join(',');
     this.updateState(requisitionHeaderIds);
   }
 
@@ -419,13 +408,6 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
         })
       );
       if (resFile) {
-        // if (resFile.failed === 1) {
-        //   notification.error({
-        //     description: '',
-        //     message: resFile.message,
-        //   });
-        //   return;
-        // }
         const blob = new Blob([resFile]); // 字节流
         if (window.navigator.msSaveBlob) {
           try {
@@ -569,8 +551,6 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
               textColor = '#959595';
               break;
             default:
-              color = '';
-              textColor = '';
               break;
           }
           return (

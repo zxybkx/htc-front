@@ -64,7 +64,9 @@ interface RedInvoiceRequisitionListPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceRequisitionListPageProps> {
+export default class RedInvoiceInfoTableListPage extends Component<
+  RedInvoiceRequisitionListPageProps
+> {
   async componentDidMount() {
     const { queryDataSet } = this.props.headerDS;
     if (queryDataSet && !queryDataSet.current) {
@@ -81,7 +83,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
   /**
    * 发票类型下拉值筛选
    */
-  invoiceTypeFilter = (record) => {
+  invoiceTypeFilter = record => {
     return ['0', '52'].includes(record.get('value'));
   };
 
@@ -172,14 +174,6 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
           redInfo: encodeURIComponent(JSON.stringify(redInfo)),
         }),
       });
-      // dispatch(
-      //   routerRedux.push({
-      //     pathname: '/htc-front-iop/red-invoice-info/SynchronizeRedInfoList',
-      //     search: queryString.stringify({
-      //       redInfo: encodeURIComponent(JSON.stringify(redInfo)),
-      //     }),
-      //   })
-      // );
     }
   }
 
@@ -190,7 +184,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
   async handleCreateRedOrder() {
     const { queryDataSet } = this.props.headerDS;
     const redInvoiceInfoHeaderIds = this.props.headerDS.selected
-      .map((rec) => rec.get('redInvoiceInfoHeaderId'))
+      .map(rec => rec.get('redInvoiceInfoHeaderId'))
       .join(',');
     if (queryDataSet) {
       const curQueryInfo = queryDataSet.current!.toData();
@@ -206,13 +200,6 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
         })
       );
       if (res) {
-        // if (res.failed === 1) {
-        //   notification.error({
-        //     description: '',
-        //     message: res.message,
-        //   });
-        //   return;
-        // }
         if (!res.message) {
           notification.success({
             description: '',
@@ -235,7 +222,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
       this.props.headerDS.queryDataSet &&
       this.props.headerDS.queryDataSet.current!.get('employeeNum');
     const redInvoiceInfoHeaderIds = this.props.headerDS.selected
-      .map((rec) => rec.get('redInvoiceInfoHeaderId'))
+      .map(rec => rec.get('redInvoiceInfoHeaderId'))
       .join(',');
     const params = {
       organizationId,
@@ -274,13 +261,6 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
         })
       );
       if (resFile) {
-        // if (resFile.failed === 1) {
-        //   notification.error({
-        //     description: '',
-        //     message: resFile.message,
-        //   });
-        //   return;
-        // }
         const blob = new Blob([resFile]); // 字节流
         if (window.navigator.msSaveBlob) {
           try {
@@ -313,11 +293,6 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
     const headerId = record.get('redInvoiceInfoHeaderId');
     const companyId = record.get('companyId');
     history.push(`/htc-front-iop/red-invoice-info/detail/${companyId}/${headerId}`);
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname: `/htc-front-iop/red-invoice-info/detail/${companyId}/${headerId}`,
-    //   })
-    // );
   }
 
   /**

@@ -10,7 +10,6 @@ import React, { Component } from 'react';
 import { Content, Header } from 'components/Page';
 import intl from 'utils/intl';
 import formatterCollections from 'utils/intl/formatterCollections';
-import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
 import { observer } from 'mobx-react-lite';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
@@ -27,11 +26,10 @@ interface CommodityInfoPageProps extends RouteComponentProps {
   match: any;
 }
 
-@connect()
 @formatterCollections({
   code: ['hiop.customerInfo', 'htc.common', 'hiop.invoiceWorkbench', 'hiop.invoiceReq'],
 })
-export default class CustomerInfoPage extends Component<CommodityInfoPageProps> {
+export default class CommodityPage extends Component<CommodityInfoPageProps> {
   state = { recordData: {} as any };
 
   commodityMapListDS = new DataSet({
@@ -91,7 +89,7 @@ export default class CustomerInfoPage extends Component<CommodityInfoPageProps> 
   @Bind()
   assignCommodity() {
     const { recordData } = this.state;
-    const goodsMappingList = this.commodityMapListDS.selected.map((record) => record.toData());
+    const goodsMappingList = this.commodityMapListDS.selected.map(record => record.toData());
     const { companyCode, taxpayerNumber, customerInformationId } = recordData;
     const customerInfo = {
       companyCode,
@@ -169,7 +167,7 @@ export default class CustomerInfoPage extends Component<CommodityInfoPageProps> 
       Modal.confirm({
         key: Modal.key,
         title,
-      }).then((button) => {
+      }).then(button => {
         if (button === 'ok') {
           record.set({ enabledFlag: 0 });
           this.commodityMapListDS.submit();
@@ -260,7 +258,7 @@ export default class CustomerInfoPage extends Component<CommodityInfoPageProps> 
       {
         name: 'projectObj',
         width: 180,
-        editor: (record) => record.getState('editing'),
+        editor: record => record.getState('editing'),
         renderer: ({ text, record }) => {
           const enabledFlag = record?.get('enabledFlag');
           const enabledText = enabledFlag === 0 ? '禁用' : '启用';
@@ -276,8 +274,6 @@ export default class CustomerInfoPage extends Component<CommodityInfoPageProps> 
               textColor = '#19A633';
               break;
             default:
-              color = '';
-              textColor = '';
               break;
           }
           return (
@@ -290,13 +286,13 @@ export default class CustomerInfoPage extends Component<CommodityInfoPageProps> 
           );
         },
       },
-      { name: 'projectName', width: 150, editor: (record) => record.getState('editing') },
-      { name: 'issueName', editor: (record) => record.getState('editing') },
-      { name: 'taxRateObj', editor: (record) => record.getState('editing') },
-      { name: 'model', editor: (record) => record.getState('editing') },
-      { name: 'invoiceType', editor: (record) => record.getState('editing') },
-      { name: 'goodsUnit', editor: (record) => record.getState('editing') },
-      { name: 'goodsUnitPrice', editor: (record) => record.getState('editing') },
+      { name: 'projectName', width: 150, editor: record => record.getState('editing') },
+      { name: 'issueName', editor: record => record.getState('editing') },
+      { name: 'taxRateObj', editor: record => record.getState('editing') },
+      { name: 'model', editor: record => record.getState('editing') },
+      { name: 'invoiceType', editor: record => record.getState('editing') },
+      { name: 'goodsUnit', editor: record => record.getState('editing') },
+      { name: 'goodsUnitPrice', editor: record => record.getState('editing') },
       {
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
