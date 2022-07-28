@@ -16,7 +16,6 @@ import { phoneReg } from '@htccommon/utils/utils';
 const modelCode = 'hmdm.apply-tenantList';
 
 export default (): DataSetProps => {
-  // const API_PREFIX = `${commonConfig.MDM_API}-30455` || '';
   const API_PREFIX = commonConfig.MDM_API || '';
   return {
     transport: {

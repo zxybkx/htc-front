@@ -9,7 +9,6 @@
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
 import ExcelExport from 'components/ExcelExport';
-import { connect } from 'dva';
 import { Content, Header } from 'components/Page';
 import { Bind } from 'lodash-decorators';
 import intl from 'utils/intl';
@@ -26,8 +25,7 @@ const modelCode = 'hmdm.company-list';
 interface CostSharingListPageProps {
   dispatch: Dispatch<any>;
 }
-@connect()
-export default class CompanyListPage extends Component<CostSharingListPageProps> {
+export default class ProjectCostSharingPage extends Component<CostSharingListPageProps> {
   tableDS = new DataSet({
     autoQuery: true,
     ...costSharingListDS(),
@@ -61,7 +59,7 @@ export default class CompanyListPage extends Component<CostSharingListPageProps>
    */
   @Bind()
   exportParams() {
-    const queryParams = this.tableDS.queryDataSet!.map((data) => data.toData()) || {};
+    const queryParams = this.tableDS.queryDataSet!.map(data => data.toData()) || {};
     const { companyObj, ...otherData } = queryParams[0];
     const _queryParams = {
       ...companyObj,

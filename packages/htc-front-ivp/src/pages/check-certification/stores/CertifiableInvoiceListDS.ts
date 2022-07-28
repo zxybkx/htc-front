@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: shan.zhang@hand-china.com
  * @Date: 2020-09-29 10:24:22
- * @LastEditTime:
+ * @LastEditTime: 2022-07-26 16:14:45
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -33,7 +33,6 @@ const validTaxAmountValidator = (value, name, record) => {
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
-  // const API_PREFIX = `${commonConfig.IVP_API}-28090` || '';
   const tenantId = getCurrentOrganizationId();
   return {
     transport: {
@@ -94,13 +93,13 @@ export default (): DataSetProps => {
         let amount = 0;
         let taxAmount = 0;
         let validTaxAmount = 0;
-        dataSet.forEach((record) => {
+        dataSet.forEach(record => {
           amount += record.getField('invoiceAmount')?.getValue() || 0;
         });
-        dataSet.forEach((record) => {
+        dataSet.forEach(record => {
           taxAmount += record.getField('taxAmount')?.getValue() || 0;
         });
-        dataSet.forEach((record) => {
+        dataSet.forEach(record => {
           validTaxAmount += record.getField('validTaxAmount')?.getValue() || 0;
         });
         const { queryDataSet } = dataSet;
@@ -170,7 +169,7 @@ export default (): DataSetProps => {
         label: intl.get('htc.common.view.invoiceDate').d('开票日期'),
         type: FieldType.date,
         required: true,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'buyerTaxNo',
@@ -203,7 +202,7 @@ export default (): DataSetProps => {
         label: intl.get('hivp.bill.view.EffectiveTax').d('有效税额'),
         type: FieldType.currency,
         validator: (value, name, record) =>
-          new Promise((reject) => reject(validTaxAmountValidator(value, name, record))),
+          Promise.resolve(validTaxAmountValidator(value, name, record)),
       },
       {
         name: 'invoiceState',
@@ -350,7 +349,7 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.currentOperationalDeadline`).d('当前可操作截止时间'),
           labelWidth: '130',
           type: FieldType.string,
-          transformRequest: (value) => moment(value).format('YYYY-MM-DD'),
+          transformRequest: value => moment(value).format('YYYY-MM-DD'),
           readOnly: true,
           ignore: FieldIgnore.always,
         },
@@ -399,14 +398,14 @@ export default (): DataSetProps => {
           label: intl.get('hivp.bill.view.invoiceDateFrom').d('开票日期从'),
           type: FieldType.date,
           max: 'invoiceDateTo',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'invoiceDateTo',
           label: intl.get('hivp.bill.view.invoiceDateTo').d('开票日期至'),
           type: FieldType.date,
           min: 'invoiceDateFrom',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'managementState',

@@ -199,9 +199,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     if (['SALES_INVOICE_SUBSCRIBE', 'PURCHASE_INVOICE_SUBSCRIBE'].includes(requestType)) {
       this.reqHeaderDS.current!.getField('emailPhone')!.set('required', false);
     } else {
-      this.reqHeaderDS
-        .current!.getField('emailPhone')!
-        .set('required', invoiceTypeTag === 'E' && true);
+      this.reqHeaderDS.current!.getField('emailPhone')!.set('required', invoiceTypeTag === 'E');
     }
     const res = await this.reqHeaderDS.submit();
     if (res === undefined) {
@@ -261,9 +259,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
   @Bind()
   async handleSubmitReq() {
     const invoiceTypeTag = this.reqHeaderDS.current!.get('invoiceTypeTag');
-    this.reqHeaderDS
-      .current!.getField('emailPhone')!
-      .set('required', invoiceTypeTag === 'E' && true);
+    this.reqHeaderDS.current!.getField('emailPhone')!.set('required', invoiceTypeTag === 'E');
     const validateValue = await this.reqHeaderDS.validate(false, false);
     const linesValidate = await this.reqLinesDS.validate(false, false);
     // 页面校验
@@ -276,16 +272,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     }
     const { empInfo } = this.state;
     const headerData = this.reqHeaderDS.current!.toData(true);
-    const lineData = this.reqLinesDS.map((record) => record.toData(true));
-    // this.reqLinesDS.forEach((record) => {
-    //   if (record && record.dirty) {
-    //     const item = {
-    //       ...record.toData(true),
-    //       _status: 'update',
-    //     };
-    //     lineData.push(item);
-    //   }
-    // });
+    const lineData = this.reqLinesDS.map(record => record.toData(true));
     const pageData = {
       ...headerData,
       // _status: 'update',
@@ -391,7 +378,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
   @Bind()
   handleTaxRateLovChange(field, value) {
     if (this.reqLinesDS.length > 0) {
-      this.reqLinesDS.forEach((line) => line.set(field, value.value));
+      this.reqLinesDS.forEach(line => line.set(field, value.value));
     }
     this.setState({ invoiceType: value.value });
   }
@@ -547,13 +534,13 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
   get columns(): ColumnProps[] {
     const { sourceType: urlSourceType } = this.props.match.params;
     const { requestStatus, deleteFlag, sourceType } = this.state;
-    const toNonExponential = (num) => {
+    const toNonExponential = num => {
       const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
       return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
     };
-    const regExp = /(^[0-9]*.[0]*$)/;
+    const regExp = /(^\d*.[0]*$)/;
     // 删除行不可修改/【来源类型】=“发票作废”不允许修改/从待开票跳转过来不可改
-    const adjustEditAble = (record) =>
+    const adjustEditAble = record =>
       ['N', 'Q'].includes(requestStatus) &&
       deleteFlag === 'N' &&
       !['Y', 'D'].includes(record.get('adjustFlag')) &&
@@ -566,29 +553,29 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
           return dataSet && record ? dataSet.indexOf(record) + 1 : '';
         },
       },
-      { name: 'projectNumberObj', editor: (record) => adjustEditAble(record), width: 150 },
-      { name: 'commodityNumberObj', editor: (record) => adjustEditAble(record), width: 150 },
+      { name: 'projectNumberObj', editor: record => adjustEditAble(record), width: 150 },
+      { name: 'commodityNumberObj', editor: record => adjustEditAble(record), width: 150 },
       { name: 'commodityShortName' },
       {
         name: 'issues',
-        editor: (record) =>
+        editor: record =>
           adjustEditAble(record) && (
             <TextField name="issues" onChange={() => record.set({ projectNumberObj: '' })} />
           ),
         width: 300,
       },
       { name: 'projectName', width: 300 },
-      { name: 'specificationModel', editor: (record) => adjustEditAble(record), width: 150 },
-      { name: 'unit', editor: (record) => adjustEditAble(record) },
+      { name: 'specificationModel', editor: record => adjustEditAble(record), width: 150 },
+      { name: 'unit', editor: record => adjustEditAble(record) },
       {
         name: 'quantity',
-        editor: (record) => adjustEditAble(record),
+        editor: record => adjustEditAble(record),
         width: 150,
         renderer: ({ value }) => <span>{value}</span>,
       },
       {
         name: 'price',
-        editor: (record) => adjustEditAble(record),
+        editor: record => adjustEditAble(record),
         renderer: ({ value }) =>
           value &&
           (regExp.test(value) ? Number(value).toFixed(2) : toNonExponential(Number(value))),
@@ -597,9 +584,9 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       },
       {
         name: 'amount',
-        editor: (record) =>
+        editor: record =>
           adjustEditAble(record) && (
-            <Currency onChange={(value) => this.handleAmount(value, record)} />
+            <Currency onChange={value => this.handleAmount(value, record)} />
           ),
         // editor: (record) =>
         //   adjustEditAble(record) && !(record.get('quantity') && record.get('price')),
@@ -608,27 +595,27 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       },
       {
         name: 'discountAmount',
-        editor: (record) => adjustEditAble(record),
+        editor: record => adjustEditAble(record),
         width: 150,
         align: ColumnAlign.right,
       },
-      { name: 'taxIncludedFlag', editor: (record) => adjustEditAble(record), width: 130 },
+      { name: 'taxIncludedFlag', editor: record => adjustEditAble(record), width: 130 },
       {
         name: 'taxRateObj',
-        editor: (record) => adjustEditAble(record) && <Lov name="taxRateObj" noCache />,
+        editor: record => adjustEditAble(record) && <Lov name="taxRateObj" noCache />,
         width: 120,
         align: ColumnAlign.right,
       },
       {
         name: 'zeroTaxRateFlag',
-        editor: (record) =>
+        editor: record =>
           adjustEditAble(record) && record.get('taxRate') && Number(record.get('taxRate')) === 0,
         width: 150,
       },
       { name: 'taxAmount', width: 150, align: ColumnAlign.right },
       {
         name: 'deductionAmount',
-        editor: (record) => adjustEditAble(record),
+        editor: record => adjustEditAble(record),
         width: 150,
         align: ColumnAlign.right,
       },
@@ -690,6 +677,62 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     });
   }
 
+  @Bind()
+  async exportInterface(params) {
+    const res = await exportPrintFiles(params);
+    if (res && res.status === '1000') {
+      const { data } = res;
+      if (isEmpty(data.skipList)) {
+        // 导出打印
+        this.printZip(data.invoiceTypeMap);
+      } else {
+        Modal.confirm({
+          children: `您本次选择的发票${data.skipList.join('、')}存在断号，是否批量导出打印？`,
+        }).then(button => {
+          if (button === 'ok') {
+            // 导出打印
+            this.printZip(data.invoiceTypeMap);
+          }
+        });
+      }
+    } else {
+      notification.error({
+        description: '',
+        message: res && res.message,
+      });
+    }
+  }
+
+  @Bind()
+  async printInvoiceInterface(params) {
+    const res = getResponse(await exportNotZip(params));
+    if (res) {
+      res.forEach(item => {
+        const blob = new Blob([base64toBlob(item.data)]);
+        if (window.navigator.msSaveBlob) {
+          try {
+            window.navigator.msSaveBlob(blob, item.fileName);
+          } catch (e) {
+            notification.error({
+              description: '',
+              message: intl.get('hzero.common.notification.error').d('下载失败'),
+            });
+          }
+        } else {
+          const aElement = document.createElement('a');
+          const blobUrl = window.URL.createObjectURL(blob);
+          aElement.href = blobUrl; // 设置a标签路径
+          aElement.download = item.fileName;
+          aElement.click();
+          window.URL.revokeObjectURL(blobUrl);
+        }
+      });
+      const printElement = document.createElement('a');
+      printElement.href = 'Webshell://'; // 设置a标签路径
+      printElement.click();
+    }
+  }
+
   /**
    * 导出打印文件
    * @params {boolean} type 0-导出打印 1-打印发票
@@ -700,7 +743,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     const { empInfo } = this.state;
     const curData = this.reqHeaderDS.current!.toData();
     const tips = type === 0 ? '无法导出打印文件' : '打印发票';
-    if (!(curData.completedQuantity > 0)) {
+    if (curData.completedQuantity <= 0) {
       notification.warning({
         description: '',
         message: intl
@@ -718,55 +761,9 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     };
     // 导出打印(zip)
     if (type === 0) {
-      const res = await exportPrintFiles(params);
-      if (res && res.status === '1000') {
-        const { data } = res;
-        if (isEmpty(data.skipList)) {
-          // 导出打印
-          this.printZip(data.invoiceTypeMap);
-        } else {
-          Modal.confirm({
-            children: `您本次选择的发票${data.skipList.join('、')}存在断号，是否批量导出打印？`,
-          }).then((button) => {
-            if (button === 'ok') {
-              // 导出打印
-              this.printZip(data.invoiceTypeMap);
-            }
-          });
-        }
-      } else {
-        notification.error({
-          description: '',
-          message: res && res.message,
-        });
-      }
+      this.exportInterface(params);
     } else {
-      const res = getResponse(await exportNotZip(params));
-      if (res) {
-        res.forEach((item) => {
-          const blob = new Blob([base64toBlob(item.data)]);
-          if (window.navigator.msSaveBlob) {
-            try {
-              window.navigator.msSaveBlob(blob, item.fileName);
-            } catch (e) {
-              notification.error({
-                description: '',
-                message: intl.get('hzero.common.notification.error').d('下载失败'),
-              });
-            }
-          } else {
-            const aElement = document.createElement('a');
-            const blobUrl = window.URL.createObjectURL(blob);
-            aElement.href = blobUrl; // 设置a标签路径
-            aElement.download = item.fileName;
-            aElement.click();
-            window.URL.revokeObjectURL(blobUrl);
-          }
-        });
-        const printElement = document.createElement('a');
-        printElement.href = 'Webshell://'; // 设置a标签路径
-        printElement.click();
-      }
+      this.printInvoiceInterface(params);
     }
   }
 
@@ -938,9 +935,8 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
   get renderEmployeeDesc() {
     const { empInfo } = this.state;
     if (empInfo) {
-      return `${empInfo.companyCode || ''}-${empInfo.employeeNum || ''}-${
-        empInfo.employeeName || ''
-      }-${empInfo.mobile || ''}`;
+      return `${empInfo.companyCode || ''}-${empInfo.employeeNum || ''}-${empInfo.employeeName ||
+        ''}-${empInfo.mobile || ''}`;
     }
     return '';
   }
@@ -1007,11 +1003,11 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
                 />
                 <Lov
                   name="extNumberObj"
-                  onChange={(value) => this.handleTaxRateLovChange('extNumber', value)}
+                  onChange={value => this.handleTaxRateLovChange('extNumber', value)}
                 />
                 {/*---*/}
                 <Select name="receiptType" />
-                <Lov name="invoiceTypeObj" onChange={(value) => this.invoiceVarietyChange(value)} />
+                <Lov name="invoiceTypeObj" onChange={value => this.invoiceVarietyChange(value)} />
                 <Select name="billFlag" />
                 <Lov name="requestTypeObj" />
                 {/*---*/}

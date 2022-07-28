@@ -45,7 +45,7 @@ interface RedInvoiceRequisitionListPageProps extends RouteComponentProps {
 @formatterCollections({
   code: ['hiop.redInvoiceInfo', 'hiop.invoiceWorkbench', 'htc.common', 'hiop.customerInfo'],
 })
-export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceRequisitionListPageProps> {
+export default class SynchronizeRedInfoPage extends Component<RedInvoiceRequisitionListPageProps> {
   synchronizeRedInfoDS = new DataSet({
     autoQuery: false,
     ...SynchronizeRedInfoDS(),
@@ -96,7 +96,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
         } else {
           notification.error({
             description: '',
-            message: res && res.message,
+            message: res.message,
           });
         }
       }
@@ -242,7 +242,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
         } else {
           notification.error({
             description: '',
-            message: res && res.message,
+            message: res.message,
           });
         }
       }
@@ -297,7 +297,7 @@ export default class RedInvoiceRequisitionListPage extends Component<RedInvoiceR
         } else {
           notification.error({
             description: '',
-            message: res && res.message,
+            message: res.message,
           });
         }
       }

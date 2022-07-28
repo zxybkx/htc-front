@@ -11,7 +11,7 @@ import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
-import querystring from 'querystring';
+import queryString from 'query-string';
 import commonConfig from '@htccommon/config/commonConfig';
 import notification from 'utils/notification';
 import { HZERO_FILE, API_HOST } from 'utils/config';
@@ -70,7 +70,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
   componentDidMount() {
     const { queryDataSet } = this.props.invoiceDS;
     if (queryDataSet && !(queryDataSet.current && queryDataSet.current.get('companyId'))) {
-      getCurrentEmployeeInfo({ tenantId }).then((res) => {
+      getCurrentEmployeeInfo({ tenantId }).then(res => {
         if (res && res.content && res.content.length > 0) {
           queryDataSet.getField('companyObj')!.set('defaultValue', res.content[0]);
           queryDataSet.reset();
@@ -139,7 +139,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
     dispatch(
       routerRedux.push({
         pathname: `/htc-front-ivp/my-invoice/detail/${sourceCode}/${poolHeaderId}`,
-        search: querystring.stringify({
+        search: queryString.stringify({
           invoiceInfo: encodeURIComponent(
             JSON.stringify({
               invoiceType,
@@ -154,13 +154,13 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
   }
 
   // 查看档案
-  handleGotoArchiveView = (record) => {
+  handleGotoArchiveView = record => {
     const { dispatch } = this.props;
     const { sourceCode, poolHeaderId, companyId } = record.toData();
     dispatch(
       routerRedux.push({
         pathname: `/htc-front-ivp/my-invoice/archive-view/${sourceCode}/${poolHeaderId}`,
-        search: querystring.stringify({
+        search: queryString.stringify({
           invoiceInfo: encodeURIComponent(
             JSON.stringify({
               companyId,
@@ -184,7 +184,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
     dispatch(
       routerRedux.push({
         pathname: `/htc-front-ivp/my-invoice/doc-related/${sourceCode}/${poolHeaderId}`,
-        search: querystring.stringify({
+        search: queryString.stringify({
           invoiceInfo: encodeURIComponent(
             JSON.stringify({
               companyId,
@@ -230,12 +230,13 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
       { name: 'url', value: encodeURIComponent(fileUrl) },
       { name: 'bucketName', value: bucketName },
     ];
-    const api = `${HZERO_FILE}/v1/${isTenantRoleLevel() ? `${tenantId}/` : ''}files/download`;
+    const tempTenantId = isTenantRoleLevel() ? `${tenantId}/` : '';
+    const api = `${HZERO_FILE}/v1/${tempTenantId}files/download`;
     // @ts-ignore
     downloadFile({
       requestUrl: api,
       queryParams,
-    } as DownloadFileParams).then((result) => {
+    } as DownloadFileParams).then(result => {
       // 获取返回信息，不做处理
       getResponse(result, null);
     });
@@ -247,7 +248,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
     }
   };
 
-  handleUploadSuccess = (response) => {
+  handleUploadSuccess = response => {
     const { curPoolHeaderId } = this.state;
     try {
       let ntfFlag = true;
@@ -260,7 +261,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
         Modal.confirm({
           key: Modal.key,
           title,
-        }).then(async (button) => {
+        }).then(async button => {
           if (button === 'ok') {
             this.singleIsCheck = 'N';
             this.upload[curPoolHeaderId].startUpload();
@@ -378,7 +379,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
         width: 300,
         renderer: ({ value, record }) => {
           const poolHeaderId = record && record.get('poolHeaderId');
-          // if (!value && record && record.get('invoiceTypeTag') !== 'E') {
+
           if (!value && record) {
             return (
               <Button loading={loadingFlag} style={{ border: 'none', background: 'transparent' }}>
@@ -389,9 +390,9 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
                 {/* eslint-enable */}
                 <div style={{ display: 'none' }}>
                   <Upload
-                    ref={(node) => this.saveUpload(poolHeaderId, node)}
+                    ref={node => this.saveUpload(poolHeaderId, node)}
                     {...uploadProps}
-                    onFileChange={(fileList) => this.handleFileChange(poolHeaderId, fileList)}
+                    onFileChange={fileList => this.handleFileChange(poolHeaderId, fileList)}
                     data={() => ({
                       companyId: record.get('companyId'),
                       companyCode: record.get('companyCode'),

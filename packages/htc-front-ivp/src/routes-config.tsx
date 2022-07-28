@@ -8,11 +8,10 @@ configure({
 });
 
 if (process.env.ADDITIONAL === 'true') {
-  loadConfig(configure)
+  loadConfig(configure);
 }
 export const PageWrapper = () => {
-  const PageWrapperComponent = ({ children }: any) => {
+  return ({ children }: any) => {
     return <>{children}</>;
   };
-  return PageWrapperComponent;
 };

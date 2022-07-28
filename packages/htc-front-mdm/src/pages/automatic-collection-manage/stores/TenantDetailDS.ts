@@ -20,7 +20,14 @@ const modelCode = 'hmdm.automatic-collection-manage-detail';
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
   const tenantId = getCurrentOrganizationId();
-
+  const commonReq: any = ({ data, params }) => {
+    return {
+      url: `${API_PREFIX}/v1/${tenantId}/company-list-infos/batch-save`,
+      data,
+      params,
+      method: 'POST',
+    };
+  };
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -37,20 +44,10 @@ export default (): DataSetProps => {
         return axiosConfig;
       },
       update: ({ data, params }) => {
-        return {
-          url: `${API_PREFIX}/v1/${tenantId}/company-list-infos/batch-save`,
-          data,
-          params,
-          method: 'POST',
-        };
+        return commonReq({ data, params });
       },
       create: ({ data, params }) => {
-        return {
-          url: `${API_PREFIX}/v1/${tenantId}/company-list-infos/batch-save`,
-          data,
-          params,
-          method: 'POST',
-        };
+        return commonReq({ data, params });
       },
     },
     events: {

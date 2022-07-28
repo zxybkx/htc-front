@@ -3,12 +3,11 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-24 14:23:33
- * @LastEditTime:
+ * @LastEditTime: 2022-07-26 17:24:35
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Bind } from 'lodash-decorators';
 import { Content, Header } from 'components/Page';
@@ -43,7 +42,10 @@ import intl from 'utils/intl';
 import { Button as PermissionButton } from 'components/Permission';
 import { getPresentMenu } from '@htccommon/utils/utils';
 import { getAccessToken, getCurrentOrganizationId, getResponse } from 'utils/utils';
-import { getCurrentEmployeeInfo, getTenantAgreementCompany } from '@htccommon/services/commonService';
+import {
+  getCurrentEmployeeInfo,
+  getTenantAgreementCompany,
+} from '@htccommon/services/commonService';
 import {
   getTaskPassword,
   getTaxAuthorityCode,
@@ -63,7 +65,7 @@ import uuidv4 from 'uuid/v4';
 import notification from 'utils/notification';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { ProgressStatus } from 'choerodon-ui/lib/progress/enum';
-import querystring from 'querystring';
+import queryString from 'query-string';
 import { isEmpty, split, uniq } from 'lodash';
 import { queryIdpValue } from 'hzero-front/lib/services/api';
 import formatterCollections from 'utils/intl/formatterCollections';
@@ -92,7 +94,6 @@ interface TaxRefundPageProps {
   companyAndPassword: DataSet;
 }
 
-@connect()
 @withProps(
   () => {
     const taxRefundHeaderDS = new DataSet({
@@ -124,7 +125,7 @@ interface TaxRefundPageProps {
     'hiop.invoiceReq',
   ],
 })
-export default class CheckCertificationPage extends Component<TaxRefundPageProps> {
+export default class TaxRefundListPage extends Component<TaxRefundPageProps> {
   state = {
     spinning: true,
     displayOptions: [] as any,
@@ -316,7 +317,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
     }
   }
 
-  saveMultipleUpload = (node) => {
+  saveMultipleUpload = node => {
     this.multipleUpload = node;
   };
 
@@ -355,7 +356,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
   async batchOperation(record) {
     const { empInfo } = this.state;
     const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
-    // const { queryDataSet } = this.props.taxRefundHeaderDS;
+
     const { queryDataSet: batchDs } = this.batchTaxRefundHeaderDS;
     // const taxDiskPassword = queryDataSet && queryDataSet.current!.get('taxDiskPassword');
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
@@ -495,7 +496,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
       <TextField
         name="number"
         newLine
-        renderer={(value) =>
+        renderer={value =>
           value.text && `${value.text}${intl.get('hivp.checkCertification.view.share').d('份')}`
         }
       />
@@ -510,7 +511,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
               <TextField name="checkMonth" />
               <Select
                 name="invoiceType"
-                optionsFilter={(record) =>
+                optionsFilter={record =>
                   record.get('value') === '01' || record.get('value') === '17'
                 }
               />
@@ -594,7 +595,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
       <Select
         name="checkFlag"
         clearButton={false}
-        optionsFilter={(record) => record.get('value') !== '-1' && record.get('value') !== 'R'}
+        optionsFilter={record => record.get('value') !== '-1' && record.get('value') !== 'R'}
       />
     );
     queryMoreArray.push(
@@ -675,11 +676,11 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
       taxDiskPassword,
     };
     if (queryDataSet && queryDataSet.current) {
-      const companyId = queryDataSet.current!.get('companyId');
+      const companyId = queryDataSet.current.get('companyId');
       dispatch(
         routerRedux.push({
           pathname: `/htc-front-ivp/tax-refund/texRefundConfirm/${companyId}`,
-          search: querystring.stringify({
+          search: queryString.stringify({
             taxInfo: encodeURIComponent(JSON.stringify(taxInfo)),
           }),
         })
@@ -725,11 +726,6 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
           visible: true,
         });
         this.loopRequest(progressParams);
-        // notification.success({
-        //   description: '',
-        //   message: intl.get('hadm.hystrix.view.message.title.success').d('操作成功'),
-        // });
-        // await this.props.currentTaxRefundHeaderDS.query();
       }
     }
   }
@@ -762,7 +758,7 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
   @Bind()
   async handleRefundRequest(selectedList, type) {
     const { empInfo } = this.state;
-    // const { queryDataSet } = this.props.taxRefundHeaderDS;
+
     const { queryDataSet: curQS } = this.props.currentTaxRefundHeaderDS;
     // const taxDiskPassword = queryDataSet && queryDataSet.current!.get('taxDiskPassword');
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
@@ -793,8 +789,8 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
   // 提交退税发票勾选请求
   @Bind()
   async handleSubmitTax() {
-    const selectedList = this.props.currentTaxRefundHeaderDS.selected.map((rec) => rec.toData());
-    if (selectedList.some((item) => item.checkState !== '0')) {
+    const selectedList = this.props.currentTaxRefundHeaderDS.selected.map(rec => rec.toData());
+    if (selectedList.some(item => item.checkState !== '0')) {
       notification.warning({
         description: '',
         message: intl
@@ -809,8 +805,8 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
   // 提交退税发票取消勾选请求
   @Bind()
   async handleCancelTax() {
-    const selectedList = this.props.currentTaxRefundHeaderDS.selected.map((rec) => rec.toData());
-    if (selectedList.some((item) => item.checkState !== '1')) {
+    const selectedList = this.props.currentTaxRefundHeaderDS.selected.map(rec => rec.toData());
+    if (selectedList.some(item => item.checkState !== '1')) {
       notification.warning({
         description: '',
         message: intl
@@ -829,9 +825,9 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
     let unPass;
     let batchNoList;
     if (type === 0) {
-      const selectedList = this.props.currentTaxRefundHeaderDS.selected.map((rec) => rec.toData());
-      unPass = selectedList.some((item) => item.checkState !== 'R');
-      batchNoList = uniq(selectedList.map((item) => item.batchNo));
+      const selectedList = this.props.currentTaxRefundHeaderDS.selected.map(rec => rec.toData());
+      unPass = selectedList.some(item => item.checkState !== 'R');
+      batchNoList = uniq(selectedList.map(item => item.batchNo));
     }
     if (unPass) {
       notification.warning({
@@ -977,11 +973,6 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
           message: intl.get('hzero.c7nProUI.Upload.upload_success').d('上传成功'),
         });
         this.setState({ isBatchFreshDisabled: false });
-      } else {
-        // notification.error({
-        //   description: '',
-        //   message: res.message,
-        // });
       }
     } catch (err) {
       notification.error({
@@ -1019,9 +1010,9 @@ export default class CheckCertificationPage extends Component<TaxRefundPageProps
     if (res) {
       const date = moment().format('YYYY-MM-DD HH:mm:ss');
       const blob = new Blob([res]); // 字节流
-      if (window.navigator.msSaveBlob) {
+      if ((window.navigator as any).msSaveBlob) {
         try {
-          window.navigator.msSaveBlob(blob, `${taxpayerNumber}_${date}.zip`);
+          (window.navigator as any).msSaveBlob(blob, `${taxpayerNumber}_${date}.zip`);
         } catch (e) {
           notification.error({
             description: '',

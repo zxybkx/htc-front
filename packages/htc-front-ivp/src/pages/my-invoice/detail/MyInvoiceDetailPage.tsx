@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 16:19:48
- * @LastEditTime: 2021-01-28 11:43:07
+ * @LastEditTime: 2022-07-26 17:08:29
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -21,7 +21,7 @@ interface RouterInfo {
 interface InvoicePoolDetailPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
-export default class InvoicePoolDetailPage extends Component<InvoicePoolDetailPageProps> {
+export default class MyInvoiceDetailPage extends Component<InvoicePoolDetailPageProps> {
   state = { invoiceType: '', invoiceHeaderId: '' };
 
   async componentDidMount() {

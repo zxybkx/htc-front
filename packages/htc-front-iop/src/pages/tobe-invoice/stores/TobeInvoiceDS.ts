@@ -66,8 +66,8 @@ const judgeReadOnly = (record, name) => {
   const documentLineType = record.get('documentLineType'); // 行类型
   const uprojectAmount = Number(record.get('uprojectAmount')) || 0; // 开票金额
   const utaxAmount = Number(record.get('utaxAmount')) || 0; // 开票税额
-  // 行类型=折扣行
   if (documentLineType === '4') {
+    // 行类型=折扣行
     // 开票数量、开票单价、开票金额、开票扣除额
     if (['uquantity', 'uprojectUnitPrice', 'uprojectAmount', 'udeduction'].includes(name)) {
       return true;
@@ -91,8 +91,56 @@ const judgeReadOnly = (record, name) => {
   return false;
 };
 
+const handleUprojectAmountChange = (
+  value,
+  documentLineType,
+  amount,
+  taxAmount,
+  record,
+  udiscountAmount,
+  discountAmount
+) => {
+  const deduction = Number(record.get('deduction')) || 0; // 扣除额
+  const countExcludeTaxAmount = amount - discountAmount; // 折后不含税金额
+  const ucountExcludeTaxAmount = value - udiscountAmount; // 开票折后不含税金额
+  if (
+    ['1', '2'].includes(documentLineType) ||
+    (documentLineType === '3' && amount > 0 && taxAmount > 0)
+  ) {
+    if (countExcludeTaxAmount !== 0) {
+      const _udeduction = (ucountExcludeTaxAmount / countExcludeTaxAmount) * deduction;
+      const _utaxAmount = (ucountExcludeTaxAmount / countExcludeTaxAmount) * taxAmount;
+      if (_udeduction !== 0) {
+        record.set('udeduction', _udeduction);
+      }
+      record.set('utaxAmount', _utaxAmount);
+    }
+  }
+};
+
+const setUtaxAmount = (name, value, record, udiscountAmount, discountAmount, taxAmount) => {
+  if (name === 'udiscountAmount' && value) {
+    // 开票税额=开票折扣额金额/折扣金额*税额
+    if (discountAmount !== 0) {
+      const _utaxAmount = (udiscountAmount / discountAmount) * taxAmount;
+      record.set('utaxAmount', _utaxAmount);
+    }
+  }
+};
+
+const handleDocumentLineTypeChange = (name, value, record) => {
+  if (name === 'documentLineType') {
+    const uprojectAmount = Number(record.get('uprojectAmount')) || 0; // 开票金额
+    if (value === '4') {
+      record.set('udiscountAmount', uprojectAmount);
+      record.set('discountAmount', uprojectAmount);
+      record.set('uprojectAmount', null);
+      record.set('amount', null);
+    }
+  }
+};
+
 export default (): DataSetProps => {
-  // const API_PREFIX = `${commonConfig.IOP_API}-31183` || '';
   const API_PREFIX = commonConfig.IOP_API || '';
   const tenantId = getCurrentOrganizationId();
   const dayEnd = moment().endOf('day');
@@ -129,11 +177,8 @@ export default (): DataSetProps => {
         const udiscountAmount = Number(record.get('udiscountAmount')) || 0; // 开票折扣金额
         const discountAmount = Number(record.get('discountAmount')) || 0; // 折扣额
         const amount = Number(record.get('amount')) || 0; // 金额
-        const deduction = Number(record.get('deduction')) || 0; // 扣除额
-        if (name === 'uquantity' && value) {
-          if (uprojectUnitPrice) {
-            record.set('uprojectAmount', value * uprojectUnitPrice);
-          }
+        if (name === 'uquantity' && value && uprojectUnitPrice) {
+          record.set('uprojectAmount', value * uprojectUnitPrice);
         }
         if (name === 'uprojectUnitPrice' && value) {
           record.set('uprojectAmount', value * uquantity);
@@ -142,43 +187,21 @@ export default (): DataSetProps => {
           if (uprojectUnitPrice && uprojectUnitPrice !== 0) {
             record.set('uquantity', Number((value / uprojectUnitPrice).toFixed(8)));
           }
-          const countExcludeTaxAmount = amount - discountAmount; // 折后不含税金额
-          const ucountExcludeTaxAmount = value - udiscountAmount; // 开票折后不含税金额
           // 销售行、退货行
-          if (
-            ['1', '2'].includes(documentLineType) ||
-            (documentLineType === '3' && amount > 0 && taxAmount > 0)
-          ) {
-            // 开票扣除额=折后不含税金额1/折后不含税金额*扣除额
-            // 开票税额=折后不含税金额1/折后不含税金额*税额
-            if (countExcludeTaxAmount !== 0) {
-              const _udeduction = (ucountExcludeTaxAmount / countExcludeTaxAmount) * deduction;
-              const _utaxAmount = (ucountExcludeTaxAmount / countExcludeTaxAmount) * taxAmount;
-              if (_udeduction !== 0) {
-                record.set('udeduction', _udeduction);
-              }
-              record.set('utaxAmount', _utaxAmount);
-            }
-          }
+          handleUprojectAmountChange(
+            value,
+            documentLineType,
+            amount,
+            taxAmount,
+            record,
+            udiscountAmount,
+            discountAmount
+          );
         }
         // 折扣行
-        if (name === 'udiscountAmount' && value) {
-          // 开票税额=开票折扣额金额/折扣金额*税额
-          if (discountAmount !== 0) {
-            const _utaxAmount = (udiscountAmount / discountAmount) * taxAmount;
-            record.set('utaxAmount', _utaxAmount);
-          }
-        }
+        setUtaxAmount(name, value, record, udiscountAmount, discountAmount, taxAmount);
         // 行类型
-        if (name === 'documentLineType') {
-          const uprojectAmount = Number(record.get('uprojectAmount')) || 0; // 开票金额
-          if (value === '4') {
-            record.set('udiscountAmount', uprojectAmount);
-            record.set('discountAmount', uprojectAmount);
-            record.set('uprojectAmount', null);
-            record.set('amount', null);
-          }
-        }
+        handleDocumentLineTypeChange(name, value, record);
       },
       submitSuccess: ({ dataSet }) => {
         dataSet.query();
@@ -243,16 +266,14 @@ export default (): DataSetProps => {
           required: ({ record }) => record.get('uprojectUnitPrice'),
           readOnly: ({ record, name }) => judgeReadOnly(record, name),
         },
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(amountValidator(value, name, record))),
+        validator: (value, name, record) => amountValidator(value, name, record),
         precision: 8,
       },
       {
         name: 'uprojectAmount',
         label: intl.get('hiop.invoiceWorkbench.modal.invoiceAmount').d('开票金额'),
         type: FieldType.currency,
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(amountValidator(value, name, record))),
+        validator: (value, name, record) => amountValidator(value, name, record),
         computedProps: {
           readOnly: ({ record, name }) => judgeReadOnly(record, name),
           required: ({ record }) => record.get('documentLineType') !== '4',
@@ -262,8 +283,7 @@ export default (): DataSetProps => {
         name: 'udiscountAmount',
         label: intl.get('hiop.tobeInvoice.modal.udiscountAmount').d('开票折扣金额'),
         type: FieldType.currency,
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(amountValidator(value, name, record))),
+        validator: (value, name, record) => amountValidator(value, name, record),
         computedProps: {
           readOnly: ({ record, name }) => judgeReadOnly(record, name),
           required: ({ record }) => record.get('documentLineType') === '4',
@@ -273,8 +293,7 @@ export default (): DataSetProps => {
         name: 'udeduction',
         label: intl.get('hiop.tobeInvoice.modal.udeduction').d('开票扣除额'),
         type: FieldType.currency,
-        validator: (value, name, record) =>
-          new Promise((reject) => reject(amountValidator(value, name, record))),
+        validator: (value, name, record) => amountValidator(value, name, record),
         computedProps: {
           readOnly: ({ record, name }) => judgeReadOnly(record, name),
         },

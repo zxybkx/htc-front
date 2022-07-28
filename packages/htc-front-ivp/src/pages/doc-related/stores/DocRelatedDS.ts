@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
- * @LastEditTime: 2021-01-22 13:48:42
+ * @LastEditTime: 2022-07-26 16:20:05
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -13,7 +13,6 @@ import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import notification from 'utils/notification';
-// import { TransportProps } from 'choerodon-ui/pro/lib/data-set/Transport';
 
 const modelCode = 'hivp.invoicesDocRelated';
 
@@ -65,7 +64,7 @@ export default (dsParams): DataSetProps => {
       },
     },
     feedback: {
-      submitSuccess: (resp) => {
+      submitSuccess: resp => {
         if (resp.content && resp.content[0]) {
           if (resp.content[0].status === '1000') {
             notification.success({

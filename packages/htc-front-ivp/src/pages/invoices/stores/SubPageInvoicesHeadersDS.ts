@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
- * @LastEditTime: 2020-11-03 10:58:06
+ * @LastEditTime: 2022-07-26 17:07:12
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -14,8 +14,6 @@ import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import moment from 'moment';
-
-// const modelCode = 'hivp.invoices';
 
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
@@ -117,7 +115,7 @@ export default (dsParams): DataSetProps => {
         label: intl.get(`htc.common.view.invoiceDate`).d('开票日期'),
         type: FieldType.date,
         // required: true,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'invoiceAmount',

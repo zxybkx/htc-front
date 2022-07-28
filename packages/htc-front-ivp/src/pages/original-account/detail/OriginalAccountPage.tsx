@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
- * @LastEditTime: 2021-03-05 15:40:41
+ * @LastEditTime: 2022-07-26 17:16:23
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -90,7 +90,7 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
       });
       this.headerDS.setQueryParameter('companyId', invoiceInfo.companyId);
       this.headerDS.setQueryParameter('inChannelCode', invoiceInfo.inChannelCode);
-      this.headerDS.query().then((res) => {
+      this.headerDS.query().then(res => {
         if (res) {
           if (this.headerDS.length === 0) {
             this.headerDS.create(
@@ -98,9 +98,9 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
               0
             );
           }
-          // console.log('headerDS', this.headerDS.toData());
+
           const autoRefreshFlag = this.headerDS.current!.get('autoRefreshFlag');
-          // console.log('autoRefreshFlag', autoRefreshFlag);
+
           if (autoRefreshFlag && autoRefreshFlag === 1) {
             this.autoRefreshTimer = setInterval(
               () => this.handleAutoRefresh(),
@@ -121,7 +121,6 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
   // 自动刷新
   @Bind()
   handleAutoRefresh() {
-    // console.log('handleAutoRefresh', new Date());
     this.lineDS.query();
   }
 
@@ -155,7 +154,6 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
   // 启动/停止刷新
   @Bind()
   handleAutoRefreshChange(value) {
-    // console.log('value', value);
     if (value === 1) {
       this.lineDS.query();
       this.autoRefreshTimer = setInterval(
@@ -176,7 +174,7 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
       this.headerDS.current!.set({ employeeNum });
     }
     const res = await this.headerDS.submit();
-    // console.log('res', res);
+
     if (res && res.success && everydayGetOriginalFlag) {
       const params = {
         tenantId,
@@ -184,10 +182,9 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
       };
       const resp = getResponse(await getOriginalAccountAutoDate(params));
       if (resp) {
+        const textLeft = intl.get(`${modelCode}.view.lastAutoDate`).d('上一次的自动获取时间为');
         notification.info({
-          message: `${intl.get(`${modelCode}.view.lastAutoDate`).d('上一次的自动获取时间为')}：${
-            resp.data
-          }`,
+          message: `${textLeft}：${resp.data}`,
           description: '',
         });
       }
@@ -200,10 +197,10 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
   @Bind()
   onCell() {
     return {
-      onClick: (e) => {
+      onClick: e => {
         const { currentTarget } = e;
         const spanNode = currentTarget.firstChild;
-        // console.log('spanNode', spanNode);
+
         if (spanNode.style.whiteSpace === 'normal') {
           spanNode.style.whiteSpace = 'nowrap';
           spanNode.style.textOverflow = 'ellipsis';
@@ -241,7 +238,7 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
   render() {
     const GetOriginalAccount = observer((props: any) => {
       let isDisabled = false;
-      // console.log(props.dataSet.length, props.dataSet.toData());
+
       if (props.dataSet.length > 0) {
         const curRec = props.dataSet.toData()[0];
         isDisabled = curRec && curRec.everydayGetOriginalFlag === 1;
@@ -311,7 +308,7 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
               <TextField name="taxDiskPassword" />
               <CheckBox
                 name="autoRefreshFlag"
-                onChange={(value) => this.handleAutoRefreshChange(value)}
+                onChange={value => this.handleAutoRefreshChange(value)}
               />
               <CheckBox name="allParFlag" />
             </Form>

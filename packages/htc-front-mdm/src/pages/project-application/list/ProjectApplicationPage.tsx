@@ -67,11 +67,8 @@ interface ProjectApplicationPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-
 export default class ProjectApplicationPage extends Component<ProjectApplicationPageProps> {
   state = {};
-
-  componentDidMount() {}
 
   linkDS = new DataSet({
     // autoCreate: true,
@@ -142,11 +139,6 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
     const tenantId = record.get('tenantId');
     const uniqueCode = record.get('uniqueCode');
     history.push(`/htc-front-mdm/project-application/tenant-detail/${tenantId}/${uniqueCode}`);
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname: `/htc-front-mdm/project-application/tenantDetail/${tenantId}/${uniqueCode}`,
-    //   })
-    // );
   }
 
   /**
@@ -157,9 +149,9 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
   @Bind()
   downLoadFile(name, text) {
     const blob = new Blob([base64toBlob(text)]);
-    if (window.navigator.msSaveBlob) {
+    if ((window.navigator as any).msSaveBlob) {
       try {
-        window.navigator.msSaveBlob(blob, name);
+        (window.navigator as any).msSaveBlob(blob, name);
       } catch (e) {
         notification.error({
           description: '',
@@ -601,7 +593,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
   @Bind()
   async handleExport() {
     const queryParams =
-      this.props.projectApplicationDS.queryDataSet!.map((data) => data.toData()) || {};
+      this.props.projectApplicationDS.queryDataSet!.map(data => data.toData()) || {};
     for (const key in queryParams[0]) {
       if (queryParams[0][key] === '' || queryParams[0][key] === null) {
         delete queryParams[0][key];
@@ -616,7 +608,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
   /**
    * 导入成功回调
    */
-  handleImportSuccess = (response) => {
+  handleImportSuccess = response => {
     try {
       const multipleData = JSON.parse(response);
       const res = getResponse(multipleData);
@@ -638,7 +630,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
   /**
    * 导入失败回调
    */
-  handleImportError = (response) => {
+  handleImportError = response => {
     notification.error({
       description: '',
       message: response,

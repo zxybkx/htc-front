@@ -53,7 +53,7 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
     mark = `${userRemark}`;
   }
   const title = invoiceVariety && invoiceVarietyConfig[invoiceVariety];
-  const calcAmount = (record) => {
+  const calcAmount = record => {
     const { taxIncludedFlag, amount } = record;
     const taxRate = Number(record.taxRate) || 0;
     let amountWithoutTax = amount.toFixed(2);
@@ -62,7 +62,7 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
     }
     return amountWithoutTax;
   };
-  const calcUnitPrice = (record) => {
+  const calcUnitPrice = record => {
     const quantity = Number(record.quantity) || 0;
     const amountWithoutTax = calcAmount(record);
     if (quantity === 0) return;
@@ -75,7 +75,7 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
       return Number(unitPrice);
     }
   };
-  const calcTaxRate = (record) => {
+  const calcTaxRate = record => {
     const { taxRate } = record;
     return `${Number(taxRate * 100).toString()}%`;
   };
@@ -123,7 +123,7 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
       </div>
     );
   };
-  const amountTax = (record) => {
+  const amountTax = record => {
     const { taxIncludedFlag, amount, taxAmount } = record;
     let amountIncludeTax = amount.toFixed(2);
     if (taxIncludedFlag === 0) {
@@ -131,7 +131,7 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
     }
     return amountIncludeTax;
   };
-  const unitPriceTax = (record) => {
+  const unitPriceTax = record => {
     const amountIncludeTax = amountTax(record);
     const quantity = Number(record.quantity) || 0;
     if (quantity === 0) return;
@@ -144,6 +144,7 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
       return Number(unitPrice);
     }
   };
+  const thTitle = invoiceVariety === '52' ? '项目名称' : '货物或应税劳务、服务名称';
   return (
     <>
       {invoiceVariety === '41' ? (
@@ -225,7 +226,7 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
                       </td>
                     </tr>
                     {!isEmpty(lines) &&
-                      lines.map((item) => {
+                      lines.map(item => {
                         return (
                           <tr>
                             <td>{item.projectName}</td>
@@ -301,9 +302,7 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
             <table className={styles.goodTable}>
               <tr style={{ textAlign: 'center' }}>
                 <td width="30%">
-                  <span className={styles.goodLabel}>
-                    {invoiceVariety === '52' ? '项目名称' : '货物或应税劳务、服务名称'}
-                  </span>
+                  <span className={styles.goodLabel}>{thTitle}</span>
                 </td>
                 <td width="10%">
                   <span className={styles.goodLabel}>规格型号</span>
@@ -328,7 +327,7 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
                 </td>
               </tr>
               {!isEmpty(lines) &&
-                lines.map((item) => {
+                lines.map(item => {
                   return (
                     <tr key={item.invoicingOrderLineId} className={styles.goodInfo}>
                       <td width="30%" align="left">

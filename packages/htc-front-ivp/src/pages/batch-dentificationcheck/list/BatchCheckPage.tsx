@@ -19,7 +19,6 @@ import { find } from 'lodash';
 import ExcelExport from 'components/ExcelExport';
 import { closeTab, openTab } from 'utils/menuTab';
 import queryString from 'query-string';
-import querystring from 'querystring';
 import commonConfig from '@htccommon/config/commonConfig';
 import {
   Button,
@@ -81,8 +80,7 @@ interface InvoiceWorkbenchPageProps {
   },
   { cacheState: true }
 )
-
-export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPageProps> {
+export default class BatchCheckPage extends Component<InvoiceWorkbenchPageProps> {
   state = {
     batchNum: [],
     // loadingFlag: false,
@@ -159,11 +157,11 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     }
   }
 
-  saveMultipleUpload = (node) => {
+  saveMultipleUpload = node => {
     this.multipleUpload = node;
   };
 
-  handleUploadSuccess = (response) => {
+  handleUploadSuccess = response => {
     try {
       const multipleData = JSON.parse(response);
       const res = getResponse(multipleData);
@@ -216,11 +214,9 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         message: intl.get('hivp.invoicesArchiveUpload.view.uploadInvalid').d('上传返回数据无效'),
       });
     }
-    // this.setState({ loadingFlag: false });
   };
 
-  handleUploadError = (response) => {
-    // this.setState({ loadingFlag: false });
+  handleUploadError = response => {
     notification.error({
       description: '',
       message: response,
@@ -250,7 +246,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
 
   @Bind()
   handleQuery(dataSet) {
-    dataSet.query().then((res) => {
+    dataSet.query().then(res => {
       if (res && res.content.length > 0) {
         const { invoicePoolStatus } = res.content[0];
         if (invoicePoolStatus === 'N') {
@@ -275,11 +271,11 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     const { batchNum, activeKey } = this.state;
     const RenderButton = observer((props: any) => {
       let isDisabled = props.dataSet!.selected.length === 0;
-      const list = props.dataSet!.selected.map((record) => record.toData());
+      const list = props.dataSet!.selected.map(record => record.toData());
       // 识别状态是（识别完成）且发票查验状态为（已查验||无需查验）、识别状态是（‘’）且发票查验状态为（已查验）
       const recogStatus = find(
         list,
-        (item) =>
+        item =>
           !(
             (item.recognitionStatus === 'RECOGNITION_FINISHED' &&
               ['3', '4'].includes(item.checkStatus)) ||
@@ -317,7 +313,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     ];
     const btnMenu = (
       <Menu>
-        {addBtns.map((action) => {
+        {addBtns.map(action => {
           return <MenuItem>{action}</MenuItem>;
         })}
       </Menu>
@@ -332,7 +328,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
                 <TextField name="employeeDesc" />
                 <TextField name="currentTime" />
                 <Select name="batchCode">
-                  {batchNum.map((item) => (
+                  {batchNum.map(item => (
                     <Option value={item}>{item}</Option>
                   ))}
                 </Select>
@@ -351,7 +347,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           </Row>
           <Tabs
             activeKey={activeKey}
-            onChange={(newActiveKey) => this.tabChange(newActiveKey)}
+            onChange={newActiveKey => this.tabChange(newActiveKey)}
             style={{ marginBottom: 10 }}
           >
             <TabPane tab={intl.get(`${modelCode}.button.notAdd`).d('未添加')} key="notAdd">
@@ -377,7 +373,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
                   name="invoicePoolStatus"
                   colSpan={1}
                   onChange={() => this.props.batchCheckDS.query()}
-                  optionsFilter={(record) => record.get('value') !== 'N'}
+                  optionsFilter={record => record.get('value') !== 'N'}
                 />
               </Form>
             </TabPane>
@@ -391,7 +387,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   // 导出
   @Bind()
   exportParams() {
-    const queryParams = this.props.batchCheckDS.queryDataSet!.map((data) => data.toData()) || {};
+    const queryParams = this.props.batchCheckDS.queryDataSet!.map(data => data.toData()) || {};
     for (const key in queryParams[0]) {
       if (queryParams[0][key] === '' || queryParams[0][key] === null) {
         delete queryParams[0][key];
@@ -501,7 +497,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     dispatch(
       routerRedux.push({
         pathname,
-        search: querystring.stringify({
+        search: queryString.stringify({
           invoiceInfo: encodeURIComponent(JSON.stringify(record.toData())),
         }),
       })
@@ -561,12 +557,12 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   }
 
   get columns(): ColumnProps[] {
-    const amountEditable = (record) =>
+    const amountEditable = record =>
       record.get('invoicePoolStatus') === 'N' && record.get('invoiceType') !== 'FLIGHT_ITINERARY';
-    const flightEditable = (record) =>
+    const flightEditable = record =>
       record.get('invoicePoolStatus') === 'N' && record.get('invoiceType') === 'FLIGHT_ITINERARY';
-    const editable = (record) => record.get('invoicePoolStatus') === 'N';
-    const viewDetailAble = (record) => {
+    const editable = record => record.get('invoicePoolStatus') === 'N';
+    const viewDetailAble = record => {
       const invoiceType = record.get('invoiceType');
       const checkStatus = record.get('checkStatus');
       if (['BLOCK_CHAIN', 'GENERAL_MACHINE_INVOICE'].includes(invoiceType)) {
@@ -591,9 +587,6 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
               textColor = '#3889FF';
               break;
             case '2':
-              color = '#F0F0F0';
-              textColor = '#959595';
-              break;
             case '3':
               color = '#F0F0F0';
               textColor = '#959595';
@@ -607,8 +600,6 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
               textColor = '#FF5F57';
               break;
             default:
-              color = '';
-              textColor = '';
               break;
           }
           return (
@@ -630,57 +621,57 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       },
       {
         name: 'invoiceType',
-        editor: (record) => editable(record),
+        editor: record => editable(record),
         width: 200,
       },
       {
         name: 'invoiceCode',
-        editor: (record) => editable(record),
+        editor: record => editable(record),
         width: 150,
       },
       {
         name: 'invoiceNumber',
-        editor: (record) => editable(record),
+        editor: record => editable(record),
         width: 130,
       },
       {
         name: 'invoiceAmount',
-        editor: (record) => amountEditable(record),
+        editor: record => amountEditable(record),
         width: 150,
       },
       {
         name: 'totalAmount',
-        editor: (record) => amountEditable(record),
+        editor: record => amountEditable(record),
         width: 150,
       },
       {
         name: 'buyerName',
-        editor: (record) => editable(record),
+        editor: record => editable(record),
       },
       { name: 'recognitionStatus' },
-      { name: 'fileType', editor: (record) => editable(record) },
+      { name: 'fileType', editor: record => editable(record) },
       { name: 'invoicePoolStatus', width: 170 },
       {
         name: 'invoiceDate',
-        editor: (record) => editable(record),
+        editor: record => editable(record),
         width: 150,
       },
       {
         name: 'fare',
-        editor: (record) => flightEditable(record),
+        editor: record => flightEditable(record),
       },
       {
         name: 'aviationDevelopmentFund',
-        editor: (record) => flightEditable(record),
+        editor: record => flightEditable(record),
         width: 150,
       },
-      { name: 'fuelSurcharge', editor: (record) => flightEditable(record) },
-      { name: 'otherTaxes', editor: (record) => flightEditable(record) },
-      { name: 'total', editor: (record) => flightEditable(record) },
-      { name: 'checkCode', editor: (record) => editable(record) },
+      { name: 'fuelSurcharge', editor: record => flightEditable(record) },
+      { name: 'otherTaxes', editor: record => flightEditable(record) },
+      { name: 'total', editor: record => flightEditable(record) },
+      { name: 'checkCode', editor: record => editable(record) },
       {
         name: 'ticketCollectorObj',
-        editor: (record) =>
+        editor: record =>
           record.get('invoiceBillFlag') !== '1' || !record.get('ticketCollectorDesc'),
         width: 280,
       },
@@ -741,26 +732,23 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       // 开始上传
       this.multipleUploadUuid = uuidv4();
       this.multipleUpload.startUpload();
-      if (this.multipleUpload.fileList.length > 0) {
-        // this.setState({ loadingFlag: true });
-      }
     }
   }
 
   @Bind()
   async addInvoice(type) {
-    const list = this.props.batchCheckDS.selected.map((record) => record.toData());
+    const list = this.props.batchCheckDS.selected.map(record => record.toData());
     // 识别状态是（识别完成）且发票查验状态为（已查验||无需查验）、识别状态是（‘’）且发票查验状态为（已查验）
     const recogStatus = find(
       list,
-      (item) =>
+      item =>
         !(
           (item.recognitionStatus === 'RECOGNITION_FINISHED' &&
             ['3', '4'].includes(item.checkStatus)) ||
           (item.recognitionStatus === '' && item.checkStatus === '4')
         )
     );
-    const invoiceIds = this.props.batchCheckDS.selected.map((record) => record.get('invoiceId'));
+    const invoiceIds = this.props.batchCheckDS.selected.map(record => record.get('invoiceId'));
     const curInfo = this.props.batchCheckDS.current!.toData();
     const { companyCode, employeeNum } = curInfo;
     const params = {
@@ -781,7 +769,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     }
     if (type === 1) {
       // 添加至我的发票
-      const haveNoEmploy = find(list, (item) => !item.ticketCollectorDesc);
+      const haveNoEmploy = find(list, item => !item.ticketCollectorDesc);
       if (haveNoEmploy) {
         return notification.warning({
           description: '',
@@ -791,7 +779,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         });
       }
     } else {
-      const addNoTicketList = find(list, (item) => item.invoicePoolStatus !== 'N');
+      const addNoTicketList = find(list, item => item.invoicePoolStatus !== 'N');
       if (addNoTicketList) {
         notification.warning({
           description: '',
@@ -808,7 +796,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           style: { width: '37%' },
           children: (
             <div>
-              {res.data.map((item) => (
+              {res.data.map(item => (
                 <p>
                   {intl.get('htc.common.view.invoiceCode').d('发票代码')}：{item.invoiceCode}&emsp;
                   {intl.get('htc.common.view.invoiceNo').d('发票号码')}：{item.invoiceNumber}&emsp;
@@ -880,8 +868,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   rowStyle(record) {
     console.log('value', record);
     return {
-      style: {backgroundColor: record.get('invoiceCode') === '033001900311' ? 'green' : ''}
-    }
+      style: { backgroundColor: record.get('invoiceCode') === '033001900311' ? 'green' : '' },
+    };
   }
 
   render() {

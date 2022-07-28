@@ -16,8 +16,6 @@ const modelCode = 'hmdm.link-generation-history';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
-  // const API_PREFIX = `${commonConfig.MDM_API}-30455` || '';
-
   return {
     transport: {
       read: (config): AxiosRequestConfig => {

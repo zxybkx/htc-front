@@ -83,9 +83,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   });
 
   invoiceOrderHeaderDS = new DataSet({
+    ...InvoiceOrderHeaderDS(this.props.match.params),
     autoQuery: false,
     autoCreate: false,
-    ...InvoiceOrderHeaderDS(this.props.match.params),
     children: {
       lineData: this.invoiceOrderLinesDS,
     },
@@ -187,7 +187,26 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   @Bind()
   handleTaxRateLovChange(field, value) {
     if (this.invoiceOrderLinesDS.length > 0) {
-      this.invoiceOrderLinesDS.forEach((record) => record.set(field, value));
+      this.invoiceOrderLinesDS.forEach(record => record.set(field, value));
+    }
+  }
+
+  @Bind()
+  judgeIsEdit(orderStatus, billingType, sourceType, invoiceSourceType, hasPermission) {
+    if (
+      (orderStatus === 'N' && billingType === 1) ||
+      (orderStatus === 'Q' && (billingType === 1 || billingType === 2))
+    ) {
+      if (sourceType !== 'invoiceReq' && invoiceSourceType !== 'APPLY') {
+        this.setState({ isDisabled: false, submitDisabled: !!hasPermission });
+      } else {
+        this.setState({ isDisabled: true, submitDisabled: !!hasPermission });
+      }
+    } else {
+      this.setState({ isDisabled: true, submitDisabled: false });
+    }
+    if (orderStatus === 'N' && billingType === 2 && invoiceSourceType === 'RED_INFO') {
+      this.setState({ isDisabled: false, submitDisabled: !!hasPermission });
     }
   }
 
@@ -201,7 +220,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     const { sourceType } = this.props.match.params;
     this.invoiceOrderHeaderDS.setQueryParameter('headerId', headerId);
     this.invoiceOrderHeaderDS.setQueryParameter('employeeId', employeeId);
-    this.invoiceOrderHeaderDS.query().then((res) => {
+    this.invoiceOrderHeaderDS.query().then(res => {
       const { billingType, userRemark, remark } = res;
       let mark = '';
       if (remark) {
@@ -214,39 +233,22 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         mark = `${userRemark}`;
       }
       this.invoiceOrderHeaderDS.current!.set('userRemark', mark);
+      this.invoiceOrderHeaderDS.current!.set('sourceType', sourceType);
       if (billingType !== 1 && billingType !== 2) {
         this.invoiceOrderHeaderDS.current!.set('billingType', billingType === 5 ? '2' : '1');
       }
       // 判断页面是否可编辑
       const { orderStatus, invoiceSourceType, invoiceVariety, hasPermission } = res;
       this.setState({ orderStatus, billingType, invoiceVariety, invoiceTypeTag: invoiceVariety });
-      if (
-        (orderStatus === 'N' && billingType === 1) ||
-        (orderStatus === 'Q' && (billingType === 1 || billingType === 2))
-      ) {
-        if (sourceType !== 'invoiceReq' && invoiceSourceType !== 'APPLY') {
-          this.setState({ isDisabled: false, submitDisabled: hasPermission && true });
-          this.invoiceOrderHeaderDS.current!.set({ readonly: false });
-        } else {
-          this.setState({ isDisabled: true, submitDisabled: hasPermission && true });
-          this.invoiceOrderHeaderDS.current!.set({ readonly: true });
-        }
-      } else {
-        this.setState({ isDisabled: true, submitDisabled: false });
-        this.invoiceOrderHeaderDS.current!.set({ readonly: true });
-      }
-      if (orderStatus === 'N' && billingType === 2 && invoiceSourceType === 'RED_INFO') {
-        this.setState({ isDisabled: false, submitDisabled: hasPermission && true });
-        this.invoiceOrderHeaderDS.current!.set({ readonly: false });
-      }
-      // this.setState({ submitDisabled: !hasPermission });
-      // console.log('!hasPermission', !hasPermission);
-      // 开具预览
+      this.judgeIsEdit(orderStatus, billingType, sourceType, invoiceSourceType, hasPermission);
       if (sourceType === 'issues') {
-        this.issueModal({
-          curEmployeeId: employeeId,
-          ...res,
-        }, 1);
+        this.issueModal(
+          {
+            curEmployeeId: employeeId,
+            ...res,
+          },
+          1
+        );
       }
     });
     this.invoiceOrderLinesDS.setQueryParameter('invoicingOrderHeaderId', headerId);
@@ -266,7 +268,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     if (
       prevProps.match.params.invoicingOrderHeaderId &&
       prevProps.match.params.invoicingOrderHeaderId !==
-      this.props.match.params.invoicingOrderHeaderId
+        this.props.match.params.invoicingOrderHeaderId
     ) {
       this.loadData(false);
     }
@@ -293,10 +295,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         const params = {
           tenantId,
           companyId,
-          companyCode: employeeInfo && employeeInfo.companyCode,
-          employeeId: employeeInfo && employeeInfo.employeeId,
-          employeeNumber: employeeInfo && employeeInfo.employeeNum,
-          employeeName: employeeInfo && employeeInfo.employeeName,
+          companyCode: employeeInfo.companyCode,
+          employeeId: employeeInfo.employeeId,
+          employeeNumber: employeeInfo.employeeNum,
+          employeeName: employeeInfo.employeeName,
         };
         const newData = getResponse(await orderNew(params));
         if (newData) {
@@ -321,16 +323,13 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     const { invoiceType } = this.state;
     const curData: any = this.invoiceOrderHeaderDS.toData();
     const { purchaseInvoiceFlag } = curData;
-    let disabled = true;
     if (purchaseInvoiceFlag === '0') {
       if (value === '0' || value === '52') {
-        disabled = true;
-        return disabled;
+        return true;
       }
     }
     const data = find(invoiceType, (item: any) => item.value === value);
-    if (data) disabled = false;
-    return disabled;
+    if (data) return false;
   }
 
   /**
@@ -424,12 +423,12 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    */
   get columns(): ColumnProps[] {
     const { isDisabled } = this.state;
-    const adjustEditAble = () => !isDisabled && true;
-    const toNonExponential = (num) => {
+    const adjustEditAble = () => !isDisabled;
+    const toNonExponential = num => {
       const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
       return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
     };
-    const regExp = /(^[0-9]*.[0]*$)/;
+    const regExp = /(^\d*.0*$)/;
     return [
       {
         name: 'operation',
@@ -461,14 +460,14 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       {
         name: 'invoiceLineNature',
         editor: adjustEditAble() && (
-          <Select optionsFilter={(record) => record.get('value') !== '6'} />
+          <Select optionsFilter={record => record.get('value') !== '6'} />
         ),
         width: 150,
       },
-      { name: 'projectObj', editor: !isDisabled && true, width: 150 },
+      { name: 'projectObj', editor: !isDisabled, width: 150 },
       {
         name: 'commodityNumberObj',
-        editor: (record) =>
+        editor: record =>
           adjustEditAble() && (
             <Lov
               name="commodityNumberObj"
@@ -479,34 +478,34 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       },
       {
         name: 'projectNameSuffix',
-        editor: (record) =>
+        editor: record =>
           adjustEditAble() && (
             <TextField name="projectNameSuffix" onChange={() => record.set({ projectObj: '' })} />
           ),
         width: 150,
       },
       { name: 'projectName', width: 150 },
-      { name: 'model', editor: !isDisabled && true },
-      { name: 'projectUnit', editor: !isDisabled && true },
+      { name: 'model', editor: !isDisabled },
+      { name: 'projectUnit', editor: !isDisabled },
       {
         name: 'quantity',
-        editor: !isDisabled && true,
+        editor: !isDisabled,
         renderer: ({ value }) => <span>{value}</span>,
       },
       {
         name: 'projectUnitPrice',
-        editor: !isDisabled && true,
+        editor: !isDisabled,
         renderer: ({ value }) =>
           value &&
           (regExp.test(value) ? Number(value).toFixed(2) : toNonExponential(Number(value))),
         width: 150,
         align: ColumnAlign.right,
       },
-      { name: 'taxIncludedFlag', editor: !isDisabled && true },
+      { name: 'taxIncludedFlag', editor: !isDisabled },
       {
         name: 'amount',
-        editor: (record) =>
-          !isDisabled && <Currency onChange={(value) => this.handleAmount(value, record)} />,
+        editor: record =>
+          !isDisabled && <Currency onChange={value => this.handleAmount(value, record)} />,
         width: 150,
       },
       {
@@ -518,13 +517,13 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       { name: 'taxAmount', width: 150, align: ColumnAlign.right },
       {
         name: 'deduction',
-        editor: (record) => {
-          return this.invoiceOrderLinesDS.indexOf(record) === 0 && !isDisabled && true;
+        editor: record => {
+          return this.invoiceOrderLinesDS.indexOf(record) === 0 && !isDisabled;
         },
         width: 150,
         align: ColumnAlign.right,
       },
-      { name: 'zeroTaxRateFlag', editor: !isDisabled && true, width: 180 },
+      { name: 'zeroTaxRateFlag', editor: !isDisabled, width: 180 },
       { name: 'preferentialPolicyFlag' },
       { name: 'specialVatManagement', width: 140 },
     ];
@@ -536,7 +535,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   @Bind()
   handleAddLine() {
     const currentData = this.invoiceOrderHeaderDS.current!.toData(true);
-    const lineList = this.invoiceOrderLinesDS.map((record) => record.toData(true));
+    const lineList = this.invoiceOrderLinesDS.map(record => record.toData(true));
     if (lineList.length > 1 && lineList[0].deduction && lineList[0].deduction > 0) {
       return notification.error({
         description: '',
@@ -603,7 +602,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    */
   @Bind()
   async handleCopyOrd() {
-    const resParams = await this.batchSave(3, null);
+    const resParams: any = await this.batchSave(3, null);
     if (!resParams) return;
     const params = {
       ...resParams,
@@ -634,11 +633,11 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     if (res && res.data) {
       const { fileName } = curInfo;
       const names = fileName.split('/');
-      names.forEach((item) => {
+      names.forEach(item => {
         const blob = new Blob([base64toBlob(res.data)]);
-        if (window.navigator.msSaveBlob) {
+        if ((window.navigator as any).msSaveBlob) {
           try {
-            window.navigator.msSaveBlob(blob, item);
+            (window.navigator as any).msSaveBlob(blob, item);
           } catch (e) {
             notification.error({
               description: '',
@@ -661,26 +660,195 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   }
 
   /**
+   * 校验行
+   * @params {[]} lineList 行数据
+   * @params {string} companyType 企业类型
+   */
+  @Bind()
+  validateLine(lineList, companyType) {
+    const firstData: any = lineList[0];
+    const seconedData: any = lineList[1];
+    const { deduction } = firstData;
+    // 差额征税最多只能有两行
+    if (lineList.length > 2 && lineList[0].deduction && lineList[0].deduction > 0) {
+      notification.error({
+        description: '',
+        message: intl
+          .get('hiop.invoiceWorkbench.notification.error.dedu')
+          .d('差额征税最多只能有两行'),
+      });
+      return false;
+    }
+    // 表格校验首行输入扣除额后第二行是否是折扣行
+    if (deduction && seconedData) {
+      if (seconedData.invoiceLineNature !== '1') {
+        notification.error({
+          description: '',
+          message: intl
+            .get('hiop.invoiceWorkbench.notification.error.sec')
+            .d(`表格第一行有扣除额，第二行只能选择折扣行`),
+        });
+        return false;
+      }
+    }
+    // 表格行校验小规模企业不为普通零税率
+    if (companyType === '1') {
+      const normalZero = find(lineList, (item: any) => item.zeroTaxRateFlag === '3');
+      if (normalZero) {
+        notification.error({
+          description: '',
+          message: intl
+            .get('hiop.invoiceWorkbench.notification.error.zeroTaxRate')
+            .d(`小规模企业不允许开具普通零税率发票`),
+        });
+        return false;
+      }
+    }
+    // 表格校验折扣行是否紧跟在被折扣行之后下一行
+    const lineNatureArr = lineList.map((item: any) => {
+      return item.invoiceLineNature;
+    });
+    const unCount = find(
+      lineNatureArr,
+      (item, index) => item === '2' && lineNatureArr[index + 1] !== '1'
+    );
+    if (last(lineNatureArr) === '2' || unCount) {
+      notification.error({
+        description: '',
+        message: intl
+          .get('hiop.invoiceWorkbench.notification.error.discount')
+          .d(`折扣行紧跟在被折扣行之后下一行`),
+      });
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * 审核（提交）
+   * @params {[]} lineList 行数据
+   * @params {object} params 接口传参
+   * @params {string} 来源类型 sourceType
+   * @params {number} companyId 公司id
+   * @params {number} 订单id invoicingOrderHeaderId
+   */
+  @Bind()
+  async handleSubmit(lineList, params, sourceType, companyId, invoicingOrderHeaderId) {
+    const { history } = this.props;
+    // 表格行校验空
+    if (isEmpty(lineList)) {
+      return notification.error({
+        description: '',
+        message: intl.get('hiop.invoiceWorkbench.validation.error.addLine').d(`请新增表格行`),
+      });
+    }
+    const res = getResponse(await review(params));
+    let pathname;
+    let pathSearch;
+    if (['issues', 'invoiceOrder'].includes(sourceType)) {
+      pathname = '/htc-front-iop/invoice-workbench/list';
+    } else {
+      const { search } = this.props.location;
+      const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
+      closeTab(
+        `/htc-front-iop/invoice-workbench/edit/invoiceReq/${companyId}/${invoicingOrderHeaderId}`
+      );
+      if (invoiceInfoStr) {
+        const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
+        pathname = invoiceInfo.backPath;
+        pathSearch = invoiceInfo.backSearch;
+      }
+    }
+    if (res) {
+      history.push({
+        pathname,
+        search: pathSearch,
+      });
+    }
+  }
+
+  /**
+   * 保存新建
+   * @params {object} params 接口传参
+   * @params {number} companyId 公司id
+   */
+  @Bind()
+  async createOrder(params, companyId) {
+    const { history } = this.props;
+    const res = getResponse(await batchSave(params));
+    if (res) {
+      notification.success({
+        description: '',
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
+      });
+      if (!this.props.match.params.invoicingOrderHeaderId) {
+        this.loadData(true);
+      }
+      history.push(`/htc-front-iop/invoice-workbench/invoice-order/invoiceOrder/${companyId}`);
+    }
+  }
+
+  /**
+   * 保存继续
+   * @params {object} params 接口传参
+   * @params {number} companyId 公司id
+   */
+  @Bind()
+  async editOrder(params, companyId, source) {
+    const { history } = this.props;
+    const res = getResponse(await batchSave(params));
+    if (res && res[0]) {
+      notification.success({
+        description: '',
+        message: intl.get('hzero.common.notification.success').d('操作成功'),
+      });
+      if (this.props.match.params.invoicingOrderHeaderId) {
+        this.loadData(false);
+      }
+      const pathname = source
+        ? `/htc-front-iop/invoice-workbench/edit/issues/${companyId}/${res[0].invoicingOrderHeaderId}`
+        : `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${companyId}/${res[0].invoicingOrderHeaderId}`;
+      history.push(pathname);
+    }
+  }
+
+  /**
+   * 保存继续
+   * @params {object} params 接口传参
+   * @params {object} employeeInfo 员工信息
+   */
+  @Bind()
+  async copyOrder(params, employeeInfo) {
+    const tempParams = {
+      ...params,
+      employeeId: employeeInfo.employeeId,
+      employeeName: employeeInfo.employeeName,
+      employeeNumber: employeeInfo.employeeNum,
+    };
+    const { isDisabled } = this.state;
+    // 当是完成订单时 不提交
+    if (isDisabled) {
+      return tempParams;
+    }
+    const res = getResponse(await batchSave(params));
+    if (res && res[0]) {
+      return tempParams;
+    }
+  }
+
+  /**
    * 保存
    * @params {number} type 0-保存新建 1-审核提交 2-保存继续 3-复制订单
    */
   @Bind()
   async batchSave(type, source) {
     const { companyId, invoicingOrderHeaderId, sourceType } = this.props.match.params;
-    const { history } = this.props;
     const { billingType, employeeInfo } = this.state;
     const headerData = this.invoiceOrderHeaderDS.current!.toData(true);
-    const lineList: any = this.invoiceOrderLinesDS.map((record) => record.toData(true));
+    const lineList: any = this.invoiceOrderLinesDS.map(record => record.toData(true));
     const validateValue = await this.invoiceOrderHeaderDS.validate(false, false);
     const linesValidate = await this.invoiceOrderLinesDS.validate(false, false);
     const { companyType, remark, userRemark, calculateSpin } = headerData;
-    // const empRes = await getCurrentEmployeeInfo({
-    //   tenantId,
-    //   companyId: this.props.match.params.companyId,
-    // });
-    // const empInfo = empRes && empRes.content[0];
-    // hiop.invoiceWorkbench.validation.invalid
-    // 页面校验
     if (!validateValue || !linesValidate) {
       notification.error({
         description: '',
@@ -688,168 +856,38 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       });
       return;
     }
-    if (!isEmpty(lineList)) {
-      const firstData: any = lineList[0];
-      const seconedData: any = lineList[1];
-      const { invoiceLineNature, deduction } = firstData;
-      // 表格校验首行是否为折扣行
-      if (invoiceLineNature === '1') {
-        return notification.error({
-          description: '',
-          message: intl
-            .get('hiop.invoiceWorkbench.notification.error.atFirst')
-            .d(`折扣行不可在首行录入`),
-        });
+    const judgeLineIsQualified = await (!isEmpty(lineList) &&
+      this.validateLine(lineList, companyType));
+    if (judgeLineIsQualified) {
+      let mark = userRemark;
+      if (remark) {
+        mark = replace(userRemark, `${remark}`, '');
       }
-      // 差额征税最多只能有两行
-      if (lineList.length > 2 && lineList[0].deduction && lineList[0].deduction > 0) {
-        return notification.error({
-          description: '',
-          message: intl
-            .get('hiop.invoiceWorkbench.notification.error.dedu')
-            .d('差额征税最多只能有两行'),
-        });
-      }
-      // 表格校验首行输入扣除额后第二行是否是折扣行
-      if (deduction && seconedData) {
-        if (seconedData.invoiceLineNature !== '1') {
-          return notification.error({
-            description: '',
-            message: intl
-              .get('hiop.invoiceWorkbench.notification.error.sec')
-              .d(`表格第一行有扣除额，第二行只能选择折扣行`),
-          });
-        }
-      }
-      // 表格行校验小规模企业不为普通零税率
-      if (companyType === '1') {
-        const normalZero = find(lineList, (item: any) => item.zeroTaxRateFlag === '3');
-        if (normalZero) {
-          return notification.error({
-            description: '',
-            message: intl
-              .get('hiop.invoiceWorkbench.notification.error.zeroTaxRate')
-              .d(`小规模企业不允许开具普通零税率发票`),
-          });
-        }
-      }
-      // 表格校验折扣行是否紧跟在被折扣行之后下一行
-      const lineNatureArr = lineList.map((item: any) => {
-        return item.invoiceLineNature;
-      });
-      const unCount = find(
-        lineNatureArr,
-        (item, index) => item === '2' && lineNatureArr[index + 1] !== '1'
-      );
-      if (last(lineNatureArr) === '2' || unCount) {
-        return notification.error({
-          description: '',
-          message: intl
-            .get('hiop.invoiceWorkbench.notification.error.discount')
-            .d(`折扣行紧跟在被折扣行之后下一行`),
-        });
-      }
-    }
-    let mark = userRemark;
-    if (remark) {
-      mark = replace(userRemark, `${remark}`, '');
-    }
-    const params = {
-      ...headerData,
-      curEmployeeId: employeeInfo.employeeId,
-      // curEmployeeName: empInfo && empInfo.employeeName,
-      // curEmployeeNumber: empInfo && empInfo.employeeNum,
-      billingType,
-      tenantId,
-      userRemark: mark,
-      lines: lineList,
-      discountSplitFlag: !!(this.invoiceOrderLinesDS.dirty && calculateSpin),
-    };
-    // 审核（提交）1
-    if (type === 1) {
-      // 表格行校验空
-      if (isEmpty(lineList)) {
-        return notification.error({
-          description: '',
-          message: intl.get('hiop.invoiceWorkbench.validation.error.addLine').d(`请新增表格行`),
-        });
-      }
-      const res = getResponse(await review(params));
-      let pathname;
-      let pathSearch;
-      if (['issues', 'invoiceOrder'].includes(sourceType)) {
-        pathname = '/htc-front-iop/invoice-workbench/list';
-      } else {
-        const { search } = this.props.location;
-        const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
-        closeTab(
-          `/htc-front-iop/invoice-workbench/edit/invoiceReq/${companyId}/${invoicingOrderHeaderId}`
-        );
-        if (invoiceInfoStr) {
-          const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
-          pathname = invoiceInfo.backPath;
-          pathSearch = invoiceInfo.backSearch;
-        }
-      }
-      if (res) {
-        history.push({
-          pathname,
-          search: pathSearch,
-        });
-        // dispatch(routerRedux.push({ pathname, search: pathSearch }));
-      }
-    }
-    // 保存（新建）
-    if (type === 0) {
-      const res = getResponse(await batchSave(params));
-      if (res) {
-        notification.success({
-          description: '',
-          message: intl.get('hzero.common.notification.success').d('操作成功'),
-        });
-        if (!this.props.match.params.invoicingOrderHeaderId) {
-          this.loadData(true);
-        }
-        history.push(`/htc-front-iop/invoice-workbench/invoice-order/invoiceOrder/${companyId}`);
-      }
-    }
-    // 保存继续
-    if (type === 2) {
-      const res = getResponse(await batchSave(params));
-      if (res && res[0]) {
-        notification.success({
-          description: '',
-          message: intl.get('hzero.common.notification.success').d('操作成功'),
-        });
-        if (this.props.match.params.invoicingOrderHeaderId) {
-          this.loadData(false);
-        }
-        // console.log('jump');
-        const pathname = source ? `/htc-front-iop/invoice-workbench/edit/issues/${companyId}/${res[0].invoicingOrderHeaderId}` : `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${companyId}/${res[0].invoicingOrderHeaderId}`;
-        history.push(pathname);
-        // return res;
-      }
-    }
-    // 保存 复制订单
-    if (type === 3) {
-      const tempParams = {
-        ...params,
-        employeeId: employeeInfo.employeeId,
-        employeeName: employeeInfo.employeeName,
-        employeeNumber: employeeInfo.employeeNum,
+      const params = {
+        ...headerData,
+        curEmployeeId: employeeInfo.employeeId,
+        billingType,
+        tenantId,
+        userRemark: mark,
+        lines: lineList,
+        discountSplitFlag: !!(this.invoiceOrderLinesDS.dirty && calculateSpin),
       };
-      const { isDisabled } = this.state;
-      // 当是完成订单时 不提交
-      if (isDisabled) {
-        return tempParams;
-      }
-      const res = getResponse(await batchSave(params));
-      if (res && res[0]) {
-        // notification.success({
-        //   description: '',
-        //   message: intl.get('hzero.common.notification.success').d('操作成功'),
-        // });
-        return tempParams;
+      // 审核（提交）1
+      switch (type) {
+        case 0:
+          this.createOrder(params, companyId);
+          break;
+        case 1:
+          this.handleSubmit(lineList, params, sourceType, companyId, invoicingOrderHeaderId);
+          break;
+        case 2:
+          this.editOrder(params, companyId, source);
+          break;
+        case 3:
+          this.copyOrder(params, employeeInfo);
+          break;
+        default:
+          break;
       }
     }
   }
@@ -1010,8 +1048,8 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   get renderEmployeeDesc() {
     const { employeeInfo } = this.state;
     if (employeeInfo) {
-      return `${employeeInfo.companyCode || ''}-${employeeInfo.employeeNum || ''}-${employeeInfo.employeeName || ''
-        }-${employeeInfo.mobile || ''}`;
+      return `${employeeInfo.companyCode || ''}-${employeeInfo.employeeNum ||
+        ''}-${employeeInfo.employeeName || ''}-${employeeInfo.mobile || ''}`;
     }
     return '';
   }
@@ -1129,7 +1167,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       className: styles.invoiceModal,
       footer: (
         <div style={{ display: 'block', textAlign: 'center' }}>
-          <Button color={ButtonColor.primary} onClick={() => this.handleCommitIssue(modal, pageData, type)}>
+          <Button
+            color={ButtonColor.primary}
+            onClick={() => this.handleCommitIssue(modal, pageData, type)}
+          >
             {intl.get('hzero.invoiceWorkbench.modalColse').d('提交开具')}
           </Button>
           <Button color={ButtonColor.primary} onClick={() => modal.close()}>
@@ -1336,7 +1377,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
               <Select name="listFlag" onChange={this.flagChange} />
               <Lov
                 name="extNumberObj"
-                onChange={(value) => this.handleTaxRateLovChange('extNumber', value.value)}
+                onChange={value => this.handleTaxRateLovChange('extNumber', value.value)}
               />
             </Form>
             <div style={{ background: '#fff', display: 'flex', padding: '16px' }}>

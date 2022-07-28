@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-15 15:10:12
- * @LastEditTime: 2020-09-17 10:01:01
+ * @LastEditTime: 2022-07-26 16:22:25
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -16,7 +16,6 @@ import intl from 'utils/intl';
 const modelCode = 'hivp.documentType';
 
 export default (): DataSetProps => {
-  // const API_PREFIX = `${commonConfig.IVP_API}-28651` || '';
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
   return {
@@ -35,7 +34,6 @@ export default (): DataSetProps => {
         return axiosConfig;
       },
       submit: ({ data, params }) => {
-        // const { companyCode } = data[0];
         return {
           url: `${API_PREFIX}/v1/${tenantId}/document-relation/add-document-number`,
           data,

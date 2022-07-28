@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { observer } from 'mobx-react-lite';
 import { chunk } from 'lodash';
 import { Bind } from 'lodash-decorators';
@@ -44,15 +43,14 @@ interface ArchiveUploadPageProps extends RouteComponentProps<RouterInfo> {
 @formatterCollections({
   code: [modelCode, 'htc.common', 'hivp.batchCheck', 'hivp.bill', 'hivp.invoicesFileArchive'],
 })
-@connect()
-export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps> {
+export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
   state = {
     companyDesc: '',
     companyCode: '',
     employeeNum: '',
     loadingFlag: false,
     backPath: '',
-    uploadFileData: []
+    uploadFileData: [],
   };
 
   multipleDS = new DataSet({
@@ -77,11 +75,11 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
 
   // multipleUploadTimer;
 
-  saveSingleUpload = (node) => {
+  saveSingleUpload = node => {
     this.singleUpload = node;
   };
 
-  saveMultipleUpload = (node) => {
+  saveMultipleUpload = node => {
     this.mutipleUpload = node;
   };
 
@@ -113,13 +111,12 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
     }
   }
 
-  handleUploadSuccess = (response) => {
-    // const { btnFlag } = this.state;
+  handleUploadSuccess = response => {
     try {
       const multipleData = JSON.parse(response);
       this.setState({
-        uploadFileData: multipleData
-      })
+        uploadFileData: multipleData,
+      });
       const res = getResponse(multipleData);
       if (res) {
         this.multipleDS = new DataSet({
@@ -136,7 +133,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
     this.setState({ loadingFlag: false });
   };
 
-  handleUploadError = (response) => {
+  handleUploadError = response => {
     this.setState({
       // uploadResult: response,
       // btnFlag: '',
@@ -210,7 +207,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
   // 自动勾选
   @Bind()
   handleAutoChecked() {
-    this.multipleDS.forEach((rec) => {
+    this.multipleDS.forEach(rec => {
       // console.log(rec.get('identifyState'), rec.get('dataCheckState'));
       // “自动勾选”只勾选“识别状态”为“识别完成”且“数据校验状态”为“校验通过”的档案
       if (
@@ -227,10 +224,10 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
   async handleConfirmArchive() {
     const { sourceCode } = this.props.match.params;
     const { companyCode, employeeNum } = this.state;
-    const selectedList = this.multipleDS.selected.map((rec) => rec.toData());
+    const selectedList = this.multipleDS.selected.map(rec => rec.toData());
     if (
       selectedList.some(
-        (sl) => !(sl.identifyState === 'RECOGNITION_FINISHED' && sl.dataCheckState === 'PASSED')
+        sl => !(sl.identifyState === 'RECOGNITION_FINISHED' && sl.dataCheckState === 'PASSED')
       )
     ) {
       notification.error({
@@ -241,7 +238,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
       });
       return;
     }
-    const selectedRowKeys = selectedList.map((record) => record.invoiceUploadFileId);
+    const selectedRowKeys = selectedList.map(record => record.invoiceUploadFileId);
     const params = {
       tenantId,
       companyCode,
@@ -300,8 +297,6 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
               textColor = '#FF5F57';
               break;
             default:
-              color = '';
-              textColor = '';
               break;
           }
           return (
@@ -357,8 +352,8 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
           key={props.key}
           onClick={props.onClick}
           disabled={isDisabled}
-        // funcType={FuncType.flat}
-        // color={ButtonColor.primary}
+          // funcType={FuncType.flat}
+          // color={ButtonColor.primary}
         >
           {props.title}
         </Button>
@@ -380,6 +375,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
       />,
     ];
   }
+
   @Bind()
   handleUploadDataChange(page, pageSize) {
     console.log(this.multipleDS.data);
@@ -390,12 +386,12 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
     const chunkData = chunk(totalData, pageSize);
     this.multipleDS.loadData(chunkData[_page - 1]);
   }
+
   @Bind()
   renderQueryBar(tableProps) {
     const { buttons } = tableProps;
     const { sourceCode, companyId } = this.props.match.params;
     const { companyCode, employeeNum, loadingFlag } = this.state;
-    // console.log('loadingFlag', loadingFlag);
     const uploadProps = {
       headers: {
         'Access-Control-Allow-Origin': '*',

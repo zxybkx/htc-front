@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-26 11:01:10
- * @LastEditTime:
+ * @LastEditTime: 2022-07-26 16:14:07
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -21,7 +21,6 @@ const modelCode = 'hivp.taxRefund';
 export default (): DataSetProps => {
   const tenantId = getCurrentOrganizationId();
   const API_PREFIX = commonConfig.IVP_API || '';
-  // const API_PREFIX = `${commonConfig.IVP_API}-31183` || '';
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -153,7 +152,7 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.currentOperationalDeadline`).d('当前操作截止'),
           labelWidth: '130',
           type: FieldType.string,
-          transformRequest: (value) => moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => moment(value).format(DEFAULT_DATE_FORMAT),
           readOnly: true,
           ignore: FieldIgnore.always,
         },
@@ -176,14 +175,14 @@ export default (): DataSetProps => {
           label: intl.get('hivp.bill.view.invoiceDateFrom').d('开票日期从'),
           type: FieldType.date,
           max: 'rqz',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'rqz',
           label: intl.get('hivp.bill.view.invoiceDateTo').d('开票日期至'),
           type: FieldType.date,
           min: 'rqq',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'salerTaxNo',
@@ -221,13 +220,13 @@ export default (): DataSetProps => {
           name: 'invoiceDateFrom',
           type: FieldType.date,
           bind: 'invoiceDate.invoiceDateFrom',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'invoiceDateTo',
           type: FieldType.date,
           bind: 'invoiceDate.invoiceDateTo',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
       ],
     }),

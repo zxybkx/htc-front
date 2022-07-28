@@ -65,7 +65,7 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
     const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
     if (invoiceInfoStr) {
       const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
-      // console.log('invoiceInfo', invoiceInfo);
+
       this.setState({
         employeeDesc: invoiceInfo.employeeDesc,
         companyId: invoiceInfo.companyId,
@@ -83,7 +83,7 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
   @Bind()
   async handlePushToCollector() {
     const { companyId, emailCcYourself, employeeNumber } = this.state;
-    const selectedList = this.tableDS.selected.map((rec) => rec.toData());
+    const selectedList = this.tableDS.selected.map(rec => rec.toData());
     if (selectedList.length === 0) {
       notification.info({
         description: '',
@@ -93,7 +93,7 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
       });
       return;
     }
-    const outFlag = selectedList.some((rec) => rec.inOutType === 'OUT');
+    const outFlag = selectedList.some(rec => rec.inOutType === 'OUT');
     if (outFlag) {
       notification.warning({
         description: '',
@@ -101,7 +101,7 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
       });
       return;
     }
-    const invoicePoolHeaderIds = selectedList.map((rec) => ({
+    const invoicePoolHeaderIds = selectedList.map(rec => ({
       invoicePoolHeaderId: rec.invoicePoolHeaderId,
       additionalEmail: rec.employeeEmail,
       additionalTell: rec.additionalTell,
@@ -126,7 +126,7 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
   @Bind()
   async handlePushToCustomer() {
     const { companyId, emailCcYourself, employeeNumber, sendOriginalMethod } = this.state;
-    const selectedList = this.tableDS.selected.map((rec) => rec.toData());
+    const selectedList = this.tableDS.selected.map(rec => rec.toData());
     if (selectedList.length === 0) {
       notification.info({
         description: '',
@@ -136,7 +136,7 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
       });
       return;
     }
-    const inFlag = selectedList.some((rec) => rec.inOutType === 'IN');
+    const inFlag = selectedList.some(rec => rec.inOutType === 'IN');
     if (inFlag) {
       notification.warning({
         description: '',
@@ -144,7 +144,7 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
       });
       return;
     }
-    const invoicePoolHeaderIds = selectedList.map((rec) => ({
+    const invoicePoolHeaderIds = selectedList.map(rec => ({
       invoicePoolHeaderId: rec.invoicePoolHeaderId,
       additionalEmail: rec.employeeEmail,
       additionalTell: rec.additionalTell,
@@ -185,7 +185,7 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
       { name: 'recordType', width: 120 },
       {
         name: 'additionalTell',
-        editor: (record) => record.get('invoiceLovTag') === 'E',
+        editor: record => record.get('invoiceLovTag') === 'E',
         width: 150,
       },
       { name: 'employeeEmail', editor: true, width: 240 },
@@ -241,12 +241,12 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
           <Form columns={5}>
             <CheckBox
               label={intl.get(`${modelCode}.view.ccSelf`).d('邮件抄送自己')}
-              onChange={(value) => this.setState({ emailCcYourself: value })}
+              onChange={value => this.setState({ emailCcYourself: value })}
             />
             <CheckBox
               label={intl.get(`${modelCode}.view.sendOrigin`).d('发送原交付方式')}
               labelWidth={120}
-              onChange={(value) => this.setState({ sendOriginalMethod: value })}
+              onChange={value => this.setState({ sendOriginalMethod: value })}
             />
           </Form>
           <Table dataSet={this.tableDS} columns={this.columns} style={{ height: 400 }} />

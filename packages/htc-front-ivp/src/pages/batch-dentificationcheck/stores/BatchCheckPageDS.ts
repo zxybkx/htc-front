@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-1-25 10:52:22
- * @LastEditTime:
+ * @LastEditTime: 2022-07-26 15:04:03
  * @Copyright: Copyright (c) 2020, Hand
  */
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
@@ -57,7 +57,6 @@ const requiredByType = (record, name) => {
 };
 
 export default (): DataSetProps => {
-  // const API_PREFIX = `${commonConfig.IVP_API}-28651` || '';
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
   return {

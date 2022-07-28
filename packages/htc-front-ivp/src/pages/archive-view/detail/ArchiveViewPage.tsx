@@ -139,12 +139,13 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
       { name: 'url', value: encodeURIComponent(fileUrl) },
       { name: 'bucketName', value: bucketName },
     ];
-    const api = `${HZERO_FILE}/v1/${isTenantRoleLevel() ? `${tenantId}/` : ''}files/download`;
+    const tempTenantId = isTenantRoleLevel() ? `${tenantId}/` : '';
+    const api = `${HZERO_FILE}/v1/${tempTenantId}files/download`;
     // @ts-ignore
     downloadFile({
       requestUrl: api,
       queryParams,
-    } as DownloadFileParams).then((result) => {
+    } as DownloadFileParams).then(result => {
       // 获取返回信息，不做处理
       getResponse(result, null);
     });

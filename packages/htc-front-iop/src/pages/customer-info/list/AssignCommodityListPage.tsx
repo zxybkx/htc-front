@@ -20,7 +20,7 @@ import AssignCommodityListDS from '../stores/AssignCommodityListDS';
 
 const tenantId = getCurrentOrganizationId();
 
-interface AssignCommodityListDS {
+interface AssignCommodityListDSProps {
   companyCode: string;
   taxpayerNumber: string;
   goodsMappingList: any;
@@ -31,7 +31,7 @@ interface AssignCommodityListDS {
 @formatterCollections({
   code: ['hiop.customerInfo', 'htc.common'],
 })
-export default class CommodityInfoPage extends Component<AssignCommodityListDS> {
+export default class AssignCommodityListPage extends Component<AssignCommodityListDSProps> {
   assignCommodityListDS = new DataSet({
     autoQuery: false,
     ...AssignCommodityListDS(),
@@ -50,7 +50,7 @@ export default class CommodityInfoPage extends Component<AssignCommodityListDS> 
    */
   @Bind()
   async assignCommodity() {
-    const customerInformationList = this.assignCommodityListDS.selected.map((record) =>
+    const customerInformationList = this.assignCommodityListDS.selected.map(record =>
       record.toData()
     );
     const { goodsMappingList } = this.props;

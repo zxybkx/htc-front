@@ -10,7 +10,6 @@ import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Content, Header } from 'components/Page';
 import { Dispatch } from 'redux';
-// import { connect } from 'dva';
 import intl from 'utils/intl';
 import { observer } from 'mobx-react-lite';
 import { Button as PermissionButton } from 'components/Permission';
@@ -60,6 +59,34 @@ export default class InvoiceViewPage extends Component<InvoiceViewPageProps> {
     ...InvoiceViewDS(this.props.match.params),
   });
 
+  @Bind()
+  validateInfo(billingType, curUrlDescription, curImgUrl) {
+    if (billingType !== 3) {
+      // 当为空白废时不提示 1->蓝字发票 2->红字发票 3->空白废 4->蓝废 5->红废
+      if (curUrlDescription) {
+        notification.error({
+          description: '',
+          placement: 'bottomRight',
+          message: intl
+            .get('hiop.invoiceView.notification.error.getFile')
+            .d('获取局端文件异常，请联系系统管理员'),
+        });
+        return false;
+      }
+      if (!curImgUrl) {
+        notification.warning({
+          description: '',
+          placement: 'bottomRight',
+          message: intl
+            .get('hiop.invoiceView.notification.message.fileLoading')
+            .d('获取局端文件中，请稍后重试'),
+        });
+        return false;
+      }
+    }
+    return true;
+  }
+
   /**
    * 获取图片数据
    */
@@ -72,45 +99,27 @@ export default class InvoiceViewPage extends Component<InvoiceViewPageProps> {
     const companyCode = this.queryDS.current && this.queryDS.current.get('companyCode');
     const employeeNumber = this.queryDS.current && this.queryDS.current.get('employeeNumber');
     const billingType = this.queryDS.current && this.queryDS.current.get('billingType');
-    if (billingType !== 3) {
-      // 当为空白废时不提示 1->蓝字发票 2->红字发票 3->空白废 4->蓝废 5->红废
-      if (curUrlDescription) {
-        return notification.error({
-          description: '',
-          placement: 'bottomRight',
-          message: intl
-            .get('hiop.invoiceView.notification.error.getFile')
-            .d('获取局端文件异常，请联系系统管理员'),
-        });
+    const validateRes = await this.validateInfo(billingType, curUrlDescription, curImgUrl);
+    if (validateRes) {
+      if (recordType === 'OFD') {
+        const params = {
+          tenantId,
+          companyCode,
+          employeeNumber,
+          file: curImgUrl,
+          encryptCode: 0,
+        };
+        const pdfRes = getResponse(await urlTojpg(params));
+        if (pdfRes && pdfRes.status === '1000') {
+          curImgUrl = pdfRes.data;
+        }
       }
-      if (!curImgUrl) {
-        return notification.warning({
-          description: '',
-          placement: 'bottomRight',
-          message: intl
-            .get('hiop.invoiceView.notification.message.fileLoading')
-            .d('获取局端文件中，请稍后重试'),
-        });
-      }
+      this.setState({
+        curImgUrl,
+        recordType,
+        fileName: this.queryDS.current && this.queryDS.current.get('invoiceSourceOrder'),
+      });
     }
-    if (recordType === 'OFD') {
-      const params = {
-        tenantId,
-        companyCode,
-        employeeNumber,
-        file: curImgUrl,
-        encryptCode: 0,
-      };
-      const pdfRes = getResponse(await urlTojpg(params));
-      if (pdfRes && pdfRes.status === '1000') {
-        curImgUrl = pdfRes.data;
-      }
-    }
-    this.setState({
-      curImgUrl,
-      recordType,
-      fileName: this.queryDS.current && this.queryDS.current.get('invoiceSourceOrder'),
-    });
   }
 
   componentDidMount() {
@@ -171,7 +180,6 @@ export default class InvoiceViewPage extends Component<InvoiceViewPageProps> {
       if (recordType === 'PDF') {
         return <iframe title="archive" src={tokenUrl} height="600" width="90%" frameBorder="0" />;
       } else if (recordType === 'OFD') {
-        // return <ArchiveOfdPage recordType={recordType} curImgUrl={tokenUrl} />;
         return (
           <div>
             <img
@@ -191,7 +199,6 @@ export default class InvoiceViewPage extends Component<InvoiceViewPageProps> {
           </div>
         );
       } else {
-        // return <img alt="archive" src={curImgUrl} />;
         return (
           <div>
             <img

@@ -33,12 +33,11 @@ import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
-import querystring from 'querystring';
+import queryString from 'query-string';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import withProps from 'utils/withProps';
 import notification from 'utils/notification';
-import { isNullOrUndefined } from 'util';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { queryMapIdpValue } from 'hzero-front/lib/services/api';
 import ExcelExport from 'components/ExcelExport';
@@ -106,7 +105,6 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
   };
 
   async componentDidMount() {
-    // const { dispatch } = this.props;
     const { queryDataSet } = this.props.headerDS;
     if (queryDataSet && !queryDataSet.current) {
       const res = await Promise.all([
@@ -133,7 +131,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       this.setState({ curCompanyId });
       if (curCompanyId) {
         const params = { tenantId, companyId: curCompanyId };
-        getTenantAgreementCompany(params).then((resCom) => {
+        getTenantAgreementCompany(params).then(resCom => {
           if (resCom) {
             this.setState({ inChannelCode: resCom.inChannelCode });
           }
@@ -156,11 +154,11 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
     if (lovList) {
       queryDataSet.getField('displayOptions')!.set(
         'defaultValue',
-        lovList.displayOptions.map((is) => is.value)
+        lovList.displayOptions.map(is => is.value)
       );
       queryDataSet.getField('invoiceStateStr')!.set(
         'defaultValue',
-        lovList.invoiceState.map((is) => is.value)
+        lovList.invoiceState.map(is => is.value)
       );
     }
     queryDataSet.reset();
@@ -171,7 +169,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
   handleCompanychange(value) {
     if (value && value.companyId) {
       const params = { tenantId, companyId: value.companyId };
-      getTenantAgreementCompany(params).then((resCom) => {
+      getTenantAgreementCompany(params).then(resCom => {
         if (resCom) {
           this.setState({ inChannelCode: resCom.inChannelCode });
         }
@@ -189,7 +187,9 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       const queryMoreArray: JSX.Element[] = [];
       queryMoreArray.push(<Lov key="ticketCollectorObj" name="ticketCollectorObj" colSpan={2} />);
       queryMoreArray.push(<Select key="entryPoolSource" name="entryPoolSource" colSpan={2} />);
-      queryMoreArray.push(<Lov key="authenticationDateObj" name="authenticationDateObj" colSpan={2} />);
+      queryMoreArray.push(
+        <Lov key="authenticationDateObj" name="authenticationDateObj" colSpan={2} />
+      );
       queryMoreArray.push(<Select key="checkStates" name="checkStates" colSpan={2} />);
       queryMoreArray.push(
         <Select key="authenticationState" name="authenticationState" colSpan={2} />
@@ -221,7 +221,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
                 <Lov
                   name="companyObj"
                   colSpan={2}
-                  onChange={(value) => this.handleCompanychange(value)}
+                  onChange={value => this.handleCompanychange(value)}
                   clearButton={false}
                 />
                 <TextField name="employeeDesc" colSpan={2} />
@@ -335,7 +335,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       dispatch(
         routerRedux.push({
           pathname: comParams.pathname,
-          search: querystring.stringify({
+          search: queryString.stringify({
             invoiceInfo: encodeURIComponent(
               JSON.stringify({
                 companyDesc: `${curQueryInfo.companyCode}-${curQueryInfo.companyName}`,
@@ -382,8 +382,8 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
    */
   @Bind()
   handleGotoLayoutPush() {
-    const selectedHeaderList = this.props.headerDS.selected.map((record) => record.toData());
-    const selectedRowKeys = selectedHeaderList.map((record) => record.invoicePoolHeaderId);
+    const selectedHeaderList = this.props.headerDS.selected.map(record => record.toData());
+    const selectedRowKeys = selectedHeaderList.map(record => record.invoicePoolHeaderId);
     const invoicePoolHeaderIds = selectedRowKeys.join(',');
     if (!invoicePoolHeaderIds) return;
     const comParams = {
@@ -401,8 +401,8 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
    */
   @Bind()
   handleGotoFileArchive() {
-    const selectedHeaderList = this.props.headerDS.selected.map((record) => record.toData());
-    const selectedRowKeys = selectedHeaderList.map((record) => record.invoicePoolHeaderId);
+    const selectedHeaderList = this.props.headerDS.selected.map(record => record.toData());
+    const selectedRowKeys = selectedHeaderList.map(record => record.invoicePoolHeaderId);
     const sourceHeaderIds = selectedRowKeys.join(',');
     if (!sourceHeaderIds) return;
     const comParams = {
@@ -434,8 +434,8 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
    */
   @Bind()
   async handleCheckState() {
-    const selectedHeaderList = this.props.headerDS.selected.map((record) => record.toData());
-    const selectedRowKeys = selectedHeaderList.map((record) => record.invoicePoolHeaderId);
+    const selectedHeaderList = this.props.headerDS.selected.map(record => record.toData());
+    const selectedRowKeys = selectedHeaderList.map(record => record.invoicePoolHeaderId);
     const params = {
       tenantId,
       invoicePoolHeaderIds: selectedRowKeys.join(','),
@@ -458,14 +458,14 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
   @Bind()
   handleDeleteHeaders() {
     const headersList = this.props.headerDS.selected;
-    // const checkdFlag = headersList.some((hl) => !isNullOrUndefined(hl.get('buyerTaxNo')));
-    const checkdFlag = headersList.some((hl) => {
+
+    const checkdFlag = headersList.some(hl => {
       const rec = hl.toData();
       return (
         rec.invoicePoolHeaderId && !(rec.inOutType === 'IN' && rec.buyerName !== rec.companyName)
       );
     });
-    const relatedFlag = headersList.some((hl) => {
+    const relatedFlag = headersList.some(hl => {
       const rec = hl.toData();
       return (
         rec.invoicePoolHeaderId &&
@@ -494,8 +494,8 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
   // 保存
   @Bind()
   handleSaveIvc() {
-    const unCheckedFlag = this.props.headerDS.some((hh) =>
-      isNullOrUndefined(hh.get('invoiceType'))
+    const unCheckedFlag = this.props.headerDS.some(
+      hh => hh.get('invoiceType') === undefined || hh.get('invoiceType') === null
     );
     if (unCheckedFlag) {
       notification.warning({
@@ -568,9 +568,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
     this.setState({ spinProps: { spinning: false } });
     if (res && res.status === 'H1014') {
       const { fileSize, failTotalSize, successSize, existsSet } = res.data;
-      // const message = `本次查验${fileSize}条，成功${successSize}条，失败${failTotalSize}条，查验失败:[${existsSet.join(
-      //   ','
-      // )}]`;
+
       const message = intl.get(`${modelCode}.notice.checkResult`, {
         fileSize,
         successSize,
@@ -658,7 +656,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
     dispatch(
       routerRedux.push({
         pathname: comParams.pathname,
-        search: querystring.stringify({
+        search: queryString.stringify({
           invoiceInfo: encodeURIComponent(
             JSON.stringify({
               // companyDesc: `${headerData.companyCode}-${headerData.companyName}`,
@@ -740,7 +738,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
     dispatch(
       routerRedux.push({
         pathname,
-        search: querystring.stringify({
+        search: queryString.stringify({
           invoiceInfo: encodeURIComponent(
             JSON.stringify({
               backPath: '/htc-front-ivp/invoices/list',
@@ -756,16 +754,15 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
    */
   @Bind()
   handleGetQueryParams() {
-    const queryParams = this.props.headerDS.queryDataSet!.map((data) => data.toData(true)) || {};
-    const exportParams = { ...queryParams[0] } || {};
-    return exportParams;
+    const queryParams = this.props.headerDS.queryDataSet!.map(data => data.toData(true)) || {};
+    return { ...queryParams[0] } || {};
   }
 
   // 渲染列脚
   @Bind()
   renderColumnFooter(dataSet, name) {
     let total;
-    dataSet.map((record) => {
+    dataSet.map(record => {
       const _total = Number(total) || 0;
       const _amount = Number(record.get(name)) || 0;
       total = ((_total * 100 + _amount * 100) / 100).toFixed(2);
@@ -773,12 +770,12 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
     });
     total =
       total &&
-      total.toString().replace(/\d+/, (n) => {
-        return n.replace(/(\d)(?=(\d{3})+$)/g, (i) => {
+      total.toString().replace(/\d+/, n => {
+        return n.replace(/(\d)(?=(\d{3})+$)/g, i => {
           return `${i},`;
         });
       });
-    return `${intl.get(`hivp.invoices.view.total`).d('合计')}：${total || 0}`;
+    return `${intl.get('hivp.invoices.view.total').d('合计')}：${total || 0}`;
   }
 
   get columns(): ColumnProps[] {
@@ -805,24 +802,16 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
               textColor = '#959595';
               break;
             case '3':
-              color = '#FFDFCA';
-              textColor = '#FB6D3B';
-              break;
             case '4':
               color = '#FFDFCA';
               textColor = '#FB6D3B';
               break;
             case '5':
-              color = '#FFDCD4';
-              textColor = '#FF5F57';
-              break;
             case '6':
               color = '#FFDCD4';
               textColor = '#FF5F57';
               break;
             default:
-              color = '';
-              textColor = '';
               break;
           }
           return (
@@ -836,12 +825,12 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
           );
         },
       },
-      { name: 'invoiceCode', editor: (record) => !record.get('invoicePoolHeaderId'), width: 150 },
-      { name: 'invoiceNo', editor: (record) => !record.get('invoicePoolHeaderId'), width: 150 },
-      { name: 'invoiceDate', editor: (record) => !record.get('invoicePoolHeaderId'), width: 150 },
+      { name: 'invoiceCode', editor: record => !record.get('invoicePoolHeaderId'), width: 150 },
+      { name: 'invoiceNo', editor: record => !record.get('invoicePoolHeaderId'), width: 150 },
+      { name: 'invoiceDate', editor: record => !record.get('invoicePoolHeaderId'), width: 150 },
       {
         name: 'invoiceAmount',
-        editor: (record) => !record.get('invoicePoolHeaderId'),
+        editor: record => !record.get('invoicePoolHeaderId'),
         width: 150,
         align: ColumnAlign.right,
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
@@ -859,7 +848,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       { name: 'validTaxAmount', width: 150, align: ColumnAlign.right },
-      { name: 'checkCode', editor: (record) => !record.get('invoicePoolHeaderId'), width: 180 },
+      { name: 'checkCode', editor: record => !record.get('invoicePoolHeaderId'), width: 180 },
       {
         name: 'annotation',
         editor: () => <TextField onBlur={() => this.props.headerDS.submit()} />,
@@ -883,7 +872,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       },
       {
         name: 'internationalTelCode',
-        editor: (record) =>
+        editor: record =>
           record.get('employeeTypeCode') === 'PRESET' && (
             <Select onChange={() => this.props.headerDS.submit()} />
           ),
@@ -891,7 +880,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       },
       {
         name: 'employeeIdentify',
-        editor: (record) =>
+        editor: record =>
           record.get('employeeTypeCode') === 'PRESET' && (
             <TextField onBlur={() => this.props.headerDS.submit()} />
           ),
@@ -945,7 +934,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
     dispatch(
       routerRedux.push({
         pathname: `/htc-front-ivp/invoices/batch-upload/${sourceCode}/${curCompanyId}`,
-        search: querystring.stringify({
+        search: queryString.stringify({
           invoiceInfo: encodeURIComponent(
             JSON.stringify({
               backPath: '/htc-front-ivp/invoices/list',
@@ -960,17 +949,16 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
   @Bind()
   async handleBatchComplete() {
     const { queryDataSet } = this.props.headerDS;
-    const selectedList = this.props.headerDS.selected.map((record) => record.toData());
+    const selectedList = this.props.headerDS.selected.map(record => record.toData());
     if (queryDataSet) {
       const curQueryInfo = queryDataSet.current!.toData();
-      const _selectedList = selectedList.map((record) => {
+      const _selectedList = selectedList.map(record => {
         const { checkCode, invoiceNo, ...otherData } = record;
-        const _record = {
+        return {
           checkNumber: checkCode && checkCode.substr(checkCode.length - 6),
           invoiceNumber: invoiceNo,
           ...otherData,
         };
-        return _record;
       });
       const params = {
         tenantId,
@@ -985,9 +973,6 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       const res = await invoiceCheck(params);
       if (res && res.status === 'H1014') {
         const { fileSize, failTotalSize, successSize, existsSet } = res.data;
-        // const message = `本次查验${fileSize}条，成功${successSize}条，失败${failTotalSize}条，查验失败:[${existsSet.join(
-        //   ','
-        // )}]`;
         const message = intl.get(`${modelCode}.notice.checkResult`, {
           fileSize,
           successSize,
@@ -1105,7 +1090,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
     ];
     const btnMenu = (
       <Menu>
-        {topBtns.map((action) => {
+        {topBtns.map(action => {
           return <MenuItem>{action}</MenuItem>;
         })}
       </Menu>

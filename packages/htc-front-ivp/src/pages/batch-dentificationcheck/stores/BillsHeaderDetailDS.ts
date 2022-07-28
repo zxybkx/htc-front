@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-12 16:29:24
- * @LastEditTime: 2021-01-28 10:44:06
+ * @LastEditTime: 2022-07-26 15:06:38
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -12,26 +12,24 @@ import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
-// import moment from 'moment';
-// import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 
 const modelCode = 'hivp.bill';
 
-const editAble = (record) =>
+const editAble = record =>
   // !record.get('recordType') &&
   !(
     record.get('recordState') === 'ARCHIVED' ||
     record.get('receiptsState') === '1' ||
     record.get('entryAccountState') === '1'
   );
-const amountEditable = (record) =>
+const amountEditable = record =>
   // !record.get('recordType') &&
   !(
     record.get('recordState') === 'ARCHIVED' ||
     record.get('receiptsState') === '1' ||
     (record.get('entryAccountState') === '1' && record.get('invoiceType') !== 'FLIGHT_ITINERARY')
   );
-const flightEditable = (record) =>
+const flightEditable = record =>
   // !record.get('recordType') &&
   !(
     record.get('recordState') === 'ARCHIVED' ||
@@ -46,7 +44,7 @@ const requiredByBillType = (record, name) => {
 };
 
 // 金额计算
-const getBillAmount = (record) => {
+const getBillAmount = record => {
   const taxRate = Number(record.get('taxRate')) || 0;
   const totalAmount = Number(record.get('totalAmount')) || 0;
   const amount = Number(((1000 * totalAmount) / ((1 + taxRate) * 1000)).toFixed(2));

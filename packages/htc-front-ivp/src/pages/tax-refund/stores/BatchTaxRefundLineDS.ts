@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-26 11:01:10
- * @LastEditTime:
+ * @LastEditTime: 2022-07-26 17:25:29
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -19,7 +19,6 @@ const modelCode = 'hivp.tax-refund';
 export default (): DataSetProps => {
   const tenantId = getCurrentOrganizationId();
   const API_PREFIX = commonConfig.IVP_API || '';
-  // const API_PREFIX = `${commonConfig.IVP_API}-31183` || '';
   return {
     transport: {
       read: (config): AxiosRequestConfig => {

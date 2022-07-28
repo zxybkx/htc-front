@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { Header, Content } from 'components/Page';
 import intl from 'utils/intl';
 import { DataSet, Form, Output } from 'choerodon-ui/pro';
@@ -12,7 +11,6 @@ import 'react-viewer/dist/index.css';
 import { HZERO_FILE } from 'utils/config';
 import { getCurrentOrganizationId, getAccessToken, getResponse } from 'utils/utils';
 import { urlTojpg } from '@src/services/invoicesService';
-// import ArchiveOfdPage from '@htccommon/pages/invoice-common/ofd-view/index';
 import formatterCollections from 'utils/intl/formatterCollections';
 import InvoicesHeadersDS from '../stores/FileViewDS';
 
@@ -29,8 +27,7 @@ interface ArchiveViewPageProps extends RouteComponentProps<RouterInfo> {
 @formatterCollections({
   code: [modelCode, 'hcan.invoiceDetail', 'hivp.invoicesArchiveUpload'],
 })
-@connect()
-export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
+export default class FileView extends Component<ArchiveViewPageProps> {
   state = {
     recordType: '',
     curImgUrl: '',
