@@ -54,7 +54,7 @@ import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import TobeInvoiceDS from '../stores/TobeInvoiceDS';
 import CommodityEdit from '../detail/CommodityEditPage';
 import CustomerEdit from '../detail/CustomerEditPage';
-import History from '../detail/HistoryModal';
+import History from '../detail/HistoryModaL';
 
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.IOP_API || '';

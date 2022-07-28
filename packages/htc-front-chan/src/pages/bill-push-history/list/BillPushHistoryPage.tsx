@@ -8,9 +8,7 @@
  */
 import React, { Component } from 'react';
 import { DataSet, Table } from 'choerodon-ui/pro';
-import { Content } from 'components/Page';
-// import { PageHeaderWrapper } from 'hzero-boot/lib/components/Page';
-import { Header } from 'components/Page';
+import { Header, Content } from 'components/Page';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Dispatch } from 'redux';
 import { connect } from 'dva';
@@ -54,14 +52,6 @@ export default class BillPushHistoryPage extends Component<BillPushHistoryPagePr
         fileUrlInfo: encodeURIComponent(JSON.stringify({ fileUrl })),
       }),
     });
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname,
-    //     search: queryString.stringify({
-    //       fileUrlInfo: encodeURIComponent(JSON.stringify({ fileUrl })),
-    //     }),
-    //   })
-    // );
   }
 
   /**

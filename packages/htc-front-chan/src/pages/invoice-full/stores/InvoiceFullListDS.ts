@@ -37,12 +37,11 @@ export default (): DataSetProps => {
         return axiosConfig;
       },
       destroy: ({ data }) => {
-        const _data = data.map((item) => {
-          const _item = {
+        const _data = data.map(item => {
+          return {
             ...item,
             invoiceDate: item.invoiceDate && moment(item.invoiceDate).format(DEFAULT_DATE_FORMAT),
           };
-          return _item;
         });
         return {
           url: `${API_PREFIX}/v1/${tenantId}/invoice-header-infos/batch-remove`,
@@ -196,7 +195,7 @@ export default (): DataSetProps => {
         name: 'invoiceDate',
         label: intl.get(`${modelCode}.view.invoiceDate`).d('开票日期'),
         type: FieldType.date,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'invoiceAmount',
