@@ -21,7 +21,7 @@ interface ApplyStatisticsHistoryListPageProps {
   dispatch: Dispatch<any>;
 }
 
-export default class ApplyStatisticsHistoryListPage extends Component<ApplyStatisticsHistoryListPageProps> {
+export default class RequestHistoryListPage extends Component<ApplyStatisticsHistoryListPageProps> {
   tableDS = new DataSet({
     ...RequestHistoryListDS(),
   });
