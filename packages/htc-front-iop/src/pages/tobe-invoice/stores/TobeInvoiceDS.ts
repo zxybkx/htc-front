@@ -34,26 +34,36 @@ const amountValidator = (value, name, record) => {
     const quantity = record.getField('quantity')?.getValue() || 0; // 数量
     const calcu = uprojectAmount - udiscountAmount - udeduction;
     if (Math.abs(uprojectAmount) > Math.abs(amount)) {
-      return intl.get('hiop.tobeInvoice.validate.uprojectAmount').d('开票金额不能大于金额');
+      return Promise.resolve(
+        intl.get('hiop.tobeInvoice.validate.uprojectAmount').d('开票金额不能大于金额')
+      );
     }
     if (Math.abs(uquantity) > Math.abs(quantity)) {
-      return intl.get('hiop.tobeInvoice.validate.uquantity').d('开票数量不能大于数量');
+      return Promise.resolve(
+        intl.get('hiop.tobeInvoice.validate.uquantity').d('开票数量不能大于数量')
+      );
     }
     if (Math.abs(udiscountAmount) > Math.abs(discountAmount)) {
-      return intl.get('hiop.tobeInvoice.validate.udiscountAmount').d('开票折扣金额不能大于折扣额');
+      return Promise.resolve(
+        intl.get('hiop.tobeInvoice.validate.udiscountAmount').d('开票折扣金额不能大于折扣额')
+      );
     }
     if (documentLineType === '1' && calcu <= 0) {
-      return intl
-        .get('hiop.tobeInvoice.validate.calcuOver')
-        .d('开票金额-开票折扣金额-开票扣除额必须大于0');
+      return Promise.resolve(
+        intl
+          .get('hiop.tobeInvoice.validate.calcuOver')
+          .d('开票金额-开票折扣金额-开票扣除额必须大于0')
+      );
     }
     if (documentLineType === '2' && calcu >= 0) {
-      return intl
-        .get('hiop.tobeInvoice.validate.calcuLess')
-        .d('开票金额-开票折扣金额-开票扣除额必须小于0');
+      return Promise.resolve(
+        intl
+          .get('hiop.tobeInvoice.validate.calcuLess')
+          .d('开票金额-开票折扣金额-开票扣除额必须小于0')
+      );
     }
   }
-  return undefined;
+  return Promise.resolve(true);
 };
 
 /**

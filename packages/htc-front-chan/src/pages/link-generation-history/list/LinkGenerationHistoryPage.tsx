@@ -20,7 +20,9 @@ interface LinkGenerationHistoryListPageProps {
   dispatch: Dispatch<any>;
 }
 
-export default class LinkGenerationHistoryListPage extends Component<LinkGenerationHistoryListPageProps> {
+export default class LinkGenerationHistoryPage extends Component<
+  LinkGenerationHistoryListPageProps
+> {
   tableDS = new DataSet({
     autoQuery: true,
     ...LinkGenerationHistoryDS(),

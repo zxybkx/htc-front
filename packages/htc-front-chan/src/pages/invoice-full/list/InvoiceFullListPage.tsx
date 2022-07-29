@@ -53,11 +53,6 @@ export default class InvoiceFullListPage extends Component<InvoiceFullListPagePr
     const { history } = this.props;
     const pathname = `/htc-front-chan/invoice-full/detail/${invoiceHeaderId}/${invoiceType}`;
     history.push(pathname);
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname,
-    //   })
-    // );
   }
 
   /**

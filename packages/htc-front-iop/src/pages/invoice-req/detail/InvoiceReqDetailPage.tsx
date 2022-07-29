@@ -588,8 +588,6 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
           adjustEditAble(record) && (
             <Currency onChange={value => this.handleAmount(value, record)} />
           ),
-        // editor: (record) =>
-        //   adjustEditAble(record) && !(record.get('quantity') && record.get('price')),
         width: 150,
         align: ColumnAlign.right,
       },
@@ -621,8 +619,16 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       },
       { name: 'preferentialPolicyFlag' },
       { name: 'sourceLineNum' },
-      { name: 'sourceNumber3', width: 120 },
-      { name: 'sourceNumber4', width: 120 },
+      {
+        name: 'sourceNumber3',
+        width: 120,
+        editor: record => adjustEditAble(record) && ['1', '3', '4', '5', '6'].includes(sourceType),
+      },
+      {
+        name: 'sourceNumber4',
+        width: 120,
+        editor: record => adjustEditAble(record) && ['1', '3', '4', '5', '6'].includes(sourceType),
+      },
       { name: 'adjustFlag' },
       { name: 'adjustLineId' },
       {

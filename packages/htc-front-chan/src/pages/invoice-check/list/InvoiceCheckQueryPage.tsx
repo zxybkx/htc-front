@@ -59,7 +59,7 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
   componentDidMount() {
     const dsData = this.props.queryDS.toData();
     const params = { tenantId: this.tenantId };
-    getCurrentEmployeeInfo(params).then((resp) => {
+    getCurrentEmployeeInfo(params).then(resp => {
       if (resp && resp.content) {
         if (isEmpty(dsData)) {
           if (resp.content.length === 1) {
@@ -134,11 +134,6 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
     const { history } = this.props;
     const pathname = `/htc-front-chan/invoice-check/detail/${invoiceHeaderId}/${invoiceType}`;
     history.push(pathname);
-    // dispatch(
-    //   routerRedux.push({
-    //     pathname,
-    //   })
-    // );
   }
 
   /**

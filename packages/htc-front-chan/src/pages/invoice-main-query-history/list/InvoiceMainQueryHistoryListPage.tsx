@@ -25,7 +25,9 @@ interface InvoiceMainQueryHistoryListPageProps {
   dispatch: Dispatch<any>;
 }
 
-export default class InvoiceMainQueryHistoryListPage extends Component<InvoiceMainQueryHistoryListPageProps> {
+export default class InvoiceMainQueryHistoryListPage extends Component<
+  InvoiceMainQueryHistoryListPageProps
+> {
   tableDS = new DataSet({
     autoQuery: true,
     ...InvoiceMainQueryHistoryListDS(),
@@ -38,14 +40,13 @@ export default class InvoiceMainQueryHistoryListPage extends Component<InvoiceMa
    */
   @Bind()
   handleGetQueryParams() {
-    const queryParams = this.tableDS.queryDataSet!.map((data) => data.toData()) || {};
+    const queryParams = this.tableDS.queryDataSet!.map(data => data.toData()) || {};
     for (const key in queryParams[0]) {
       if (queryParams[0][key] === '' || queryParams[0][key] === null) {
         delete queryParams[0][key];
       }
     }
-    const exportParams = { ...queryParams[0] } || {};
-    return exportParams;
+    return { ...queryParams[0] } || {};
   }
 
   /**

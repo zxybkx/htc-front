@@ -46,7 +46,9 @@ interface InvoiceCheckHistoryListPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-export default class InvoiceCheckHistoryListPage extends Component<InvoiceCheckHistoryListPageProps> {
+export default class InvoiceCheckHistoryListPage extends Component<
+  InvoiceCheckHistoryListPageProps
+> {
   tenantId = getCurrentOrganizationId();
 
   /**
@@ -56,18 +58,12 @@ export default class InvoiceCheckHistoryListPage extends Component<InvoiceCheckH
   @Bind()
   async handleGoToDetail(record) {
     const invoiceHeaderId = record.get('invoiceHeaderId');
-    // const tenantId = record.get('tenantId');
     const { history } = this.props;
     const params = { tenantId: this.tenantId, invoiceHeaderId };
-    getInvoiceInfo(params).then((resp) => {
+    getInvoiceInfo(params).then(resp => {
       if (resp) {
         const pathname = `/htc-front-chan/invoice-check-history/detail/${invoiceHeaderId}/${resp.invoiceType}`;
         history.push(pathname);
-        // dispatch(
-        //   routerRedux.push({
-        //     pathname,
-        //   })
-        // );
       }
     });
   }
@@ -77,6 +73,14 @@ export default class InvoiceCheckHistoryListPage extends Component<InvoiceCheckH
    * @returns {*[]}
    */
   get columns(): ColumnProps[] {
+    const render = value => {
+      return (
+        <Tooltip placement="topLeft" title={value}>
+          <span>{value}</span>
+        </Tooltip>
+      );
+    };
+
     return [
       {
         header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
@@ -88,24 +92,12 @@ export default class InvoiceCheckHistoryListPage extends Component<InvoiceCheckH
       {
         name: 'tenantName',
         width: 120,
-        renderer: ({ value }) => {
-          return (
-            <Tooltip placement="topLeft" title={value}>
-              <span>{value}</span>
-            </Tooltip>
-          );
-        },
+        renderer: ({ value }) => render(value),
       },
       {
         name: 'companyName',
         width: 200,
-        renderer: ({ value }) => {
-          return (
-            <Tooltip placement="topLeft" title={value}>
-              <span>{value}</span>
-            </Tooltip>
-          );
-        },
+        renderer: ({ value }) => render(value),
       },
       { name: 'employeeName', width: 120 },
       { name: 'processDateFrom', width: 160 },
@@ -114,13 +106,7 @@ export default class InvoiceCheckHistoryListPage extends Component<InvoiceCheckH
       {
         name: 'processRemark',
         width: 200,
-        renderer: ({ value }) => {
-          return (
-            <Tooltip placement="topLeft" title={value}>
-              <span>{value}</span>
-            </Tooltip>
-          );
-        },
+        renderer: ({ value }) => render(value),
       },
       { name: 'taxpayerNumber', width: 180 },
       { name: 'invoiceCode', width: 120 },
@@ -155,14 +141,13 @@ export default class InvoiceCheckHistoryListPage extends Component<InvoiceCheckH
    */
   @Bind()
   handleGetQueryParams() {
-    const queryParams = this.props.tableDS.queryDataSet!.map((data) => data.toData()) || {};
+    const queryParams = this.props.tableDS.queryDataSet!.map(data => data.toData()) || {};
     for (const key in queryParams[0]) {
       if (queryParams[0][key] === '' || queryParams[0][key] === null) {
         delete queryParams[0][key];
       }
     }
-    const exportParams = { ...queryParams[0] } || {};
-    return exportParams;
+    return { ...queryParams[0] } || {};
   }
 
   render() {

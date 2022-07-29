@@ -25,7 +25,9 @@ interface InvoiceAuthenticationHistoryListPageProps {
   dispatch: Dispatch<any>;
 }
 
-export default class InvoiceAuthenticationHistoryListPage extends Component<InvoiceAuthenticationHistoryListPageProps> {
+export default class InvoiceAuthenticationHistoryListPage extends Component<
+  InvoiceAuthenticationHistoryListPageProps
+> {
   tableDS = new DataSet({
     autoQuery: true,
     ...InvoiceAuthenticationHistoryListDS(),
@@ -38,9 +40,8 @@ export default class InvoiceAuthenticationHistoryListPage extends Component<Invo
    */
   @Bind()
   handleGetQueryParams() {
-    const queryParams = this.tableDS.queryDataSet!.map((data) => data.toData()) || {};
-    const exportParams = { ...queryParams[0] } || {};
-    return exportParams;
+    const queryParams = this.tableDS.queryDataSet!.map(data => data.toData()) || {};
+    return { ...queryParams[0] } || {};
   }
 
   /**
