@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-14 11:40:56
- * @LastEditTime: 2022-07-29 17:36:56
+ * @LastEditTime: 2022-07-29 17:51:00
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -23,8 +23,6 @@ export default (dsParams): DataSetProps => {
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        console.log('////进入');
-
         const url = `${API_PREFIX}/v1/${tenantId}/bill-pool-header-infos/${dsParams.billPoolHeaderId}`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
