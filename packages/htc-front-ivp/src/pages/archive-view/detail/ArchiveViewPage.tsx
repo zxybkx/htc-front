@@ -63,6 +63,7 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
     const { sourceCode, sourceHeaderId } = this.props.match.params;
     const { search } = this.props.location;
     const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
+    console.log('///invoiceInfoStr', invoiceInfoStr);
     if (invoiceInfoStr) {
       const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
       this.setState({
