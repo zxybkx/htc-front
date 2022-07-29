@@ -101,8 +101,7 @@ docker_build:
         echo "全量编译"
         yarn install
         npx hzero-cli info
-#        export NODE_OPTIONS="--max-old-space-size=8192"
-#        yarn build:ms-all
+        yarn build:ms-all
         yarn run build:dep-all:prod
         yarn run build:app:prod
       else
