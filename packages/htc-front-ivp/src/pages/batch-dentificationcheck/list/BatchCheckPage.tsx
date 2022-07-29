@@ -265,6 +265,19 @@ export default class BatchCheckPage extends Component<InvoiceWorkbenchPageProps>
     this.props.batchCheckDS.delete(this.props.batchCheckDS.selected);
   }
 
+  // 识别状态是（识别完成）且发票查验状态为（已查验||无需查验）、识别状态是（‘’）且发票查验状态为（已查验）
+  filterRecogStatus(list) {
+    return find(
+      list,
+      item =>
+        !(
+          (item.recognitionStatus === 'RECOGNITION_FINISHED' &&
+            ['3', '4'].includes(item.checkStatus)) ||
+          (item.recognitionStatus === '' && item.checkStatus === '4')
+        )
+    );
+  }
+
   @Bind()
   renderQueryBar(tableProps) {
     const { queryDataSet, dataSet } = tableProps;
@@ -273,15 +286,7 @@ export default class BatchCheckPage extends Component<InvoiceWorkbenchPageProps>
       let isDisabled = props.dataSet!.selected.length === 0;
       const list = props.dataSet!.selected.map(record => record.toData());
       // 识别状态是（识别完成）且发票查验状态为（已查验||无需查验）、识别状态是（‘’）且发票查验状态为（已查验）
-      const recogStatus = find(
-        list,
-        item =>
-          !(
-            (item.recognitionStatus === 'RECOGNITION_FINISHED' &&
-              ['3', '4'].includes(item.checkStatus)) ||
-            (item.recognitionStatus === '' && item.checkStatus === '4')
-          )
-      );
+      const recogStatus = this.filterRecogStatus(list);
       if (recogStatus) isDisabled = true;
       return (
         <Button onClick={props.onClick} disabled={isDisabled} funcType={FuncType.link}>
@@ -736,21 +741,50 @@ export default class BatchCheckPage extends Component<InvoiceWorkbenchPageProps>
   }
 
   @Bind()
+  addInvoiceFn(res) {
+    if (res && res.status === 'H1024') {
+      if (res.data && res.data.length > 0) {
+        Modal.info({
+          title: intl.get(`${modelCode}.notice.message4`).d('以下发票已被采集，不允许重复采集'),
+          style: { width: '37%' },
+          children: (
+            <div>
+              {res.data.map(item => (
+                <p>
+                  {intl.get('htc.common.view.invoiceCode').d('发票代码')}：{item.invoiceCode}&emsp;
+                  {intl.get('htc.common.view.invoiceNo').d('发票号码')}：{item.invoiceNumber}&emsp;
+                  {intl.get(`${modelCode}.view.collectionStaff`).d('收票员工')}：
+                  {item.ticketCollectorDesc}
+                </p>
+              ))}
+            </div>
+          ),
+        });
+      }
+      this.props.batchCheckDS.query();
+    } else if (res && res.status === 'H1014') {
+      notification.success({
+        description: '',
+        message: res.message,
+      });
+      this.props.batchCheckDS.query();
+    } else {
+      notification.warning({
+        description: '',
+        message: res.message,
+      });
+    }
+  }
+
+  @Bind()
   async addInvoice(type) {
     const list = this.props.batchCheckDS.selected.map(record => record.toData());
     // 识别状态是（识别完成）且发票查验状态为（已查验||无需查验）、识别状态是（‘’）且发票查验状态为（已查验）
-    const recogStatus = find(
-      list,
-      item =>
-        !(
-          (item.recognitionStatus === 'RECOGNITION_FINISHED' &&
-            ['3', '4'].includes(item.checkStatus)) ||
-          (item.recognitionStatus === '' && item.checkStatus === '4')
-        )
-    );
+    const recogStatus = this.filterRecogStatus(list);
     const invoiceIds = this.props.batchCheckDS.selected.map(record => record.get('invoiceId'));
     const curInfo = this.props.batchCheckDS.current!.toData();
     const { companyCode, employeeNum } = curInfo;
+
     const params = {
       companyCode,
       employeeNum,
@@ -758,7 +792,7 @@ export default class BatchCheckPage extends Component<InvoiceWorkbenchPageProps>
       invoiceIds: invoiceIds.join(','),
     };
     if (recogStatus) {
-      return notification.warning({
+      notification.warning({
         description: '',
         message: intl
           .get(`${modelCode}.notice.message1`)
@@ -766,6 +800,7 @@ export default class BatchCheckPage extends Component<InvoiceWorkbenchPageProps>
             '识别状态为识别完成且发票查验状态为已查验或无需查验、无识别状态且发票查验状态为已查验的发票才能添加'
           ),
       });
+      return;
     }
     if (type === 1) {
       // 添加至我的发票
@@ -789,40 +824,7 @@ export default class BatchCheckPage extends Component<InvoiceWorkbenchPageProps>
       }
     }
     const res = type === 0 ? await addInvoicePool(params) : await addMyInvoice(params);
-    if (res && res.status === 'H1024') {
-      if (res.data && res.data.length > 0) {
-        Modal.info({
-          title: intl.get(`${modelCode}.notice.message4`).d('以下发票已被采集，不允许重复采集'),
-          style: { width: '37%' },
-          children: (
-            <div>
-              {res.data.map(item => (
-                <p>
-                  {intl.get('htc.common.view.invoiceCode').d('发票代码')}：{item.invoiceCode}&emsp;
-                  {intl.get('htc.common.view.invoiceNo').d('发票号码')}：{item.invoiceNumber}&emsp;
-                  {intl.get(`${modelCode}.view.collectionStaff`).d('收票员工')}：
-                  {item.ticketCollectorDesc}
-                </p>
-              ))}
-            </div>
-          ),
-        });
-      }
-      this.props.batchCheckDS.query();
-      return;
-    }
-    if (res && res.status === 'H1014') {
-      notification.success({
-        description: '',
-        message: res.message,
-      });
-      this.props.batchCheckDS.query();
-    } else {
-      notification.warning({
-        description: '',
-        message: res.message,
-      });
-    }
+    this.addInvoiceFn(res);
   }
 
   // 添加至我的发票

@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-24 14:23:33
- * @LastEditTime: 2022-07-26 17:24:35
+ * @LastEditTime: 2022-07-29 14:21:12
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -204,38 +204,7 @@ export default class TaxRefundListPage extends Component<TaxRefundPageProps> {
     this.props.taxRefundHeaderDS.query();
   }
 
-  async componentDidMount() {
-    const { queryDataSet } = this.props.taxRefundHeaderDS;
-    const { queryDataSet: currentTaxqs } = this.props.currentTaxRefundHeaderDS;
-    const { queryDataSet: batchDs } = this.batchTaxRefundHeaderDS;
-    const res = await getCurrentEmployeeInfo({ tenantId });
-    const displayOptions = await queryIdpValue('HIVP.CHECK_CONFIRM_DISPLAY_OPTIONS');
-    if (queryDataSet) {
-      const curCompanyId = queryDataSet.current!.get('companyId');
-      if (res && res.content) {
-        const empInfo = res.content[0];
-        if (empInfo && !curCompanyId) {
-          this.getDataFromCompany(empInfo);
-        }
-        this.props.companyAndPassword.loadData(res.content);
-      }
-      if (curCompanyId) {
-        const curInfo = await getCurrentEmployeeInfo({ tenantId, companyId: curCompanyId });
-        const authorityCode = currentTaxqs && currentTaxqs.current!.get('authorityCode');
-        if (curInfo && curInfo.content) {
-          const empInfo = curInfo.content[0];
-          if (batchDs) {
-            batchDs.current!.set({ companyObj: empInfo });
-            batchDs.current!.set({ authorityCode });
-          }
-          this.setState({ empInfo });
-        }
-      }
-      this.setState({
-        displayOptions,
-        spinning: false,
-      });
-    }
+  ifFn(currentTaxqs, displayOptions) {
     if (currentTaxqs && displayOptions) {
       const curDisplayOptions = currentTaxqs.current!.get('invoiceDisplayOptions');
       if (!curDisplayOptions) {
@@ -272,6 +241,39 @@ export default class TaxRefundListPage extends Component<TaxRefundPageProps> {
         }
       }
     }
+  }
+
+  async componentDidMount() {
+    const { queryDataSet } = this.props.taxRefundHeaderDS;
+    const { queryDataSet: currentTaxqs } = this.props.currentTaxRefundHeaderDS;
+    const { queryDataSet: batchDs } = this.batchTaxRefundHeaderDS;
+    const res = await getCurrentEmployeeInfo({ tenantId });
+    const displayOptions = await queryIdpValue('HIVP.CHECK_CONFIRM_DISPLAY_OPTIONS');
+    if (queryDataSet) {
+      const curCompanyId = queryDataSet.current!.get('companyId');
+      if (res && res.content) {
+        this.props.companyAndPassword.loadData(res.content);
+      }
+      if (res && res.content && res.content[0] && !curCompanyId) {
+        this.getDataFromCompany(res.content[0]);
+      }
+      const curInfo = await getCurrentEmployeeInfo({ tenantId, companyId: curCompanyId });
+      if (curCompanyId && curInfo && curInfo.content) {
+        const empInfo = curInfo.content[0];
+        this.setState({ empInfo });
+      }
+      if (curCompanyId && curInfo && curInfo.content && batchDs) {
+        const authorityCode = currentTaxqs && currentTaxqs.current!.get('authorityCode');
+        const empInfo = curInfo.content[0];
+        batchDs.current!.set({ companyObj: empInfo });
+        batchDs.current!.set({ authorityCode });
+      }
+      this.setState({
+        displayOptions,
+        spinning: false,
+      });
+    }
+    this.ifFn(currentTaxqs, displayOptions);
   }
 
   /**

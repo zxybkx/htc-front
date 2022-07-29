@@ -125,47 +125,53 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
     }
   }
 
+  /**
+   * @description: 单文件上传成功回调
+   * @function: singleFileUploadSuccess
+   */
+  @Bind()
+  singleFileUploadSuccess(response) {
+    try {
+      const resp = JSON.parse(response);
+      if (resp.failed && resp.code === 'H1025') {
+        const title = intl
+          .get(`${modelCode}.view.uploadConfirm`)
+          .d('OCR识别信息与发票信息不一致，是否继续上传？');
+        Modal.confirm({
+          key: Modal.key,
+          title,
+        }).then(button => {
+          if (button === 'ok') {
+            this.singleIsCheck = 'N';
+            this.singleUpload.startUpload();
+          }
+        });
+      } else {
+        const res = getResponse(resp);
+        if (res) {
+          notification.success({
+            description: '',
+            message: res.message,
+          });
+          this.invoiceDS.query();
+          this.setState({ uploadResult: res.message });
+        }
+        this.setState({ btnFlag: '', loadingFlag: false });
+      }
+    } catch (err) {
+      notification.error({
+        description: err.message,
+        message: intl.get(`${modelCode}.view.uploadInvalid`).d('上传返回数据无效'),
+      });
+      this.setState({ btnFlag: '', loadingFlag: false });
+    }
+  }
+
   handleUploadSuccess = response => {
     const { btnFlag } = this.state;
     if (btnFlag === 'S') {
       // 单个文件
-      try {
-        let ntfFlag = true;
-        const resp = JSON.parse(response);
-        if (resp.failed && resp.code === 'H1025') {
-          ntfFlag = false;
-          const title = intl
-            .get(`${modelCode}.view.uploadConfirm`)
-            .d('OCR识别信息与发票信息不一致，是否继续上传？');
-          Modal.confirm({
-            key: Modal.key,
-            title,
-          }).then(button => {
-            if (button === 'ok') {
-              this.singleIsCheck = 'N';
-              this.singleUpload.startUpload();
-            }
-          });
-        }
-        if (ntfFlag) {
-          const res = getResponse(resp);
-          if (res) {
-            notification.success({
-              description: '',
-              message: res.message,
-            });
-            this.invoiceDS.query();
-            this.setState({ uploadResult: res.message });
-          }
-          this.setState({ btnFlag: '', loadingFlag: false });
-        }
-      } catch (err) {
-        notification.error({
-          description: err.message,
-          message: intl.get(`${modelCode}.view.uploadInvalid`).d('上传返回数据无效'),
-        });
-        this.setState({ btnFlag: '', loadingFlag: false });
-      }
+      this.singleFileUploadSuccess(response);
     } else {
       // 多个文件
       try {
@@ -212,8 +218,6 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
       // 进度查询
       const queryRes = await batchUploadProcessQuery({
         tenantId,
-        // companyCode,
-        // employeeNo: employeeNum,
         uuid: this.mutipleUploadUuid,
       });
       if (queryRes) {
@@ -355,8 +359,8 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
           key={props.key}
           onClick={props.onClick}
           disabled={isDisabled}
-          // funcType={FuncType.flat}
-          // color={ButtonColor.primary}
+        // funcType={FuncType.flat}
+        // color={ButtonColor.primary}
         >
           {props.title}
         </Button>

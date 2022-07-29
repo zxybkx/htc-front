@@ -19,7 +19,14 @@ const modelCode = 'hmdm.company-list';
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
   const tenantId = getCurrentOrganizationId();
-
+  const commonReq: any = ({ data, params }) => {
+    return {
+      url: `${API_PREFIX}/v1/${tenantId}/company-list-infos/batch-save`,
+      data,
+      params,
+      method: 'POST',
+    };
+  };
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -42,22 +49,8 @@ export default (): DataSetProps => {
           method: 'DELETE',
         };
       },
-      update: ({ data, params }) => {
-        return {
-          url: `${API_PREFIX}/v1/${tenantId}/company-list-infos/batch-save`,
-          data,
-          params,
-          method: 'POST',
-        };
-      },
-      create: ({ data, params }) => {
-        return {
-          url: `${API_PREFIX}/v1/${tenantId}/company-list-infos/batch-save`,
-          data,
-          params,
-          method: 'POST',
-        };
-      },
+      update: commonReq,
+      create: commonReq,
     },
     events: {
       submitSuccess: ({ dataSet }) => {
@@ -166,14 +159,14 @@ export default (): DataSetProps => {
         type: FieldType.date,
         defaultValue: moment().format(DEFAULT_DATE_FORMAT),
         max: 'endDate',
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'endDate',
         label: intl.get(`${modelCode}.view.endDate`).d('有效期至'),
         type: FieldType.date,
         min: 'startDate',
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'creationDate',
