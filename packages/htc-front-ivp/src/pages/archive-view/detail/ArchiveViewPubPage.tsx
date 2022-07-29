@@ -42,31 +42,22 @@ export default class ArchiveViewPubPage extends Component<ArchiveViewPubPageProp
   componentDidMount() {
     const { search } = this.props.location;
     const searchParams = new URLSearchParams(search);
+    const params: string[] = [];
+    const commomFn = param => {
+      const temp = searchParams.get(param);
+      if (temp) {
+        params.push(temp);
+        this.queryDS.setQueryParameter(param, temp);
+      }
+    };
     if (searchParams) {
-      const tenantId = searchParams.get('tenantId');
-      if (tenantId) {
-        this.queryDS.setQueryParameter('tenantId', tenantId);
-      }
-      const companyCode = searchParams.get('companyCode');
-      if (companyCode) {
-        this.queryDS.setQueryParameter('companyCode', companyCode);
-      }
-      const invoiceCode = searchParams.get('invoiceCode');
-      if (invoiceCode) {
-        this.queryDS.setQueryParameter('invoiceCode', invoiceCode);
-      }
-      const invoiceNo = searchParams.get('invoiceNo');
-      if (invoiceNo) {
-        this.queryDS.setQueryParameter('invoiceNo', invoiceNo);
-      }
-      const documentNumber = searchParams.get('documentNumber');
-      if (documentNumber) {
-        this.queryDS.setQueryParameter('documentNumber', documentNumber);
-      }
-      if (tenantId || companyCode || invoiceCode || invoiceNo || documentNumber) {
+      ['tenantId', 'companyCode', 'invoiceCode', 'invoiceNo', 'documentNumber'].forEach(item => {
+        commomFn(item);
+      });
+      if (params.length > 0) {
         this.queryDS.query().then(() => {
           this.setState({
-            tenantId,
+            tenantId: searchParams.get('tenantId'),
             curImgUrl: this.queryDS.current && this.queryDS.current.get('fileUrl'),
             recordType: this.queryDS.current && this.queryDS.current.get('recordType'),
             fileName: this.queryDS.current && this.queryDS.current.get('fileName'),

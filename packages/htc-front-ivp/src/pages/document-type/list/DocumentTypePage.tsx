@@ -83,12 +83,15 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
    */
   @Bind()
   handleEnabledFlag(sourceFlag, record) {
-    if (record.get('enabledFlag') === 0) {
-      record.set({ enabledFlag: 1, endDate: '' });
+    const commonFn = () => {
       if (sourceFlag === 'H') {
         this.tableHeaderDS.submit();
       }
       if (sourceFlag === 'L') this.tableLineDS.submit();
+    };
+    if (record.get('enabledFlag') === 0) {
+      record.set({ enabledFlag: 1, endDate: '' });
+      commonFn();
     } else {
       const title = intl.get(`${modelCode}.view.disableConfirm`).d('确认禁用？');
       Modal.confirm({
@@ -97,10 +100,7 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
       }).then(button => {
         if (button === 'ok') {
           record.set({ enabledFlag: 0, endDate: new Date() });
-          if (sourceFlag === 'H') {
-            this.tableHeaderDS.submit();
-          }
-          if (sourceFlag === 'L') this.tableLineDS.submit();
+          commonFn();
         }
       });
     }

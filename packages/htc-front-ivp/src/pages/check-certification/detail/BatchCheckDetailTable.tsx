@@ -56,20 +56,15 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
       const batchInvoiceInfo = JSON.parse(decodeURIComponent(batchInvoiceInfoStr));
       const { batchNo, requestTime, completeTime } = batchInvoiceInfo;
       if (queryDataSet) {
-        if (batchNo) queryDataSet.current!.set({ batchNo, requestTime, completeTime });
-        if (requestTime) queryDataSet.current!.set({ batchNo, requestTime, completeTime });
-        if (completeTime) queryDataSet.current!.set({ batchNo, requestTime, completeTime });
+        queryDataSet.current!.set({ batchNo, requestTime, completeTime });
       }
-      console.log('type', type);
       if (type === '0') {
-        console.log(123);
         const params = { batchNumber: batchNo, tenantId };
         const res = getResponse(await failDetail(params));
         if (res) {
           this.batchCheckDetailDS.loadData(res);
         }
       } else {
-        console.log(345);
         await this.batchCheckDetailDS.query();
       }
     }

@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-12 16:29:24
- * @LastEditTime: 2022-07-26 15:42:49
+ * @LastEditTime: 2022-07-29 13:40:13
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -99,7 +99,7 @@ export default (): DataSetProps => {
     primaryKey: 'billPoolHeaderId',
     events: {
       update: ({ record, name, value, dataSet }) => {
-        if (name === 'billType') {
+        const fn1 = () => {
           const billTypeData = record && record.getField(name).getLookupData(value);
           record.set({
             billTypeTag: billTypeData && billTypeData.tag,
@@ -109,17 +109,32 @@ export default (): DataSetProps => {
           if (value === 'FLIGHT_ITINERARY') {
             flightAmount(record);
           }
-        }
-        // 价税合计
-        if (name === 'totalAmount') {
-          getBillAmount(record);
-        }
-        // 发票金额
-        if (name === 'invoiceAmount') {
+        };
+        const fn2 = () => {
+          // 发票金额
           const totalAmount = Number(record.get('totalAmount')) || 0;
           const invoiceAmount = Number(record.get('invoiceAmount')) || 0;
           const taxAmount = ((totalAmount * 100 - invoiceAmount * 100) / 100).toFixed(2);
           record.set({ taxAmount });
+        };
+        switch (name) {
+          case 'billType':
+            fn1();
+            break;
+          case 'totalAmount':
+            // 价税合计
+            getBillAmount(record);
+            break;
+          case 'invoiceAmount':
+            fn2();
+            break;
+          case 'ticketCollectorObj':
+            // 收票日期
+            record.set('ticketCollectorDate', value ? moment() : '');
+            dataSet.submit();
+            break;
+          default:
+            break;
         }
         // 发票税额
         if (name === 'taxAmount') {
@@ -133,12 +148,6 @@ export default (): DataSetProps => {
           ['aviationDevelopmentFund', 'fare', 'total', 'fuelSurcharge', 'otherTaxes'].includes(name)
         ) {
           flightAmount(record);
-        }
-
-        // 收票日期
-        if (name === 'ticketCollectorObj') {
-          record.set('ticketCollectorDate', value ? moment() : '');
-          dataSet.submit();
         }
       },
     },
