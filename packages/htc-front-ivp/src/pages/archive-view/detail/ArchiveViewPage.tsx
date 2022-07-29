@@ -16,7 +16,7 @@ import {
   isTenantRoleLevel,
 } from 'utils/utils';
 import { urlTojpg } from '@src/services/invoicesService';
-// import SubPageBillHeadersDS from '@src/pages/bill-pool/stores/SubPageBillHeadersDS';
+import SubPageBillHeadersDS from '@src/pages/bill-pool/stores/SubPageBillHeadersDS';
 import SubPageInvoicesHeadersDS from '@src/pages/invoices/stores/SubPageInvoicesHeadersDS';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import { downloadFile, DownloadFileParams } from 'hzero-front/lib/services/api';
@@ -59,11 +59,9 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
   });
 
   componentDidMount() {
-    console.log('////进入主页面componentDidMount', this.props);
     const { sourceCode, sourceHeaderId } = this.props.match.params;
     const { search } = this.props.location;
     const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
-    console.log('///invoiceInfoStr', invoiceInfoStr);
     if (invoiceInfoStr) {
       const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
       this.setState({
@@ -79,14 +77,13 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
         this.queryDocDS.query();
       }
     }
-    console.log('///2222', this.props.match.params.sourceCode);
     if (this.props.match.params.sourceCode === 'BILL_POOL') {
-      // this.queryDS = new DataSet({
-      //   autoQuery: false,
-      //   ...SubPageBillHeadersDS({
-      //     billPoolHeaderId: sourceHeaderId,
-      //   }),
-      // });
+      this.queryDS = new DataSet({
+        autoQuery: false,
+        ...SubPageBillHeadersDS({
+          billPoolHeaderId: sourceHeaderId,
+        }),
+      });
     }
     this.queryDS.query().then(async () => {
       const recordType = this.queryDS.current && this.queryDS.current.get('recordType');
