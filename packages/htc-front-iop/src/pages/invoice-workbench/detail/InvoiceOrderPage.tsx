@@ -888,8 +888,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
           this.editOrder(params, companyId, source);
           break;
         case 3:
-          this.copyOrder(params, employeeInfo);
-          break;
+          return this.copyOrder(params, employeeInfo);
         default:
           break;
       }
