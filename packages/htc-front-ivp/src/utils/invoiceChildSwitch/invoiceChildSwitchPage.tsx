@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: huishan.yu@hand-china.com
  * @Date: 2021-10-29 12:00:48
- * @LastEditTime: 2022-07-26 17:28:22
+ * @LastEditTime: 2022-08-01 13:41:30
  * @Copyright: Copyright (c) 2021, Hand
  */
 import React, { Component } from 'react';
@@ -53,6 +53,8 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
     const { activeTabKey } = global;
     const subTabKey = activeTabKey.substr(15); // 获取当前子标签
     let record; // 获取跳转record缓存
+    console.log('subTabKey,subTabKey', subTabKey);
+
     if (subTabKey === 'invoices') {
       record = JSON.parse(localStorage.getItem('currentInvoicerecord')!);
     } else if (subTabKey === 'bills') {
@@ -60,6 +62,8 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
     } else {
       record = JSON.parse(localStorage.getItem('myInvoicerecord')!);
     }
+    console.log('record///', record);
+
     const sourceCode = record.billPoolHeaderId ? 'BILL_POOL' : 'INVOICE_POOL';
     // 详情
     if (type === 0) {
