@@ -16,14 +16,12 @@ import {
   isTenantRoleLevel,
 } from 'utils/utils';
 import { urlTojpg } from '@src/services/invoicesService';
-// import SubPageBillHeadersDS from '@src/pages/bill-pool/stores/SubPageBillHeadersDS';
+import SubPageBillHeadersDS from '@src/pages/bill-pool/stores/SubPageBillHeadersDS';
 import SubPageInvoicesHeadersDS from '@src/pages/invoices/stores/SubPageInvoicesHeadersDS';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import { downloadFile, DownloadFileParams } from 'hzero-front/lib/services/api';
 import formatterCollections from 'utils/intl/formatterCollections';
 import ArchiveViewDS from '../stores/ArchiveViewDS';
-
-console.log('///文件进入');
 
 const modelCode = 'hivp.invoicesArchiveUpload';
 const tenantId = getCurrentOrganizationId();
@@ -61,14 +59,11 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
   });
 
   componentDidMount() {
-    console.log('///进入componentDidMount', this.props);
     const { sourceCode, sourceHeaderId } = this.props.match.params;
     const { search } = this.props.location;
     const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
-    console.log('///获取invoiceInfo', invoiceInfoStr);
     if (invoiceInfoStr) {
       const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
-      console.log('///获取', invoiceInfo);
       this.setState({
         backPath: invoiceInfo.backPath,
       });
@@ -83,12 +78,12 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
       }
     }
     if (this.props.match.params.sourceCode === 'BILL_POOL') {
-      // this.queryDS = new DataSet({
-      //   autoQuery: false,
-      //   ...SubPageBillHeadersDS({
-      //     billPoolHeaderId: sourceHeaderId,
-      //   }),
-      // });
+      this.queryDS = new DataSet({
+        autoQuery: false,
+        ...SubPageBillHeadersDS({
+          billPoolHeaderId: sourceHeaderId,
+        }),
+      });
     }
     this.queryDS.query().then(async () => {
       const recordType = this.queryDS.current && this.queryDS.current.get('recordType');

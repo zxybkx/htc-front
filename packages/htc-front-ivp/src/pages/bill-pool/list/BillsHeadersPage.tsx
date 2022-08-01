@@ -534,13 +534,8 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
     const billType = record.get('billType');
     const { history } = this.props;
     const pathname = `/htc-front-ivp/bills/detail/${billPoolHeaderId}/${billType}`;
-    localStorage.setItem('currentBillrecord', JSON.stringify(record.data)); // 添加跳转record缓存
-    history.push(
-      {
-        pathname,
-      },
-      { currentInvoicerecord: JSON.stringify(record.data) }
-    );
+    localStorage.setItem('currentBillrecord', JSON.stringify(record.toData())); // 添加跳转record缓存
+    history.push(pathname);
   }
 
   // 查看行明细

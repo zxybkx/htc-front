@@ -603,7 +603,13 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       invoiceHeaderId = record.get('invoiceHeaderId');
     }
     const { dispatch } = this.props;
-    localStorage.setItem('currentInvoicerecord', JSON.stringify(record.data)); // 添加跳转record缓存
+    localStorage.setItem(
+      'currentInvoicerecord',
+      JSON.stringify({
+        ...record.toData(),
+        billPoolHeaderId: null,
+      })
+    ); // 添加跳转record缓存
     const pathname = `/htc-front-ivp/invoices/detail/${invoiceHeaderId}/${invoiceType}/${entryPoolSource}/${companyCode}`;
     dispatch(
       routerRedux.push({
