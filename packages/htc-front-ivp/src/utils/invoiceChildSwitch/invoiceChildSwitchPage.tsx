@@ -181,6 +181,10 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
   }
 
   render() {
+    // const state = window.dvaApp._store.getState();
+    // const { global } = state;
+    // const { activeTabKey } = global;
+    // const subTabKey = activeTabKey.substr(15); // 获取当前子标签
     const state = window.dvaApp._store.getState();
     const { global } = state;
     const { activeTabKey } = global;
