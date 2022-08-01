@@ -28,7 +28,6 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
   // 通过头跳转
   goToByHeaderParams(record, comParams) {
     const { dispatch } = this.props;
-    const headerData = record;
     if (dispatch) {
       dispatch(
         routerRedux.push({
@@ -36,7 +35,7 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
           search: queryString.stringify({
             invoiceInfo: encodeURIComponent(
               JSON.stringify({
-                companyId: headerData.companyId,
+                companyId: record.companyId,
                 ...comParams.otherSearch,
               })
             ),
