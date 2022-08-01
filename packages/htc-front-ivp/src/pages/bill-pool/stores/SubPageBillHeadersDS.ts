@@ -3,11 +3,11 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-14 11:40:56
- * @LastEditTime: 2022-07-29 17:51:00
+ * @LastEditTime: 2022-08-01 14:28:29
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
-import { AxiosRequestConfig } from 'axios';
+// import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId, getCurrentTenant } from 'utils/utils';
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
@@ -20,21 +20,23 @@ const modelCode = 'hivp.bill';
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
+  console.log(tenantId, API_PREFIX, dsParams);
+
   return {
     transport: {
-      read: (config): AxiosRequestConfig => {
-        const url = `${API_PREFIX}/v1/${tenantId}/bill-pool-header-infos/${dsParams.billPoolHeaderId}`;
-        const axiosConfig: AxiosRequestConfig = {
-          ...config,
-          url,
-          params: {
-            ...config.params,
-            tenantId,
-          },
-          method: 'GET',
-        };
-        return axiosConfig;
-      },
+      // read: (config): AxiosRequestConfig => {
+      //   const url = `${API_PREFIX}/v1/${tenantId}/bill-pool-header-infos/${dsParams.billPoolHeaderId}`;
+      //   const axiosConfig: AxiosRequestConfig = {
+      //     ...config,
+      //     url,
+      //     params: {
+      //       ...config.params,
+      //       tenantId,
+      //     },
+      //     method: 'GET',
+      //   };
+      //   return axiosConfig;
+      // },
     },
     primaryKey: 'billPoolHeaderId',
     fields: [
