@@ -193,6 +193,7 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
     } else {
       record = JSON.parse(localStorage.getItem('myInvoicerecord')!);
     }
+    console.log('record', record);
     const { billPoolHeaderId } = record;
     const { type } = this.props;
     return (
