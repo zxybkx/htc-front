@@ -56,15 +56,18 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
     console.log('subTabKey,subTabKey', subTabKey);
 
     if (subTabKey === 'invoices') {
+      console.log(1);
       record = JSON.parse(localStorage.getItem('currentInvoicerecord')!);
     } else if (subTabKey === 'bills') {
+      console.log(2);
       record = JSON.parse(localStorage.getItem('currentBillrecord')!);
     } else {
+      console.log(3);
       record = JSON.parse(localStorage.getItem('myInvoicerecord')!);
     }
     console.log('record///', record);
 
-    const sourceCode = record.billPoolHeaderId ? 'BILL_POOL' : 'INVOICE_POOL';
+    const sourceCode = record && record.billPoolHeaderId ? 'BILL_POOL' : 'INVOICE_POOL';
     // 详情
     if (type === 0) {
       let invoiceHeaderid;
