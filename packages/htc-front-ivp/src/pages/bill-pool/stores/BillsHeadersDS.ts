@@ -817,7 +817,6 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.invoiceStates`).d('发票状态'),
           type: FieldType.string,
           lookupCode: 'HMDM.INVOICE_STATE',
-          required: true,
           multiple: ',',
         },
         {
@@ -826,7 +825,6 @@ export default (): DataSetProps => {
           type: FieldType.string,
           lookupCode: 'HIVP.ACCOUNT_STATE',
           multiple: ',',
-          required: true,
         },
         {
           name: 'receiptsStates',
@@ -834,7 +832,6 @@ export default (): DataSetProps => {
           type: FieldType.string,
           lookupCode: 'HIVP.INTERFACE_DOCS_STATE',
           multiple: ',',
-          required: true,
         },
         {
           name: 'systemCodeObj',
