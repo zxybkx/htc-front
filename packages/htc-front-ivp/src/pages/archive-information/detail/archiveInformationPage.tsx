@@ -15,7 +15,7 @@ import { API_HOST } from 'utils/config';
 import { getCurrentOrganizationId, getAccessToken, getResponse } from 'utils/utils';
 import notification from 'utils/notification';
 import queryString from 'query-string';
-import { openTab } from 'utils/menuTab';
+// import { openTab } from 'utils/menuTab';
 import {
   getCurrentEmployeeInfo,
   getTenantAgreementCompany,
@@ -175,13 +175,15 @@ export default class ArchiveInformationPage extends Component<ArchiveUploadPageP
       sourceCode === 'BILL_POOL'
         ? `/htc-front-ivp/bills/archive-view/${sourceCode}/${sourceHeaderId}`
         : `/htc-front-ivp/invoices/archive-view/${sourceCode}/${sourceHeaderId}`;
-    openTab({
-      key: pathname,
-      path: pathname,
-      title: intl.get(`${modelCode}.path.viewArchives`).d('查看档案'),
-      closable: true,
-      type: 'menu',
-    });
+    console.log('pathname', pathname);
+
+    // openTab({
+    //   key: pathname,
+    //   path: pathname,
+    //   title: intl.get(`${modelCode}.path.viewArchives`).d('查看档案'),
+    //   closable: true,
+    //   type: 'menu',
+    // });
   }
 
   // 上传档案文件变化
