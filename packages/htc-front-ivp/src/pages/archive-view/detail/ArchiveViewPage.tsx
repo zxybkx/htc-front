@@ -23,7 +23,6 @@ import { downloadFile, DownloadFileParams } from 'hzero-front/lib/services/api';
 import formatterCollections from 'utils/intl/formatterCollections';
 import ArchiveViewDS from '../stores/ArchiveViewDS';
 
-console.log('////进入主页面');
 const modelCode = 'hivp.invoicesArchiveUpload';
 const tenantId = getCurrentOrganizationId();
 const bucketName = 'hivp';
@@ -63,7 +62,6 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
     const { sourceCode, sourceHeaderId } = this.props.match.params;
     const { search } = this.props.location;
     const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
-    console.log('////进入主页面componentDidMount');
     if (invoiceInfoStr) {
       const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
       this.setState({

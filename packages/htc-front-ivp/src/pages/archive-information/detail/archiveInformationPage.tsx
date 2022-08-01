@@ -171,12 +171,13 @@ export default class ArchiveInformationPage extends Component<ArchiveUploadPageP
   @Bind()
   handleGotoArchiveView() {
     const { sourceCode, sourceHeaderId } = this.props.match.params;
+    const key = sourceCode === 'BILL_POOL' ? '/htc-front-ivp/bills' : '/htc-front-ivp/invoices';
     const pathname =
       sourceCode === 'BILL_POOL'
         ? `/htc-front-ivp/bills/archive-view/${sourceCode}/${sourceHeaderId}`
         : `/htc-front-ivp/invoices/archive-view/${sourceCode}/${sourceHeaderId}`;
     openTab({
-      key: pathname,
+      key,
       path: pathname,
       title: intl.get(`${modelCode}.path.viewArchives`).d('查看档案'),
       closable: true,
