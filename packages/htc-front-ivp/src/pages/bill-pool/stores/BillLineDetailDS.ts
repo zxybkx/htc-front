@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-13 16:07:22
- * @LastEditTime: 2022-07-26 15:37:44
+ * @LastEditTime: 2022-07-28 16:04:28
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -24,7 +24,20 @@ const taxRateValidator = (value, name, record) => {
   }
   return undefined;
 };
-
+const setAmount = (name, record) => {
+  if (['quantity', 'unitPrice'].includes(name)) {
+    const quantity = record.get('quantity');
+    const unitPrice = record.get('unitPrice');
+    if (quantity && unitPrice) {
+      const _quantity = Number(quantity) || 0;
+      const _unitPrice = Number(unitPrice) || 0;
+      if (_quantity !== 0 && _unitPrice !== 0) {
+        const amount = _quantity * _unitPrice;
+        record.set('amount', amount.toFixed(2));
+      }
+    }
+  }
+};
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
@@ -55,18 +68,7 @@ export default (): DataSetProps => {
     primaryKey: 'billPoolLineId',
     events: {
       update: ({ name, record }) => {
-        if (['quantity', 'unitPrice'].includes(name)) {
-          const quantity = record.get('quantity');
-          const unitPrice = record.get('unitPrice');
-          if (quantity && unitPrice) {
-            const _quantity = Number(quantity) || 0;
-            const _unitPrice = Number(unitPrice) || 0;
-            if (_quantity !== 0 && _unitPrice !== 0) {
-              const amount = _quantity * _unitPrice;
-              record.set('amount', amount.toFixed(2));
-            }
-          }
-        }
+        setAmount(name, record);
         if (['amount', 'taxRate'].includes(name)) {
           const amount = record.get('amount');
           const taxRate = record.get('taxRate');

@@ -104,6 +104,15 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
     spinProps: {},
   };
 
+  @Bind()
+  commonFn(params) {
+    getTenantAgreementCompany(params).then(resCom => {
+      if (resCom) {
+        this.setState({ inChannelCode: resCom.inChannelCode });
+      }
+    });
+  }
+
   async componentDidMount() {
     const { queryDataSet } = this.props.headerDS;
     if (queryDataSet && !queryDataSet.current) {
@@ -131,11 +140,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       this.setState({ curCompanyId });
       if (curCompanyId) {
         const params = { tenantId, companyId: curCompanyId };
-        getTenantAgreementCompany(params).then(resCom => {
-          if (resCom) {
-            this.setState({ inChannelCode: resCom.inChannelCode });
-          }
-        });
+        this.commonFn(params);
         this.props.headerDS.query(this.props.headerDS.currentPage || 0);
       }
     }
@@ -169,11 +174,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
   handleCompanychange(value) {
     if (value && value.companyId) {
       const params = { tenantId, companyId: value.companyId };
-      getTenantAgreementCompany(params).then(resCom => {
-        if (resCom) {
-          this.setState({ inChannelCode: resCom.inChannelCode });
-        }
-      });
+      this.commonFn(params);
     }
     this.setState({ curCompanyId: value && value.companyId });
   }

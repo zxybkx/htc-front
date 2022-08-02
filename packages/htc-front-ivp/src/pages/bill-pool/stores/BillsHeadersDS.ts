@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-12 16:29:24
- * @LastEditTime: 2022-07-26 15:42:49
+ * @LastEditTime: 2022-07-29 13:40:13
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -60,9 +60,6 @@ export default (): DataSetProps => {
   const halfYearStart = moment()
     .subtract(6, 'months')
     .startOf('month');
-  const yearStart = moment()
-    .subtract(12, 'months')
-    .startOf('month');
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -99,7 +96,7 @@ export default (): DataSetProps => {
     primaryKey: 'billPoolHeaderId',
     events: {
       update: ({ record, name, value, dataSet }) => {
-        if (name === 'billType') {
+        const fn1 = () => {
           const billTypeData = record && record.getField(name).getLookupData(value);
           record.set({
             billTypeTag: billTypeData && billTypeData.tag,
@@ -109,17 +106,32 @@ export default (): DataSetProps => {
           if (value === 'FLIGHT_ITINERARY') {
             flightAmount(record);
           }
-        }
-        // 价税合计
-        if (name === 'totalAmount') {
-          getBillAmount(record);
-        }
-        // 发票金额
-        if (name === 'invoiceAmount') {
+        };
+        const fn2 = () => {
+          // 发票金额
           const totalAmount = Number(record.get('totalAmount')) || 0;
           const invoiceAmount = Number(record.get('invoiceAmount')) || 0;
           const taxAmount = ((totalAmount * 100 - invoiceAmount * 100) / 100).toFixed(2);
           record.set({ taxAmount });
+        };
+        switch (name) {
+          case 'billType':
+            fn1();
+            break;
+          case 'totalAmount':
+            // 价税合计
+            getBillAmount(record);
+            break;
+          case 'invoiceAmount':
+            fn2();
+            break;
+          case 'ticketCollectorObj':
+            // 收票日期
+            record.set('ticketCollectorDate', value ? moment() : '');
+            dataSet.submit();
+            break;
+          default:
+            break;
         }
         // 发票税额
         if (name === 'taxAmount') {
@@ -133,12 +145,6 @@ export default (): DataSetProps => {
           ['aviationDevelopmentFund', 'fare', 'total', 'fuelSurcharge', 'otherTaxes'].includes(name)
         ) {
           flightAmount(record);
-        }
-
-        // 收票日期
-        if (name === 'ticketCollectorObj') {
-          record.set('ticketCollectorDate', value ? moment() : '');
-          dataSet.submit();
         }
       },
     },
@@ -686,12 +692,7 @@ export default (): DataSetProps => {
           name: 'ticketCollectorDate',
           label: intl.get(`${modelCode}.view.ticketCollectorDate`).d('收票日期'),
           type: FieldType.date,
-          required: true,
           range: ['ticketCollectorDateFrom', 'ticketCollectorDateTo'],
-          defaultValue: {
-            ticketCollectorDateFrom: yearStart,
-            ticketCollectorDateTo: moment().format(DEFAULT_DATE_FORMAT),
-          },
           ignore: FieldIgnore.always,
         },
         {
@@ -725,12 +726,7 @@ export default (): DataSetProps => {
           name: 'entryAccountDate',
           label: intl.get(`${modelCode}.view.entryAccountDate`).d('入账日期'),
           type: FieldType.date,
-          required: true,
           range: ['entryAccountDateFrom', 'entryAccountDateTo'],
-          defaultValue: {
-            entryAccountDateFrom: yearStart,
-            entryAccountDateTo: moment().format(DEFAULT_DATE_FORMAT),
-          },
           ignore: FieldIgnore.always,
         },
         {
@@ -763,12 +759,7 @@ export default (): DataSetProps => {
           name: 'entryPoolDatetime',
           label: intl.get(`${modelCode}.view.entryPoolDatetime`).d('进池日期'),
           type: FieldType.date,
-          required: true,
           range: ['entryPoolDatetimeFrom', 'entryPoolDatetimeTo'],
-          defaultValue: {
-            entryPoolDatetimeFrom: yearStart,
-            entryPoolDatetimeTo: moment().format(DEFAULT_DATE_FORMAT),
-          },
           ignore: FieldIgnore.always,
         },
         {
@@ -826,7 +817,6 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.invoiceStates`).d('发票状态'),
           type: FieldType.string,
           lookupCode: 'HMDM.INVOICE_STATE',
-          required: true,
           multiple: ',',
         },
         {
@@ -835,7 +825,6 @@ export default (): DataSetProps => {
           type: FieldType.string,
           lookupCode: 'HIVP.ACCOUNT_STATE',
           multiple: ',',
-          required: true,
         },
         {
           name: 'receiptsStates',
@@ -843,7 +832,56 @@ export default (): DataSetProps => {
           type: FieldType.string,
           lookupCode: 'HIVP.INTERFACE_DOCS_STATE',
           multiple: ',',
-          required: true,
+        },
+        {
+          name: 'systemCodeObj',
+          label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
+          type: FieldType.object,
+          lovCode: 'HTC.SOURCE_SYSTEM',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'systemCode',
+          type: FieldType.string,
+          bind: 'systemCodeObj.systemCode',
+        },
+        {
+          name: 'sysTypeHeaderId',
+          type: FieldType.number,
+          bind: 'systemCodeObj.docTypeHeaderId',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentTypeCodeObj',
+          label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
+          type: FieldType.object,
+          lovCode: 'HTC.DOCUMENT_TYPE',
+          cascadeMap: { docTypeHeaderId: 'sysTypeHeaderId' },
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentTypeCode',
+          type: FieldType.string,
+          bind: 'documentTypeCodeObj.documentTypeCode',
+        },
+        {
+          name: 'docTypeHeaderId',
+          type: FieldType.number,
+          bind: 'documentTypeCodeObj.docTypeHeaderId',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentNumberObj',
+          label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
+          type: FieldType.object,
+          lovCode: 'HTC.DOCUMENT_CODE',
+          cascadeMap: { docTypeHeaderId: 'docTypeHeaderId' },
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentNumber',
+          type: FieldType.string,
+          bind: 'documentNumberObj.documentNumber',
         },
       ],
     }),

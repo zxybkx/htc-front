@@ -235,12 +235,12 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       queryDataSet.current!.set({ companyObj });
       this.props.companyAndPassword.current!.set({ inChannelCode });
       queryDataSet.current!.set({ authorityCode: competentTaxAuthorities });
-      if (inChannelCode === 'AISINO_IN_CHANNEL') {
-        this.props.companyAndPassword.current!.set({ taxDiskPassword: '88888888' });
-      } else {
-        // 获取税盘密码
-        this.getTaskPassword(companyObj, this.props.companyAndPassword);
-      }
+      // inChannelCode === 'AISINO_IN_CHANNEL' ? this.props.companyAndPassword.current!.set({ taxDiskPassword: '88888888' }) : this.getTaskPassword(companyObj, this.props.companyAndPassword);
+    }
+    if (inChannelCode === 'AISINO_IN_CHANNEL') {
+      this.props.companyAndPassword.current!.set({ taxDiskPassword: '88888888' });
+    } else {
+      this.getTaskPassword(companyObj, this.props.companyAndPassword);
     }
     if (certifiableQueryDS) {
       certifiableQueryDS.current!.set({ companyObj });
@@ -269,43 +269,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     this.props.checkCertificationListDS.query();
   }
 
-  async componentDidMount() {
-    const { checkCertificationListDS, certifiableInvoiceListDS } = this.props;
-    const { queryDataSet } = checkCertificationListDS;
-    const { queryDataSet: certifiableQueryDS } = certifiableInvoiceListDS;
-    const { queryDataSet: batchInvoiceHeaderDS } = this.props.batchInvoiceHeaderDS;
-    const res = await getCurrentEmployeeInfo({ tenantId });
-    const displayOptions = await queryIdpValue('HIVP.CHECK_CONFIRM_DISPLAY_OPTIONS');
-    const query = location.search;
-    const type = new URLSearchParams(query).get('type');
-    if (type === '2') {
-      this.setState({ activeKey: 'statisticalConfirm' });
-    }
-    if (type === '3') {
-      this.setState({ activeKey: 'batchInvoice' });
-    }
-
-    if (queryDataSet) {
-      if (!type) {
-        const checkInvoiceCountRes = await checkInvoiceCount({ tenantId });
-        queryDataSet.current!.set({ checkInvoiceCount: checkInvoiceCountRes });
-      }
-      const curCompanyId = queryDataSet.current!.get('companyId');
-      if (res && res.content) {
-        const empInfo = res.content[0];
-        if (empInfo && !curCompanyId) {
-          this.getDataFromCompany(empInfo, 0);
-        }
-      }
-      if (curCompanyId) {
-        const curInfo = await getCurrentEmployeeInfo({ tenantId, companyId: curCompanyId });
-        const { competentTaxAuthorities } = await getTaxAuthorityCode({ tenantId, curCompanyId });
-        if (curInfo && curInfo.content) {
-          const empInfo = curInfo.content[0];
-          this.setState({ empInfo, authorityCode: competentTaxAuthorities });
-        }
-      }
-    }
+  ifFn(certifiableQueryDS, batchInvoiceHeaderDS, displayOptions) {
     if (certifiableQueryDS) {
       const curDisplayOptions = certifiableQueryDS.current!.get('invoiceDisplayOptions');
       const currentPeriod = certifiableQueryDS.current!.get('currentPeriod');
@@ -347,25 +311,56 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
           });
         }
       }
-      if (currentPeriod) {
-        // if (statisticalDs) {
-        //   // statisticalDs.current!.set({ statisticalPeriod: currentPeriod });
-        //   statisticalDs.current!.set({ authenticationDateObj: { statisticalPeriod: currentPeriod } });
-        //   statisticalDs.current!.set({ companyId: this.state.empInfo.companyId });
-        //   statisticalDs.current!.set({ currentCertState });
-        // }
-        if (batchInvoiceHeaderDS) {
-          batchInvoiceHeaderDS.current!.set({ tjyf: currentPeriod });
-          batchInvoiceHeaderDS.current!.set({ currentOperationalDeadline });
-          batchInvoiceHeaderDS.current!.set({ checkableTimeRange });
-          batchInvoiceHeaderDS.current!.set({ currentCertState });
-        }
+
+      if (currentPeriod && batchInvoiceHeaderDS) {
+        batchInvoiceHeaderDS.current!.set({ tjyf: currentPeriod });
+        batchInvoiceHeaderDS.current!.set({ currentOperationalDeadline });
+        batchInvoiceHeaderDS.current!.set({ checkableTimeRange });
+        batchInvoiceHeaderDS.current!.set({ currentCertState });
       }
     }
     this.setState({
       spinning: false,
       displayOptions,
     });
+  }
+
+  async componentDidMount() {
+    const { checkCertificationListDS, certifiableInvoiceListDS } = this.props;
+    const { queryDataSet } = checkCertificationListDS;
+    const { queryDataSet: certifiableQueryDS } = certifiableInvoiceListDS;
+    const { queryDataSet: batchInvoiceHeaderDS } = this.props.batchInvoiceHeaderDS;
+    const res = await getCurrentEmployeeInfo({ tenantId });
+    const displayOptions = await queryIdpValue('HIVP.CHECK_CONFIRM_DISPLAY_OPTIONS');
+    const query = location.search;
+    const type = new URLSearchParams(query).get('type');
+    switch (type) {
+      case '2':
+        this.setState({ activeKey: 'statisticalConfirm' });
+        break;
+      case '3':
+        this.setState({ activeKey: 'batchInvoice' });
+        break;
+      default:
+        break;
+    }
+    if (queryDataSet) {
+      if (!type) {
+        const checkInvoiceCountRes = await checkInvoiceCount({ tenantId });
+        queryDataSet.current!.set({ checkInvoiceCount: checkInvoiceCountRes });
+      }
+      const curCompanyId = queryDataSet.current!.get('companyId');
+      if (res && res.content && res.content[0] && !curCompanyId) {
+        this.getDataFromCompany(res.content[0], 0);
+      }
+      const curInfo = await getCurrentEmployeeInfo({ tenantId, companyId: curCompanyId });
+      if (curCompanyId && curInfo && curInfo.content) {
+        const { competentTaxAuthorities } = await getTaxAuthorityCode({ tenantId, curCompanyId });
+        const empInfo = curInfo.content[0];
+        this.setState({ empInfo, authorityCode: competentTaxAuthorities });
+      }
+    }
+    this.ifFn(certifiableQueryDS, batchInvoiceHeaderDS, displayOptions);
   }
 
   /**
@@ -1123,6 +1118,39 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     ];
   }
 
+  @Bind()
+  commonRendererFn({ value, record }): any {
+    const checkState = record?.get('checkState');
+    const checkStateTxt = record?.getField('checkState')?.getText(checkState);
+    let color = '';
+    let textColor = '';
+    switch (checkState) {
+      case '0':
+        color = '#F0F0F0';
+        textColor = '#959595';
+        break;
+      case '1':
+        color = '#D6FFD7';
+        textColor = '#19A633';
+        break;
+      case 'R':
+        color = '#FFECC4';
+        textColor = '#FF9D23';
+        break;
+      default:
+        break;
+    }
+    return (
+      <>
+        <Tag color={color} style={{ color: textColor }}>
+          {checkStateTxt}
+        </Tag>
+        &nbsp;
+        <span>{value}</span>
+      </>
+    );
+  }
+
   // 当期勾选(取消)可认证发票: 行
   get verifiableColumns(): ColumnProps[] {
     return [
@@ -1132,35 +1160,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         name: 'invoiceNo',
         width: 180,
         renderer: ({ value, record }) => {
-          const checkState = record?.get('checkState');
-          const checkStateTxt = record?.getField('checkState')?.getText(checkState);
-          let color = '';
-          let textColor = '';
-          switch (checkState) {
-            case '0':
-              color = '#F0F0F0';
-              textColor = '#959595';
-              break;
-            case '1':
-              color = '#D6FFD7';
-              textColor = '#19A633';
-              break;
-            case 'R':
-              color = '#FFECC4';
-              textColor = '#FF9D23';
-              break;
-            default:
-              break;
-          }
-          return (
-            <>
-              <Tag color={color} style={{ color: textColor }}>
-                {checkStateTxt}
-              </Tag>
-              &nbsp;
-              <span>{value}</span>
-            </>
-          );
+          return this.commonRendererFn({ value, record });
         },
       },
       { name: 'invoiceDate', width: 130 },
@@ -2115,35 +2115,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         name: 'invoiceNum',
         width: 120,
         renderer: ({ value, record }) => {
-          const checkState = record?.get('checkState');
-          const checkStateTxt = record?.getField('checkState')?.getText(checkState);
-          let color = '';
-          let textColor = '';
-          switch (checkState) {
-            case '0':
-              color = '#F0F0F0';
-              textColor = '#959595';
-              break;
-            case '1':
-              color = '#D6FFD7';
-              textColor = '#19A633';
-              break;
-            case 'R':
-              color = '#FFECC4';
-              textColor = '#FF9D23';
-              break;
-            default:
-              break;
-          }
-          return (
-            <>
-              <Tag color={color} style={{ color: textColor }}>
-                {checkStateTxt}
-              </Tag>
-              &nbsp;
-              <span>{value}</span>
-            </>
-          );
+          return this.commonRendererFn({ value, record });
         },
       },
       { name: 'totalInvoiceAmountGross', width: 120 },

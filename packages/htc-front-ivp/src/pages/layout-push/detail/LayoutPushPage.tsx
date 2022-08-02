@@ -79,6 +79,14 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
     }
   }
 
+  commonSelectedListFn(selectedList) {
+    return selectedList.map(rec => ({
+      invoicePoolHeaderId: rec.invoicePoolHeaderId,
+      additionalEmail: rec.employeeEmail,
+      additionalTell: rec.additionalTell,
+    }));
+  }
+
   // 推送收票员工
   @Bind()
   async handlePushToCollector() {
@@ -101,11 +109,7 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
       });
       return;
     }
-    const invoicePoolHeaderIds = selectedList.map(rec => ({
-      invoicePoolHeaderId: rec.invoicePoolHeaderId,
-      additionalEmail: rec.employeeEmail,
-      additionalTell: rec.additionalTell,
-    }));
+    const invoicePoolHeaderIds = this.commonSelectedListFn(selectedList);
     const params = {
       tenantId,
       companyId,
@@ -144,11 +148,7 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
       });
       return;
     }
-    const invoicePoolHeaderIds = selectedList.map(rec => ({
-      invoicePoolHeaderId: rec.invoicePoolHeaderId,
-      additionalEmail: rec.employeeEmail,
-      additionalTell: rec.additionalTell,
-    }));
+    const invoicePoolHeaderIds = this.commonSelectedListFn(selectedList);
     const params = {
       tenantId,
       companyId,

@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-14 11:40:56
- * @LastEditTime: 2021-01-27 11:40:08
+ * @LastEditTime: 2022-07-29 17:51:00
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -123,7 +123,7 @@ export default (dsParams): DataSetProps => {
         label: intl.get('htc.common.view.invoiceDate').d('开票日期'),
         type: FieldType.date,
         // required: true,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'invoiceAmount',
