@@ -24,7 +24,7 @@ export default (): DataSetProps => {
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const url = `${API_PREFIX}/v1/${config.data.tenantId}/invoice-header-infos/list`;
+        const url = `${API_PREFIX}/v1/invoice-header-infos`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
           url,
