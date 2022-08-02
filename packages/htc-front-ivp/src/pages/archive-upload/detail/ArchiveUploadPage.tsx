@@ -220,19 +220,16 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
         tenantId,
         uuid: this.mutipleUploadUuid,
       });
-      if (queryRes) {
-        if (queryRes.status === '1002') {
-          curProgress = Number(queryRes.data);
-          if (isNaN(curProgress)) curProgress = 0;
-        } else {
-          curProgress = 100;
-          this.setState({
-            progressValue: curProgress,
-            progressStatus:
-              queryRes.status === '1001' ? ProgressStatus.success : ProgressStatus.exception,
-          });
-          return;
-        }
+      if (queryRes && queryRes.status === '1002') {
+        curProgress = Number(queryRes.data) || 0;
+      } else if (queryRes) {
+        curProgress = 100;
+        this.setState({
+          progressValue: curProgress,
+          progressStatus:
+            queryRes.status === '1001' ? ProgressStatus.success : ProgressStatus.exception,
+        });
+        return;
       }
     }
     if (curProgress > -1 && curProgress < 100) {
@@ -359,8 +356,8 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
           key={props.key}
           onClick={props.onClick}
           disabled={isDisabled}
-        // funcType={FuncType.flat}
-        // color={ButtonColor.primary}
+          // funcType={FuncType.flat}
+          // color={ButtonColor.primary}
         >
           {props.title}
         </Button>

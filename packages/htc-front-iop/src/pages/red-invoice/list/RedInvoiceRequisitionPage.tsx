@@ -416,8 +416,8 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
       const originalAmount = this.headerDS.current!.get('originalAmount');
       const lineList: any = this.linesDS.toData();
       let totalAmount = 0;
-      for (const i of lineList.length) {
-        totalAmount += Math.abs(lineList[i].detailAmount);
+      for (const item of lineList) {
+        totalAmount += Math.abs(item.detailAmount);
       }
       if (totalAmount > Math.abs(originalAmount)) {
         notification.error({
