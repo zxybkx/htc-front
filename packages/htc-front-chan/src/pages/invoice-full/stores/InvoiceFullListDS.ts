@@ -10,7 +10,7 @@ import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
-import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
+import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import moment from 'moment';
@@ -24,13 +24,12 @@ export default (): DataSetProps => {
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const url = `${API_PREFIX}/v1/${tenantId}/invoice-header-infos/list`;
+        const url = `${API_PREFIX}/v1/${config.data.tenantId}/invoice-header-infos/list`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
           url,
           params: {
             ...config.params,
-            tenantId,
           },
           method: 'GET',
         };
@@ -157,6 +156,18 @@ export default (): DataSetProps => {
       },
     ],
     queryFields: [
+      {
+        name: 'tenantObject',
+        label: intl.get(`${modelCode}.view.tenantName`).d('租户名称'),
+        type: FieldType.object,
+        lovCode: 'HPFM.TENANT',
+        ignore: FieldIgnore.always,
+      },
+      {
+        name: 'tenantId',
+        type: FieldType.number,
+        bind: `tenantObject.tenantId`,
+      },
       {
         name: 'buyerName',
         label: intl.get(`${modelCode}.view.buyerName`).d('购方名称'),

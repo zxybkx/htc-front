@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: huishan.yu@hand-china.com
  * @Date: 2021-10-29 12:00:48
- * @LastEditTime: 2022-08-01 13:41:30
+ * @LastEditTime: 2022-08-02 14:31:06
  * @Copyright: Copyright (c) 2021, Hand
  */
 import React, { Component } from 'react';
@@ -13,6 +13,7 @@ import intl from 'utils/intl';
 import { Icon } from 'choerodon-ui/pro';
 import formatterCollections from 'utils/intl/formatterCollections';
 import queryString from 'query-string';
+import { Bind } from 'lodash-decorators';
 import style from './invoiceChildSwitchPage.model.less';
 
 interface InvoiceChildSwitchPageProps {
@@ -45,145 +46,150 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
     }
   }
 
-  handleSwitch(type) {
+  @Bind()
+  switchFnType0({ record, subTabKey, sourceCode }) {
     const { dispatch } = this.props;
+    let invoiceHeaderid;
+    let pathname = '';
+    const {
+      companyCode,
+      entryPoolSource,
+      invoiceType,
+      billPoolHeaderId,
+      billType,
+      poolHeaderId,
+      invoiceHeaderId,
+    } = record;
+    switch (subTabKey) {
+      case 'my-invoice':
+        invoiceHeaderid = entryPoolSource === 'EXTERNAL_IMPORT' ? poolHeaderId : invoiceHeaderId;
+        pathname =
+          sourceCode === 'BILL_POOL'
+            ? `/htc-front-ivp/my-invoice/billDetail/${invoiceHeaderid}/${invoiceType}`
+            : `/htc-front-ivp/my-invoice/invoiceDetail/${invoiceHeaderid}/${invoiceType}/${entryPoolSource}/${companyCode}`;
+        break;
+      case 'invoices':
+        invoiceHeaderid =
+          entryPoolSource === 'EXTERNAL_IMPORT'
+            ? record.invoicePoolHeaderId
+            : record.invoiceHeaderId;
+        pathname = `/htc-front-ivp/invoices/detail/${invoiceHeaderid}/${invoiceType}/${entryPoolSource}/${companyCode}`;
+        break;
+      case 'bills':
+        pathname = `/htc-front-ivp/bills/detail/${billPoolHeaderId}/${billType || invoiceType}`;
+        break;
+      default:
+        break;
+    }
+    if (dispatch) {
+      dispatch(
+        routerRedux.push({
+          pathname,
+        })
+      );
+    }
+  }
+
+  @Bind()
+  switchFnType1({ record, subTabKey, sourceCode }) {
+    if (subTabKey === 'my-invoice') {
+      // 我的发票
+      const { poolHeaderId } = record;
+      if (!poolHeaderId) return;
+      const comParams = {
+        pathname: `/htc-front-ivp/my-invoice/archive-information/${sourceCode}/${poolHeaderId}`,
+        otherSearch: { backPath: '/htc-front-ivp/my-invoice/list' },
+      };
+      this.goToByHeaderParams(record, comParams);
+    }
+    if (subTabKey === 'invoices') {
+      // 发票
+      const { invoicePoolHeaderId } = record;
+      if (!invoicePoolHeaderId) return;
+      const comParams = {
+        pathname: `/htc-front-ivp/invoices/archive-information/${sourceCode}/${invoicePoolHeaderId}`,
+        otherSearch: { backPath: '/htc-front-ivp/invoices/list' },
+      };
+      this.goToByHeaderParams(record, comParams);
+    }
+    if (subTabKey === 'bills') {
+      // 票据
+      const { billPoolHeaderId } = record;
+      if (!billPoolHeaderId) return;
+      const comParams = {
+        pathname: `/htc-front-ivp/bills/archive-information/${sourceCode}/${billPoolHeaderId}`,
+        otherSearch: { backPath: '/htc-front-ivp/bills/list' },
+      };
+      this.goToByHeaderParams(record, comParams);
+    }
+  }
+
+  @Bind()
+  switchFnType2({ record, subTabKey, sourceCode }) {
+    // 关联单据
+    if (subTabKey === 'my-invoice') {
+      // 我的发票
+      const { poolHeaderId } = record;
+      if (!poolHeaderId) return;
+      const comParams = {
+        pathname: `/htc-front-ivp/my-invoice/doc-related/${sourceCode}/${poolHeaderId}`,
+        otherSearch: { backPath: '/htc-front-ivp/my-invoice/list' },
+      };
+      this.goToByHeaderParams(record, comParams);
+    }
+    // 发票
+    if (subTabKey === 'invoices') {
+      const { invoicePoolHeaderId } = record;
+      if (!invoicePoolHeaderId) return;
+      const comParams = {
+        pathname: `/htc-front-ivp/invoices/doc-related/${sourceCode}/${invoicePoolHeaderId}`,
+        otherSearch: { backPath: '/htc-front-ivp/invoices/list' },
+      };
+      this.goToByHeaderParams(record, comParams);
+    }
+    // 票据
+    if (subTabKey === 'bills') {
+      const { billPoolHeaderId } = record;
+      if (!billPoolHeaderId) return;
+      const comParams = {
+        pathname: `/htc-front-ivp/bills/doc-related/${sourceCode}/${billPoolHeaderId}`,
+        otherSearch: { backPath: '/htc-front-ivp/bills/list' },
+      };
+      this.goToByHeaderParams(record, comParams);
+    }
+  }
+
+  @Bind()
+  handleSwitch(type) {
     const state = window.dvaApp._store.getState();
     const { global } = state;
     const { activeTabKey } = global;
     const subTabKey = activeTabKey.substr(15); // 获取当前子标签
     let record; // 获取跳转record缓存
-    console.log('subTabKey,subTabKey', subTabKey);
-
-    if (subTabKey === 'invoices') {
-      console.log(1);
-      record = JSON.parse(localStorage.getItem('currentInvoicerecord')!);
-    } else if (subTabKey === 'bills') {
-      console.log(2);
-      record = JSON.parse(localStorage.getItem('currentBillrecord')!);
-    } else {
-      console.log(3);
-      record = JSON.parse(localStorage.getItem('myInvoicerecord')!);
+    switch (subTabKey) {
+      case 'invoices':
+        record = JSON.parse(localStorage.getItem('currentInvoicerecord')!);
+        break;
+      case 'bills':
+        record = JSON.parse(localStorage.getItem('currentBillrecord')!);
+        break;
+      default:
+        record = JSON.parse(localStorage.getItem('myInvoicerecord')!);
+        break;
     }
-    console.log('record///', record);
-
     const sourceCode = record && record.billPoolHeaderId ? 'BILL_POOL' : 'INVOICE_POOL';
     // 详情
     if (type === 0) {
-      let invoiceHeaderid;
-      let pathname = '';
-      const {
-        companyCode,
-        entryPoolSource,
-        invoiceType,
-        billPoolHeaderId,
-        billType,
-        poolHeaderId,
-        invoiceHeaderId,
-      } = record;
-      if (subTabKey === 'my-invoice') {
-        // 我的发票
-        if (entryPoolSource === 'EXTERNAL_IMPORT') {
-          invoiceHeaderid = poolHeaderId;
-        } else {
-          invoiceHeaderid = invoiceHeaderId;
-        }
-        if (sourceCode === 'BILL_POOL') {
-          pathname = `/htc-front-ivp/my-invoice/billDetail/${invoiceHeaderid}/${invoiceType}`;
-        } else {
-          pathname = `/htc-front-ivp/my-invoice/invoiceDetail/${invoiceHeaderid}/${invoiceType}/${entryPoolSource}/${companyCode}`;
-        }
-      }
-      if (subTabKey === 'invoices') {
-        // 发票池
-        if (entryPoolSource === 'EXTERNAL_IMPORT') {
-          invoiceHeaderid = record.invoicePoolHeaderId;
-        } else {
-          invoiceHeaderid = record.invoiceHeaderId;
-        }
-        pathname = `/htc-front-ivp/invoices/detail/${invoiceHeaderid}/${invoiceType}/${entryPoolSource}/${companyCode}`;
-      }
-      if (subTabKey === 'bills') {
-        // 票据池
-        pathname = `/htc-front-ivp/bills/detail/${billPoolHeaderId}/${billType || invoiceType}`;
-      }
-      if (dispatch) {
-        dispatch(
-          routerRedux.push({
-            pathname,
-          })
-        );
-      } // 档案信息
+      this.switchFnType0({ record, subTabKey, sourceCode });
+      // 档案信息
     } else if (type === 1) {
-      if (subTabKey === 'my-invoice') {
-        // 我的发票
-        const { poolHeaderId } = record;
-        if (!poolHeaderId) return;
-        const comParams = {
-          pathname: `/htc-front-ivp/my-invoice/archive-information/${sourceCode}/${poolHeaderId}`,
-          otherSearch: { backPath: '/htc-front-ivp/my-invoice/list' },
-        };
-        this.goToByHeaderParams(record, comParams);
-      }
-      if (subTabKey === 'invoices') {
-        // 发票
-        const { invoicePoolHeaderId } = record;
-        if (!invoicePoolHeaderId) return;
-        const comParams = {
-          pathname: `/htc-front-ivp/invoices/archive-information/${sourceCode}/${invoicePoolHeaderId}`,
-          otherSearch: { backPath: '/htc-front-ivp/invoices/list' },
-        };
-        this.goToByHeaderParams(record, comParams);
-      }
-      if (subTabKey === 'bills') {
-        // 票据
-        const { billPoolHeaderId } = record;
-        if (!billPoolHeaderId) return;
-        const comParams = {
-          pathname: `/htc-front-ivp/bills/archive-information/${sourceCode}/${billPoolHeaderId}`,
-          otherSearch: { backPath: '/htc-front-ivp/bills/list' },
-        };
-        this.goToByHeaderParams(record, comParams);
-      }
+      this.switchFnType1({ record, subTabKey, sourceCode });
     } else if (type === 2) {
-      // 关联单据
-      if (subTabKey === 'my-invoice') {
-        // 我的发票
-        const { poolHeaderId } = record;
-        if (!poolHeaderId) return;
-        const comParams = {
-          pathname: `/htc-front-ivp/my-invoice/doc-related/${sourceCode}/${poolHeaderId}`,
-          otherSearch: { backPath: '/htc-front-ivp/my-invoice/list' },
-        };
-        this.goToByHeaderParams(record, comParams);
-      }
-      // 发票
-      if (subTabKey === 'invoices') {
-        const { invoicePoolHeaderId } = record;
-        if (!invoicePoolHeaderId) return;
-        const comParams = {
-          pathname: `/htc-front-ivp/invoices/doc-related/${sourceCode}/${invoicePoolHeaderId}`,
-          otherSearch: { backPath: '/htc-front-ivp/invoices/list' },
-        };
-        this.goToByHeaderParams(record, comParams);
-      }
-      // 票据
-      if (subTabKey === 'bills') {
-        const { billPoolHeaderId } = record;
-        if (!billPoolHeaderId) return;
-        const comParams = {
-          pathname: `/htc-front-ivp/bills/doc-related/${sourceCode}/${billPoolHeaderId}`,
-          otherSearch: { backPath: '/htc-front-ivp/bills/list' },
-        };
-        this.goToByHeaderParams(record, comParams);
-      }
+      this.switchFnType2({ record, subTabKey, sourceCode });
     }
   }
 
   render() {
-    // const state = window.dvaApp._store.getState();
-    // const { global } = state;
-    // const { activeTabKey } = global;
-    // const subTabKey = activeTabKey.substr(15); // 获取当前子标签
     const state = window.dvaApp._store.getState();
     const { global } = state;
     const { activeTabKey } = global;

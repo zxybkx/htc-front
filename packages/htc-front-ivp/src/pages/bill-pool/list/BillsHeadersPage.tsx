@@ -65,7 +65,7 @@ interface BillsHeadersPageProps extends RouteComponentProps {
 }
 
 @formatterCollections({
-  code: [modelCode, 'hivp.invoicesArchiveUpload', 'htc.common', 'hivp.batchCheck'],
+  code: [modelCode, 'hivp.invoices', 'hivp.invoicesArchiveUpload', 'htc.common', 'hivp.batchCheck'],
 })
 @withProps(
   () => {
@@ -161,6 +161,9 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
       queryMoreArray.push(<Currency key="amount" name="amount" colSpan={2} />);
       queryMoreArray.push(<TextField key="salerName" name="salerName" colSpan={2} />);
       queryMoreArray.push(<TextField key="buyerName" name="buyerName" colSpan={2} />);
+      queryMoreArray.push(<Lov key="systemCodeObj" name="systemCodeObj" colSpan={2} newLine />);
+      queryMoreArray.push(<Lov key="documentTypeCodeObj" name="documentTypeCodeObj" colSpan={2} />);
+      queryMoreArray.push(<Lov key="documentNumberObj" name="documentNumberObj" colSpan={2} />);
 
       return (
         <div style={{ marginBottom: '0.1rem' }}>

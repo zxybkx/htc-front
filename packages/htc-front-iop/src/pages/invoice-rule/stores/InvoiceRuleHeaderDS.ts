@@ -111,7 +111,7 @@ export default (): DataSetProps => {
         label: intl.get('hiop.invoiceRule.modal.codeTableVersions').d('编码表版本号'),
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.COMMODITY_VERSION_NUMBER',
-        defaultValue: 'CODE_TABLE_VERSIONS',
+        defaultValue: '33.0',
         // readOnly: true,
       },
       {

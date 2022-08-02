@@ -60,9 +60,6 @@ export default (): DataSetProps => {
   const halfYearStart = moment()
     .subtract(6, 'months')
     .startOf('month');
-  const yearStart = moment()
-    .subtract(12, 'months')
-    .startOf('month');
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -695,12 +692,7 @@ export default (): DataSetProps => {
           name: 'ticketCollectorDate',
           label: intl.get(`${modelCode}.view.ticketCollectorDate`).d('收票日期'),
           type: FieldType.date,
-          required: true,
           range: ['ticketCollectorDateFrom', 'ticketCollectorDateTo'],
-          defaultValue: {
-            ticketCollectorDateFrom: yearStart,
-            ticketCollectorDateTo: moment().format(DEFAULT_DATE_FORMAT),
-          },
           ignore: FieldIgnore.always,
         },
         {
@@ -734,12 +726,7 @@ export default (): DataSetProps => {
           name: 'entryAccountDate',
           label: intl.get(`${modelCode}.view.entryAccountDate`).d('入账日期'),
           type: FieldType.date,
-          required: true,
           range: ['entryAccountDateFrom', 'entryAccountDateTo'],
-          defaultValue: {
-            entryAccountDateFrom: yearStart,
-            entryAccountDateTo: moment().format(DEFAULT_DATE_FORMAT),
-          },
           ignore: FieldIgnore.always,
         },
         {
@@ -772,12 +759,7 @@ export default (): DataSetProps => {
           name: 'entryPoolDatetime',
           label: intl.get(`${modelCode}.view.entryPoolDatetime`).d('进池日期'),
           type: FieldType.date,
-          required: true,
           range: ['entryPoolDatetimeFrom', 'entryPoolDatetimeTo'],
-          defaultValue: {
-            entryPoolDatetimeFrom: yearStart,
-            entryPoolDatetimeTo: moment().format(DEFAULT_DATE_FORMAT),
-          },
           ignore: FieldIgnore.always,
         },
         {
@@ -835,7 +817,6 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.invoiceStates`).d('发票状态'),
           type: FieldType.string,
           lookupCode: 'HMDM.INVOICE_STATE',
-          required: true,
           multiple: ',',
         },
         {
@@ -844,7 +825,6 @@ export default (): DataSetProps => {
           type: FieldType.string,
           lookupCode: 'HIVP.ACCOUNT_STATE',
           multiple: ',',
-          required: true,
         },
         {
           name: 'receiptsStates',
@@ -852,7 +832,56 @@ export default (): DataSetProps => {
           type: FieldType.string,
           lookupCode: 'HIVP.INTERFACE_DOCS_STATE',
           multiple: ',',
-          required: true,
+        },
+        {
+          name: 'systemCodeObj',
+          label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
+          type: FieldType.object,
+          lovCode: 'HTC.SOURCE_SYSTEM',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'systemCode',
+          type: FieldType.string,
+          bind: 'systemCodeObj.systemCode',
+        },
+        {
+          name: 'sysTypeHeaderId',
+          type: FieldType.number,
+          bind: 'systemCodeObj.docTypeHeaderId',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentTypeCodeObj',
+          label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
+          type: FieldType.object,
+          lovCode: 'HTC.DOCUMENT_TYPE',
+          cascadeMap: { docTypeHeaderId: 'sysTypeHeaderId' },
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentTypeCode',
+          type: FieldType.string,
+          bind: 'documentTypeCodeObj.documentTypeCode',
+        },
+        {
+          name: 'docTypeHeaderId',
+          type: FieldType.number,
+          bind: 'documentTypeCodeObj.docTypeHeaderId',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentNumberObj',
+          label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
+          type: FieldType.object,
+          lovCode: 'HTC.DOCUMENT_CODE',
+          cascadeMap: { docTypeHeaderId: 'docTypeHeaderId' },
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentNumber',
+          type: FieldType.string,
+          bind: 'documentNumberObj.documentNumber',
         },
       ],
     }),
