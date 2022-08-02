@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: huishan.yu@hand-china.com
  * @Date: 2021-10-29 12:00:48
- * @LastEditTime: 2022-08-02 14:31:06
+ * @LastEditTime: 2022-08-02 17:15:16
  * @Copyright: Copyright (c) 2021, Hand
  */
 import React, { Component } from 'react';
@@ -14,6 +14,7 @@ import { Icon } from 'choerodon-ui/pro';
 import formatterCollections from 'utils/intl/formatterCollections';
 import queryString from 'query-string';
 import { Bind } from 'lodash-decorators';
+import { getActiveTabKey } from '@hzerojs/plugin-hzero-layout/browsers/clients/utils/utils';
 import style from './invoiceChildSwitchPage.model.less';
 
 interface InvoiceChildSwitchPageProps {
@@ -161,9 +162,7 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
 
   @Bind()
   handleSwitch(type) {
-    const state = window.dvaApp._store.getState();
-    const { global } = state;
-    const { activeTabKey } = global;
+    const activeTabKey = getActiveTabKey();
     const subTabKey = activeTabKey.substr(15); // 获取当前子标签
     let record; // 获取跳转record缓存
     switch (subTabKey) {
@@ -190,14 +189,11 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
   }
 
   render() {
-    const state = window.dvaApp._store.getState();
-    const { global } = state;
-    const { activeTabKey } = global;
-    const subTabKey = activeTabKey.substr(15); // 获取当前子标签
+    const activeTabKey = getActiveTabKey();
     let record; // 获取跳转record缓存
-    if (subTabKey === 'invoices') {
+    if (activeTabKey.includes('/invoices')) {
       record = JSON.parse(localStorage.getItem('currentInvoicerecord')!);
-    } else if (subTabKey === 'bills') {
+    } else if (activeTabKey.includes('/bills')) {
       record = JSON.parse(localStorage.getItem('currentBillrecord')!);
     } else {
       record = JSON.parse(localStorage.getItem('myInvoicerecord')!);
