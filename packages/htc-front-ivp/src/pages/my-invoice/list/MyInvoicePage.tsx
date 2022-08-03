@@ -80,24 +80,17 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
     }
   }
 
-  handleSourceCodeChange = (value, oldVale) => {
-    if (value !== oldVale) {
-      const { queryDataSet } = this.props.invoiceDS;
-      const invoiceTypeLookup = value === 'INVOICE_POOL' ? 'HIVC.INVOICE_TYPE' : 'HIVP.BILL_TYPE';
-      if (queryDataSet && value) {
-        queryDataSet.getField('invoiceType')!.set('lookupCode', invoiceTypeLookup);
-      }
-    }
-  };
-
   // 跳转至手工发票查验界面
   @Bind()
   handleGotoInvoiceCheck() {
+    const { queryDataSet } = this.props.invoiceDS;
     const pathname = `/${process.env.MY_ROUTE}/invoice-check/query`;
+    const companyId = queryDataSet && queryDataSet.current!.get('companyId');
     openTab({
       key: pathname,
       path: pathname,
       title: intl.get('hcan.invoiceCheck.view.title').d('手工发票查验'),
+      search: queryString.stringify({ companyId }),
       closable: true,
       type: 'menu',
     });
@@ -106,11 +99,14 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
   // 跳转至批量识别查验界面
   @Bind()
   handleGotoBatchDentificationCheck() {
+    const { queryDataSet } = this.props.invoiceDS;
     const pathname = '/htc-front-ivp/batch-check/list';
+    const companyId = queryDataSet && queryDataSet.current!.get('companyId');
     openTab({
       key: pathname,
       path: pathname,
       title: intl.get('hivp.batchCheck.title.check').d('批量识别查验'),
+      search: queryString.stringify({ companyId }),
       closable: true,
       type: 'menu',
     });
