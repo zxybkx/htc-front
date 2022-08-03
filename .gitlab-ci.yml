@@ -57,30 +57,20 @@ docker_build:
   }
 
   function node_module(){
-      # yarn config set cache-folder $TEMP_DIR/yarn-cache
-      if  [[ $CLEAR_TEMP_DIR =~ "true" ]] ;then
-        echo "gitlab-ci -- 开始清除之前编译缓存"
-        rm -rf $TEMP_DIR
-        echo "==: 开始安装依赖"
-        node -v
-        yarn config set ignore-engines true
-        yarn install --frozen-lockfile --no-progress --non-interactive
-        echo "==: 结束安装依赖"
-      fi
+      echo "gitlab-ci -- 开始清除之前编译缓存"
+      rm -rf $TEMP_DIR
+      echo "==: 开始安装依赖"
+      node -v
+      yarn config set ignore-engines true
+      yarn install --frozen-lockfile --no-progress --non-interactive
+      echo "==: 结束安装依赖"
       npx hzero-cli info
   }
 
   function node_build(){
-      if  [[ $UPDATE_MICRO_MODULES =~ "ALL" ]] || [[ ! -n "$UPDATE_MICRO_MODULES" ]] ;then
-        echo "全量编译"
-#        yarn build:ms-all
-        yarn run build:dep-all:prod
-        yarn run build:app:prod
-      else
-        echo "增量编译子模块 $UPDATE_MICRO_MODULES"
-        yarn hzero-cli transpile hdbsp-front-common #解决webpack别名中引入目录bug，生成hdbsp-front-common/lib文件夹
-        yarn build:ms-production $UPDATE_MICRO_MODULES
-      fi
+      echo "全量编译"
+      yarn run build:dep-all:prod
+      yarn run build:app:prod
       back_node_cache_and_build_cache
   }
 
