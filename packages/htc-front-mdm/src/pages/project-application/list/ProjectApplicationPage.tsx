@@ -33,7 +33,7 @@ import {
   Upload,
 } from 'choerodon-ui/pro';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
-import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
+import { ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import { observer } from 'mobx-react-lite';
 import commonConfig from '@htccommon/config/commonConfig';
@@ -320,40 +320,31 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
           const subAccountStatus = record?.get('subAccountStatus');
           if (subAccountStatus === '1') {
             return [
-              <a onClick={() => this.openModal(record, 2)}>
+              <Button funcType={FuncType.link} onClick={() => this.openModal(record, 2)}>
                 {intl.get(`${modelCode}.button.edit`).d('编辑')}
-              </a>,
-              <Button
-                style={{ color: '#3889FF' }}
-                funcType={FuncType.link}
-                onClick={() => this.handleSubmit(record)}
-              >
+              </Button>,
+              <Button funcType={FuncType.link} onClick={() => this.handleSubmit(record)}>
                 {intl.get(`${modelCode}.button.submit`).d('提交')}
               </Button>,
             ];
           } else if (subAccountStatus === '2') {
             return [
-              <a onClick={() => this.openModal(record, 3)}>
+              <Button funcType={FuncType.link} onClick={() => this.openModal(record, 3)}>
                 {intl.get(`${modelCode}.button.edit`).d('查看')}
-              </a>,
-              <Button
-                style={{ color: '#3889FF' }}
-                funcType={FuncType.link}
-                onClick={() => this.sendNotification(record)}
-              >
+              </Button>,
+              <Button funcType={FuncType.link} onClick={() => this.sendNotification(record)}>
                 {intl.get(`${modelCode}.button.sendNotification`).d('发送通知')}
               </Button>,
             ];
           } else {
             return [
-              <a onClick={() => this.openModal(record, 3)}>
+              <Button funcType={FuncType.link} onClick={() => this.openModal(record, 3)}>
                 {intl.get(`${modelCode}.button.edit`).d('查看')}
-              </a>,
+              </Button>,
             ];
           }
         },
         lock: ColumnLock.right,
-        align: ColumnAlign.center,
       },
     ];
   }

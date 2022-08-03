@@ -31,6 +31,7 @@ import intl from 'utils/intl';
 import notification from 'utils/notification';
 import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
 import withProps from 'utils/withProps';
+import { RouteComponentProps } from 'react-router-dom';
 import { isEmpty } from 'lodash';
 import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
 import { handleInvoiceCheckApi, addToInvoicePool } from '@src/services/invoiceCheckService';
@@ -39,7 +40,7 @@ import style from '../invoiceCheck.model.less';
 
 const modelCode = 'hcan.invoiceCheck';
 const { Item: MenuItem } = Menu;
-interface InvoiceCheckQueryPageProps {
+interface InvoiceCheckQueryPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   queryDS: DataSet;
 }
@@ -61,8 +62,11 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
   tenantId = getCurrentOrganizationId();
 
   componentDidMount() {
+    const { search } = this.props.location;
+    const companyIdStr = new URLSearchParams(search).get('companyId');
+    const companyId = companyIdStr && JSON.parse(decodeURIComponent(companyIdStr));
     const dsData = this.props.queryDS.toData();
-    const params = { tenantId: this.tenantId };
+    const params = { tenantId: this.tenantId, companyId };
     getCurrentEmployeeInfo(params).then(resp => {
       if (resp && resp.content) {
         if (isEmpty(dsData)) {

@@ -1,4 +1,5 @@
 import { extendParentConfig } from '@hzerojs/plugin-micro'
+
 const taxInfoRouterConfig = [
     {
         path: '/htc-front-iop/tax-info',
