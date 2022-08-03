@@ -99,7 +99,7 @@ docker_build:
       # fi
       if  [[ $UPDATE_MICRO_MODULES =~ "ALL" ]] || [[ ! -n "$UPDATE_MICRO_MODULES" ]] ;then
         echo "全量编译"
-        rm -rf ./dist
+        NODE_OPTIONS='--max_old_space_size=10240
         yarn build:ms-all
         yarn run build:dep-all:prod
         yarn run build:app:prod
