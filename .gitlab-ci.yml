@@ -47,12 +47,6 @@ docker_build:
 
   function restore_node_cache_and_build_cache(){
       echo "===: 恢复缓存"
-#      if [ -f "$TEMP_DIR/dist.tar.gz" ]; then
-#        tar -zxf $TEMP_DIR/dist.tar.gz
-#      fi
-#      if [ -f "$TEMP_DIR/node_modules.tar.gz" ]; then
-#        tar -zxf $TEMP_DIR/node_modules.tar.gz
-#      fi
   }
 
   function back_node_cache_and_build_cache(){
