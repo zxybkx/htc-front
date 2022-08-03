@@ -34,12 +34,13 @@ import {
   Modal,
   Output,
   Select,
-  Table,
+  Table, TextArea,
   TextField,
 } from 'choerodon-ui/pro';
 import { Card, Col, Row } from 'choerodon-ui';
 import { FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { ColumnAlign, ColumnLock, SelectionMode } from 'choerodon-ui/pro/lib/table/enum';
+import { ResizeType } from 'choerodon-ui/pro/lib/text-area/enum';
 import { batchInvalid, batchSave, review } from '@src/services/invoiceOrderService';
 import { isEmpty } from 'lodash';
 import InvoiceRedFlushHeaderDS from '../stores/InvoiceRedFlushHeaderDS';
@@ -117,6 +118,16 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     });
   }
 
+  /**
+   * 渲染备注
+   */
+  @Bind()
+  renderRemark() {
+    const blueInvoiceCode = this.invoiceRedFlushHeaderDS.current?.get('blueInvoiceCode');
+    const blueInvoiceNo = this.invoiceRedFlushHeaderDS.current?.get('blueInvoiceCode');
+    return (`对应正数发票代码：${blueInvoiceCode}号码：${blueInvoiceNo}`);
+  }
+
   async componentDidMount() {
     const { match } = this.props;
     const { invoicingReqHeaderId, companyId } = match.params;
@@ -140,6 +151,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
           }
           this.setState({ invoiceVariety, listFlag });
           this.invoiceRedFlushHeaderDS.current!.set('redInvoice', '蓝字发票');
+          this.invoiceRedFlushHeaderDS.current!.set('remark', this.renderRemark());
         }
       });
       this.setState({ empInfo: currentEmployee });
@@ -365,6 +377,17 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
   }
 
   /**
+   * 返回专票备注
+   * @params {sting} value-红字信息表编号
+   */
+  @Bind()
+  renderSpecialRemark(value) {
+    const remark = this.renderRemark();
+    const specialRemark = (`${remark}，开具红字增值税专用发票信息表编号${value}`);
+    this.invoiceRedFlushHeaderDS.current!.set('remark', specialRemark);
+  }
+
+  /**
    * 红字信息表编号回调
    * @params {number} value-当前值
    */
@@ -374,6 +397,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
       const validateNumber = new RegExp(/^\d{16}$/);
       if (validateNumber.test(value)) {
         this.invoiceRedFlushLineDS.setQueryParameter('redInvoiceHeaderId', null);
+        this.renderSpecialRemark(value);
         this.queryLines();
       }
     }
@@ -398,12 +422,13 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
       onDoubleClick: () => {
         this.invoiceRedFlushHeaderDS.current!.set(
           'redInfoSerialNumber',
-          record.get('redInfoSerialNumber')
+          record.get('redInfoSerialNumber'),
         );
         this.invoiceRedFlushLineDS.setQueryParameter(
           'redInvoiceHeaderId',
-          record.get('redInvoiceInfoHeaderId')
+          record.get('redInvoiceInfoHeaderId'),
         );
+        this.renderSpecialRemark(record.get('redInfoSerialNumber'));
         this.queryLines();
         modal.close();
       },
@@ -419,10 +444,11 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     const selected = this.redInvoiceInfoLinesDS.current!.toData();
     this.invoiceRedFlushLineDS.setQueryParameter(
       'redInvoiceHeaderId',
-      selected.redInvoiceInfoHeaderId
+      selected.redInvoiceInfoHeaderId,
     );
     this.queryLines();
     this.invoiceRedFlushHeaderDS.current!.set('redInfoSerialNumber', selected.redInfoSerialNumber);
+    this.renderSpecialRemark(selected.redInfoSerialNumber);
     modal.close();
   }
 
@@ -569,7 +595,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         invoiceLineNature: '0',
         taxIncludedFlag,
       },
-      0
+      0,
     );
   }
 
@@ -665,6 +691,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         <TextField name="referenceNumber" />
         <Select name="deliveryWay" />
         <TextField name="electronicReceiverInfo" />
+        <TextArea name="remark" rows={1} colSpan={2} resize={ResizeType.both} />
       </Form>
     );
     return (

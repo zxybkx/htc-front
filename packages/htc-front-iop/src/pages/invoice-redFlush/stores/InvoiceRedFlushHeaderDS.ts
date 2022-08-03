@@ -335,6 +335,11 @@ export default (dsParams): DataSetProps => {
           readOnly: ({ record }) => record.get('readonly'),
         },
       },
+      {
+        name: 'remark',
+        label: intl.get('hiop.invoiceRedFlush.modal.remark').d('发票备注'),
+        type: FieldType.string,
+      },
     ],
     queryDataSet: new DataSet({
       fields: [
