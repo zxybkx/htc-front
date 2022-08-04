@@ -87,7 +87,6 @@ docker_build:
           node -v
           yarn config set ignore-engines true
           yarn install
-          yarn bootstrap
           echo "==: 结束安装依赖"
         fi
         if [ ! -d "node_modules" ]; then
