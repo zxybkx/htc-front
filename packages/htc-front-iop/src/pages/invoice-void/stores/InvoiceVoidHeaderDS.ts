@@ -60,6 +60,7 @@ export default (): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
         type: FieldType.string,
         lookupCode: 'HMDM.INVOICE_TYPE',
+        required: true,
         computedProps: {
           readOnly: ({ record }) => record.get('billingType') !== 3,
         },
@@ -180,7 +181,6 @@ export default (): DataSetProps => {
         type: FieldType.object,
         lovCode: 'HMDM.EMPLOYEE_NAME',
         cascadeMap: { companyId: 'companyId' },
-        readOnly: true,
         required: true,
         ignore: FieldIgnore.always,
       },
