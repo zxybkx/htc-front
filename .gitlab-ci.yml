@@ -79,7 +79,6 @@ docker_build:
         yarn config set ignore-engines true
         yarn bootstrap
       fi
-      npx hzero-cli info
   }
 
   function node_build(){
