@@ -25,7 +25,6 @@ docker_build:
   stage: docker_build
   script:
     - docker_build
-    - chart_build
   only:
     - uat
     - tags
