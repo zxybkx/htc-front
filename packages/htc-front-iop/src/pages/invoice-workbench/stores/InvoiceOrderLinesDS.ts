@@ -435,7 +435,6 @@ export default (): DataSetProps => {
     },
     primaryKey: 'invoicingOrderLineId',
     selection: false,
-    // pageSize: 10,
     paging: false,
     events: {
       update: ({ dataSet, record, name, value }) => {

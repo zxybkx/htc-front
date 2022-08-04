@@ -43,6 +43,7 @@ import { observer } from 'mobx-react-lite';
 import withProps from 'utils/withProps';
 import uuidv4 from 'uuid/v4';
 import moment from 'moment';
+import { RouteComponentProps } from 'react-router-dom';
 import {
   addInvoicePool,
   addMyInvoice,
@@ -63,7 +64,7 @@ const { TabPane } = Tabs;
 const { Item: MenuItem } = Menu;
 const acceptType = ['.pdf', '.jpg', '.png', '.ofd', '.zip', '.rar', '.7z'];
 
-interface InvoiceWorkbenchPageProps {
+interface BatchCheckPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   batchCheckDS: DataSet;
 }
@@ -80,7 +81,7 @@ interface InvoiceWorkbenchPageProps {
   },
   { cacheState: true }
 )
-export default class BatchCheckPage extends Component<InvoiceWorkbenchPageProps> {
+export default class BatchCheckPage extends Component<BatchCheckPageProps> {
   state = {
     batchNum: [],
     // loadingFlag: false,
@@ -105,7 +106,10 @@ export default class BatchCheckPage extends Component<InvoiceWorkbenchPageProps>
   async componentDidMount() {
     const { queryDataSet } = this.props.batchCheckDS;
     if (queryDataSet) {
-      const res = await getCurrentEmployeeInfo({ tenantId });
+      const { search } = this.props.location;
+      const companyIdStr = new URLSearchParams(search).get('companyId');
+      const companyId = companyIdStr && JSON.parse(decodeURIComponent(companyIdStr));
+      const res = await getCurrentEmployeeInfo({ tenantId, companyId });
       const curCompanyId = queryDataSet.current!.get('companyId');
       if (res && res.content) {
         const empInfo = res.content[0];
@@ -866,14 +870,6 @@ export default class BatchCheckPage extends Component<InvoiceWorkbenchPageProps>
     return this.props.batchCheckDS.submit();
   }
 
-  @Bind()
-  rowStyle(record) {
-    console.log('value', record);
-    return {
-      style: { backgroundColor: record.get('invoiceCode') === '033001900311' ? 'green' : '' },
-    };
-  }
-
   render() {
     const { companyCode, employeeNum } = this.state;
     const uploadProps = {
@@ -945,8 +941,6 @@ export default class BatchCheckPage extends Component<InvoiceWorkbenchPageProps>
             dataSet={this.props.batchCheckDS}
             columns={this.columns}
             queryBar={this.renderQueryBar}
-            // onRow={({ record }) => this.rowStyle(record)}
-            // className={styles.tableRow}
             style={{ height: 350 }}
           />
         </Content>

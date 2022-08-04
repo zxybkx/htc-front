@@ -1,4 +1,4 @@
-/*
+/**
  * @Description:开票订单页面
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2020-12-10 11:18:22
@@ -85,7 +85,7 @@ interface InvoiceWorkbenchPageProps extends RouteComponentProps {
 
     return { invoiceWorkbenchDS };
   },
-  { cacheState: true },
+  { cacheState: true }
 )
 @formatterCollections({
   code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.tobeInvoice', 'hiop.invoiceReq'],
@@ -97,10 +97,11 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     deliverModalTag: true, // true 批量交付 false 单个交付
   };
 
-  deliverInfoDS = dsParams => new DataSet({
-    autoCreate: true,
-    ...DeliverInfoDS(dsParams),
-  });
+  deliverInfoDS = dsParams =>
+    new DataSet({
+      autoCreate: true,
+      ...DeliverInfoDS(dsParams),
+    });
 
   async componentDidMount() {
     const { queryDataSet } = this.props.invoiceWorkbenchDS;
@@ -163,7 +164,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           <Row type="flex" style={{ flexWrap: 'nowrap' }}>
             <Col span={20}>
               <Form columns={3} dataSet={queryDataSet}>
-                <Lov name="companyObj" onChange={(value) => this.handleCompanyChange(value)} />
+                <Lov name="companyObj" onChange={value => this.handleCompanyChange(value)} />
                 <TextField name="taxpayerNumber" />
                 <TextField name="employeeDesc" />
 
@@ -224,7 +225,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   @Bind()
   exportParams() {
     const queryParams =
-      this.props.invoiceWorkbenchDS.queryDataSet!.map((data) => data.toData()) || {};
+      this.props.invoiceWorkbenchDS.queryDataSet!.map(data => data.toData()) || {};
     for (const key in queryParams[0]) {
       if (queryParams[0][key] === '' || queryParams[0][key] === null) {
         delete queryParams[0][key];
@@ -273,8 +274,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
    */
   @Bind()
   async batchFresh() {
-    const list = this.props.invoiceWorkbenchDS.selected.map((record) => record.toData());
-    const unSubmit = find(list, (item) => item.orderStatus !== 'C' && item.orderStatus !== 'I');
+    const list = this.props.invoiceWorkbenchDS.selected.map(record => record.toData());
+    const unSubmit = find(list, item => item.orderStatus !== 'C' && item.orderStatus !== 'I');
     if (unSubmit) {
       return notification.warning({
         description: '',
@@ -339,7 +340,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       const curInfo = queryDataSet.current!.toData();
       const { companyObj } = curInfo;
       history.push(
-        `/htc-front-iop/invoice-workbench/invoice-order/invoiceOrder/${companyObj.companyId}`,
+        `/htc-front-iop/invoice-workbench/invoice-order/invoiceOrder/${companyObj.companyId}`
       );
     }
   }
@@ -352,7 +353,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     const { history } = this.props;
     const { curCompanyId } = this.state;
     const selectedList = this.props.invoiceWorkbenchDS.selected
-      .map((rec) => rec.get('invoicingOrderHeaderId'))
+      .map(rec => rec.get('invoicingOrderHeaderId'))
       .join(',');
     history.push(`/htc-front-iop/permission-assign/ORDER/${curCompanyId}/${selectedList}`);
   }
@@ -362,12 +363,12 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
    */
   @Bind()
   async handleBatchSubmit() {
-    const submitOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
-      record.toData(),
+    const submitOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map(record =>
+      record.toData()
     );
     const unNew = find(
       submitOrderHeaderList,
-      (item) => item.orderStatus !== 'N' && item.orderStatus !== 'Q',
+      item => item.orderStatus !== 'N' && item.orderStatus !== 'Q'
     );
     if (unNew) {
       return notification.warning({
@@ -405,12 +406,12 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
    */
   @Bind()
   async handleBatchCancel() {
-    const cancelOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
-      record.toData(),
+    const cancelOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map(record =>
+      record.toData()
     );
     const unCancel = find(
       cancelOrderHeaderList,
-      (item) => item.orderStatus !== 'E' && item.orderStatus !== 'I',
+      item => item.orderStatus !== 'E' && item.orderStatus !== 'I'
     );
     if (unCancel) {
       return notification.warning({
@@ -428,12 +429,12 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
    */
   @Bind()
   async handleBatchDelete() {
-    const invoicingOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
-      record.toData(),
+    const invoicingOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map(record =>
+      record.toData()
     );
     const unNew = find(
       invoicingOrderHeaderList,
-      (item) => item.orderStatus !== 'N' && item.orderStatus !== 'Q',
+      item => item.orderStatus !== 'N' && item.orderStatus !== 'Q'
     );
     if (unNew) {
       return notification.warning({
@@ -448,7 +449,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
 
   modalDeliver;
 
-// 批量交付form对象
+  // 批量交付form对象
   /**
    * @description:纸质交付模态框
    * @function: modalPaperDomRender
@@ -456,40 +457,34 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   @Bind()
   modalPaperDomRender(dataSet) {
     Modal.open({
-      title: intl.get('hiop.invoiceWorkbench.modal.paperTitle')
-        .d('纸票交付信息'),
+      title: intl.get('hiop.invoiceWorkbench.modal.paperTitle').d('纸票交付信息'),
       closable: true,
       footer: (_, cancelBtn) => (
         <div>
           {cancelBtn}
-          <Button
-            onClick={this.handleDeliverSave}
-            color={ButtonColor.primary}
-          >
-            {
-              this.state.deliverModalTag ?
-                intl.get('hiop.invoiceWorkbench.view.bulkSave')
-                  .d('批量保存')
-                : intl.get('hzero.common.table.column.save')
-                  .d('保存')
-            }
+          <Button onClick={this.handleDeliverSave} color={ButtonColor.primary}>
+            {this.state.deliverModalTag
+              ? intl.get('hiop.invoiceWorkbench.view.bulkSave').d('批量保存')
+              : intl.get('hzero.common.table.column.save').d('保存')}
           </Button>
-          <Button
-            color={ButtonColor.primary}
-            onClick={this.handlePaperDeliverNotice}
-          >{intl.get('hiop.invoiceWorkbench.btn.sendNotice')
-            .d('发送交付通知')}
+          <Button color={ButtonColor.primary} onClick={this.handlePaperDeliverNotice}>
+            {intl.get('hiop.invoiceWorkbench.btn.sendNotice').d('发送交付通知')}
           </Button>
         </div>
       ),
       children: (
-        <Form ref={(node) => { this.modalDeliver = node; }} dataSet={dataSet}>
-          <TextArea name='invoiceInformation' resize={ResizeType.vertical} />
-          <Select name='postLogisticsCompany' />
-          <TextField name='postalLogisticsSingleNumber' />
-          <TextField name='receiveNotificationEmail' />
-          <TextField name='descr' />
-          <CheckBox name='whetherReceiv' />
+        <Form
+          ref={node => {
+            this.modalDeliver = node;
+          }}
+          dataSet={dataSet}
+        >
+          <TextArea name="invoiceInformation" resize={ResizeType.vertical} />
+          <Select name="postLogisticsCompany" />
+          <TextField name="postalLogisticsSingleNumber" />
+          <TextField name="receiveNotificationEmail" />
+          <TextField name="descr" />
+          <CheckBox name="whetherReceiv" />
         </Form>
       ),
     });
@@ -502,32 +497,31 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   @Bind()
   modalElectronicDomRender(dataSet) {
     Modal.open({
-      title: intl.get('hiop.invoiceWorkbench.modal.electronicTitle')
-        .d('电票交付信息'),
+      title: intl.get('hiop.invoiceWorkbench.modal.electronicTitle').d('电票交付信息'),
       closable: true,
       footer: (_, cancelBtn) => (
         <div>
           {cancelBtn}
           <Button color={ButtonColor.primary} onClick={this.handleDeliverSave}>
-            {
-              this.state.deliverModalTag ?
-                intl.get('hhiop.invoiceWorkbench.view.bulkSave')
-                  .d('批量保存')
-                : intl.get('hzero.common.table.column.save')
-                  .d('保存')
-            }
+            {this.state.deliverModalTag
+              ? intl.get('hhiop.invoiceWorkbench.view.bulkSave').d('批量保存')
+              : intl.get('hzero.common.table.column.save').d('保存')}
           </Button>
-          <Button color={ButtonColor.primary} onClick={this.handleRePush}>{intl
-            .get('hiop.invoiceWorkbench.btn.rePush')
-            .d('重新推送')}
+          <Button color={ButtonColor.primary} onClick={this.handleRePush}>
+            {intl.get('hiop.invoiceWorkbench.btn.rePush').d('重新推送')}
           </Button>
         </div>
       ),
       children: (
-        <Form ref={(node) => { this.modalDeliver = node; }} dataSet={dataSet}>
-          <TextArea name='invoiceInformation' resize={ResizeType.vertical} />
-          <TextField name='receiveNotificationEmail' />
-          <TextField name='descr' />
+        <Form
+          ref={node => {
+            this.modalDeliver = node;
+          }}
+          dataSet={dataSet}
+        >
+          <TextArea name="invoiceInformation" resize={ResizeType.vertical} />
+          <TextField name="receiveNotificationEmail" />
+          <TextField name="descr" />
         </Form>
       ),
     });
@@ -564,7 +558,9 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   handleParams(params) {
     let paramsObj = [];
     params.forEach(item => {
-      const invoiceOrderHeaderIds = item.invoiceOrderHeaderId ? item.invoiceOrderHeaderId.split(',') : [];
+      const invoiceOrderHeaderIds = item.invoiceOrderHeaderId
+        ? item.invoiceOrderHeaderId.split(',')
+        : [];
       paramsObj = item.invoiceInformation.split(',').map((inner, index) => {
         return {
           ...item,
@@ -608,11 +604,17 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   @Bind()
   async handlePaperDeliverNotice() {
     this.modalDeliver.dataSet.current!.getField('postLogisticsCompany')!.set('required', true);
-    this.modalDeliver.dataSet.current!.getField('postalLogisticsSingleNumber')!.set('required', true);
+    this.modalDeliver.dataSet
+      .current!.getField('postalLogisticsSingleNumber')!
+      .set('required', true);
     this.modalDeliver.dataSet.current!.getField('receiveNotificationEmail')!.set('required', true);
 
     const params = this.modalDeliver.dataSet.toData();
-    if (!params[0].postLogisticsCompany || !params[0].postalLogisticsSingleNumber || !params[0].receiveNotificationEmail) {
+    if (
+      !params[0].postLogisticsCompany ||
+      !params[0].postalLogisticsSingleNumber ||
+      !params[0].receiveNotificationEmail
+    ) {
       notification.info({
         description: '',
         message: intl.get('htc.common.validation.completeValue').d('请先完善必输数据'),
@@ -637,9 +639,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   async handleDeliverSave() {
     if (this.state.deliverModalTag) {
       Modal.confirm({
-        children: intl.get('hiop.invoiceWorkbench.notice.saveNoEdit')
+        children: intl
+          .get('hiop.invoiceWorkbench.notice.saveNoEdit')
           .d('是否确认保存？保存后无法批量修改。'),
-      }).then(async (button) => {
+      }).then(async button => {
         if (button === 'ok') {
           await this.modalDeliver.dataSet.submit();
           Modal.destroyAll();
@@ -658,24 +661,32 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   @Bind()
   async handleBatchDeliver() {
     this.setState({ deliverModalTag: true });
-    const invoicingOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
-      record.toData(),
+    const invoicingOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map(record =>
+      record.toData()
     );
     const invoiceVarietys = invoicingOrderHeaderList.map(item => item.invoiceVariety);
     const invoiceOrderHeaderIds = invoicingOrderHeaderList.map(item => item.invoicingOrderHeaderId);
-    const invoiceInfos = invoicingOrderHeaderList.map(item => `${item.invoiceCode}-${item.invoiceNo}`);
+    const invoiceInfos = invoicingOrderHeaderList.map(
+      item => `${item.invoiceCode}-${item.invoiceNo}`
+    );
     if (invoicingOrderHeaderList.some(item => item.orderStatus !== 'F')) {
-      Modal.warning(intl
-        .get('hiop.invoiceWorkbench.notification.waring.noFinish')
-        .d('存在未完成订单无法交付'));
+      Modal.warning(
+        intl.get('hiop.invoiceWorkbench.notification.waring.noFinish').d('存在未完成订单无法交付')
+      );
       return;
     }
 
-    if ((invoiceVarietys.includes('51') || invoiceVarietys.includes('52'))
-      && (invoiceVarietys.includes('0') || invoiceVarietys.includes('2') || invoiceVarietys.includes('41'))) {
-      Modal.warning(intl
-        .get('hiop.invoiceWorkbench.notification.waring.noAgreement')
-        .d('请仅选择纸质发票或仅选择电子发票操作交付！'));
+    if (
+      (invoiceVarietys.includes('51') || invoiceVarietys.includes('52')) &&
+      (invoiceVarietys.includes('0') ||
+        invoiceVarietys.includes('2') ||
+        invoiceVarietys.includes('41'))
+    ) {
+      Modal.warning(
+        intl
+          .get('hiop.invoiceWorkbench.notification.waring.noAgreement')
+          .d('请仅选择纸质发票或仅选择电子发票操作交付！')
+      );
       return;
     }
     if (invoiceVarietys.includes('51') || invoiceVarietys.includes('52')) {
@@ -717,7 +728,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     const invoicingOrderHeaderId = record.get('invoicingOrderHeaderId');
     const companyId = record.get('companyId');
     history.push(
-      `/htc-front-iop/invoice-workbench/invoice-line-void/${invoicingOrderHeaderId}/${companyId}`,
+      `/htc-front-iop/invoice-workbench/invoice-line-void/${invoicingOrderHeaderId}/${companyId}`
     );
   }
 
@@ -737,7 +748,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     const res = getResponse(await judgeRedFlush(params));
     if (res) {
       history.push(
-        `/htc-front-iop/invoice-workbench/invoice-red-flush/${invoicingOrderHeaderId}/${companyId}`,
+        `/htc-front-iop/invoice-workbench/invoice-red-flush/${invoicingOrderHeaderId}/${companyId}`
       );
     }
   }
@@ -785,7 +796,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     }
     const unInvoiceState = find(
       exportOrderHeaderList,
-      (item) => item.invoiceVariety === '51' || item.invoiceVariety === '52',
+      item => item.invoiceVariety === '51' || item.invoiceVariety === '52'
     );
     if (unInvoiceState) {
       notification.warning({
@@ -796,8 +807,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       });
       return false;
     }
-    const unBillType = find(exportOrderHeaderList, (item) =>
-      ['3', '4', '5'].includes(item.billingType),
+    const unBillType = find(exportOrderHeaderList, item =>
+      ['3', '4', '5'].includes(item.billingType)
     );
     if (unBillType) {
       notification.warning({
@@ -822,7 +833,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       } else {
         Modal.confirm({
           children: `您本次选择的发票${data.skipList.join('、')}存在断号，是否批量导出打印？`,
-        }).then((button) => {
+        }).then(button => {
           if (button === 'ok') {
             // 导出打印
             updatePrintNum(params);
@@ -850,7 +861,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       }
     }
     if (res) {
-      res.forEach((item) => {
+      res.forEach(item => {
         const blob = new Blob([base64toBlob(item.data)]);
         if (window.navigator.msSaveBlob) {
           try {
@@ -883,10 +894,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
    */
   @Bind()
   async handleExport(type, printType) {
-    const exportOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map((record) =>
-      record.toData(),
+    const exportOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map(record =>
+      record.toData()
     );
-    const incompatible = find(exportOrderHeaderList, (item) => item.orderStatus !== 'F');
+    const incompatible = find(exportOrderHeaderList, item => item.orderStatus !== 'F');
     const validateRes = await this.validateExport(type, incompatible, exportOrderHeaderList);
     const { queryDataSet } = this.props.invoiceWorkbenchDS;
     if (validateRes && queryDataSet) {
@@ -928,8 +939,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     const invoicingOrderHeaderId = record.get('invoicingOrderHeaderId');
     history.push(
       `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${record.get(
-        'companyId',
-      )}/${invoicingOrderHeaderId}`,
+        'companyId'
+      )}/${invoicingOrderHeaderId}`
     );
   }
 
@@ -978,7 +989,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     if (res && res.data) {
       const { fileName } = res;
       const names = fileName.split('/');
-      names.forEach((item) => {
+      names.forEach(item => {
         const blob = new Blob([base64toBlob(res.data)]);
         if (window.navigator.msSaveBlob) {
           try {
@@ -1083,7 +1094,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         invoiceInfo: encodeURIComponent(
           JSON.stringify({
             backPath: '/htc-front-iop/invoice-workbench/list',
-          }),
+          })
         ),
       }),
     });
@@ -1103,7 +1114,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     const invoiceDate = record.get('invoiceDate');
     const invoiceMonth = invoiceDate && invoiceDate.substring(0, 7);
     const nowMonth = moment().format('YYYY-MM');
-    const renderPermissionButton = (params) => (
+    const renderPermissionButton = params => (
       <PermissionButton
         type="c7n-pro"
         funcType={FuncType.link}
@@ -1577,7 +1588,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     let totalPriceTaxAmount = 0; // 合计含税金额
     let totalExcludingTaxAmount = 0; // 合计不含税金额
     let totalTax = 0; // 合计税额
-    const pageData = records.map((record) => record.toData());
+    const pageData = records.map(record => record.toData());
     pageData.forEach((record: any) => {
       const { billingType } = record;
       if (['1', '2'].includes(billingType)) {
@@ -1594,9 +1605,9 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       <div>
         <span>
           {`当前页：合计含税金额：${totalPriceTaxAmount.toFixed(
-            2,
+            2
           )}，合计不含税金额：${totalExcludingTaxAmount.toFixed(2)}，合计税额：${totalTax.toFixed(
-            2,
+            2
           )}`}
         </span>
         <span style={{ float: 'right' }}>累加当前页所有状态的蓝票红票、蓝废红废</span>
@@ -1622,7 +1633,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
             dataSet={this.props.invoiceWorkbenchDS}
             columns={this.columns}
             queryBar={this.renderQueryBar}
-            footer={(records) => this.renderFooter(records)}
+            footer={records => this.renderFooter(records)}
             style={{ height: 400 }}
           />
         </Content>
