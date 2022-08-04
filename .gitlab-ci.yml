@@ -98,6 +98,7 @@ docker_build:
 
   function node_build(){
       echo "全量编译"
+      yarn build:ms-all
       yarn run build:dep-all:prod
       yarn run build:app:prod
       echo "==: 编译完成"
