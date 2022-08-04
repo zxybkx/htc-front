@@ -47,14 +47,22 @@ docker_build:
 
   function restore_node_cache_and_build_cache(){
       echo "===: 恢复缓存"
+      if [ -f "$TEMP_DIR/dist.tar.gz" ]; then
+        tar -zxf $TEMP_DIR/dist.tar.gz
+      fi
+      if [ -f "$TEMP_DIR/node_modules.tar.gz" ]; then
+        tar -zxf $TEMP_DIR/node_modules.tar.gz
+      fi
   }
+
 
   function back_node_cache_and_build_cache(){
       echo "===: 缓存文件"
       mkdir -p $TEMP_DIR
       tar -zcf $TEMP_DIR/dist.tar.gz ./dist
       tar -zcf $TEMP_DIR/node_modules.tar.gz ./node_modules
-  }
+}
+
 
   function node_module(){
       echo "gitlab-ci -- 开始清除之前编译缓存"
@@ -71,6 +79,7 @@ docker_build:
       echo "全量编译"
       yarn run build:dep-all:prod
       yarn run build:app:prod
+      back_node_cache_and_build_cache
   }
 
   export GROUP_NAME=htc
@@ -78,6 +87,7 @@ docker_build:
   export DOCKER_PWD=User6371438PWD
   function docker_build(){
       # cp -r /cache/${CI_PROJECT_NAME}-${CI_PROJECT_ID}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}/* ${1:-"."}
+      tar -zxf $TEMP_DIR/dist.tar.gz
       docker login -u ${DOCKER_USER} -p ${DOCKER_PWD} ${DOCKER_REGISTRY}
       docker build --pull -t ${DOCKER_REGISTRY}/${GROUP_NAME}/${PROJECT_NAME}:${CI_COMMIT_TAG} ${1:-"."}
       docker push ${DOCKER_REGISTRY}/${GROUP_NAME}/${PROJECT_NAME}:${CI_COMMIT_TAG}
