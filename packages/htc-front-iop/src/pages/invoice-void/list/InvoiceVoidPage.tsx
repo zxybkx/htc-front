@@ -89,14 +89,6 @@ export default class InvoiceVoidPage extends Component<InvoiceVoidPageProps> {
       return;
     }
     const pageData = this.invoiceVoidHeaderDS.current!.toData(true);
-    // const { invoiceVariety } = pageData;
-    // if (!invoiceVariety) {
-    //   notification.error({
-    //     description: '发票种类未选',
-    //     message: intl.get('hzero.common.notification.invalid').d('校验不通过！'),
-    //   });
-    //   return;
-    // }
     let params;
     if (invoicingOrderHeaderId || invoicingReqHeaderId) {
       params = {
