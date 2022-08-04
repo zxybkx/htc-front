@@ -90,6 +90,9 @@ docker_build:
       back_node_cache_and_build_cache
   }
 
+  export GROUP_NAME=htc
+  export DOCKER_USER=User6371438
+  export DOCKER_PWD=User6371438PWD
   function docker_build(){
       tar -zxf $TEMP_DIR/dist.tar.gz
       docker login -u ${DOCKER_USER} -p ${DOCKER_PWD} ${DOCKER_REGISTRY}
