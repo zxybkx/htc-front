@@ -479,7 +479,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
         key="add"
         onClick={() => this.handleAddLine()}
         funcType={FuncType.link}
-        style={{ marginLeft: 10, color: '#3889FF' }}
+        style={{ marginLeft: 10 }}
         disabled={
           !(
             ['N', 'Q'].includes(requestStatus) &&
