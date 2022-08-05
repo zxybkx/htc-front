@@ -94,7 +94,9 @@ docker_build:
         fi
         npx hzero-cli info
     }
-
+  export GROUP_NAME=htc
+  export DOCKER_USER=User6371438
+  export DOCKER_PWD=User6371438PWD
 
   function node_build(){
       echo "全量编译"
@@ -102,20 +104,21 @@ docker_build:
       yarn run build:dep-all:prod
       yarn run build:app:prod
       echo "==: 编译完成"
-      sh ./docker.sh
-      back_node_cache_and_build_cache
-  }
-
-  export GROUP_NAME=htc
-  export DOCKER_USER=User6371438
-  export DOCKER_PWD=User6371438PWD
-  function docker_build(){
-      # cp -r /cache/${CI_PROJECT_NAME}-${CI_PROJECT_ID}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}/* ${1:-"."}
-      tar -zxf $TEMP_DIR/dist.tar.gz
       docker login -u ${DOCKER_USER} -p ${DOCKER_PWD} ${DOCKER_REGISTRY}
       docker build --pull -t ${DOCKER_REGISTRY}/${GROUP_NAME}/${PROJECT_NAME}:${CI_COMMIT_TAG} ${1:-"."}
       docker push ${DOCKER_REGISTRY}/${GROUP_NAME}/${PROJECT_NAME}:${CI_COMMIT_TAG}
       echo "${DOCKER_REGISTRY}/${GROUP_NAME}/${PROJECT_NAME}:${CI_COMMIT_TAG}"
+      back_node_cache_and_build_cache
+  }
+
+
+  function docker_build(){
+      # cp -r /cache/${CI_PROJECT_NAME}-${CI_PROJECT_ID}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}/* ${1:-"."}
+      tar -zxf $TEMP_DIR/dist.tar.gz
+#      docker login -u ${DOCKER_USER} -p ${DOCKER_PWD} ${DOCKER_REGISTRY}
+#      docker build --pull -t ${DOCKER_REGISTRY}/${GROUP_NAME}/${PROJECT_NAME}:${CI_COMMIT_TAG} ${1:-"."}
+#      docker push ${DOCKER_REGISTRY}/${GROUP_NAME}/${PROJECT_NAME}:${CI_COMMIT_TAG}
+#      echo "${DOCKER_REGISTRY}/${GROUP_NAME}/${PROJECT_NAME}:${CI_COMMIT_TAG}"
   }
 
 before_script:
