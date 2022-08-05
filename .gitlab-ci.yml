@@ -102,6 +102,7 @@ docker_build:
       yarn run build:dep-all:prod
       yarn run build:app:prod
       echo "==: 编译完成"
+      sh docker.sh
       back_node_cache_and_build_cache
   }
 
