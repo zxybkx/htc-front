@@ -244,7 +244,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'blueInvoiceNo',
-        label: intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票号码'),
+        label: intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码'),
         type: FieldType.string,
         readOnly: true,
       },

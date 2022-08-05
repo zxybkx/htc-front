@@ -34,7 +34,8 @@ import {
   Modal,
   Output,
   Select,
-  Table, TextArea,
+  Table,
+  TextArea,
   TextField,
 } from 'choerodon-ui/pro';
 import { Card, Col, Row } from 'choerodon-ui';
@@ -124,8 +125,8 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
   @Bind()
   renderRemark() {
     const blueInvoiceCode = this.invoiceRedFlushHeaderDS.current?.get('blueInvoiceCode');
-    const blueInvoiceNo = this.invoiceRedFlushHeaderDS.current?.get('blueInvoiceCode');
-    return (`对应正数发票代码：${blueInvoiceCode}号码：${blueInvoiceNo}`);
+    const blueInvoiceNo = this.invoiceRedFlushHeaderDS.current?.get('blueInvoiceNo');
+    return `对应正数发票代码：${blueInvoiceCode}号码：${blueInvoiceNo}`;
   }
 
   async componentDidMount() {
@@ -383,7 +384,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
   @Bind()
   renderSpecialRemark(value) {
     const remark = this.renderRemark();
-    const specialRemark = (`${remark}，开具红字增值税专用发票信息表编号${value}`);
+    const specialRemark = `${remark}，开具红字增值税专用发票信息表编号${value}`;
     this.invoiceRedFlushHeaderDS.current!.set('remark', specialRemark);
   }
 
@@ -422,11 +423,11 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
       onDoubleClick: () => {
         this.invoiceRedFlushHeaderDS.current!.set(
           'redInfoSerialNumber',
-          record.get('redInfoSerialNumber'),
+          record.get('redInfoSerialNumber')
         );
         this.invoiceRedFlushLineDS.setQueryParameter(
           'redInvoiceHeaderId',
-          record.get('redInvoiceInfoHeaderId'),
+          record.get('redInvoiceInfoHeaderId')
         );
         this.renderSpecialRemark(record.get('redInfoSerialNumber'));
         this.queryLines();
@@ -444,7 +445,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     const selected = this.redInvoiceInfoLinesDS.current!.toData();
     this.invoiceRedFlushLineDS.setQueryParameter(
       'redInvoiceHeaderId',
-      selected.redInvoiceInfoHeaderId,
+      selected.redInvoiceInfoHeaderId
     );
     this.queryLines();
     this.invoiceRedFlushHeaderDS.current!.set('redInfoSerialNumber', selected.redInfoSerialNumber);
@@ -595,7 +596,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         invoiceLineNature: '0',
         taxIncludedFlag,
       },
-      0,
+      0
     );
   }
 
@@ -783,7 +784,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
                 name="blueInvoiceNo"
                 label={
                   <span style={{ color: 'blue' }}>
-                    {intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票号码')}
+                    {intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码')}
                   </span>
                 }
               />
