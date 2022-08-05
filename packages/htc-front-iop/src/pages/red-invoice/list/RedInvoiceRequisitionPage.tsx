@@ -606,7 +606,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
           onClick={props.onClick}
           disabled={isDisabled}
           funcType={FuncType.link}
-          style={{ marginLeft: 10, color: '#3889FF' }}
+          style={{ marginLeft: 10 }}
         >
           {props.title}
         </Button>

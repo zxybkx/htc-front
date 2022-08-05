@@ -564,7 +564,6 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
         key="generateInviteLink"
         onClick={this.handleGenerateInviteLink}
         color={ButtonColor.default}
-        style={{ color: '#3889FF', borderColor: '#3889FF' }}
       >
         {intl.get('hzero.common.button.generateInviteLink').d('生成邀请链接')}
       </Button>,

@@ -197,11 +197,7 @@ export default class AutomaticCollectionManagePage extends Component<
       {
         key: 'generateReminder',
         ele: (
-          <Button
-            style={{ color: '#3889FF' }}
-            funcType={FuncType.link}
-            onClick={() => this.handleSingleCreate(record)}
-          >
+          <Button funcType={FuncType.link} onClick={() => this.handleSingleCreate(record)}>
             {intl.get('hmdm.automatic-collection-manage.button.generateReminder').d('生成提醒')}
           </Button>
         ),
@@ -213,11 +209,7 @@ export default class AutomaticCollectionManagePage extends Component<
     const cancelCollection = {
       key: 'cancelCollection',
       ele: (
-        <Button
-          funcType={FuncType.link}
-          style={{ color: '#3889FF' }}
-          onClick={() => this.handleCancel(record)}
-        >
+        <Button funcType={FuncType.link} onClick={() => this.handleCancel(record)}>
           {intl.get('hmdm.automatic-collection-manage.button.cancelCollection').d('取消催收')}
         </Button>
       ),
@@ -228,11 +220,7 @@ export default class AutomaticCollectionManagePage extends Component<
     const sendCollectionBtn = {
       key: 'sendCollection',
       ele: (
-        <Button
-          funcType={FuncType.link}
-          style={{ color: '#3889FF' }}
-          onClick={() => this.handleSingleSend(record)}
-        >
+        <Button funcType={FuncType.link} onClick={() => this.handleSingleSend(record)}>
           {intl.get('hmdm.automatic-collection-manage.button.sendCollection').d('发送催收')}
         </Button>
       ),
