@@ -135,7 +135,6 @@ export default class TenantApplyDetailPage extends Component<TenantAgreementPage
           return [
             <Button
               funcType={FuncType.link}
-              style={{ color: '#3889FF' }}
               disabled={subAccountStatus === '2'}
               onClick={() => this.handleEdit(record)}
             >
@@ -181,7 +180,6 @@ export default class TenantApplyDetailPage extends Component<TenantAgreementPage
           return [
             <Button
               funcType={FuncType.link}
-              style={{ color: '#3889FF' }}
               disabled={subAccountStatus === '2'}
               onClick={() => this.handleServiceEdit(record)}
             >

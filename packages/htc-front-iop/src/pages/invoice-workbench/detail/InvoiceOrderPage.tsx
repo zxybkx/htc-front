@@ -444,7 +444,6 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
               key="delete"
               onClick={() => this.handleDeleteLines(record)}
               disabled={isDisabled}
-              style={{ color: 'rgba(0, 0, 0, 0.8)' }}
               funcType={FuncType.link}
             >
               {intl.get('hzero.common.button.delete').d('删除')}
@@ -906,7 +905,6 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         icon="playlist_add"
         key="add"
         funcType={FuncType.link}
-        style={{ color: '#3889FF' }}
         onClick={() => this.handleAddLine()}
         disabled={isDisabled || addDisabled}
       >

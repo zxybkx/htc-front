@@ -151,6 +151,7 @@ export default (): DataSetProps => {
       {
         name: 'customerName',
         label: intl.get('hiop.customerInfo.modal.receiptObj').d('开票企业名称'),
+        labelWidth: '150',
         type: FieldType.string,
         required: true,
         textField: 'receiptName',
@@ -205,14 +206,14 @@ export default (): DataSetProps => {
         type: FieldType.number,
         bind: 'qualifiedAuditorObj.employeeId',
         multiple: ',',
-        transformRequest: (value) => value || null,
+        transformRequest: value => value || null,
       },
       {
         name: 'qualifiedEmployeesNames',
         type: FieldType.string,
         bind: `qualifiedAuditorObj.employeeName`,
         multiple: ',',
-        transformRequest: (value) => value || null,
+        transformRequest: value => value || null,
       },
       {
         name: 'extNumberObj',
