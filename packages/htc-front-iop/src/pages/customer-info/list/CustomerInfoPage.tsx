@@ -37,6 +37,7 @@ import {
   Switch,
   Table,
   TextField,
+  Tooltip as CusTooltip,
 } from 'choerodon-ui/pro';
 import { Icon, Tag } from 'choerodon-ui';
 import InvoiceQueryTable from '@src/utils/invoice-query/InvoiceQueryTable';
@@ -97,6 +98,12 @@ export default class CustomerInfoPage extends Component<CommodityInfoPageProps> 
           <Select name="enterpriseType" />
           <Select
             name="customerName"
+            label={
+              <CusTooltip title="修改开票企业名称会清空该客户下商品信息" placement="right">
+                {intl.get('hiop.customerInfo.modal.receiptObj').d('开票企业名称')}
+                <Icon type="help_outline" />
+              </CusTooltip>
+            }
             searchable
             searchMatcher="receiptName"
             combo

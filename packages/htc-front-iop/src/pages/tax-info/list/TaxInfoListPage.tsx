@@ -240,7 +240,6 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
               onClick={() => this.handleDeviceStatusQuery(record)}
               disabled={disabledFlag}
               funcType={FuncType.link}
-              style={{ color: '#3889FF' }}
             >
               {intl.get('hiop.taxInfo.button.deviceStatusQuery').d('设备在线查询')}
             </Button>,
@@ -292,7 +291,6 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
           return [
             <Button
               key="updateInvoice"
-              style={{ color: '#3889FF' }}
               funcType={FuncType.link}
               onClick={() => this.handleUpdateInvoice(record)}
             >

@@ -442,19 +442,11 @@ export default class RedInvoiceRequisitionListPage extends Component<
       {
         key: 'editOrView',
         ele: editable ? (
-          <Button
-            funcType={FuncType.link}
-            style={{ color: 'rgba(56,137,255,0.8)' }}
-            onClick={() => this.handleGotoDetailPage(record)}
-          >
+          <Button funcType={FuncType.link} onClick={() => this.handleGotoDetailPage(record)}>
             {intl.get('hzero.common.button.edit').d('编辑')}
           </Button>
         ) : (
-          <Button
-            funcType={FuncType.link}
-            style={{ color: 'rgba(56,137,255,0.8)' }}
-            onClick={() => this.handleGotoDetailPage(record)}
-          >
+          <Button funcType={FuncType.link} onClick={() => this.handleGotoDetailPage(record)}>
             {intl.get('hzero.common.button.view').d('查看')}
           </Button>
         ),
@@ -466,11 +458,7 @@ export default class RedInvoiceRequisitionListPage extends Component<
       {
         key: 'deleteOrWithdraw',
         ele: (
-          <Button
-            funcType={FuncType.link}
-            style={{ color: 'rgba(56,137,255,0.8)' }}
-            onClick={() => this.handleDeleteHeadersOpt(record)}
-          >
+          <Button funcType={FuncType.link} onClick={() => this.handleDeleteHeadersOpt(record)}>
             {intl.get('hiop.redInvoiceInfo.button.deleteOrWithdraw').d('删除/撤销')}
           </Button>
         ),
@@ -481,11 +469,7 @@ export default class RedInvoiceRequisitionListPage extends Component<
     const updateStatusBtn = {
       key: 'refreshStatus',
       ele: (
-        <Button
-          funcType={FuncType.link}
-          style={{ color: 'rgba(56,137,255,0.8)' }}
-          onClick={() => this.handleUpdateStateOpt(record)}
-        >
+        <Button funcType={FuncType.link} onClick={() => this.handleUpdateStateOpt(record)}>
           {intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态')}
         </Button>
       ),
@@ -498,11 +482,7 @@ export default class RedInvoiceRequisitionListPage extends Component<
     const downloadBtn = {
       key: 'refreshStatus',
       ele: (
-        <Button
-          funcType={FuncType.link}
-          style={{ color: 'rgba(56,137,255,0.8)' }}
-          onClick={() => this.handleDownloadPdfFile(record)}
-        >
+        <Button funcType={FuncType.link} onClick={() => this.handleDownloadPdfFile(record)}>
           {intl.get('hiop.invoiceWorkbench.button.downPrint').d('下载打印')}
         </Button>
       ),
