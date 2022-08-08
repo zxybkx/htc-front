@@ -363,6 +363,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
       if (classify === 'request') {
         const { companyCode, employeeNum, employeeId } = empInfo;
         params = {
+          curEmployeeId: employeeId,
           organizationId: tenantId,
           headerCompanyCode: companyCode,
           headerEmployeeNumber: employeeNum,
