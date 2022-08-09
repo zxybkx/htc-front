@@ -17,6 +17,7 @@ import {
   Currency,
   DataSet,
   DatePicker,
+  DateTimePicker,
   Dropdown,
   Form,
   Lov,
@@ -2030,7 +2031,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         key="getCurrentCheckInvoices"
         onClick={() => this.getCurrentCheckInvoices()}
         dataSet={this.props.checkCertificationListDS}
-        title={intl.get(`${modelCode}.button.getCurrentCheckInvoices`).d('获取当前可勾选发票')}
+        title={intl.get(`${modelCode}.button.getCurrentCheckInvoices`).d('实时汇总可勾选发票')}
         type="getCurrentCheckInvoices"
       />,
       <Tooltips dataSet={this.props.checkCertificationListDS} />,
@@ -2046,6 +2047,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
           <Icon type="arrow_drop_down" />
         </Button>
       </Dropdown>,
+      <Button color={ButtonColor.primary} funcType={FuncType.raised} style={{ float: 'right' }}>
+        {intl.get(`${modelCode}.button.scanCodeGunCollection`).d('扫码枪采集')}
+      </Button>,
     ];
   }
 
@@ -2111,6 +2115,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
 
   get batchHeaderColumns(): ColumnProps[] {
     return [
+      { name: 'bcbh' },
       {
         name: 'invoiceNum',
         width: 120,
@@ -2120,22 +2125,41 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       },
       { name: 'totalInvoiceAmountGross', width: 120 },
       { name: 'totalInvoiceTheAmount', width: 120 },
+      { name: 'lylx' },
       {
-        name: 'abnormalInvoiceCount',
-        renderer: ({ value }) => value && <span>{`非正常发票不参与批量勾选，共${value}张`}</span>,
+        name: 'ycfpyj',
+        width: 120,
+        renderer: ({ value, record }) => {
+          if (value === 0) {
+            return <span>非正常状态的发票不计入批量勾选，数量为：0</span>;
+          } else {
+            return (
+              <div>
+                <span>非正常状态的发票不计入批量勾选，数量为：</span>
+                <a onClick={() => this.handleBatchInvoiceDetail(record, 0)}>{value}</a>
+              </div>
+            );
+          }
+        },
       },
       { name: 'batchNo' },
       {
         name: 'failCount',
+        width: 120,
         renderer: ({ value, record }) => {
           if (value === 0) {
-            return value;
+            return <span>本次勾选失败份数：0</span>;
           } else {
-            return <a onClick={() => this.handleBatchInvoiceDetail(record, 0)}>{value}</a>;
+            return (
+              <div>
+                <span>本次勾选失败份数：0</span>;
+                <a onClick={() => this.handleBatchInvoiceDetail(record, 0)}>{value}</a>
+              </div>
+            );
           }
         },
       },
-      { name: 'taxStatistics' },
+      { name: 'taxStatistics', width: 120 },
       { name: 'uploadTime' },
       { name: 'requestTime' },
       { name: 'completeTime' },
@@ -2201,6 +2225,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     queryMoreArray.push(<DatePicker name="rqz" />);
     queryMoreArray.push(<TextField name="salerTaxNo" />);
     queryMoreArray.push(<Select name="gxzt" />);
+    queryMoreArray.push(<TextField name="pcbh" />);
+    queryMoreArray.push(<DateTimePicker name="requestTime" colSpan={2} />);
+    queryMoreArray.push(<Select name="lylx" />);
     return (
       <div style={{ marginBottom: '0.1rem' }}>
         <Row>
