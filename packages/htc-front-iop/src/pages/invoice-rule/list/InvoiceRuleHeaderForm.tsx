@@ -32,7 +32,7 @@ interface Props {
 
 const InvoiceRuleHeaderForm: FunctionComponent<Props> = (props: Props) => {
   const { dataSet } = props;
-  const handleMergeRule = (e) => {
+  const handleMergeRule = e => {
     dataSet.current!.set({ applyCodePriceFlag: e && e.includes('01') ? 'Y' : 'N' });
     dataSet.current!.set({ mergeFlag: e && e.includes('02') ? 'Y' : 'N' });
   };
@@ -66,7 +66,7 @@ const InvoiceRuleHeaderForm: FunctionComponent<Props> = (props: Props) => {
       </Card>
       <Card title={intl.get('hiop.invoiceRule.view.mergeRule').d('合并拆分规则')}>
         <Form dataSet={dataSet} columns={2} labelTooltip={Tooltip.overflow}>
-          <Select name="mergeRules" labelWidth={190} onChange={(e) => handleMergeRule(e)} />
+          <Select name="mergeRules" labelWidth={190} onChange={e => handleMergeRule(e)} />
           <Select name="businessFieldSplits" labelWidth={210} />
           <Select name="prepareAutoMerge" />
           <Select name="sourceNumberMerges" />
@@ -87,9 +87,18 @@ const InvoiceRuleHeaderForm: FunctionComponent<Props> = (props: Props) => {
       <Card title={intl.get('hiop.invoiceRule.view.offlineRemind').d('离线发票提醒')}>
         <Form dataSet={dataSet} columns={2} labelTooltip={Tooltip.overflow}>
           <Currency name="offLineAmountLimit" labelWidth={130} />
-          {/* <TextField name="offLineRemindPhone" /> */}
           <TextField name="offLineRemindEmail" />
           <NumberField name="offLineTimeLimit" labelWidth={130} />
+        </Form>
+      </Card>
+      <Card title={intl.get('hiop.invoiceRule.view.overLimitReminder').d('超限开票提醒')}>
+        <Form dataSet={dataSet} columns={2} labelTooltip={Tooltip.overflow}>
+          <CheckBox name="qyydkpxetx" labelWidth={150} />
+          <CheckBox name="qyjdkpxetx" labelWidth={150} />
+          <Currency name="ydkpxe" />
+          <Currency name="jdkpxe" />
+          <CheckBox name="qyndkpxetx" />
+          <Currency name="ndkpxe" newLine />
         </Form>
       </Card>
       <Card title={intl.get('hiop.invoiceRule.view.permissionManage').d('权限管理')}>

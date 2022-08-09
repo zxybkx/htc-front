@@ -402,6 +402,57 @@ export default (): DataSetProps => {
         defaultValue: 'N',
       },
       {
+        name: 'qyydkpxetx',
+        label: intl.get('hiop.invoiceRule.modal.qyydkpxetx').d('启用月度开票限额提醒'),
+        type: FieldType.boolean,
+        trueValue: 'Y',
+        falseValue: 'N',
+        defaultValue: 'N',
+      },
+      {
+        name: 'qyjdkpxetx',
+        label: intl.get('hiop.invoiceRule.modal.qyjdkpxetx').d('启用季度开票限额提醒'),
+        type: FieldType.boolean,
+        trueValue: 'Y',
+        falseValue: 'N',
+        defaultValue: 'N',
+      },
+      {
+        name: 'ydkpxe',
+        label: intl.get('hiop.invoiceRule.modal.ydkpxe').d('月度开票限额（元）'),
+        type: FieldType.currency,
+        min: 0,
+        computedProps: {
+          disabled: ({ record }) => record.get('qyydkpxetx') !== 'Y',
+        },
+      },
+      {
+        name: 'jdkpxe',
+        label: intl.get('hiop.invoiceRule.modal.jdkpxe').d('季度开票限额（元）'),
+        type: FieldType.currency,
+        min: 0,
+        computedProps: {
+          disabled: ({ record }) => record.get('qyjdkpxetx') !== 'Y',
+        },
+      },
+      {
+        name: 'qyndkpxetx',
+        label: intl.get('hiop.invoiceRule.modal.qyndkpxetx').d('启用年度开票限额提醒'),
+        type: FieldType.boolean,
+        trueValue: 'Y',
+        falseValue: 'N',
+        defaultValue: 'N',
+      },
+      {
+        name: 'ndkpxe',
+        label: intl.get('hiop.invoiceRule.modal.ndkpxe').d('年度开票限额（元）'),
+        type: FieldType.currency,
+        min: 0,
+        computedProps: {
+          disabled: ({ record }) => record.get('qyndkpxetx') !== 'Y',
+        },
+      },
+      {
         name: 'invoiceWorkbenchListObj',
         label: intl
           .get('hiop.invoiceRule.modal.invoiceWorkbenchListObj')
