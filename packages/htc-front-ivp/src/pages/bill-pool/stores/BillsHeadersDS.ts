@@ -838,6 +838,7 @@ export default (): DataSetProps => {
           label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
           type: FieldType.object,
           lovCode: 'HTC.SOURCE_SYSTEM',
+          lovPara: { enabledFlag: 1 },
           ignore: FieldIgnore.always,
         },
         {
@@ -857,6 +858,7 @@ export default (): DataSetProps => {
           type: FieldType.object,
           lovCode: 'HTC.DOCUMENT_TYPE',
           cascadeMap: { docTypeHeaderId: 'sysTypeHeaderId' },
+          lovPara: { enabledFlag: 1 },
           ignore: FieldIgnore.always,
         },
         {
