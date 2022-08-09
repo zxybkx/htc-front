@@ -281,7 +281,10 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
   @Bind()
   async handleSaveResult(params, classify, type) {
     const { history } = this.props;
-    let res = getResponse(type === 0 ? await batchSave(params) : await review(params));
+    let res;
+    if (classify === 'order') {
+      res = getResponse(type === 0 ? await batchSave(params) : await review(params));
+    }
     if (classify === 'request') {
       res = getResponse(await batchInvalid(params));
     }
@@ -498,7 +501,6 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         <>
           <PermissionButton
             type="c7n-pro"
-            // color={ButtonColor.dark}
             disabled={redFinished || invoiceVariety === ''}
             onClick={() => this.handleSaveRedFlush(1, 'request')}
             permissionList={[
@@ -513,7 +515,6 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
           </PermissionButton>
           <PermissionButton
             type="c7n-pro"
-            // color={ButtonColor.dark}
             disabled={redFinished || invoiceVariety === ''}
             onClick={() => this.handleSaveRedFlush(0, 'request')}
             permissionList={[
@@ -533,7 +534,6 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         <>
           <PermissionButton
             type="c7n-pro"
-            // color={ButtonColor.dark}
             onClick={() => this.handleSaveRedFlush(0, 'order')}
             disabled={redFinished || invoiceVariety === ''}
             permissionList={[
@@ -548,7 +548,6 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
           </PermissionButton>
           <PermissionButton
             type="c7n-pro"
-            // color={ButtonColor.dark}
             onClick={() => this.handleSaveRedFlush(1, 'order')}
             disabled={redFinished || invoiceVariety === ''}
             permissionList={[
