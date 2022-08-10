@@ -195,8 +195,8 @@ export async function downloadFile(params) {
   return request(`${HIVP_API}/v1/${tenantId}/batch-check/download-certified-file`, {
     method: 'POST',
     query: otherParams,
-    body: needDownloadKey,
-    responseType: 'blob',
+    body: { needDownloadKey },
+    // responseType: 'blob',
   });
 }
 
