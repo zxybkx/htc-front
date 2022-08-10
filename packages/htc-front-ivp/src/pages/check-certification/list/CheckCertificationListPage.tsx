@@ -2003,16 +2003,14 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       </Menu>
     );
     return [
-      <span className="c7n-pro-btn">
-        <Upload
-          {...uploadProps}
-          disabled={!companyId}
-          accept={[
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'application/vnd.ms-excel',
-          ]}
-        />
-      </span>,
+      <Upload
+        {...uploadProps}
+        disabled={!companyId}
+        accept={[
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'application/vnd.ms-excel',
+        ]}
+      />,
       <HeaderButtons
         key="downloadFile"
         onClick={() => this.downLoad()}
