@@ -168,7 +168,7 @@ export default (dsParams): DataSetProps => {
         lookupCode: 'HIVP.SAT_MANAGEMENT_STATE',
       },
       {
-        name: '`purpose`',
+        name: 'purpose',
         label: intl.get(`${modelCode}.view.purpose`).d('用途'),
         type: FieldType.string,
         lookupCode: 'HIVP.INVOICE_CHECK_FOR',
