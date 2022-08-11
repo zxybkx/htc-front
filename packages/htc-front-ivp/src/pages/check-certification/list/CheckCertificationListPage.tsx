@@ -1891,6 +1891,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
     console.log('authorityCode', authorityCode);
     console.log('taxDiskPassword', taxDiskPassword);
+    console.log('empInfo', empInfo);
     const uploadProps = {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -2006,6 +2007,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
           'application/vnd.ms-excel',
         ]}
+        action={`${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`}
       />,
       <HeaderButtons
         key="downloadFile"
