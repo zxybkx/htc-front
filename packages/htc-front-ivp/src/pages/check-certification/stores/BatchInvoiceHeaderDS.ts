@@ -44,7 +44,7 @@ export default (): DataSetProps => {
     paging: false,
     fields: [
       {
-        name: 'bcbh',
+        name: 'batchNo',
         label: intl.get('hiop.redInvoiceInfo.modal.bcbh').d('批次编号'),
         type: FieldType.string,
       },
@@ -76,12 +76,12 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
-        name: 'ycfpyj',
+        name: 'abnormalInvoiceCount',
         label: intl.get(`${modelCode}.view.ycfpyj`).d('异常发票预警'),
         type: FieldType.string,
       },
       {
-        name: 'batchNo',
+        name: 'batchNumber',
         label: intl.get('hiop.redInvoiceInfo.modal.qqpch').d('请求批次号'),
         type: FieldType.string,
       },
@@ -201,7 +201,7 @@ export default (): DataSetProps => {
           type: FieldType.string,
         },
         {
-          name: 'gxzt',
+          name: 'checkState',
           label: intl.get(`${modelCode}.view.checkState`).d('勾选标志'),
           type: FieldType.string,
           lookupCode: 'HIVP.CHECK_STATE',
@@ -216,7 +216,7 @@ export default (): DataSetProps => {
           defaultValue: '1',
         },
         {
-          name: 'pcbh',
+          name: 'batchNo',
           label: intl.get('hiop.redInvoiceInfo.modal.pcbh').d('批次编号'),
           type: FieldType.string,
         },
@@ -232,14 +232,14 @@ export default (): DataSetProps => {
           type: FieldType.dateTime,
           bind: 'requestTime.requestTimeFrom',
           max: 'requestTimeTo',
-          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          // transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'requestTimeTo',
           type: FieldType.dateTime,
           bind: 'requestTime.requestTimeTo',
           min: 'requestTimeFrom',
-          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          // transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'lylx',

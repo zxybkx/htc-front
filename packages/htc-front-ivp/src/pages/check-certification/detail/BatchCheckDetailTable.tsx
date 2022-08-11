@@ -18,7 +18,7 @@ import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
 import intl from 'utils/intl';
-import { failDetail } from '@src/services/checkCertificationService';
+import { failDetail, abnormalDetail } from '@src/services/checkCertificationService';
 import formatterCollections from 'utils/intl/formatterCollections';
 import BatchCheckDetailDS from '../stores/BatchCheckDetailTableDS';
 
@@ -55,18 +55,25 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
     const batchInvoiceInfoStr = new URLSearchParams(search).get('batchInvoiceInfo');
     if (batchInvoiceInfoStr) {
       const batchInvoiceInfo = JSON.parse(decodeURIComponent(batchInvoiceInfoStr));
-      const { batchNo, requestTime, completeTime } = batchInvoiceInfo;
+      const { batchNo, batchNumber, requestTime, completeTime } = batchInvoiceInfo;
       if (queryDataSet) {
-        queryDataSet.current!.set({ batchNo, requestTime, completeTime });
+        queryDataSet.create({ batchNo, requestTime, completeTime }, 0);
       }
       if (type === '0') {
-        const params = { batchNumber: batchNo, tenantId };
+        const params = { batchNumber, tenantId };
         const res = getResponse(await failDetail(params));
+        if (res) {
+          this.batchCheckDetailDS.setQueryParameter('batchNumber', batchNumber);
+          this.batchCheckDetailDS.loadData(res);
+        }
+      } else if (type === '1') {
+        await this.batchCheckDetailDS.query();
+      } else {
+        const params = { batchNo, tenantId };
+        const res = getResponse(await abnormalDetail(params));
         if (res) {
           this.batchCheckDetailDS.loadData(res);
         }
-      } else {
-        await this.batchCheckDetailDS.query();
       }
     }
   }
@@ -87,6 +94,13 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
    */
   get batchCheckColumn(): ColumnProps[] {
     return [
+      {
+        header: intl.get('htc.common.orderSeq').d('序号'),
+        width: 60,
+        renderer: ({ record, dataSet }) => {
+          return dataSet && record ? dataSet.indexOf(record) + 1 : '';
+        },
+      },
       { name: 'invoiceType', width: 150 },
       { name: 'checkState' },
       { name: 'invoiceCode', width: 150 },

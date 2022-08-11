@@ -176,9 +176,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     progressValue: 0,
     progressStatus: ProgressStatus.active,
     visible: false, // 进度条是否显示
-    // loadingFlag: false,
-    // hide: true, // 数据汇总表格是否隐藏
-    // isBatchFreshDisabled: true, // 批量发票勾选刷新是否可点
     authorityCode: undefined,
     verfiableMoreDisplay: false, // 当期可认证发票查询是否显示更多
     batchInvoiceMoreDisplay: false, // 批量可认证发票查询是否显示更多
@@ -189,8 +186,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     autoQuery: false,
     ...TimeRange(),
   });
-
-  // multipleUpload;
 
   @Bind()
   async getTaskPassword(companyObj, dataSet) {
@@ -1894,12 +1889,13 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     const { empInfo, authorityCode } = this.state;
     const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
+    console.log('authorityCode', authorityCode);
+    console.log('taxDiskPassword', taxDiskPassword);
     const uploadProps = {
       headers: {
         'Access-Control-Allow-Origin': '*',
         Authorization: `bearer ${getAccessToken()}`,
       },
-      data: {},
       action: `${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`,
       multiple: false,
       showUploadBtn: false,
@@ -2096,7 +2092,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   handleBatchInvoiceDetail(record, type) {
     const { history } = this.props;
     const recordData = record.toData();
-    const { batchNo, requestTime, completeTime, invoiceCheckCollectId } = recordData;
+    const { batchNumber, batchNo, requestTime, completeTime, invoiceCheckCollectId } = recordData;
     history.push({
       pathname: `/htc-front-ivp/check-certification/batch-check-detail/${invoiceCheckCollectId}/${type}`,
       search: queryString.stringify({
@@ -2105,6 +2101,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
             batchNo,
             requestTime,
             completeTime,
+            batchNumber,
           })
         ),
       }),
@@ -2113,10 +2110,10 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
 
   get batchHeaderColumns(): ColumnProps[] {
     return [
-      { name: 'bcbh' },
+      { name: 'batchNo', width: 130 },
       {
         name: 'invoiceNum',
-        width: 120,
+        width: 140,
         renderer: ({ value, record }) => {
           return this.commonRendererFn({ value, record });
         },
@@ -2125,42 +2122,48 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       { name: 'totalInvoiceTheAmount', width: 120 },
       { name: 'lylx' },
       {
-        name: 'ycfpyj',
-        width: 120,
+        name: 'abnormalInvoiceCount',
+        width: 150,
+        className: styles.batchInvoice,
         renderer: ({ value, record }) => {
           if (value === 0) {
             return <span>非正常状态的发票不计入批量勾选，数量为：0</span>;
           } else {
             return (
               <div>
-                <span>非正常状态的发票不计入批量勾选，数量为：</span>
-                <a onClick={() => this.handleBatchInvoiceDetail(record, 0)}>{value}</a>
+                <span>
+                  非正常状态的发票不计入批量勾选，数量为：
+                  <a onClick={() => this.handleBatchInvoiceDetail(record, 2)}>{value}</a>
+                </span>
               </div>
             );
           }
         },
       },
-      { name: 'batchNo' },
+      { name: 'batchNumber' },
       {
         name: 'failCount',
-        width: 120,
+        width: 150,
         renderer: ({ value, record }) => {
           if (value === 0) {
             return <span>本次勾选失败份数：0</span>;
           } else {
             return (
               <div>
-                <span>本次勾选失败份数：0</span>;
-                <a onClick={() => this.handleBatchInvoiceDetail(record, 0)}>{value}</a>
+                <span>
+                  本次勾选失败份数：
+                  <a onClick={() => this.handleBatchInvoiceDetail(record, 0)}>{value}</a>
+                </span>
+                ;
               </div>
             );
           }
         },
       },
       { name: 'taxStatistics', width: 120 },
-      { name: 'uploadTime' },
-      { name: 'requestTime' },
-      { name: 'completeTime' },
+      { name: 'uploadTime', width: 160 },
+      { name: 'requestTime', width: 160 },
+      { name: 'completeTime', width: 160 },
       {
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
@@ -2217,25 +2220,59 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   renderBatchQueryBar(props) {
     const { queryDataSet, buttons, dataSet } = props;
     const { batchInvoiceMoreDisplay } = this.state;
-    const queryMoreArray: JSX.Element[] = [];
-    queryMoreArray.push(<Select name="currentCertState" />);
-    queryMoreArray.push(<DatePicker name="rqq" />);
-    queryMoreArray.push(<DatePicker name="rqz" />);
-    queryMoreArray.push(<TextField name="salerTaxNo" />);
-    queryMoreArray.push(<Select name="gxzt" />);
-    queryMoreArray.push(<TextField name="pcbh" />);
-    queryMoreArray.push(<DateTimePicker name="requestTime" colSpan={2} />);
-    queryMoreArray.push(<Select name="lylx" />);
     return (
       <div style={{ marginBottom: '0.1rem' }}>
         <Row>
           <Col span={19}>
-            <Form dataSet={queryDataSet} columns={3}>
-              <TextField name="tjyf" />
-              <TextField name="currentOperationalDeadline" />
-              <TextField name="checkableTimeRange" />
-              {batchInvoiceMoreDisplay && queryMoreArray}
-            </Form>
+            {batchInvoiceMoreDisplay ? (
+              <div>
+                <div
+                  style={{
+                    background: 'rgb(0,0,0,0.02)',
+                    padding: '10px 10px 0px',
+                    // marginRight: '8px',
+                  }}
+                >
+                  <h3>
+                    <b>{intl.get('hivp.checkCertification.view.queryConditions').d('查询条件')}</b>
+                  </h3>
+                  <Form dataSet={queryDataSet} columns={3}>
+                    <Select name="checkState" />
+                    <DateTimePicker name="requestTime" colSpan={2} />
+                    <TextField name="batchNo" />
+                    <Select name="lylx" />
+                  </Form>
+                </div>
+                <div
+                  style={{
+                    background: 'rgb(0,0,0,0.02)',
+                    padding: '10px 10px 0px',
+                    margin: '10px 0 10px 0',
+                  }}
+                >
+                  <h3>
+                    <b>
+                      {intl.get('hivp.checkCertification.view.aggregateConditions').d('汇总条件')}
+                    </b>
+                  </h3>
+                  <Form dataSet={queryDataSet} columns={3}>
+                    <TextField name="tjyf" />
+                    <TextField name="currentOperationalDeadline" />
+                    <TextField name="checkableTimeRange" />
+                    <Select name="currentCertState" />
+                    <DatePicker name="rqq" />
+                    <DatePicker name="rqz" />
+                    <TextField name="salerTaxNo" />
+                  </Form>
+                </div>
+              </div>
+            ) : (
+              <Form dataSet={queryDataSet} columns={3}>
+                <Select name="checkState" />
+                <TextField name="batchNo" />
+                <Select name="lylx" />
+              </Form>
+            )}
           </Col>
           <Col span={5} style={{ textAlign: 'end' }}>
             <Button
