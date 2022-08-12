@@ -262,28 +262,6 @@ export async function getTaskPassword(params) {
 }
 
 /**
- * 批量勾选明细
- */
-export async function failDetail(params) {
-  const { tenantId, ...otherParams } = params;
-  return request(`${HIVP_API}/v1/${tenantId}/batch-check/fail-detail`, {
-    method: 'GET',
-    query: otherParams,
-  });
-}
-
-/**
- * 批量勾选明细
- */
-export async function abnormalDetail(params) {
-  const { tenantId, ...otherParams } = params;
-  return request(`${HIVP_API}/v1/${tenantId}/batch-check/abnormal-detail`, {
-    method: 'GET',
-    query: otherParams,
-  });
-}
-
-/**
  * 勾选认证-下载申报抵扣统计表
  */
 export async function deductionReportDownload(params) {
