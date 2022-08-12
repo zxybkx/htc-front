@@ -22,7 +22,7 @@ export default (): DataSetProps => {
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const url = `${API_PREFIX}/v1/${tenantId}/invoicing-order-points/query-rate`;
+        const url = `${API_PREFIX}/v1/${tenantId}/monthly-quarter-annual/query-report`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
           url,
@@ -50,33 +50,33 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
-        name: 'ydkpxe',
-        label: intl.get('hiop.statisticsTable.view.ydkpxe').d('月度开票限额'),
+        name: 'monthlyInvoicingLimit',
+        label: intl.get('hiop.statisticsTable.view.monthlyInvoicingLimit').d('月度开票限额'),
         type: FieldType.currency,
       },
       {
-        name: 'ydljykje',
-        label: intl.get('hiop.statisticsTable.view.ydljykje').d('月度累计已开金额'),
+        name: 'monthlyInvoicedAmount',
+        label: intl.get('hiop.statisticsTable.view.monthlyInvoicedAmount').d('月度累计已开金额'),
         type: FieldType.currency,
       },
       {
-        name: 'jdkpxe',
-        label: intl.get('hiop.statisticsTable.view.jdkpxe').d('季度开票限额'),
+        name: 'quarterInvoicingLimit',
+        label: intl.get('hiop.statisticsTable.view.quarterInvoicingLimit').d('季度开票限额'),
         type: FieldType.currency,
       },
       {
-        name: 'jdljykje',
-        label: intl.get('hiop.statisticsTable.view.jdljykje').d('季度累计已开金额'),
+        name: 'quarterInvoicedAmount',
+        label: intl.get('hiop.statisticsTable.view.quarterInvoicedAmount').d('季度累计已开金额'),
         type: FieldType.currency,
       },
       {
-        name: 'ndkpxe',
-        label: intl.get('hiop.statisticsTable.view.ndkpxe').d('年度开票限额'),
+        name: 'annualInvoicingLimit',
+        label: intl.get('hiop.statisticsTable.view.annualInvoicingLimit').d('年度开票限额'),
         type: FieldType.currency,
       },
       {
-        name: 'ndljykje',
-        label: intl.get('hiop.statisticsTable.view.ndljykje').d('年度累计已开金额'),
+        name: 'annualInvoicedAmount',
+        label: intl.get('hiop.statisticsTable.view.annualInvoicedAmount').d('年度累计已开金额'),
         type: FieldType.currency,
       },
     ],
@@ -108,18 +108,6 @@ export default (): DataSetProps => {
         name: 'companyId',
         type: FieldType.number,
         bind: 'companyObj.companyId',
-      },
-      {
-        name: 'companyCode',
-        type: FieldType.string,
-        bind: 'companyObj.companyCode',
-        ignore: FieldIgnore.always,
-      },
-      {
-        name: 'employeeId',
-        type: FieldType.number,
-        bind: 'companyObj.employeeId',
-        ignore: FieldIgnore.always,
       },
       {
         name: 'currentTime',

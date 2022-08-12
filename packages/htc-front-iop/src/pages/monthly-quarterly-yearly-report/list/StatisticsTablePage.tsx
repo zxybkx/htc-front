@@ -34,12 +34,12 @@ export default class StatisticsTablePage extends Component {
         name: 'companyName',
         width: 120,
       },
-      { name: 'ydkpxe' },
-      { name: 'ydljykje' },
-      { name: 'jdkpxe' },
-      { name: 'jdljykje' },
-      { name: 'ndkpxe' },
-      { name: 'ndljykje' },
+      { name: 'monthlyInvoicingLimit' },
+      { name: 'monthlyInvoicedAmount' },
+      { name: 'quarterInvoicingLimit' },
+      { name: 'quarterInvoicedAmount' },
+      { name: 'annualInvoicingLimit' },
+      { name: 'annualInvoicedAmount' },
     ];
   }
 
