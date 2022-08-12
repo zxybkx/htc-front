@@ -93,12 +93,12 @@ const InvoiceRuleHeaderForm: FunctionComponent<Props> = (props: Props) => {
       </Card>
       <Card title={intl.get('hiop.invoiceRule.view.overLimitReminder').d('超限开票提醒')}>
         <Form dataSet={dataSet} columns={2} labelTooltip={Tooltip.overflow}>
-          <CheckBox name="qyydkpxetx" labelWidth={150} />
-          <CheckBox name="qyjdkpxetx" labelWidth={150} />
-          <Currency name="ydkpxe" />
-          <Currency name="jdkpxe" />
-          <CheckBox name="qyndkpxetx" />
-          <Currency name="ndkpxe" newLine />
+          <CheckBox name="monthlyInvoicingLimitRemind" labelWidth={150} />
+          <CheckBox name="quarterInvoicingLimitRemind" labelWidth={150} />
+          <Currency name="monthlyInvoicingLimit" />
+          <Currency name="quarterInvoicingLimit" />
+          <CheckBox name="annualInvoicingLimitRemind" />
+          <Currency name="annualInvoicingLimit" newLine />
         </Form>
       </Card>
       <Card title={intl.get('hiop.invoiceRule.view.permissionManage').d('权限管理')}>
