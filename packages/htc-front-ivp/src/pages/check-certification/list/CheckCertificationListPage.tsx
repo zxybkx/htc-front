@@ -1172,10 +1172,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         align: ColumnAlign.right,
       },
       { name: 'invoiceState' },
-      {
-        name: 'isPoolFlag',
-        // renderer: ({ value }) => (value && value === 'Y' ? '是' : '否'),
-      },
+      { name: 'isPoolFlag' },
       { name: 'checkDate', width: 130 },
       { name: 'authenticationState' },
       { name: 'authenticationType' },
@@ -1256,7 +1253,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         companyId,
         companyCode,
         employeeNumber,
-        // taxDiskPassword,
         employeeId,
         companyName,
         employeeDesc,
@@ -1316,7 +1312,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   async handleStatistics() {
     const { checkCertificationListDS } = this.props;
     const { queryDataSet } = checkCertificationListDS;
-    const { queryDataSet: tableQueyDataSet } = this.props.statisticalConfirmDS;
+    const { queryDataSet: tableQueryDataSet } = this.props.statisticalConfirmDS;
     const { empInfo } = this.state;
     const {
       companyId,
@@ -1343,9 +1339,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       });
       return;
     }
-    if (queryDataSet && tableQueyDataSet) {
+    if (queryDataSet && tableQueryDataSet) {
       const queryData = queryDataSet.current!.toData();
-      const tableData = tableQueyDataSet.current!.toData();
+      const tableData = tableQueryDataSet.current!.toData();
       const { employeeDesc } = queryData;
       const { currentCertState, statisticalPeriod } = tableData;
       const companyDesc = `${companyCode}-${companyName}`;
@@ -1357,8 +1353,8 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         return;
       }
       let statisticalFlag;
-      if (currentCertState === '0' || currentCertState === '1') statisticalFlag = 1;
-      if (currentCertState === '2' || currentCertState === '3') statisticalFlag = 0;
+      if (['0', '1'].includes(currentCertState)) statisticalFlag = 1;
+      if (['2', '3'].includes(currentCertState)) statisticalFlag = 0;
       const params = {
         tenantId,
         companyId,
