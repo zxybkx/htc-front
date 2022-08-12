@@ -18,17 +18,27 @@ const modelCode = 'hivp.checkCertification';
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
+  const { type } = dsParams;
+  let url = '';
+  switch (type) {
+    case '0':
+      url = `${API_PREFIX}/v1/${tenantId}/batch-check/fail-detail`;
+      break;
+    case '1':
+      url = `${API_PREFIX}/v1/${tenantId}/batch-check/batch-uncertified-invoice`;
+      break;
+    case '2':
+      url = `${API_PREFIX}/v1/${tenantId}/batch-check/abnormal-detail`;
+      break;
+    default:
+      break;
+  }
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const url = `${API_PREFIX}/v1/${tenantId}/batch-check/batch-uncertified-invoice`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
           url,
-          params: {
-            ...config.params,
-            invoiceCheckCollectId: dsParams.invoiceCheckCollectId,
-          },
           method: 'GET',
         };
         return axiosConfig;

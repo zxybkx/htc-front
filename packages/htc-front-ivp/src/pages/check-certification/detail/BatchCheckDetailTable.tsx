@@ -10,7 +10,6 @@ import React, { Component } from 'react';
 import { Dispatch } from 'redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { Content, Header } from 'components/Page';
-import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { DataSet, Table } from 'choerodon-ui/pro';
 import { Tag } from 'choerodon-ui';
 import { Bind } from 'lodash-decorators';
@@ -18,12 +17,10 @@ import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
 import intl from 'utils/intl';
-import { failDetail, abnormalDetail } from '@src/services/checkCertificationService';
 import formatterCollections from 'utils/intl/formatterCollections';
 import BatchCheckDetailDS from '../stores/BatchCheckDetailTableDS';
 
 const modelCode = 'hivp.checkCertification';
-const tenantId = getCurrentOrganizationId();
 
 interface ApplyDeductionPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
@@ -50,7 +47,7 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
 
   async componentDidMount() {
     const { search } = this.props.location;
-    const { type } = this.props.match.params;
+    const { type, invoiceCheckCollectId } = this.props.match.params;
     const { queryDataSet } = this.batchCheckDetailDS;
     const batchInvoiceInfoStr = new URLSearchParams(search).get('batchInvoiceInfo');
     if (batchInvoiceInfoStr) {
@@ -59,22 +56,21 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
       if (queryDataSet) {
         queryDataSet.create({ batchNo, requestTime, completeTime }, 0);
       }
-      if (type === '0') {
-        const params = { batchNumber, tenantId };
-        const res = getResponse(await failDetail(params));
-        if (res) {
+      switch (type) {
+        case '0':
           this.batchCheckDetailDS.setQueryParameter('batchNumber', batchNumber);
-          this.batchCheckDetailDS.loadData(res);
-        }
-      } else if (type === '1') {
-        await this.batchCheckDetailDS.query();
-      } else {
-        const params = { batchNo, tenantId };
-        const res = getResponse(await abnormalDetail(params));
-        if (res) {
-          this.batchCheckDetailDS.loadData(res);
-        }
+          break;
+        case '1':
+          this.batchCheckDetailDS.setQueryParameter('batchNumber', batchNumber);
+          this.batchCheckDetailDS.setQueryParameter('invoiceCheckCollectId', invoiceCheckCollectId);
+          break;
+        case '2':
+          this.batchCheckDetailDS.setQueryParameter('batchNo', batchNo);
+          break;
+        default:
+          break;
       }
+      this.batchCheckDetailDS.query();
     }
   }
 
