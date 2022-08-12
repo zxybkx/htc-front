@@ -70,7 +70,7 @@ export default (): DataSetProps => {
         type: FieldType.currency,
       },
       {
-        name: 'lylx',
+        name: 'checkResource',
         label: intl.get('hiop.redInvoiceInfo.modal.lylx').d('来源类型'),
         lookupCode: 'HTC.IVP.CHECK_RESOURCE',
         type: FieldType.string,
@@ -242,7 +242,7 @@ export default (): DataSetProps => {
           // transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
-          name: 'lylx',
+          name: 'checkResource',
           label: intl.get('hiop.redInvoiceInfo.modal.lylx').d('来源类型'),
           lookupCode: 'HTC.IVP.CHECK_RESOURCE',
           type: FieldType.string,

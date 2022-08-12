@@ -2118,7 +2118,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       },
       { name: 'totalInvoiceAmountGross', width: 120 },
       { name: 'totalInvoiceTheAmount', width: 120 },
-      { name: 'lylx' },
+      { name: 'checkResource' },
       {
         name: 'abnormalInvoiceCount',
         width: 150,
@@ -2239,7 +2239,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
                     <Select name="checkState" />
                     <DateTimePicker name="requestTime" colSpan={2} />
                     <TextField name="batchNo" />
-                    <Select name="lylx" />
+                    <Select name="checkResource" />
                   </Form>
                 </div>
                 <div
