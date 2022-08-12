@@ -859,38 +859,37 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       });
       return;
     }
-    const judgeLineIsQualified = await (!isEmpty(lineList) &&
-      this.validateLine(lineList, companyType));
-    if (judgeLineIsQualified) {
-      let mark = userRemark;
-      if (remark) {
-        mark = replace(userRemark, `${remark}`, '');
-      }
-      const params = {
-        ...headerData,
-        curEmployeeId: employeeInfo.employeeId,
-        billingType,
-        tenantId,
-        userRemark: mark,
-        lines: lineList,
-        discountSplitFlag: !!(this.invoiceOrderLinesDS.dirty && calculateSpin),
-      };
-      // 审核（提交）1
-      switch (type) {
-        case 0:
-          this.createOrder(params, companyId);
-          break;
-        case 1:
-          this.handleSubmit(lineList, params, sourceType, companyId, invoicingOrderHeaderId);
-          break;
-        case 2:
-          this.editOrder(params, companyId, source);
-          break;
-        case 3:
-          return this.copyOrder(params, employeeInfo);
-        default:
-          break;
-      }
+    if (!isEmpty(lineList)) {
+      this.validateLine(lineList, companyType);
+    }
+    let mark = userRemark;
+    if (remark) {
+      mark = replace(userRemark, `${remark}`, '');
+    }
+    const params = {
+      ...headerData,
+      curEmployeeId: employeeInfo.employeeId,
+      billingType,
+      tenantId,
+      userRemark: mark,
+      lines: lineList,
+      discountSplitFlag: !!(this.invoiceOrderLinesDS.dirty && calculateSpin),
+    };
+    // 审核（提交）1
+    switch (type) {
+      case 0:
+        this.createOrder(params, companyId);
+        break;
+      case 1:
+        this.handleSubmit(lineList, params, sourceType, companyId, invoicingOrderHeaderId);
+        break;
+      case 2:
+        this.editOrder(params, companyId, source);
+        break;
+      case 3:
+        return this.copyOrder(params, employeeInfo);
+      default:
+        break;
     }
   }
 
