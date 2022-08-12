@@ -72,13 +72,13 @@ export default (): DataSetProps => {
       {
         name: 'lylx',
         label: intl.get('hiop.redInvoiceInfo.modal.lylx').d('来源类型'),
-        lookupCode: '',
+        lookupCode: 'HTC.IVP.CHECK_RESOURCE',
         type: FieldType.string,
       },
       {
         name: 'abnormalInvoiceCount',
         label: intl.get(`${modelCode}.view.ycfpyj`).d('异常发票预警'),
-        type: FieldType.string,
+        type: FieldType.number,
       },
       {
         name: 'batchNumber',
@@ -186,14 +186,14 @@ export default (): DataSetProps => {
           label: intl.get('hivp.bill.view.invoiceDateFrom').d('开票日期从'),
           type: FieldType.date,
           max: 'rqz',
-          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          // transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'rqz',
           label: intl.get('hivp.bill.view.invoiceDateTo').d('开票日期至'),
           type: FieldType.date,
           min: 'rqq',
-          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          // transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'salerTaxNo',
@@ -244,7 +244,7 @@ export default (): DataSetProps => {
         {
           name: 'lylx',
           label: intl.get('hiop.redInvoiceInfo.modal.lylx').d('来源类型'),
-          lookupCode: '',
+          lookupCode: 'HTC.IVP.CHECK_RESOURCE',
           type: FieldType.string,
         },
       ],

@@ -141,7 +141,7 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
       },
       { name: 'invoiceDate', width: 130 },
       { name: 'buyerTaxNo', width: 180 },
-      { name: 'salerName', width: 160 },
+      { name: 'salerName', width: 180 },
       { name: 'salerTaxNo', width: 180 },
       { name: 'invoiceAmount', width: 150 },
       { name: 'taxAmount', width: 150 },
