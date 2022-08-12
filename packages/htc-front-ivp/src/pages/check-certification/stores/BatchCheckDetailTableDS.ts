@@ -50,7 +50,7 @@ export default (dsParams): DataSetProps => {
       },
       destroy: ({ data }) => {
         return {
-          url: `${API_PREFIX}/v1/${tenantId}/batch-check/`,
+          url: `${API_PREFIX}/v1/${tenantId}/batch-check/batch-remove-details`,
           data,
           method: 'DELETE',
         };
@@ -117,7 +117,7 @@ export default (dsParams): DataSetProps => {
         type: FieldType.currency,
       },
       {
-        name: 'fppp',
+        name: 'isMatch',
         label: intl.get('hivp.bill.view.fppp').d('发票匹配'),
         type: FieldType.string,
       },
