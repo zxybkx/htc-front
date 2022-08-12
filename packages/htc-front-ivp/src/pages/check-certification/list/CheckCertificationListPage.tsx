@@ -1837,7 +1837,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   async getCurrentCheckInvoices() {
     const { queryDataSet } = this.props.batchInvoiceHeaderDS;
     const { empInfo } = this.state;
-    const gxzt = queryDataSet && queryDataSet.current!.get('gxzt');
     const checkableTimeRange = queryDataSet && queryDataSet.current!.get('checkableTimeRange');
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
@@ -1854,7 +1853,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       employeeId,
       employeeNumber,
       spmm: taxDiskPassword,
-      gxzt,
+      gxzt: '0',
       checkableTimeRange,
     };
     const res = getResponse(await unCertifiedInvoiceQuery(params));
@@ -1889,9 +1888,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     const { empInfo, authorityCode } = this.state;
     const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
-    console.log('authorityCode', authorityCode);
-    console.log('taxDiskPassword', taxDiskPassword);
-    console.log('empInfo', empInfo);
     const uploadProps = {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -2127,6 +2123,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         name: 'abnormalInvoiceCount',
         width: 150,
         className: styles.batchInvoice,
+        align: ColumnAlign.left,
         renderer: ({ value, record }) => {
           if (value === 0) {
             return <span>非正常状态的发票不计入批量勾选，数量为：0</span>;
@@ -2607,7 +2604,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
                       columns={this.statisticalConfirmColumns}
                       buttons={this.statisticalConfirmButtons}
                       queryBar={this.renderStatisticalConfirmQueryBar}
-                      // onRow={({ record }) => this.handleStatisticalRow(record)}
                       style={{ height: 300 }}
                     />
                     <AggregationTable
