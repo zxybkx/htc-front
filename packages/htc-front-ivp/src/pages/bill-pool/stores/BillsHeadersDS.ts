@@ -666,12 +666,7 @@ export default (): DataSetProps => {
           name: 'invoiceDate',
           label: intl.get('htc.common.view.invoiceDate').d('开票日期'),
           type: FieldType.date,
-          required: true,
           range: ['invoiceDateFrom', 'invoiceDateTo'],
-          defaultValue: {
-            invoiceDateFrom: halfYearStart,
-            invoiceDateTo: moment().format(DEFAULT_DATE_FORMAT),
-          },
           ignore: FieldIgnore.always,
         },
         {
@@ -760,6 +755,10 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.entryPoolDatetime`).d('进池日期'),
           type: FieldType.date,
           range: ['entryPoolDatetimeFrom', 'entryPoolDatetimeTo'],
+          defaultValue: {
+            entryPoolDatetimeFrom: halfYearStart,
+            entryPoolDatetimeTo: moment().format(DEFAULT_DATE_FORMAT),
+          },
           ignore: FieldIgnore.always,
         },
         {
