@@ -42,7 +42,7 @@ async function releaseLoading(modules = []) {
  */
 async function release(module, tag) {
   console.log(`${module},${tag}`);
-  const command = `cd ${path.resolve(__dirname, `../packages/${module}`)}; yarn transpile; ${npmPublish} ${tag !== 'release' ? `--tag ${tag}` : ''};`
+  const command = `yarn build:ms ${module}; yarn build:ms:prod ${module} ;cd ${path.resolve(__dirname, `../packages/${module}`)} ;${npmPublish} ${tag !== 'release' ? `--tag ${tag}` : ''};`
   await exec(command, (error, stdout) => {
     console.log(command);
     const version = getModuleInfo(module, 'version');
