@@ -181,17 +181,14 @@ export default (): DataSetProps => {
     ],
     queryFields: [
       {
-        name: 'companyNameObject',
-        label: intl.get(`${modelCode}.view.companyName`).d('公司全称'),
-        type: 'object' as FieldType,
-        lovCode: 'HMDM.COMPANY_NAME',
-        lovPara: { tenantId },
-        ignore: FieldIgnore.always,
+        name: 'companyCode',
+        label: intl.get('htc.common.modal.companyCode').d('公司代码'),
+        type: FieldType.string,
       },
       {
-        name: 'companyId',
-        type: FieldType.number,
-        bind: `companyNameObject.companyId`,
+        name: 'companyName',
+        label: intl.get('htc.common.view.companyName').d('公司名称'),
+        type: FieldType.string,
       },
       {
         name: 'taxpayerNumber',
