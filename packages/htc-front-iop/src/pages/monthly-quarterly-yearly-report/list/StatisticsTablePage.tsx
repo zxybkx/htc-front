@@ -32,7 +32,7 @@ export default class StatisticsTablePage extends Component {
       { name: 'companyCode' },
       {
         name: 'companyName',
-        width: 120,
+        width: 250,
       },
       { name: 'monthlyInvoicingLimit' },
       { name: 'monthlyInvoicedAmount' },
