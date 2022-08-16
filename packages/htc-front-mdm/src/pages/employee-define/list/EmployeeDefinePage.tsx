@@ -571,7 +571,9 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
         <Row type="flex">
           <Col span={20}>
             <Form dataSet={queryDataSet} columns={3}>
+              <TextField name="employeeNum" />
               <TextField name="employeeName" />
+              <TextField name="mobile" />
               <Select name="enabledFlag" />
               <Select name="status" />
             </Form>
