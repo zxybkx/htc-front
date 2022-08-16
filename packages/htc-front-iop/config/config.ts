@@ -274,6 +274,7 @@ export default extendParentConfig({
         ...invoiceOperationMaintenanceRouterConfig,
         ...taxRateStatisticsReportRouterConfig,
       ...requestHistoryRouterConfig,
+      ...monthlyQuarterlyYearlyReport,
     ],
 
     extraBabelPlugins: [ // 原/packages/xxx/.babelrc.js--plugins
@@ -286,7 +287,7 @@ export default extendParentConfig({
                     '@utils': 'htc-components-front/lib/utils',
                     '@services': 'htc-components-front/lib/services',
                     '@assets': 'htc-components-front/lib/assets',
-                }
+                },
             },
         ],
     ],
