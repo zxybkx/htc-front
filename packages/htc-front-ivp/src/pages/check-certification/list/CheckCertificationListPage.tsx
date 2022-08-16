@@ -1761,7 +1761,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   async downLoad() {
     const { empInfo } = this.state;
     const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
-    const needDownloadKey = this.props.batchInvoiceHeaderDS.current!.get('needDownloadKey');
+    const needDownloadKey = this.props.batchInvoiceHeaderDS.selected[0].get('needDownloadKey');
     const params = {
       tenantId,
       companyId,
@@ -1889,7 +1889,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         'Access-Control-Allow-Origin': '*',
         Authorization: `bearer ${getAccessToken()}`,
       },
-      action: `${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`,
+      // action: `${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`,
       multiple: false,
       showUploadBtn: false,
       showPreviewImage: false,
@@ -1898,12 +1898,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       onUploadError: this.handleUploadError,
     };
     const HeaderButtons = observer((props: any) => {
-      let isDisabled;
-      if (props.type === 'downLoad') {
-        isDisabled = props.dataSet!.length === 0;
-      } else {
-        isDisabled = props.dataSet!.selected.length === 0;
-      }
+      const isDisabled = props.dataSet!.selected.length === 0;
       return (
         <Button
           key={props.key}
@@ -2006,14 +2001,12 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         onClick={() => this.downLoad()}
         dataSet={this.props.batchInvoiceHeaderDS}
         title={intl.get('hivp.taxRefund.button.downloadFile').d('下载发票文件')}
-        type="downLoad"
       />,
       <HeaderButtons
         key="refresh"
         onClick={() => this.batchInvoiceRefresh()}
         dataSet={this.props.batchInvoiceHeaderDS}
         title={intl.get(`${modelCode}.button.batchRefresh`).d('刷新状态')}
-        type="refresh"
       />,
       <CurrentCheckInvoicesButton
         key="getCurrentCheckInvoices"
