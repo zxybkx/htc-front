@@ -135,7 +135,7 @@
   },
   "description": "hzero-demo",
   "author": "",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "eslintConfig": {
     "extends": "react-app"
   },
