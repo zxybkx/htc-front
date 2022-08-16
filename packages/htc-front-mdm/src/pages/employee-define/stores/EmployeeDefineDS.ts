@@ -211,14 +211,14 @@ export default (): DataSetProps => {
         type: FieldType.date,
         defaultValue: moment().format(DEFAULT_DATE_FORMAT),
         max: 'endDate',
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'endDate',
         label: intl.get(`${modelCode}.view.endDate`).d('有效期至'),
         type: FieldType.date,
         min: 'startDate',
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'vendorId',
@@ -279,8 +279,18 @@ export default (): DataSetProps => {
         multiple: ',',
       },
       {
+        name: 'employeeNum',
+        label: intl.get(`${modelCode}.view.employeeNum`).d('员工号'),
+        type: FieldType.string,
+      },
+      {
         name: 'employeeName',
         label: intl.get(`${modelCode}.view.employeeName`).d('姓名'),
+        type: FieldType.string,
+      },
+      {
+        name: 'mobile',
+        label: intl.get(`${modelCode}.view.mobile`).d('手机号'),
         type: FieldType.string,
       },
       {
