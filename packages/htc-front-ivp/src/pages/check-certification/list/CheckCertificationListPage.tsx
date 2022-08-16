@@ -1884,6 +1884,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     const { empInfo, authorityCode } = this.state;
     const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
+    console.log('authorityCode', authorityCode);
+    console.log('empInfo', empInfo);
+    console.log('taxDiskPassword', taxDiskPassword);
     const uploadProps = {
       headers: {
         'Access-Control-Allow-Origin': '*',
