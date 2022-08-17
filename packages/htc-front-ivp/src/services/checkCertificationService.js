@@ -195,8 +195,8 @@ export async function downloadFile(params) {
   return request(`${HIVP_API}/v1/${tenantId}/batch-check/download-certified-file`, {
     method: 'POST',
     query: otherParams,
-    body: needDownloadKey,
-    responseType: 'blob',
+    body: { needDownloadKey },
+    // responseType: 'blob',
   });
 }
 
@@ -256,17 +256,6 @@ export async function batchCheck(params) {
 export async function getTaskPassword(params) {
   const { tenantId, ...otherParams } = params;
   return request(`${HIVP_API}/v1/${tenantId}/enterprise-file-infos`, {
-    method: 'GET',
-    query: otherParams,
-  });
-}
-
-/**
- * 批量勾选明细
- */
-export async function failDetail(params) {
-  const { tenantId, ...otherParams } = params;
-  return request(`${HIVP_API}/v1/${tenantId}/batch-check/fail-detail`, {
     method: 'GET',
     query: otherParams,
   });

@@ -9,7 +9,6 @@
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
-import { DataSet } from 'choerodon-ui/pro';
 import { AxiosRequestConfig } from 'axios';
 import commonConfig from '@htccommon/config/commonConfig';
 import { getCurrentOrganizationId } from 'utils/utils';
@@ -19,17 +18,27 @@ const modelCode = 'hivp.checkCertification';
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
+  const { type } = dsParams;
+  let url = '';
+  switch (type) {
+    case '0':
+      url = `${API_PREFIX}/v1/${tenantId}/batch-check/fail-detail`;
+      break;
+    case '1':
+      url = `${API_PREFIX}/v1/${tenantId}/batch-check/batch-uncertified-invoice`;
+      break;
+    case '2':
+      url = `${API_PREFIX}/v1/${tenantId}/batch-check/abnormal-detail`;
+      break;
+    default:
+      break;
+  }
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const url = `${API_PREFIX}/v1/${tenantId}/batch-check/batch-uncertified-invoice`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
           url,
-          params: {
-            ...config.params,
-            invoiceCheckCollectId: dsParams.invoiceCheckCollectId,
-          },
           method: 'GET',
         };
         return axiosConfig;
@@ -49,9 +58,15 @@ export default (dsParams): DataSetProps => {
           method: 'POST',
         };
       },
+      destroy: ({ data }) => {
+        return {
+          url: `${API_PREFIX}/v1/${tenantId}/batch-check/batch-remove-details`,
+          data,
+          method: 'DELETE',
+        };
+      },
     },
     pageSize: 10,
-    selection: false,
     primaryKey: 'batchCheckDetailTable',
     fields: [
       {
@@ -110,6 +125,11 @@ export default (dsParams): DataSetProps => {
         name: 'validTaxAmount',
         label: intl.get('hivp.bill.view.EffectiveTax').d('有效税额'),
         type: FieldType.currency,
+      },
+      {
+        name: 'isMatch',
+        label: intl.get('hivp.bill.view.fppp').d('发票匹配'),
+        type: FieldType.string,
       },
       {
         name: 'invoiceState',
@@ -188,41 +208,44 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
       },
     ],
-    queryDataSet: new DataSet({
-      fields: [
-        {
-          name: 'batchNo',
-          label: intl.get('hiop.redInvoiceInfo.modal.batchNo').d('批次号'),
-          type: FieldType.string,
-          readOnly: true,
-        },
-        {
-          name: 'requestTime',
-          label: intl.get(`${modelCode}.view.requestTime`).d('请求时间'),
-          type: FieldType.date,
-          ignore: FieldIgnore.always,
-          readOnly: true,
-        },
-        {
-          name: 'completeTime',
-          label: intl.get(`${modelCode}.view.completeTime`).d('完成时间'),
-          type: FieldType.date,
-          ignore: FieldIgnore.always,
-          readOnly: true,
-        },
-        {
-          name: 'invoiceState',
-          label: intl.get('hivp.batchCheck.view.invoiceStatus').d('发票状态'),
-          type: FieldType.string,
-          lookupCode: 'HMDM.INVOICE_STATE',
-        },
-        {
-          name: 'checkState',
-          label: intl.get(`${modelCode}.view.checkState`).d('勾选状态'),
-          type: FieldType.string,
-          lookupCode: 'HIVP.CHECK_STATE',
-        },
-      ],
-    }),
+    queryFields: [
+      {
+        name: 'batchNo',
+        label: intl.get('hiop.redInvoiceInfo.modal.batchNo').d('批次号'),
+        type: FieldType.string,
+        readOnly: true,
+      },
+      {
+        name: 'requestTime',
+        label: intl.get(`${modelCode}.view.requestTime`).d('请求时间'),
+        type: FieldType.date,
+        ignore: FieldIgnore.always,
+        readOnly: true,
+      },
+      {
+        name: 'completeTime',
+        label: intl.get(`${modelCode}.view.completeTime`).d('完成时间'),
+        type: FieldType.date,
+        ignore: FieldIgnore.always,
+        readOnly: true,
+      },
+      {
+        name: 'invoiceState',
+        label: intl.get('hivp.batchCheck.view.invoiceStatus').d('发票状态'),
+        type: FieldType.string,
+        lookupCode: 'HMDM.INVOICE_STATE',
+      },
+      {
+        name: 'checkState',
+        label: intl.get(`${modelCode}.view.checkState`).d('勾选状态'),
+        type: FieldType.string,
+        lookupCode: 'HIVP.CHECK_STATE',
+      },
+      {
+        name: 'failedDetail',
+        label: intl.get('hivp.taxRefund.view.message.sync.cause').d('失败原因'),
+        type: FieldType.string,
+      },
+    ],
   };
 };

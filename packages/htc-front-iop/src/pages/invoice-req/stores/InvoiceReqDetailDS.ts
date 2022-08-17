@@ -623,6 +623,39 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         bind: 'extNumberObj.value',
       },
+      {
+        name: 'systemCodeObj',
+        label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
+        type: FieldType.object,
+        lovCode: 'HTC.SOURCE_SYSTEM',
+        lovPara: { enabledFlag: 1 },
+        ignore: FieldIgnore.always,
+      },
+      {
+        name: 'systemCode',
+        type: FieldType.string,
+        bind: 'systemCodeObj.systemCode',
+      },
+      {
+        name: 'sysTypeHeaderId',
+        type: FieldType.number,
+        bind: 'systemCodeObj.docTypeHeaderId',
+        ignore: FieldIgnore.always,
+      },
+      {
+        name: 'documentTypeCodeObj',
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
+        type: FieldType.object,
+        lovCode: 'HTC.DOCUMENT_TYPE',
+        cascadeMap: { docTypeHeaderId: 'sysTypeHeaderId' },
+        lovPara: { enabledFlag: 1 },
+        ignore: FieldIgnore.always,
+      },
+      {
+        name: 'documentTypeCode',
+        type: FieldType.string,
+        bind: 'documentTypeCodeObj.documentTypeCode',
+      },
     ],
   };
 };
