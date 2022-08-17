@@ -1031,31 +1031,22 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
                 <TextField name="receiptTaxNo" />
                 {['51', '52'].includes(invoiceType) ? electronicInvoice : paperInvoice}
                 {/*----*/}
-                <TextArea
-                  name="receiptAccount"
-                  rowSpan={2}
-                  rows={3}
-                  resize={ResizeType.both}
-                  newLine
-                />
+                <TextArea name="receiptAccount" rows={1} resize={ResizeType.both} newLine />
                 <TextField name="applicantName" />
                 <TextField name="creationDate" />
                 <TextField name="requestNumber" />
                 {/*---*/}
+                <TextArea name="receiptAddressPhone" rows={1} resize={ResizeType.both} />
                 <Select name="requestStatus" />
                 <TextField name="reviewerName" />
                 <TextField name="reviewDate" />
                 {/*---*/}
-                <TextArea
-                  name="receiptAddressPhone"
-                  rowSpan={2}
-                  rows={3}
-                  resize={ResizeType.both}
-                />
+                <Lov name="systemCodeObj" />
                 <TextField name="progress" />
                 <Select name="sourceType" />
                 <TextField name="sourceNumber" />
                 {/*----*/}
+                <Lov name="documentTypeCodeObj" />
                 <TextField name="sourceNumber1" />
                 <TextField name="sourceNumber2" />
                 <CheckBox name="showAdjustFlag" onChange={this.handleShowAdjustChange} />
