@@ -1451,6 +1451,8 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
               <Currency name="invoiceAmountDifference" />
               {this.invoiceTypeTag()}
               <CheckBox name="nextDefaultFlag" />
+              <Lov name="systemCodeObj" />
+              <Lov name="documentTypeCodeObj" />
             </Form>
             <Form
               dataSet={this.invoiceOrderHeaderDS}
