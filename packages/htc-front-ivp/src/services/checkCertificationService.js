@@ -298,3 +298,28 @@ export async function enterpriseSave(params) {
     body: list,
   });
 }
+/**
+ * @description: 生成批次号
+ * @function: creatBatchNumber
+ */
+export async function creatBatchNumber(params) {
+  const { tenantId } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/batch-check/create-batch-no`, {
+    method: 'GET',
+  });
+}
+/**
+ * @description: 扫码枪批量识别发票保存
+ * @function: batchScanGunInvoices
+ * @param {*} params
+ */
+export async function batchScanGunInvoices(params) {
+  const { tenantId, list, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/batch-check/short_program_partial-Check`, {
+    method: 'POST',
+    query: otherParams,
+    body: {
+      shortProgramCheckDtos: list,
+    },
+  });
+}
