@@ -1755,7 +1755,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   async downLoad() {
     const { empInfo } = this.state;
     const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
-    const needDownloadKey = this.props.batchInvoiceHeaderDS.selected[0].get('needDownloadKey');
+    const needDownloadKey = this.props.batchInvoiceHeaderDS.selected[0].get('redisKey');
     const params = {
       tenantId,
       companyId,
