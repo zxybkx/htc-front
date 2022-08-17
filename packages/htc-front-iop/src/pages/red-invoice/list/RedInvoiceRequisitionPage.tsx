@@ -341,7 +341,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
       this.setState({ status, isMultipleTaxRate, listFlag });
     }
     if (deductionStatus !== '01') {
-      const lineRes = await createRedInvoiceReqLines(params);
+      const lineRes = getResponse(await createRedInvoiceReqLines(params));
       if (lineRes && lineRes.length > 0) {
         lineRes.forEach(line => this.linesDS.create(line));
       }
