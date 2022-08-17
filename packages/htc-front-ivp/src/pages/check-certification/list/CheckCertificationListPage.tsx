@@ -672,8 +672,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
           invoiceDate: kprq,
           validTaxAmount: yxse,
           invoicePoolHeaderId: id,
+          invoiceCheckCollectId,
         } = record;
-        return { fpdm, fphm, kprq, yxse, id, gxzt: isTick };
+        return { fpdm, fphm, kprq, yxse, id, gxzt: isTick, invoiceCheckCollectId };
       });
       invoiceRequestParamDto = {
         data,
@@ -688,8 +689,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
           invoiceDate: tfrq,
           validTaxAmount: yxse,
           invoicePoolHeaderId: id,
+          invoiceCheckCollectId,
         } = record;
-        return { fply: '1', jkshm, se, tfrq, yxse, id, zt: isTick };
+        return { fply: '1', jkshm, se, tfrq, yxse, id, zt: isTick, invoiceCheckCollectId };
       });
       invoiceRequestParamDto = {
         paymentCustomerData,
