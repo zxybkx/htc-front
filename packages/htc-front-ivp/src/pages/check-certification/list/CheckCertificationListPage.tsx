@@ -1884,7 +1884,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         'Access-Control-Allow-Origin': '*',
         Authorization: `bearer ${getAccessToken()}`,
       },
-      // action: `${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`,
       multiple: false,
       showUploadBtn: false,
       showPreviewImage: false,
@@ -2521,7 +2520,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
             <div className={styles.header}>
               <Form
                 dataSet={this.props.checkCertificationListDS.queryDataSet}
-                // style={{ marginLeft: '-20px' }}
+                style={{ marginLeft: '-20px' }}
               >
                 <Output name="employeeDesc" />
                 <Output name="curDate" />
