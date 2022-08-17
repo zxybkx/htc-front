@@ -204,7 +204,7 @@ export async function downloadFile(params) {
  * 刷新状态
  */
 export async function refreshStatus(params) {
-  const { tenantId, batchNoList, empInfo } = params;
+  const { tenantId, selectedList, empInfo } = params;
   return request(`${HIVP_API}/v1/${tenantId}/batch-check/refresh-status`, {
     method: 'POST',
     query: {
@@ -213,7 +213,7 @@ export async function refreshStatus(params) {
       employeeId: empInfo.employeeId,
       employeeNumber: empInfo.employeeNum,
     },
-    body: batchNoList,
+    body: selectedList,
   });
 }
 

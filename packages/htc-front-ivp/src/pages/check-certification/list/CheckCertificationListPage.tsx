@@ -72,7 +72,7 @@ import { ProgressStatus } from 'choerodon-ui/lib/progress/enum';
 import commonConfig from '@htccommon/config/commonConfig';
 import { API_HOST } from 'utils/config';
 import { observer } from 'mobx-react-lite';
-import { isEmpty, remove, set, split, uniq, uniqBy } from 'lodash';
+import { isEmpty, remove, set, split, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Col, Icon, Modal, Row, Tag, Tooltip } from 'choerodon-ui';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
@@ -1794,7 +1794,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     const { empInfo } = this.state;
     const selectedList = this.props.batchInvoiceHeaderDS.selected.map(rec => rec.toData());
     const unPass = selectedList.some(item => item.checkState !== 'R');
-    const batchNoList = uniq(selectedList.map(item => item.batchNo));
     if (unPass) {
       notification.warning({
         description: '',
@@ -1804,7 +1803,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       });
       return;
     }
-    const params = { tenantId, empInfo, batchNoList };
+    const params = { tenantId, empInfo, selectedList };
     const res = getResponse(await refreshStatus(params));
     if (res && res.status === '1000') {
       notification.success({
@@ -1812,11 +1811,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         message: intl.get('hzero.common.notification.success').d('操作成功'),
       });
       this.props.batchInvoiceHeaderDS.query();
-    } else {
-      notification.error({
-        description: '',
-        message: res && res.message,
-      });
     }
   }
 
