@@ -672,8 +672,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
           invoiceDate: kprq,
           validTaxAmount: yxse,
           invoicePoolHeaderId: id,
+          invoiceCheckCollectId,
         } = record;
-        return { fpdm, fphm, kprq, yxse, id, gxzt: isTick };
+        return { fpdm, fphm, kprq, yxse, id, gxzt: isTick, invoiceCheckCollectId };
       });
       invoiceRequestParamDto = {
         data,
@@ -688,8 +689,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
           invoiceDate: tfrq,
           validTaxAmount: yxse,
           invoicePoolHeaderId: id,
+          invoiceCheckCollectId,
         } = record;
-        return { fply: '1', jkshm, se, tfrq, yxse, id, zt: isTick };
+        return { fply: '1', jkshm, se, tfrq, yxse, id, zt: isTick, invoiceCheckCollectId };
       });
       invoiceRequestParamDto = {
         paymentCustomerData,
@@ -793,7 +795,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   }
 
   // 当期勾选(取消)可认证发票: 按钮
-  get verifiableBtns(): Buttons[] {
+  get verifiableButtons(): Buttons[] {
     const VerifiableInvoicesButton = observer((props: any) => {
       let disabled = false;
       if (props.dataSet && props.companyDataSet) {
@@ -2574,7 +2576,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
                     <Table
                       dataSet={this.props.certifiableInvoiceListDS}
                       columns={this.verifiableColumns}
-                      buttons={this.verifiableBtns}
+                      buttons={this.verifiableButtons}
                       queryBar={this.renderVerifiableBar}
                       style={{ height: 320 }}
                     />
