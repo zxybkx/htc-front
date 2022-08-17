@@ -60,13 +60,15 @@ import {
   refreshStatus,
   unCertifiedInvoiceQuery,
   updateEnterpriseFile,
+  creatBatchNumber,
+  batchScanGunInvoices,
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import { queryIdpValue } from 'hzero-front/lib/services/api';
 import { getAccessToken, getResponse } from 'utils/utils';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
-import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
+import { ColumnAlign, ColumnLock, TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
 import queryString from 'query-string';
 import { ProgressStatus } from 'choerodon-ui/lib/progress/enum';
 import commonConfig from '@htccommon/config/commonConfig';
@@ -74,7 +76,7 @@ import { API_HOST } from 'utils/config';
 import { observer } from 'mobx-react-lite';
 import { isEmpty, remove, set, split, uniqBy } from 'lodash';
 import moment from 'moment';
-import { Col, Icon, Modal, Row, Tag, Tooltip } from 'choerodon-ui';
+import { Col, Icon, message, Modal, Row, Tag, Tooltip } from 'choerodon-ui';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
 import formatterCollections from 'utils/intl/formatterCollections';
@@ -84,6 +86,7 @@ import CheckCertificationListDS, { TaxDiskPasswordDS } from '../stores/CheckCert
 import StatisticalDetailDS from '../stores/StatisticalDetailDS';
 import BatchInvoiceHeaderDS from '../stores/BatchInvoiceHeaderDS';
 import CompanyAndPasswordDS from '../stores/CompanyAndPasswordDS';
+import ScanGunModalDS from '../stores/ScanGunModalDS';
 import styles from '../checkcertification.less';
 
 const { TabPane } = Tabs;
@@ -1867,6 +1870,153 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     this.props.batchInvoiceHeaderDS.delete(this.props.batchInvoiceHeaderDS.selected);
   }
 
+  // 点击扫码枪按钮
+  @Bind()
+  handleScanGun() {
+    // 扫发票二维码对应字段
+    const scanInvObjKeys = [
+      'version',
+      'invoiceType',
+      'invoiceCode',
+      'invoiceNo',
+      'invoiceAmount',
+      'invoiceDate',
+      'checkCode',
+      'crc',
+    ];
+    const { empInfo } = this.state;
+    const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
+    const ds = new DataSet({
+      ...ScanGunModalDS(),
+    });
+    const handSave = async () => {
+      const res = getResponse(await creatBatchNumber({ tenantId }));
+      if (res) {
+        const selectedList = ds.selected.map(rec => rec.toData());
+        const result = getResponse(
+          await batchScanGunInvoices({
+            tenantId,
+            batchNo: res,
+            companyCode,
+            companyId,
+            employeeId,
+            employeeNumber,
+            checkResource: 'CODE_SCAN', // 扫码枪标识
+            list: selectedList,
+          })
+        );
+        if (result) {
+          notification.success({
+            description: '',
+            message: intl.get('hzero.common.notification.success.save').d('保存成功'),
+          });
+          ModalPro.destroyAll();
+          this.props.batchInvoiceHeaderDS.query();
+        }
+      }
+    };
+    const handleScanInput = e => {
+      const {
+        target: { value },
+      } = e;
+      const invObj: any = {};
+      if (value.trim()) {
+        value.split(',').forEach((key, index) => {
+          if (scanInvObjKeys[index] === 'invoiceDate') {
+            invObj[scanInvObjKeys[index]] = `${key.slice(0, 4)}-${key.slice(4, 6)}-${key.slice(6)}`;
+          } else {
+            invObj[scanInvObjKeys[index]] = key;
+          }
+        });
+        const { invoiceType, invoiceCode, invoiceNo, invoiceAmount, invoiceDate } = invObj;
+        if (invoiceNo && invoiceDate) {
+          const repeatRes = ds.toData().some((item: any) => {
+            const { invoiceCode: itemInvoiceCode, invoiceNo: itemInvoiceNo } = item;
+            return itemInvoiceCode === invoiceCode && itemInvoiceNo === invoiceNo;
+          });
+          if (repeatRes) {
+            message.warning(
+              intl.get(`${modelCode}.scanGun.invoiceCollected`).d('该发票已采集'),
+              undefined,
+              undefined,
+              'top'
+            );
+          } else {
+            ds.create({ invoiceType, invoiceCode, invoiceNo, invoiceAmount, invoiceDate }, 0);
+          }
+        } else {
+          message.warning(
+            intl.get(`${modelCode}.scanGun.invoiceCollectedProblem`).d('发票采集出现问题'),
+            undefined,
+            undefined,
+            'top'
+          );
+        }
+        e.target.value = '';
+      }
+    };
+    const ObBtn = observer((props: any) => {
+      return (
+        <Button
+          key={props.key}
+          onClick={props.onClick}
+          icon={props.icon}
+          funcType={FuncType.flat}
+          disabled={!ds.selected.length}
+        >
+          {props.title}
+        </Button>
+      );
+    });
+    const saveButton = (
+      <ObBtn
+        icon="save"
+        key="scanGunSave"
+        title={intl.get('hzero.common.table.column.save').d('保存')}
+        onClick={handSave}
+      />
+    );
+    ModalPro.open({
+      title: intl.get(`${modelCode}.button.scanCodeGunCollection`).d('扫码枪采集'),
+      bodyStyle: { width: '700px', minHeight: '400px' },
+      contentStyle: { width: '700px', minHeight: '400px' },
+      children: (
+        <div>
+          <TextField
+            placeholder={intl.get(`${modelCode}.scanGun.acceptData`).d('请点击此处接受扫码枪数据')}
+            onInput={handleScanInput}
+          />
+          <Table
+            dataSet={ds}
+            buttons={[saveButton, TableButtonType.delete]}
+            columns={[
+              {
+                name: 'invoiceType',
+                width: 150,
+              },
+              {
+                name: 'invoiceCode',
+              },
+              {
+                name: 'invoiceNo',
+              },
+              {
+                name: 'invoiceDate',
+              },
+              {
+                name: 'invoiceAmount',
+              },
+            ]}
+            pagination={false}
+          />
+        </div>
+      ),
+      closable: true,
+      resizable: true,
+      footer: '',
+    });
+  }
+
   // 批量发票勾选（取消）可认证发票: 按钮
   get batchButtons(): Buttons[] {
     const { empInfo, authorityCode } = this.state;
@@ -2018,7 +2168,12 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
           <Icon type="arrow_drop_down" />
         </Button>
       </Dropdown>,
-      <Button color={ButtonColor.primary} funcType={FuncType.raised} style={{ float: 'right' }}>
+      <Button
+        color={ButtonColor.primary}
+        funcType={FuncType.raised}
+        style={{ float: 'right' }}
+        onClick={() => this.handleScanGun()}
+      >
         {intl.get(`${modelCode}.button.scanCodeGunCollection`).d('扫码枪采集')}
       </Button>,
     ];
@@ -2516,7 +2671,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
             <div className={styles.header}>
               <Form
                 dataSet={this.props.checkCertificationListDS.queryDataSet}
-                style={{ marginLeft: '-20px' }}
+                // style={{ marginLeft: '-20px' }}
               >
                 <Output name="employeeDesc" />
                 <Output name="curDate" />
