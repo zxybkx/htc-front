@@ -318,7 +318,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
   @Bind()
   async handleAddReq(invoiceInfo) {
     const { empInfo } = this.state;
-    const { invoiceCode, invoiceNo, deductionStatus, applicantType } = invoiceInfo;
+    const { invoiceCode, invoiceNo, deductionStatus, applicantType, taxType } = invoiceInfo;
     const params = {
       tenantId,
       invoiceCode,
@@ -327,6 +327,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
       employeeNumber: empInfo.employeeNum,
       deductionStatus,
       applicantType,
+      taxType,
     };
     const headerRes = getResponse(await createRedInvoiceReq(params));
     if (headerRes) {

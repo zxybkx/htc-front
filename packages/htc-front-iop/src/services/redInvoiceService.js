@@ -36,11 +36,19 @@ export async function createRedInvoiceReq(params) {
  * @returns {object} fetch Promise
  */
 export async function createRedInvoiceReqLines(params) {
-  const { tenantId, invoiceCode, invoiceNo, ...otherParams } = params;
+  const {
+    tenantId,
+    invoiceCode,
+    invoiceNo,
+    deductionStatus,
+    applicantType,
+    taxType,
+    ...otherParams
+  } = params;
   return request(`${HIOP_API}/v1/${tenantId}/red-invoice-requisitions/createLineList`, {
     method: 'POST',
     query: otherParams,
-    body: { invoiceCode, invoiceNo },
+    body: { invoiceCode, invoiceNo, deductionStatus, applicantType, taxType },
   });
 }
 
