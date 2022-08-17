@@ -23,7 +23,6 @@ export default (): DataSetProps => {
         const { companyCode, taxDiskPassword } = data[0];
         return {
           url: `${API_PREFIX}/v1/${tenantId}/enterprise-file-infos/update-password`,
-          // data: data[0],
           params: {
             ...params,
             companyCode,

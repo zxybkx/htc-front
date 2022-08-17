@@ -1,4 +1,4 @@
-import { extendParentConfig } from '@hzerojs/plugin-micro'
+import { extendParentConfig } from '@hzerojs/plugin-micro';
 
 const taxInfoRouterConfig = [
     {
@@ -248,7 +248,7 @@ const requestHistoryRouterConfig = [
 export default extendParentConfig({
     webpack5: {},
     devServer: {
-        port: 8887               //为了微前端本地启动，和主模块microService配置的端口对应
+        port: 8887, // 为了微前端本地启动，和主模块microService配置的端口对应
     },
     routes: [
         ...invoiceReqRouterConfig,
@@ -265,7 +265,7 @@ export default extendParentConfig({
       ...requestHistoryRouterConfig,
     ],
 
-    extraBabelPlugins: [       //原/packages/xxx/.babelrc.js--plugins
+    extraBabelPlugins: [ // 原/packages/xxx/.babelrc.js--plugins
         [
             'module-resolver',
             {
@@ -288,6 +288,6 @@ export default extendParentConfig({
             // "registerRegex": "(\\/aps)|(\\/orderPerfomace)|(\\/pub/aps)"
             //原先在.hzerorc.json使用的是"initLoad": true,现在使用的模块加载规则：当匹配到对应的路由后，才加载对应的模块。
             //主模块下microServices下registerRegex优先级最高
-        }
+        },
     },
 });

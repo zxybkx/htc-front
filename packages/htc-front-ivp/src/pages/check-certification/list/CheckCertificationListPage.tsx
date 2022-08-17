@@ -17,6 +17,7 @@ import {
   Currency,
   DataSet,
   DatePicker,
+  DateTimePicker,
   Dropdown,
   Form,
   Lov,
@@ -175,9 +176,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     progressValue: 0,
     progressStatus: ProgressStatus.active,
     visible: false, // 进度条是否显示
-    // loadingFlag: false,
-    // hide: true, // 数据汇总表格是否隐藏
-    // isBatchFreshDisabled: true, // 批量发票勾选刷新是否可点
     authorityCode: undefined,
     verfiableMoreDisplay: false, // 当期可认证发票查询是否显示更多
     batchInvoiceMoreDisplay: false, // 批量可认证发票查询是否显示更多
@@ -188,8 +186,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     autoQuery: false,
     ...TimeRange(),
   });
-
-  // multipleUpload;
 
   @Bind()
   async getTaskPassword(companyObj, dataSet) {
@@ -235,7 +231,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       queryDataSet.current!.set({ companyObj });
       this.props.companyAndPassword.current!.set({ inChannelCode });
       queryDataSet.current!.set({ authorityCode: competentTaxAuthorities });
-      // inChannelCode === 'AISINO_IN_CHANNEL' ? this.props.companyAndPassword.current!.set({ taxDiskPassword: '88888888' }) : this.getTaskPassword(companyObj, this.props.companyAndPassword);
     }
     if (inChannelCode === 'AISINO_IN_CHANNEL') {
       this.props.companyAndPassword.current!.set({ taxDiskPassword: '88888888' });
@@ -248,7 +243,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       const currentPeriod = certifiableQueryDS.current!.get('currentPeriod');
       const currentCertState = certifiableQueryDS.current!.get('currentCertState');
       if (statisticalDs) {
-        // statisticalDs.current!.set({ statisticalPeriod: currentPeriod });
         statisticalDs.current!.set({ authenticationDateObj: { statisticalPeriod: currentPeriod } });
         statisticalDs.current!.set({ companyId: companyObj.companyId });
         statisticalDs.current!.set({ currentCertState });
@@ -257,12 +251,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     if (batchInvoiceHeaderDS) {
       batchInvoiceHeaderDS.current!.set({ companyObj });
       batchInvoiceHeaderDS.current!.set({ authorityCode: competentTaxAuthorities });
-      // if (inChannelCode === 'AISINO_IN_CHANNEL') {
-      //   batchInvoiceHeaderDS.current!.set({ spmm: '88888888' });
-      // } else {
-      //   // 获取税盘密码
-      //   this.getTaskPassword(companyObj, batchInvoiceHeaderDS);
-      // }
     }
     this.setState({ empInfo: companyObj, authorityCode: competentTaxAuthorities });
     this.props.checkCertificationListDS.setQueryParameter('companyId', companyId);
@@ -684,8 +672,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
           invoiceDate: kprq,
           validTaxAmount: yxse,
           invoicePoolHeaderId: id,
+          invoiceCheckCollectId,
         } = record;
-        return { fpdm, fphm, kprq, yxse, id, gxzt: isTick };
+        return { fpdm, fphm, kprq, yxse, id, gxzt: isTick, invoiceCheckCollectId };
       });
       invoiceRequestParamDto = {
         data,
@@ -700,8 +689,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
           invoiceDate: tfrq,
           validTaxAmount: yxse,
           invoicePoolHeaderId: id,
+          invoiceCheckCollectId,
         } = record;
-        return { fply: '1', jkshm, se, tfrq, yxse, id, zt: isTick };
+        return { fply: '1', jkshm, se, tfrq, yxse, id, zt: isTick, invoiceCheckCollectId };
       });
       invoiceRequestParamDto = {
         paymentCustomerData,
@@ -805,7 +795,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   }
 
   // 当期勾选(取消)可认证发票: 按钮
-  get verifiableBtns(): Buttons[] {
+  get verifiableButtons(): Buttons[] {
     const VerifiableInvoicesButton = observer((props: any) => {
       let disabled = false;
       if (props.dataSet && props.companyDataSet) {
@@ -1176,10 +1166,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         align: ColumnAlign.right,
       },
       { name: 'invoiceState' },
-      {
-        name: 'isPoolFlag',
-        // renderer: ({ value }) => (value && value === 'Y' ? '是' : '否'),
-      },
+      { name: 'isPoolFlag' },
       { name: 'checkDate', width: 130 },
       { name: 'authenticationState' },
       { name: 'authenticationType' },
@@ -1260,7 +1247,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         companyId,
         companyCode,
         employeeNumber,
-        // taxDiskPassword,
         employeeId,
         companyName,
         employeeDesc,
@@ -1320,7 +1306,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   async handleStatistics() {
     const { checkCertificationListDS } = this.props;
     const { queryDataSet } = checkCertificationListDS;
-    const { queryDataSet: tableQueyDataSet } = this.props.statisticalConfirmDS;
+    const { queryDataSet: tableQueryDataSet } = this.props.statisticalConfirmDS;
     const { empInfo } = this.state;
     const {
       companyId,
@@ -1347,9 +1333,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       });
       return;
     }
-    if (queryDataSet && tableQueyDataSet) {
+    if (queryDataSet && tableQueryDataSet) {
       const queryData = queryDataSet.current!.toData();
-      const tableData = tableQueyDataSet.current!.toData();
+      const tableData = tableQueryDataSet.current!.toData();
       const { employeeDesc } = queryData;
       const { currentCertState, statisticalPeriod } = tableData;
       const companyDesc = `${companyCode}-${companyName}`;
@@ -1361,8 +1347,8 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         return;
       }
       let statisticalFlag;
-      if (currentCertState === '0' || currentCertState === '1') statisticalFlag = 1;
-      if (currentCertState === '2' || currentCertState === '3') statisticalFlag = 0;
+      if (['0', '1'].includes(currentCertState)) statisticalFlag = 1;
+      if (['2', '3'].includes(currentCertState)) statisticalFlag = 0;
       const params = {
         tenantId,
         companyId,
@@ -1769,7 +1755,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   async downLoad() {
     const { empInfo } = this.state;
     const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
-    const needDownloadKey = this.props.batchInvoiceHeaderDS.current!.get('needDownloadKey');
+    const needDownloadKey = this.props.batchInvoiceHeaderDS.selected[0].get('needDownloadKey');
     const params = {
       tenantId,
       companyId,
@@ -1841,7 +1827,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   async getCurrentCheckInvoices() {
     const { queryDataSet } = this.props.batchInvoiceHeaderDS;
     const { empInfo } = this.state;
-    const gxzt = queryDataSet && queryDataSet.current!.get('gxzt');
     const checkableTimeRange = queryDataSet && queryDataSet.current!.get('checkableTimeRange');
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
@@ -1858,7 +1843,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       employeeId,
       employeeNumber,
       spmm: taxDiskPassword,
-      gxzt,
+      gxzt: '0',
       checkableTimeRange,
     };
     const res = getResponse(await unCertifiedInvoiceQuery(params));
@@ -1893,13 +1878,14 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     const { empInfo, authorityCode } = this.state;
     const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
+    console.log('authorityCode', authorityCode);
+    console.log('empInfo', empInfo);
+    console.log('taxDiskPassword', taxDiskPassword);
     const uploadProps = {
       headers: {
         'Access-Control-Allow-Origin': '*',
         Authorization: `bearer ${getAccessToken()}`,
       },
-      data: {},
-      action: `${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`,
       multiple: false,
       showUploadBtn: false,
       showPreviewImage: false,
@@ -1908,12 +1894,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       onUploadError: this.handleUploadError,
     };
     const HeaderButtons = observer((props: any) => {
-      let isDisabled;
-      if (props.type === 'downLoad') {
-        isDisabled = props.dataSet!.length === 0;
-      } else {
-        isDisabled = props.dataSet!.selected.length === 0;
-      }
+      const isDisabled = props.dataSet!.selected.length === 0;
       return (
         <Button
           key={props.key}
@@ -2002,35 +1983,32 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       </Menu>
     );
     return [
-      <span className="c7n-pro-btn">
-        <Upload
-          {...uploadProps}
-          disabled={!companyId}
-          accept={[
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'application/vnd.ms-excel',
-          ]}
-        />
-      </span>,
+      <Upload
+        {...uploadProps}
+        disabled={!companyId}
+        accept={[
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'application/vnd.ms-excel',
+        ]}
+        action={`${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`}
+      />,
       <HeaderButtons
         key="downloadFile"
         onClick={() => this.downLoad()}
         dataSet={this.props.batchInvoiceHeaderDS}
         title={intl.get('hivp.taxRefund.button.downloadFile').d('下载发票文件')}
-        type="downLoad"
       />,
       <HeaderButtons
         key="refresh"
         onClick={() => this.batchInvoiceRefresh()}
         dataSet={this.props.batchInvoiceHeaderDS}
         title={intl.get(`${modelCode}.button.batchRefresh`).d('刷新状态')}
-        type="refresh"
       />,
       <CurrentCheckInvoicesButton
         key="getCurrentCheckInvoices"
         onClick={() => this.getCurrentCheckInvoices()}
         dataSet={this.props.checkCertificationListDS}
-        title={intl.get(`${modelCode}.button.getCurrentCheckInvoices`).d('获取当前可勾选发票')}
+        title={intl.get(`${modelCode}.button.getCurrentCheckInvoices`).d('实时汇总可勾选发票')}
         type="getCurrentCheckInvoices"
       />,
       <Tooltips dataSet={this.props.checkCertificationListDS} />,
@@ -2046,6 +2024,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
           <Icon type="arrow_drop_down" />
         </Button>
       </Dropdown>,
+      <Button color={ButtonColor.primary} funcType={FuncType.raised} style={{ float: 'right' }}>
+        {intl.get(`${modelCode}.button.scanCodeGunCollection`).d('扫码枪采集')}
+      </Button>,
     ];
   }
 
@@ -2094,7 +2075,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   handleBatchInvoiceDetail(record, type) {
     const { history } = this.props;
     const recordData = record.toData();
-    const { batchNo, requestTime, completeTime, invoiceCheckCollectId } = recordData;
+    const { batchNumber, batchNo, requestTime, completeTime, invoiceCheckCollectId } = recordData;
     history.push({
       pathname: `/htc-front-ivp/check-certification/batch-check-detail/${invoiceCheckCollectId}/${type}`,
       search: queryString.stringify({
@@ -2103,6 +2084,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
             batchNo,
             requestTime,
             completeTime,
+            batchNumber,
           })
         ),
       }),
@@ -2111,34 +2093,61 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
 
   get batchHeaderColumns(): ColumnProps[] {
     return [
+      { name: 'batchNo', width: 130 },
       {
         name: 'invoiceNum',
-        width: 120,
+        width: 140,
         renderer: ({ value, record }) => {
           return this.commonRendererFn({ value, record });
         },
       },
       { name: 'totalInvoiceAmountGross', width: 120 },
       { name: 'totalInvoiceTheAmount', width: 120 },
+      { name: 'checkResource' },
       {
         name: 'abnormalInvoiceCount',
-        renderer: ({ value }) => value && <span>{`非正常发票不参与批量勾选，共${value}张`}</span>,
-      },
-      { name: 'batchNo' },
-      {
-        name: 'failCount',
+        width: 150,
+        className: styles.batchInvoice,
+        align: ColumnAlign.left,
         renderer: ({ value, record }) => {
           if (value === 0) {
-            return value;
+            return <span>非正常状态的发票不计入批量勾选，数量为：0</span>;
           } else {
-            return <a onClick={() => this.handleBatchInvoiceDetail(record, 0)}>{value}</a>;
+            return (
+              <div>
+                <span>
+                  非正常状态的发票不计入批量勾选，数量为：
+                  <a onClick={() => this.handleBatchInvoiceDetail(record, 2)}>{value}</a>
+                </span>
+              </div>
+            );
           }
         },
       },
-      { name: 'taxStatistics' },
-      { name: 'uploadTime' },
-      { name: 'requestTime' },
-      { name: 'completeTime' },
+      { name: 'batchNumber' },
+      {
+        name: 'failCount',
+        width: 150,
+        renderer: ({ value, record }) => {
+          if (value === 0) {
+            return <span>本次勾选失败份数：0</span>;
+          } else {
+            return (
+              <div>
+                <span>
+                  本次勾选失败份数：
+                  <a onClick={() => this.handleBatchInvoiceDetail(record, 0)}>{value}</a>
+                </span>
+                ;
+              </div>
+            );
+          }
+        },
+      },
+      { name: 'taxStatistics', width: 120 },
+      { name: 'uploadTime', width: 160 },
+      { name: 'requestTime', width: 160 },
+      { name: 'completeTime', width: 160 },
       {
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
@@ -2195,22 +2204,59 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   renderBatchQueryBar(props) {
     const { queryDataSet, buttons, dataSet } = props;
     const { batchInvoiceMoreDisplay } = this.state;
-    const queryMoreArray: JSX.Element[] = [];
-    queryMoreArray.push(<Select name="currentCertState" />);
-    queryMoreArray.push(<DatePicker name="rqq" />);
-    queryMoreArray.push(<DatePicker name="rqz" />);
-    queryMoreArray.push(<TextField name="salerTaxNo" />);
-    queryMoreArray.push(<Select name="gxzt" />);
     return (
       <div style={{ marginBottom: '0.1rem' }}>
         <Row>
           <Col span={19}>
-            <Form dataSet={queryDataSet} columns={3}>
-              <TextField name="tjyf" />
-              <TextField name="currentOperationalDeadline" />
-              <TextField name="checkableTimeRange" />
-              {batchInvoiceMoreDisplay && queryMoreArray}
-            </Form>
+            {batchInvoiceMoreDisplay ? (
+              <div>
+                <div
+                  style={{
+                    background: 'rgb(0,0,0,0.02)',
+                    padding: '10px 10px 0px',
+                    // marginRight: '8px',
+                  }}
+                >
+                  <h3>
+                    <b>{intl.get('hivp.checkCertification.view.queryConditions').d('查询条件')}</b>
+                  </h3>
+                  <Form dataSet={queryDataSet} columns={3}>
+                    <Select name="checkState" />
+                    <DateTimePicker name="requestTime" colSpan={2} />
+                    <TextField name="batchNo" />
+                    <Select name="checkResource" />
+                  </Form>
+                </div>
+                <div
+                  style={{
+                    background: 'rgb(0,0,0,0.02)',
+                    padding: '10px 10px 0px',
+                    margin: '10px 0 10px 0',
+                  }}
+                >
+                  <h3>
+                    <b>
+                      {intl.get('hivp.checkCertification.view.aggregateConditions').d('汇总条件')}
+                    </b>
+                  </h3>
+                  <Form dataSet={queryDataSet} columns={3}>
+                    <TextField name="tjyf" />
+                    <TextField name="currentOperationalDeadline" />
+                    <TextField name="checkableTimeRange" />
+                    <Select name="currentCertState" />
+                    <DatePicker name="rqq" />
+                    <DatePicker name="rqz" />
+                    <TextField name="salerTaxNo" />
+                  </Form>
+                </div>
+              </div>
+            ) : (
+              <Form dataSet={queryDataSet} columns={3}>
+                <Select name="checkState" />
+                <TextField name="batchNo" />
+                <Select name="lylx" />
+              </Form>
+            )}
           </Col>
           <Col span={5} style={{ textAlign: 'end' }}>
             <Button
@@ -2310,6 +2356,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   @Bind()
   async handlePasswordSave(modal) {
     const validate = await this.props.companyAndPassword.validate(false, false);
+    console.log('validate', validate);
     if (validate) {
       const res = await this.props.companyAndPassword.submit();
       if (res && res.status === 'H1014') {
@@ -2385,7 +2432,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   @Bind()
   handleRow(record) {
     return {
-      onClick: () => this.companyChange(record.toData(), 0),
+      onClick: () => this.companyChange(record.toData(), 2),
     };
   }
 
@@ -2475,7 +2522,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
             <div className={styles.header}>
               <Form
                 dataSet={this.props.checkCertificationListDS.queryDataSet}
-                // style={{ marginLeft: '-20px' }}
+                style={{ marginLeft: '-20px' }}
               >
                 <Output name="employeeDesc" />
                 <Output name="curDate" />
@@ -2529,7 +2576,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
                     <Table
                       dataSet={this.props.certifiableInvoiceListDS}
                       columns={this.verifiableColumns}
-                      buttons={this.verifiableBtns}
+                      buttons={this.verifiableButtons}
                       queryBar={this.renderVerifiableBar}
                       style={{ height: 320 }}
                     />
@@ -2543,7 +2590,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
                       columns={this.statisticalConfirmColumns}
                       buttons={this.statisticalConfirmButtons}
                       queryBar={this.renderStatisticalConfirmQueryBar}
-                      // onRow={({ record }) => this.handleStatisticalRow(record)}
                       style={{ height: 300 }}
                     />
                     <AggregationTable
