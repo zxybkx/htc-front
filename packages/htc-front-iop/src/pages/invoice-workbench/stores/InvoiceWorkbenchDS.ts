@@ -280,6 +280,16 @@ export default (): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.exceptionDesc').d('状态描述'),
         type: FieldType.string,
       },
+      {
+        name: 'systemCode',
+        label: intl.get('hiop.invoiceReq.modal.systemCode').d('来源系统'),
+        type: FieldType.string,
+      },
+      {
+        name: 'documentTypeCode',
+        label: intl.get('hiop.invoiceReq.modal.documentTypeCode').d('来源单据类型'),
+        type: FieldType.string,
+      },
     ],
     events: {
       selectAll: ({ dataSet }) => {

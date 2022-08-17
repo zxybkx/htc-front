@@ -231,7 +231,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       queryDataSet.current!.set({ companyObj });
       this.props.companyAndPassword.current!.set({ inChannelCode });
       queryDataSet.current!.set({ authorityCode: competentTaxAuthorities });
-      // inChannelCode === 'AISINO_IN_CHANNEL' ? this.props.companyAndPassword.current!.set({ taxDiskPassword: '88888888' }) : this.getTaskPassword(companyObj, this.props.companyAndPassword);
     }
     if (inChannelCode === 'AISINO_IN_CHANNEL') {
       this.props.companyAndPassword.current!.set({ taxDiskPassword: '88888888' });
@@ -244,7 +243,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       const currentPeriod = certifiableQueryDS.current!.get('currentPeriod');
       const currentCertState = certifiableQueryDS.current!.get('currentCertState');
       if (statisticalDs) {
-        // statisticalDs.current!.set({ statisticalPeriod: currentPeriod });
         statisticalDs.current!.set({ authenticationDateObj: { statisticalPeriod: currentPeriod } });
         statisticalDs.current!.set({ companyId: companyObj.companyId });
         statisticalDs.current!.set({ currentCertState });
@@ -253,12 +251,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     if (batchInvoiceHeaderDS) {
       batchInvoiceHeaderDS.current!.set({ companyObj });
       batchInvoiceHeaderDS.current!.set({ authorityCode: competentTaxAuthorities });
-      // if (inChannelCode === 'AISINO_IN_CHANNEL') {
-      //   batchInvoiceHeaderDS.current!.set({ spmm: '88888888' });
-      // } else {
-      //   // 获取税盘密码
-      //   this.getTaskPassword(companyObj, batchInvoiceHeaderDS);
-      // }
     }
     this.setState({ empInfo: companyObj, authorityCode: competentTaxAuthorities });
     this.props.checkCertificationListDS.setQueryParameter('companyId', companyId);
@@ -2363,6 +2355,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   @Bind()
   async handlePasswordSave(modal) {
     const validate = await this.props.companyAndPassword.validate(false, false);
+    console.log('validate', validate);
     if (validate) {
       const res = await this.props.companyAndPassword.submit();
       if (res && res.status === 'H1014') {
@@ -2438,7 +2431,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   @Bind()
   handleRow(record) {
     return {
-      onClick: () => this.companyChange(record.toData(), 0),
+      onClick: () => this.companyChange(record.toData(), 2),
     };
   }
 
