@@ -195,8 +195,8 @@ export async function downloadFile(params) {
   return request(`${HIVP_API}/v1/${tenantId}/batch-check/download-certified-file`, {
     method: 'POST',
     query: otherParams,
-    body: needDownloadKey,
-    responseType: 'blob',
+    body: { needDownloadKey },
+    // responseType: 'blob',
   });
 }
 
@@ -262,17 +262,6 @@ export async function getTaskPassword(params) {
 }
 
 /**
- * 批量勾选明细
- */
-export async function failDetail(params) {
-  const { tenantId, ...otherParams } = params;
-  return request(`${HIVP_API}/v1/${tenantId}/batch-check/fail-detail`, {
-    method: 'GET',
-    query: otherParams,
-  });
-}
-
-/**
  * 勾选认证-下载申报抵扣统计表
  */
 export async function deductionReportDownload(params) {
@@ -307,5 +296,30 @@ export async function enterpriseSave(params) {
   return request(`${HIVP_API}/v1/${tenantId}/enterprise-file-infos/batch-save`, {
     method: 'POST',
     body: list,
+  });
+}
+/**
+ * @description: 生成批次号
+ * @function: creatBatchNumber
+ */
+export async function creatBatchNumber(params) {
+  const { tenantId } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/batch-check/create-batch-no`, {
+    method: 'GET',
+  });
+}
+/**
+ * @description: 扫码枪批量识别发票保存
+ * @function: batchScanGunInvoices
+ * @param {*} params
+ */
+export async function batchScanGunInvoices(params) {
+  const { tenantId, list, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/batch-check/short_program_partial-Check`, {
+    method: 'POST',
+    query: otherParams,
+    body: {
+      shortProgramCheckDtos: list,
+    },
   });
 }

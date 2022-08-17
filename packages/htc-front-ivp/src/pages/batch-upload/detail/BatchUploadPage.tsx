@@ -378,8 +378,6 @@ export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
 
   @Bind()
   handleUploadDataChange(page, pageSize) {
-    console.log(this.multipleDS.data);
-
     const totalData = this.state.uploadFileData;
     const currentPageSize = this.multipleDS.pageSize;
     const _page = currentPageSize === pageSize ? page : 1;

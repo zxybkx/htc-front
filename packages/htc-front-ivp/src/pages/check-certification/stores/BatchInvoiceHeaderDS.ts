@@ -1,5 +1,5 @@
-/*
- * @Description:批量退税勾选(取消)可确认发票
+/**
+ * @Description: 批量退税勾选(取消)可确认发票
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-26 11:01:10
@@ -44,6 +44,11 @@ export default (): DataSetProps => {
     paging: false,
     fields: [
       {
+        name: 'batchNo',
+        label: intl.get('hiop.redInvoiceInfo.modal.bcbh').d('批次编号'),
+        type: FieldType.string,
+      },
+      {
         name: 'checkState',
         label: intl.get(`${modelCode}.view.checkState`).d('勾选标志'),
         type: FieldType.string,
@@ -65,13 +70,19 @@ export default (): DataSetProps => {
         type: FieldType.currency,
       },
       {
-        name: 'abnormalInvoiceCount',
-        label: intl.get(`${modelCode}.view.abnormalInvoiceCount`).d('备注'),
+        name: 'checkResource',
+        label: intl.get('hiop.redInvoiceInfo.modal.lylx').d('来源类型'),
+        lookupCode: 'HTC.IVP.CHECK_RESOURCE',
         type: FieldType.string,
       },
       {
-        name: 'batchNo',
-        label: intl.get('hiop.redInvoiceInfo.modal.batchNo').d('批次号'),
+        name: 'abnormalInvoiceCount',
+        label: intl.get(`${modelCode}.view.ycfpyj`).d('异常发票预警'),
+        type: FieldType.number,
+      },
+      {
+        name: 'batchNumber',
+        label: intl.get('hiop.redInvoiceInfo.modal.qqpch').d('请求批次号'),
         type: FieldType.string,
       },
       {
@@ -91,7 +102,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'uploadTime',
-        label: intl.get(`${modelCode}.view.uploadTime`).d('上传时间'),
+        label: intl.get(`${modelCode}.view.sssj`).d('生成时间'),
         type: FieldType.string,
       },
       {
@@ -175,14 +186,14 @@ export default (): DataSetProps => {
           label: intl.get('hivp.bill.view.invoiceDateFrom').d('开票日期从'),
           type: FieldType.date,
           max: 'rqz',
-          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          // transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'rqz',
           label: intl.get('hivp.bill.view.invoiceDateTo').d('开票日期至'),
           type: FieldType.date,
           min: 'rqq',
-          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          // transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'salerTaxNo',
@@ -190,7 +201,7 @@ export default (): DataSetProps => {
           type: FieldType.string,
         },
         {
-          name: 'gxzt',
+          name: 'checkState',
           label: intl.get(`${modelCode}.view.checkState`).d('勾选标志'),
           type: FieldType.string,
           lookupCode: 'HIVP.CHECK_STATE',
@@ -206,27 +217,35 @@ export default (): DataSetProps => {
         },
         {
           name: 'batchNo',
-          label: intl.get('hiop.redInvoiceInfo.modal.batchNo').d('批次号'),
+          label: intl.get('hiop.redInvoiceInfo.modal.pcbh').d('批次编号'),
           type: FieldType.string,
         },
         {
-          name: 'invoiceDate',
+          name: 'requestTime',
           label: intl.get('hivp.checkCertification.view.requestTime').d('请求时间'),
-          type: FieldType.date,
+          type: FieldType.dateTime,
           range: ['invoiceDateFrom', 'invoiceDateTo'],
           ignore: FieldIgnore.always,
         },
         {
-          name: 'invoiceDateFrom',
-          type: FieldType.date,
-          bind: 'invoiceDate.invoiceDateFrom',
-          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          name: 'requestTimeFrom',
+          type: FieldType.dateTime,
+          bind: 'requestTime.requestTimeFrom',
+          max: 'requestTimeTo',
+          // transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
-          name: 'invoiceDateTo',
-          type: FieldType.date,
-          bind: 'invoiceDate.invoiceDateTo',
-          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          name: 'requestTimeTo',
+          type: FieldType.dateTime,
+          bind: 'requestTime.requestTimeTo',
+          min: 'requestTimeFrom',
+          // transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'checkResource',
+          label: intl.get('hiop.redInvoiceInfo.modal.lylx').d('来源类型'),
+          lookupCode: 'HTC.IVP.CHECK_RESOURCE',
+          type: FieldType.string,
         },
       ],
     }),
