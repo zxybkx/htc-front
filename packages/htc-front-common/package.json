@@ -1,6 +1,6 @@
 {
   "name": "htc-front-common",
-  "version": "1.2.0-beta.1",
+  "version": "1.2.0-beta.2",
   "homepage": "",
   "license": "ISC",
   "directories": {
@@ -10,7 +10,8 @@
     "registry": "http://nexus.saas.hand-china.com/content/repositories/hone-ui/"
   },
   "files": [
-    "lib"
+    "lib",
+    "config"
   ],
   "repository": {
     "type": "git",
