@@ -74,7 +74,7 @@ import { ProgressStatus } from 'choerodon-ui/lib/progress/enum';
 import commonConfig from '@htccommon/config/commonConfig';
 import { API_HOST } from 'utils/config';
 import { observer } from 'mobx-react-lite';
-import { isEmpty, remove, set, split, uniq, uniqBy } from 'lodash';
+import { isEmpty, remove, set, split, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Col, Icon, message, Modal, Row, Tag, Tooltip } from 'choerodon-ui';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
@@ -234,7 +234,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       queryDataSet.current!.set({ companyObj });
       this.props.companyAndPassword.current!.set({ inChannelCode });
       queryDataSet.current!.set({ authorityCode: competentTaxAuthorities });
-      // inChannelCode === 'AISINO_IN_CHANNEL' ? this.props.companyAndPassword.current!.set({ taxDiskPassword: '88888888' }) : this.getTaskPassword(companyObj, this.props.companyAndPassword);
     }
     if (inChannelCode === 'AISINO_IN_CHANNEL') {
       this.props.companyAndPassword.current!.set({ taxDiskPassword: '88888888' });
@@ -247,7 +246,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       const currentPeriod = certifiableQueryDS.current!.get('currentPeriod');
       const currentCertState = certifiableQueryDS.current!.get('currentCertState');
       if (statisticalDs) {
-        // statisticalDs.current!.set({ statisticalPeriod: currentPeriod });
         statisticalDs.current!.set({ authenticationDateObj: { statisticalPeriod: currentPeriod } });
         statisticalDs.current!.set({ companyId: companyObj.companyId });
         statisticalDs.current!.set({ currentCertState });
@@ -256,12 +254,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     if (batchInvoiceHeaderDS) {
       batchInvoiceHeaderDS.current!.set({ companyObj });
       batchInvoiceHeaderDS.current!.set({ authorityCode: competentTaxAuthorities });
-      // if (inChannelCode === 'AISINO_IN_CHANNEL') {
-      //   batchInvoiceHeaderDS.current!.set({ spmm: '88888888' });
-      // } else {
-      //   // 获取税盘密码
-      //   this.getTaskPassword(companyObj, batchInvoiceHeaderDS);
-      // }
     }
     this.setState({ empInfo: companyObj, authorityCode: competentTaxAuthorities });
     this.props.checkCertificationListDS.setQueryParameter('companyId', companyId);
@@ -683,8 +675,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
           invoiceDate: kprq,
           validTaxAmount: yxse,
           invoicePoolHeaderId: id,
+          invoiceCheckCollectId,
         } = record;
-        return { fpdm, fphm, kprq, yxse, id, gxzt: isTick };
+        return { fpdm, fphm, kprq, yxse, id, gxzt: isTick, invoiceCheckCollectId };
       });
       invoiceRequestParamDto = {
         data,
@@ -699,8 +692,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
           invoiceDate: tfrq,
           validTaxAmount: yxse,
           invoicePoolHeaderId: id,
+          invoiceCheckCollectId,
         } = record;
-        return { fply: '1', jkshm, se, tfrq, yxse, id, zt: isTick };
+        return { fply: '1', jkshm, se, tfrq, yxse, id, zt: isTick, invoiceCheckCollectId };
       });
       invoiceRequestParamDto = {
         paymentCustomerData,
@@ -804,7 +798,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   }
 
   // 当期勾选(取消)可认证发票: 按钮
-  get verifiableBtns(): Buttons[] {
+  get verifiableButtons(): Buttons[] {
     const VerifiableInvoicesButton = observer((props: any) => {
       let disabled = false;
       if (props.dataSet && props.companyDataSet) {
@@ -1764,7 +1758,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   async downLoad() {
     const { empInfo } = this.state;
     const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
-    const needDownloadKey = this.props.batchInvoiceHeaderDS.current!.get('needDownloadKey');
+    const needDownloadKey = this.props.batchInvoiceHeaderDS.selected[0].get('redisKey');
     const params = {
       tenantId,
       companyId,
@@ -1803,7 +1797,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     const { empInfo } = this.state;
     const selectedList = this.props.batchInvoiceHeaderDS.selected.map(rec => rec.toData());
     const unPass = selectedList.some(item => item.checkState !== 'R');
-    const batchNoList = uniq(selectedList.map(item => item.batchNo));
     if (unPass) {
       notification.warning({
         description: '',
@@ -1813,7 +1806,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       });
       return;
     }
-    const params = { tenantId, empInfo, batchNoList };
+    const params = { tenantId, empInfo, selectedList };
     const res = getResponse(await refreshStatus(params));
     if (res && res.status === '1000') {
       notification.success({
@@ -1821,11 +1814,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         message: intl.get('hzero.common.notification.success').d('操作成功'),
       });
       this.props.batchInvoiceHeaderDS.query();
-    } else {
-      notification.error({
-        description: '',
-        message: res && res.message,
-      });
     }
   }
 
@@ -1886,8 +1874,16 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   @Bind()
   handleScanGun() {
     // 扫发票二维码对应字段
-    const scanInvObjKeys = ['version', 'invoiceType', 'invoiceCode', 'invoiceNo',
-      'invoiceAmount', 'invoiceDate', 'checkCode', 'crc'];
+    const scanInvObjKeys = [
+      'version',
+      'invoiceType',
+      'invoiceCode',
+      'invoiceNo',
+      'invoiceAmount',
+      'invoiceDate',
+      'checkCode',
+      'crc',
+    ];
     const { empInfo } = this.state;
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const ds = new DataSet({
@@ -1897,16 +1893,18 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       const res = getResponse(await creatBatchNumber({ tenantId }));
       if (res) {
         const selectedList = ds.selected.map(rec => rec.toData());
-        const result = getResponse(await batchScanGunInvoices({
-          tenantId,
-          batchNo: res,
-          companyCode,
-          companyId,
-          employeeId,
-          employeeNumber,
-          checkResource: 'CODE_SCAN', // 扫码枪标识
-          list: selectedList,
-        }));
+        const result = getResponse(
+          await batchScanGunInvoices({
+            tenantId,
+            batchNo: res,
+            companyCode,
+            companyId,
+            employeeId,
+            employeeNumber,
+            checkResource: 'CODE_SCAN', // 扫码枪标识
+            list: selectedList,
+          })
+        );
         if (result) {
           notification.success({
             description: '',
@@ -1917,8 +1915,10 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         }
       }
     };
-    const handleScanInput = (e) => {
-      const { target: { value } } = e;
+    const handleScanInput = e => {
+      const {
+        target: { value },
+      } = e;
       const invObj: any = {};
       if (value.trim()) {
         value.split(',').forEach((key, index) => {
@@ -1932,15 +1932,25 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         if (invoiceNo && invoiceDate) {
           const repeatRes = ds.toData().some((item: any) => {
             const { invoiceCode: itemInvoiceCode, invoiceNo: itemInvoiceNo } = item;
-            return (itemInvoiceCode === invoiceCode && itemInvoiceNo === invoiceNo);
+            return itemInvoiceCode === invoiceCode && itemInvoiceNo === invoiceNo;
           });
           if (repeatRes) {
-            message.warning(intl.get(`${modelCode}.scanGun.invoiceCollected`).d('该发票已采集'), undefined, undefined, 'top');
+            message.warning(
+              intl.get(`${modelCode}.scanGun.invoiceCollected`).d('该发票已采集'),
+              undefined,
+              undefined,
+              'top'
+            );
           } else {
             ds.create({ invoiceType, invoiceCode, invoiceNo, invoiceAmount, invoiceDate }, 0);
           }
         } else {
-          message.warning(intl.get(`${modelCode}.scanGun.invoiceCollectedProblem`).d('发票采集出现问题'), undefined, undefined, 'top');
+          message.warning(
+            intl.get(`${modelCode}.scanGun.invoiceCollectedProblem`).d('发票采集出现问题'),
+            undefined,
+            undefined,
+            'top'
+          );
         }
         e.target.value = '';
       }
@@ -1959,7 +1969,12 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       );
     });
     const saveButton = (
-      <ObBtn icon="save" key='scanGunSave' title={intl.get('hzero.common.table.column.save').d('保存')} onClick={handSave} />
+      <ObBtn
+        icon="save"
+        key="scanGunSave"
+        title={intl.get('hzero.common.table.column.save').d('保存')}
+        onClick={handSave}
+      />
     );
     ModalPro.open({
       title: intl.get(`${modelCode}.button.scanCodeGunCollection`).d('扫码枪采集'),
@@ -1967,7 +1982,10 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       contentStyle: { width: '700px', minHeight: '400px' },
       children: (
         <div>
-          <TextField placeholder={intl.get(`${modelCode}.scanGun.acceptData`).d('请点击此处接受扫码枪数据')} onInput={handleScanInput} />
+          <TextField
+            placeholder={intl.get(`${modelCode}.scanGun.acceptData`).d('请点击此处接受扫码枪数据')}
+            onInput={handleScanInput}
+          />
           <Table
             dataSet={ds}
             buttons={[saveButton, TableButtonType.delete]}
@@ -2004,12 +2022,14 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     const { empInfo, authorityCode } = this.state;
     const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
+    console.log('authorityCode', authorityCode);
+    console.log('empInfo', empInfo);
+    console.log('taxDiskPassword', taxDiskPassword);
     const uploadProps = {
       headers: {
         'Access-Control-Allow-Origin': '*',
         Authorization: `bearer ${getAccessToken()}`,
       },
-      action: `${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`,
       multiple: false,
       showUploadBtn: false,
       showPreviewImage: false,
@@ -2018,12 +2038,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       onUploadError: this.handleUploadError,
     };
     const HeaderButtons = observer((props: any) => {
-      let isDisabled;
-      if (props.type === 'downLoad') {
-        isDisabled = props.dataSet!.length === 0;
-      } else {
-        isDisabled = props.dataSet!.selected.length === 0;
-      }
+      const isDisabled = props.dataSet!.selected.length === 0;
       return (
         <Button
           key={props.key}
@@ -2126,14 +2141,12 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         onClick={() => this.downLoad()}
         dataSet={this.props.batchInvoiceHeaderDS}
         title={intl.get('hivp.taxRefund.button.downloadFile').d('下载发票文件')}
-        type="downLoad"
       />,
       <HeaderButtons
         key="refresh"
         onClick={() => this.batchInvoiceRefresh()}
         dataSet={this.props.batchInvoiceHeaderDS}
         title={intl.get(`${modelCode}.button.batchRefresh`).d('刷新状态')}
-        type="refresh"
       />,
       <CurrentCheckInvoicesButton
         key="getCurrentCheckInvoices"
@@ -2492,6 +2505,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   @Bind()
   async handlePasswordSave(modal) {
     const validate = await this.props.companyAndPassword.validate(false, false);
+    console.log('validate', validate);
     if (validate) {
       const res = await this.props.companyAndPassword.submit();
       if (res && res.status === 'H1014') {
@@ -2567,7 +2581,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   @Bind()
   handleRow(record) {
     return {
-      onClick: () => this.companyChange(record.toData(), 0),
+      onClick: () => this.companyChange(record.toData(), 2),
     };
   }
 
@@ -2657,7 +2671,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
             <div className={styles.header}>
               <Form
                 dataSet={this.props.checkCertificationListDS.queryDataSet}
-              // style={{ marginLeft: '-20px' }}
+                // style={{ marginLeft: '-20px' }}
               >
                 <Output name="employeeDesc" />
                 <Output name="curDate" />
@@ -2711,7 +2725,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
                     <Table
                       dataSet={this.props.certifiableInvoiceListDS}
                       columns={this.verifiableColumns}
-                      buttons={this.verifiableBtns}
+                      buttons={this.verifiableButtons}
                       queryBar={this.renderVerifiableBar}
                       style={{ height: 320 }}
                     />
