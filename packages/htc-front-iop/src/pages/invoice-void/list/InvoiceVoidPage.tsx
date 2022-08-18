@@ -189,7 +189,6 @@ export default class InvoiceVoidPage extends Component<InvoiceVoidPageProps> {
         <>
           <PermissionButton
             type="c7n-pro"
-            // color={ButtonColor.dark}
             onClick={() => this.requestSave(0)}
             permissionList={[
               {
@@ -203,7 +202,6 @@ export default class InvoiceVoidPage extends Component<InvoiceVoidPageProps> {
           </PermissionButton>
           <PermissionButton
             type="c7n-pro"
-            // color={ButtonColor.dark}
             onClick={() => this.requestSave(1)}
             permissionList={[
               {
@@ -222,7 +220,6 @@ export default class InvoiceVoidPage extends Component<InvoiceVoidPageProps> {
         <>
           <PermissionButton
             type="c7n-pro"
-            // color={ButtonColor.dark}
             onClick={() => this.handleSaveOrder(1)}
             permissionList={[
               {
@@ -236,7 +233,6 @@ export default class InvoiceVoidPage extends Component<InvoiceVoidPageProps> {
           </PermissionButton>
           <PermissionButton
             type="c7n-pro"
-            // color={ButtonColor.dark}
             onClick={() => this.handleSaveOrder(0)}
             permissionList={[
               {

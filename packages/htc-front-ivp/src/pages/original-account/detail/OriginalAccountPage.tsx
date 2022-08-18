@@ -244,9 +244,6 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
         isDisabled = curRec && curRec.everydayGetOriginalFlag === 1;
       }
       return (
-        // <Button onClick={() => this.handleGetOriginalAccount()} disabled={isDisabled}>
-        //   {intl.get(`${modelCode}.button.getOriginalAccount`).d('底账获取')}
-        // </Button>
         <PermissionButton
           type="c7n-pro"
           onClick={() => this.handleGetOriginalAccount()}
@@ -270,12 +267,8 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
           backPath="/htc-front-ivp/invoices/list"
           title={intl.get(`${modelCode}.button.getOriginalAccount`).d('底账获取')}
         >
-          {/* <Button color={ButtonColor.dark} onClick={() => this.handleSave()}>
-            {intl.get(`${modelCode}.button.save`).d('保存')}
-          </Button> */}
           <PermissionButton
             type="c7n-pro"
-            // color={ButtonColor.dark}
             onClick={() => this.handleSave()}
             permissionList={[
               {
@@ -299,7 +292,6 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
             <Form dataSet={this.headerDS} columns={4}>
               <DatePicker name="invoiceDateFrom" />
               <DatePicker name="invoiceDateTo" />
-              {/* <TimePicker name="autoRunTime" /> */}
               <Select name="autoRunTime" renderer={({ value }) => value && `${value}:00:00`}>
                 <Select.Option value="06">06</Select.Option>
                 <Select.Option value="12">12</Select.Option>

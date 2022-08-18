@@ -660,10 +660,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
         search: queryString.stringify({
           invoiceInfo: encodeURIComponent(
             JSON.stringify({
-              // companyDesc: `${headerData.companyCode}-${headerData.companyName}`,
               companyId: headerData.companyId,
-              // companyCode: headerData.companyCode,
-              // employeeNum: headerData.employeeNum,
               ...comParams.otherSearch,
             })
           ),

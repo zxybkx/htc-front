@@ -61,7 +61,7 @@ interface RedInvoiceRequisitionPageProps extends RouteComponentProps<RouterInfo>
 @formatterCollections({
   code: ['hiop.redInvoiceInfo', 'hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq'],
 })
-export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequisitionPageProps> {
+export default class SpecialRedApplicationPage extends Component<RedInvoiceRequisitionPageProps> {
   state = {
     empInfo: undefined as any,
     editable: false,
@@ -572,7 +572,6 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     const applicantType = this.headerDS.current!.get('applicantType');
     const buyerName = this.headerDS.current!.get('buyerName');
     const sellerName = this.headerDS.current!.get('sellerName');
-    // const invoiceDate = this.headerDS.current!.get('invoiceDate');
     const customerName = applicantType === '01' ? sellerName : buyerName;
     if (!extNumber || !invoiceType || !customerName) {
       notification.info({
@@ -624,7 +623,6 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
           onClick={() => this.handleAddLine()}
           title={intl.get('hzero.common.button.add').d('新增')}
         />,
-        // TableButtonType.delete,
       ];
     }
   }

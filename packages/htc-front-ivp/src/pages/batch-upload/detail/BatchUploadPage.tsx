@@ -102,8 +102,6 @@ export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
       const currentEmp = empRes && empRes.content[0];
       this.setState({
         companyDesc: `${currentEmp.companyCode}-${currentEmp.companyName}`,
-        // companyId: invoiceInfo.companyId,
-        // companyId,
         companyCode: currentEmp.companyCode,
         employeeNum: currentEmp && currentEmp.employeeNum,
         backPath: invoiceInfo.backPath,
@@ -135,8 +133,6 @@ export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
 
   handleUploadError = response => {
     this.setState({
-      // uploadResult: response,
-      // btnFlag: '',
       loadingFlag: false,
     });
     notification.error({
@@ -156,52 +152,6 @@ export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
         this.setState({ loadingFlag: true });
       }
     }
-    // const { companyCode, employeeNum, loadingFlag } = this.state;
-    // let curProgress: number = -1;
-    // if (startFlag) {
-    //   // 开始上传
-    //   this.singleIsCheck = '';
-    //   this.mutipleUploadUuid = uuidv4();
-    //   this.mutipleUpload.startUpload();
-    //   if (this.mutipleUpload.fileList.length > 0) {
-    //     this.setState({ loadingFlag: true });
-    //     curProgress = 0;
-    //   }
-    // } else if (this.mutipleUploadUuid) {
-    //   // 进度查询
-    //   const queryRes = await batchUploadProcessQuery({
-    //     tenantId,
-    //     // companyCode,
-    //     // employeeNo: employeeNum,
-    //     uuid: this.mutipleUploadUuid,
-    //   });
-    //   if (queryRes) {
-    //     if (queryRes.status === '1002') {
-    //       curProgress = Number(queryRes.data);
-    //       if (isNaN(curProgress)) curProgress = 0;
-    //     } else {
-    //       curProgress = 100;
-    //       this.setState({
-    //         // progressValue: curProgress,
-    //         // progressStatus:
-    //         //   queryRes.status === '1001' ? ProgressStatus.success : ProgressStatus.exception,
-    //       });
-    //       return;
-    //     }
-    //   }
-    // }
-    // // if ((startFlag || loadingFlag) && curProgress > -1 && curProgress < 100) {
-    // if (curProgress > -1 && curProgress < 100) {
-    //   this.setState({
-    //     // progressValue: curProgress,
-    //     // progressStatus: ProgressStatus.active,
-    //   });
-    //   if (startFlag) {
-    //     await this.handleMultipleUpload(false);
-    //   } else {
-    //     setTimeout(() => this.handleMultipleUpload(false), 1000);
-    //   }
-    // }
   }
 
   // 自动勾选
@@ -314,7 +264,6 @@ export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
           );
         },
       },
-      // { name: 'identifyState' },
       { name: 'dataCheckState', width: 120 },
       { name: 'fileType', width: 120 },
       { name: 'existFileName', width: 240 },
@@ -323,24 +272,6 @@ export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
       { name: 'invoiceNo' },
       { name: 'invoiceDate', width: 120 },
       { name: 'invoiceAmount', width: 120, align: ColumnAlign.right },
-      // {
-      //   name: 'operation',
-      //   header: intl.get('hzero.common.action').d('操作'),
-      //   width: 120,
-      //   command: ({ record }): Commands[] => {
-      //     return [
-      //       <Button
-      //         disabled={!record.get('existFileName')}
-      //         key="viewArchive"
-      //         onClick={() => this.handleGotoArchiveView()}
-      //       >
-      //         {intl.get(`${modelCode}.button.viewArchive`).d('查看档案')}
-      //       </Button>,
-      //     ];
-      //   },
-      //   lock: ColumnLock.right,
-      //   align: ColumnAlign.center,
-      // },
     ];
   }
 
@@ -348,13 +279,7 @@ export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
     const ObserverButton = observer((props: any) => {
       const isDisabled = props.dataSet!.selected.length === 0;
       return (
-        <Button
-          key={props.key}
-          onClick={props.onClick}
-          disabled={isDisabled}
-          // funcType={FuncType.flat}
-          // color={ButtonColor.primary}
-        >
+        <Button key={props.key} onClick={props.onClick} disabled={isDisabled}>
           {props.title}
         </Button>
       );
@@ -407,7 +332,6 @@ export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
       uploadImmediately: false,
       showUploadBtn: false,
       showPreviewImage: true,
-      // partialUpload: false,
       onUploadSuccess: this.handleUploadSuccess,
       onUploadError: this.handleUploadError,
     };

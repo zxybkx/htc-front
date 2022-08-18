@@ -98,7 +98,7 @@ export default class InterfaceDocPage extends Component<InterfaceDocPageProps> {
         </a>,
         <a onClick={() => this.handleCancel(record)}>
           {intl.get('hzero.common.status.cancel').d('取消')}
-        </a>,
+        </a>
       );
     } else {
       btns.push(
@@ -108,7 +108,7 @@ export default class InterfaceDocPage extends Component<InterfaceDocPageProps> {
           <a onClick={() => this.handleEdit(record)}>
             {intl.get('hzero.common.button.rule.edit').d('编辑')}
           </a>
-        ),
+        )
       );
     }
     return [
@@ -123,19 +123,19 @@ export default class InterfaceDocPage extends Component<InterfaceDocPageProps> {
       {
         name: 'companyObj',
         width: 200,
-        editor: (record) => record.getState('editing'),
+        editor: record => record.getState('editing'),
       },
-      { name: 'documentNumber', width: 150, editor: (record) => record.getState('editing') },
+      { name: 'documentNumber', width: 150, editor: record => record?.getState('editing') },
       {
         name: 'documentSourceId',
         width: 120,
-        editor: (record) => record.getState('editing'),
+        editor: record => record.getState('editing'),
       },
-      { name: 'documentSourceKey', editor: (record) => record.getState('editing') },
+      { name: 'documentSourceKey', editor: record => record?.getState('editing') },
       {
         name: 'documentRemark',
         width: 300,
-        editor: (record) => record.getState('editing'),
+        editor: record => record?.getState('editing'),
       },
       { name: 'relationStateCode' },
       { name: 'relationInvoiceQuantity' },
@@ -165,7 +165,7 @@ export default class InterfaceDocPage extends Component<InterfaceDocPageProps> {
           docTypeHeaderId,
           docTypeLineId,
         },
-        0,
+        0
       );
       record.setState('editing', true);
     }
@@ -196,8 +196,6 @@ export default class InterfaceDocPage extends Component<InterfaceDocPageProps> {
         </div>
         <Content>
           <Table
-            // className={styles.companyTable}
-            // aggregation
             buttons={this.buttons}
             dataSet={this.tableDS}
             columns={this.columns}

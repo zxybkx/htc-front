@@ -143,7 +143,7 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
       { name: 'taxAmount', width: 150 },
       {
         name: 'validTaxAmount',
-        editor: record => record.get('checkState') === '0',
+        editor: record => record?.get('checkState') === '0',
         width: 150,
       },
       { name: 'isMatch' },
