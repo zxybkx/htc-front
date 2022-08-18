@@ -804,9 +804,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       if (props.dataSet && props.companyDataSet) {
         const { queryDataSet } = props.dataSet;
         const { queryDataSet: companyQueryDS } = props.companyDataSet;
-        const currentPeriod = queryDataSet && queryDataSet.current!.get('currentPeriod');
+        const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
         const _checkInvoiceCount =
-          companyQueryDS && companyQueryDS.current!.get('checkInvoiceCount');
+          companyQueryDS && companyQueryDS.current?.get('checkInvoiceCount');
         disabled = !currentPeriod || _checkInvoiceCount !== 0;
       }
       return (
@@ -839,7 +839,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       let disabled = false;
       if (props.dataSet) {
         const { queryDataSet } = props.dataSet;
-        const currentPeriod = queryDataSet && queryDataSet.current!.get('currentPeriod');
+        const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
         disabled = !currentPeriod;
       }
       return (
@@ -857,7 +857,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     });
     const Tooltips = observer((props: any) => {
       const { queryDataSet } = props.dataSet;
-      const _checkInvoiceCount = queryDataSet && queryDataSet.current!.get('checkInvoiceCount');
+      const _checkInvoiceCount = queryDataSet && queryDataSet.current?.get('checkInvoiceCount');
       const title =
         _checkInvoiceCount === 0
           ? ''
@@ -1874,6 +1874,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   @Bind()
   handleScanGun() {
     // 扫发票二维码对应字段
+    let scanInput: TextField | null;
     const scanInvObjKeys = [
       'version',
       'invoiceType',
@@ -1915,13 +1916,16 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         }
       }
     };
+    const getFocus = () => scanInput?.focus();
     const handleScanInput = e => {
       const {
         target: { value },
       } = e;
+      const strArray = value.split(',');
+      if (strArray.length < 9) return;
       const invObj: any = {};
       if (value.trim()) {
-        value.split(',').forEach((key, index) => {
+        strArray.forEach((key, index) => {
           if (scanInvObjKeys[index] === 'invoiceDate') {
             invObj[scanInvObjKeys[index]] = `${key.slice(0, 4)}-${key.slice(4, 6)}-${key.slice(6)}`;
           } else {
@@ -1941,8 +1945,14 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
               undefined,
               'top'
             );
+            setTimeout(() => {
+              getFocus();
+            }, 300);
           } else {
             ds.create({ invoiceType, invoiceCode, invoiceNo, invoiceAmount, invoiceDate }, 0);
+            setTimeout(() => {
+              getFocus();
+            }, 500);
           }
         } else {
           message.warning(
@@ -1951,6 +1961,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
             undefined,
             'top'
           );
+          setTimeout(() => {
+            getFocus();
+          }, 300);
         }
         e.target.value = '';
       }
@@ -1983,8 +1996,10 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       children: (
         <div>
           <TextField
+            style={{ width: '450px' }}
             placeholder={intl.get(`${modelCode}.scanGun.acceptData`).d('请点击此处接受扫码枪数据')}
             onInput={handleScanInput}
+            ref={input => { scanInput = input; }}
           />
           <Table
             dataSet={ds}
@@ -2015,6 +2030,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       resizable: true,
       footer: '',
     });
+    setTimeout(() => {
+      getFocus();
+    }, 300);
   }
 
   // 批量发票勾选（取消）可认证发票: 按钮
@@ -2670,7 +2688,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
             <div className={styles.header}>
               <Form
                 dataSet={this.props.checkCertificationListDS.queryDataSet}
-                // style={{ marginLeft: '-20px' }}
+              // style={{ marginLeft: '-20px' }}
               >
                 <Output name="employeeDesc" />
                 <Output name="curDate" />
