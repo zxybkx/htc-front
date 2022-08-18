@@ -352,13 +352,7 @@ export default class ArchiveUploadPage extends Component<ArchiveUploadPageProps>
     const ObserverButton = observer((props: any) => {
       const isDisabled = props.dataSet!.selected.length === 0;
       return (
-        <Button
-          key={props.key}
-          onClick={props.onClick}
-          disabled={isDisabled}
-          // funcType={FuncType.flat}
-          // color={ButtonColor.primary}
-        >
+        <Button key={props.key} onClick={props.onClick} disabled={isDisabled}>
           {props.title}
         </Button>
       );

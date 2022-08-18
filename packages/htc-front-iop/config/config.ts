@@ -19,46 +19,46 @@ const invoiceRuleRouterConfig = [
   },
 ];
 const redInvoiceRouterConfig = [
-  {
-    path: '/htc-front-iop/red-invoice-requisition',
-    routes: [
-      {
-        // 专用红字申请单列表
-        path: '/htc-front-iop/red-invoice-requisition/list',
-        component: '@/pages/red-invoice/list/RedInvoiceRequisitionListPage',
-      },
-      {
-        // 新建专用红字申请单
-        path: '/htc-front-iop/red-invoice-requisition/create/:companyId',
-        component: '@/pages/red-invoice/list/RedInvoiceRequisitionPage',
-      },
-      {
-        // 专用红字申请单详情
-        path: '/htc-front-iop/red-invoice-requisition/detail/:companyId/:headerId',
-        component: '@/pages/red-invoice/list/RedInvoiceRequisitionPage',
-      },
-    ],
-  },
-  {
-    path: '/htc-front-iop/red-invoice-info',
-    routes: [
-      {
-        // 专票红字信息表列表
-        path: '/htc-front-iop/red-invoice-info/list',
-        component: '@/pages/red-invoice/list/RedInvoiceInfoTableListPage',
-      },
-      {
-        // 专票红字信息表列表-详情
-        path: '/htc-front-iop/red-invoice-info/detail/:companyId/:headerId',
-        component: '@/pages/red-invoice/detail/RedInvoiceInfoDetailPage',
-      },
-      {
-        // 同步请求列表
-        path: '/htc-front-iop/red-invoice-info/synchronize-red-info-list',
-        component: '@/pages/red-invoice/detail/SynchronizeRedInfoPage',
-      },
-    ],
-  },
+    {
+        path: '/htc-front-iop/red-invoice-requisition',
+        routes: [
+            {
+                // 专用红字申请单列表
+                path: '/htc-front-iop/red-invoice-requisition/list',
+                component: '@/pages/red-invoice/list/SpecialRedApplicationPage',
+            },
+            {
+                // 新建专用红字申请单
+                path: '/htc-front-iop/red-invoice-requisition/create/:companyId',
+                component: '@/pages/red-invoice/detail/SpecialRedApplicationPage',
+            },
+            {
+                // 专用红字申请单详情
+                path: '/htc-front-iop/red-invoice-requisition/detail/:companyId/:headerId',
+                component: '@/pages/red-invoice/detail/SpecialRedApplicationPage',
+            },
+        ],
+    },
+    {
+        path: '/htc-front-iop/red-invoice-info',
+        routes: [
+            {
+                // 专票红字信息表列表
+                path: '/htc-front-iop/red-invoice-info/list',
+                component: '@/pages/red-invoice/list/SpecialRedInformationPage',
+            },
+            {
+                // 专票红字信息表列表-详情
+                path: '/htc-front-iop/red-invoice-info/detail/:companyId/:headerId',
+                component: '@/pages/red-invoice/detail/SpecialRedInformationPage',
+            },
+            {
+                // 同步请求列表
+                path: '/htc-front-iop/red-invoice-info/synchronize-red-info-list',
+                component: '@/pages/red-invoice/detail/SynchronizeRedInfoPage',
+            },
+        ],
+    },
 ];
 const invoiceWorkbenchRouterConfig = [
   {

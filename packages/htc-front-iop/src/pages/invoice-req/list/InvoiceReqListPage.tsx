@@ -848,7 +848,6 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
         type="c7n-pro"
         funcType={FuncType.link}
         onClick={params.onClick}
-        style={{ color: 'rgba(56,137,255,0.8)' }}
         permissionList={[
           {
             code: `${permissionPath}.button.${params.permissionCode}`,
@@ -908,11 +907,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
     const viewInvoiceBtn = {
       key: 'viewInvoice',
       ele: (
-        <Button
-          funcType={FuncType.link}
-          onClick={() => this.handleViewInvoice(recordData)}
-          style={{ color: 'rgba(56,137,255,0.8)' }}
-        >
+        <Button funcType={FuncType.link} onClick={() => this.handleViewInvoice(recordData)}>
           {intl.get('hiop.invoiceReq.button.viewInvoice').d('查看发票')}
         </Button>
       ),
