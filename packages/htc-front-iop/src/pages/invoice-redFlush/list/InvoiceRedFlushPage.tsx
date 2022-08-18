@@ -126,7 +126,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
   renderRemark() {
     const blueInvoiceCode = this.invoiceRedFlushHeaderDS.current?.get('blueInvoiceCode');
     const blueInvoiceNo = this.invoiceRedFlushHeaderDS.current?.get('blueInvoiceNo');
-    return `对应正数发票代码：${blueInvoiceCode}号码：${blueInvoiceNo}`;
+    return `对应正数发票代码:${blueInvoiceCode}号码:${blueInvoiceNo}`;
   }
 
   async componentDidMount() {

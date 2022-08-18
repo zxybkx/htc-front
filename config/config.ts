@@ -1,8 +1,9 @@
 import { IConfig } from 'umi'; // ref: https://umijs.org/config/
 // const path = require('path');
 import { join } from 'path';
+
 export default {
-    webpack5: {},// 必须开启
+    webpack5: {}, // 必须开启
     // 配置主题，实际上是配 less 变量。
     theme: {
         'input-height-base': '28px',
@@ -33,7 +34,7 @@ export default {
             SKIP_TS_CHECK_IN_START: 'false', // yarn start 时, 是否跳过 ts 语法检查
             SKIP_ESLINT_CHECK_IN_START: 'true', // yarn start 时, 是否跳过 eslint 语法检查
             SKIP_NO_CHANGE_MODULE: 'false', // 是否跳过未变更的子模块编译
-            ADDITIONAL: process.env.ADDITIONAL, //c7n特异性包的环境变量
+            ADDITIONAL: process.env.ADDITIONAL, // c7n特异性包的环境变量
             API_HOST: "http://172.23.16.23:8080",
             NO_PROXY: 'true',
             MY_ROUTE: "htc-front-chan",
@@ -41,7 +42,7 @@ export default {
             EMPLOYEE_API: "SAAS",
             WEBSOCKET_HOST: 'ws://172.23.16.23:8080/hpfm/websocket',
             IM_WEBSOCKET_HOST: "ws://192.168.16.150:9876",
-            TRACE_LOG_ENABLE: "true",  // TraceLog日志追溯分析是否启用，true/false
+            TRACE_LOG_ENABLE: "true", // TraceLog日志追溯分析是否启用，true/false
             CUSTOMIZE_ICON_NAME: "customize-icon ",
             MULTIPLE_SKIN_ENABLE: 'true', // UED配置是否启用，true / false
         },
@@ -51,11 +52,11 @@ export default {
         basePath: '/',
     },
     presets: [
-        '@hzerojs/preset-hzero'
+        '@hzerojs/preset-hzero',
     ],
     plugins: [
         '@hzerojs/plugin-hzero-layout',
-        '@hzerojs/plugin-hzero-ued'
+        '@hzerojs/plugin-hzero-ued',
     ],
     alias: {
         'components': 'hzero-front/lib/components',
@@ -80,13 +81,13 @@ export default {
                 if (additionalArr.includes(v)) {
                     return [v, '145_hotfix']
                 }
-                return v
-            })
+                return v;
+            });
         },
         modifyMfConfig(config, currentPackageName) {
-            for (let k in config.exposes) {
+            for (const k in config.exposes) {
                 if (/\.\/lib\/routes\/MarketClient\/ServiceList\/SearchForm/.test(k)) {
-                    delete config.exposes[k]
+                    delete config.exposes[k];
                 }
             }
             return config;
@@ -140,17 +141,17 @@ export default {
                 'name': 'hzero-front-hwfp',
             },
             {
-                "name": "htc-front-iop"
+                "name": "htc-front-iop",
             },
             {
-                "name": "htc-front-ivp"
+                "name": "htc-front-ivp",
             },
             {
-                "name": "htc-front-chan"
+                "name": "htc-front-chan",
             },
             {
-                "name": "htc-front-mdm"
-            }
+                "name": "htc-front-mdm",
+            },
         ],
         mfDepPresets: [
             '@hzerojs/mf-deps-preset',
