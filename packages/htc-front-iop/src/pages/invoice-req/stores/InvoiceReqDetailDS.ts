@@ -323,6 +323,15 @@ export default (dsParams): DataSetProps => {
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('invoiceTypeTag') !== 'D',
           disabled: ({ record }) => record.get('invoiceTypeTag') !== 'D',
+          pattern: ({ record }) => {
+            if (record.get('paperPhone')) {
+              if (record.get('paperPhone').indexOf('-') > -1) {
+                return new RegExp(/^\d*[-]\d*$/);
+              } else {
+                return phoneReg;
+              }
+            }
+          },
         },
       },
       {
@@ -370,9 +379,6 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceReq.modal.emailPhone').d('手机邮件交付'),
         type: FieldType.string,
         computedProps: {
-          // required: ({ record }) =>{
-          //   return record.get('electronicType') === '1' || record.get('invoiceTypeTag') === 'E'
-          // },
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('invoiceTypeTag') !== 'E',
           disabled: ({ record }) => record.get('invoiceTypeTag') !== 'E',
