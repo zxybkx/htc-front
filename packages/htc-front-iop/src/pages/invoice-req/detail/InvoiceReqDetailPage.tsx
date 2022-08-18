@@ -1041,12 +1041,12 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
                 <TextField name="reviewerName" />
                 <TextField name="reviewDate" />
                 {/*---*/}
-                <Lov name="systemCodeObj" />
                 <TextField name="progress" />
                 <Select name="sourceType" />
-                <TextField name="sourceNumber" />
-                {/*----*/}
+                <Lov name="systemCodeObj" />
                 <Lov name="documentTypeCodeObj" />
+                {/*----*/}
+                <TextField name="sourceNumber" />
                 <TextField name="sourceNumber1" />
                 <TextField name="sourceNumber2" />
                 <CheckBox name="showAdjustFlag" onChange={this.handleShowAdjustChange} />
