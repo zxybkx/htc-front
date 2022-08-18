@@ -395,6 +395,15 @@ export default (dsParams): DataSetProps => {
         pattern: phoneReg,
         computedProps: {
           readOnly: ({ record }) => judgePaperReadonly(record),
+          pattern: ({ record }) => {
+            if (record.get('paperTicketReceiverPhone')) {
+              if (record.get('paperTicketReceiverPhone').indexOf('-') > -1) {
+                return new RegExp(/^\d*[-]\d*$/);
+              } else {
+                return phoneReg;
+              }
+            }
+          },
         },
       },
       {
