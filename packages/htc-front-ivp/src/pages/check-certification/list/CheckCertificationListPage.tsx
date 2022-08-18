@@ -1999,7 +1999,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
             style={{ width: '450px' }}
             placeholder={intl.get(`${modelCode}.scanGun.acceptData`).d('请点击此处接受扫码枪数据')}
             onInput={handleScanInput}
-            ref={input => { scanInput = input; }}
+            ref={input => {
+              scanInput = input;
+            }}
           />
           <Table
             dataSet={ds}
@@ -2040,9 +2042,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     const { empInfo, authorityCode } = this.state;
     const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
-    console.log('authorityCode', authorityCode);
-    console.log('empInfo', empInfo);
-    console.log('taxDiskPassword', taxDiskPassword);
     const uploadProps = {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -2055,6 +2054,19 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       onUploadSuccess: this.handleUploadSuccess,
       onUploadError: this.handleUploadError,
     };
+    const UploadButton = observer(() => {
+      return (
+        <Upload
+          {...uploadProps}
+          disabled={!companyId}
+          accept={[
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-excel',
+          ]}
+          action={`${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`}
+        />
+      );
+    });
     const HeaderButtons = observer((props: any) => {
       const isDisabled = props.dataSet!.selected.length === 0;
       return (
@@ -2145,15 +2157,16 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       </Menu>
     );
     return [
-      <Upload
-        {...uploadProps}
-        disabled={!companyId}
-        accept={[
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'application/vnd.ms-excel',
-        ]}
-        action={`${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`}
-      />,
+      <UploadButton />,
+      // <Upload
+      //   {...uploadProps}
+      //   disabled={!companyId}
+      //   accept={[
+      //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      //     'application/vnd.ms-excel',
+      //   ]}
+      //   action={`${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`}
+      // />,
       <HeaderButtons
         key="downloadFile"
         onClick={() => this.downLoad()}
@@ -2688,7 +2701,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
             <div className={styles.header}>
               <Form
                 dataSet={this.props.checkCertificationListDS.queryDataSet}
-              // style={{ marginLeft: '-20px' }}
+                style={{ marginLeft: '-20px' }}
               >
                 <Output name="employeeDesc" />
                 <Output name="curDate" />
