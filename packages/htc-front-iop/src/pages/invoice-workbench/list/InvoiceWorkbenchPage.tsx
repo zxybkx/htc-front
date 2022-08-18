@@ -167,16 +167,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
                 <Lov name="companyObj" onChange={value => this.handleCompanyChange(value)} />
                 <TextField name="taxpayerNumber" />
                 <TextField name="employeeDesc" />
-
                 <DateTimePicker name="creatDate" />
-                {/* <DateTimePicker name="creationDate" />
-                <DateTimePicker name="creationDateTo" /> */}
                 <DateTimePicker name="invoiceDates" />
-                {/* <DateTimePicker name="invoiceDate" />
-                <DateTimePicker name="invoiceDateTo" /> */}
-
-                {/* <TextField name="bankNumber" /> */}
-                {/* <TextField name="addressPhone"/> */}
                 <TextField name="invoiceSourceOrder" />
                 <Select name="invoiceState" />
                 <Select name="orderStatus" />
@@ -1119,8 +1111,6 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         type="c7n-pro"
         funcType={FuncType.link}
         onClick={params.onClick}
-        // color={ButtonColor.primary}
-        // style={{ color: 'rgba(56,137,255,0.8)' }}
         permissionList={[
           {
             code: `${permissionPath}.${params.permissionCode}`,
@@ -1411,8 +1401,6 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           onClick={props.onClick}
           disabled={isDisabled}
           funcType={props.funcType}
-          // color={ButtonColor.primary}
-          // style={props.style}
           permissionList={[
             {
               code: `${permissionPath}.${props.permissionCode}`,

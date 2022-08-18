@@ -873,7 +873,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       tenantId,
       userRemark: mark,
       lines: lineList,
-      discountSplitFlag: !!(this.invoiceOrderLinesDS.dirty && calculateSpin),
+      discountSplitFlag: this.invoiceOrderLinesDS.dirty && calculateSpin,
     };
     // 审核（提交）1
     switch (type) {

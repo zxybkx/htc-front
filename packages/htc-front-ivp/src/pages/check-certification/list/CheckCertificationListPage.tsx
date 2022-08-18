@@ -2337,7 +2337,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     try {
       const multipleData = JSON.parse(response);
       const res = getResponse(multipleData);
-      if (res && res.status === '1000') {
+      if (res) {
         notification.success({
           description: '',
           message: intl.get('hzero.c7nProUI.Upload.upload_success').d('上传成功'),
@@ -2381,7 +2381,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
                   style={{
                     background: 'rgb(0,0,0,0.02)',
                     padding: '10px 10px 0px',
-                    // marginRight: '8px',
                   }}
                 >
                   <h3>

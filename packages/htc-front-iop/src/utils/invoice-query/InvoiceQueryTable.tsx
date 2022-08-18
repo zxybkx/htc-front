@@ -78,8 +78,7 @@ export default class InvoiceQueryTable extends Component<InvoiceQueryTableProps>
       { name: 'taxpayerNumber' },
     ];
     const otherColumns = [{ name: 'businessAddressPhone' }, { name: 'corporateBankAccount' }];
-    const finalColumns: any = isQueryAll ? concat(initialColumns, otherColumns) : initialColumns;
-    return finalColumns;
+    return isQueryAll ? concat(initialColumns, otherColumns) : initialColumns;
   }
 
   @Bind()

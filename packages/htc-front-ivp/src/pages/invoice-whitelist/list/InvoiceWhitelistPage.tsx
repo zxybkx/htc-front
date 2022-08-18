@@ -242,14 +242,14 @@ export default class InvoiceWhitelistPage extends Component<InvoiceWhitelistPage
       },
       {
         name: 'buyerTaxNo',
-        editor: record => record.getState('editing') && !record.get('blackListKey'),
+        editor: record => record?.getState('editing') && !record.get('blackListKey'),
       },
       {
         name: 'blackListKey',
         editor: record =>
-          record.getState('editing') && !record.get('buyerName') && !record.get('buyerTaxNo'),
+          record?.getState('editing') && !record.get('buyerName') && !record.get('buyerTaxNo'),
       },
-      { name: 'limitRange', editor: record => record.getState('editing') },
+      { name: 'limitRange', editor: record => record?.getState('editing') },
       {
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),

@@ -66,18 +66,6 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
     },
   });
 
-  // componentDidMount(): void {
-  //   this.tableHeaderDS.query().then(res => {
-  //     if (res && res.content) {
-  //       this.setState({
-  //         currentTenantInfo: res.content[0],
-  //       });
-  //       this.tableLineDS.setQueryParameter('docTypeHeaderId', res.content[0].docTypeHeaderId);
-  //       this.tableLineDS.query();
-  //     }
-  //   });
-  // }
-
   /**
    * 禁用/启用
    */
@@ -371,7 +359,6 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
       <Button icon="playlist_add" key="add" onClick={() => this.handleAddLine()}>
         {intl.get('hzero.common.button.add').d('新增')}
       </Button>,
-      // TableButtonType.save,
     ];
   }
 
@@ -482,7 +469,6 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
     return <Bread dataSet={this.tableHeaderDS} />;
   }
 
-  //
   /**
    * @description: 租户数据滑动底部触发函数
    * @function: tableHeaderScroll

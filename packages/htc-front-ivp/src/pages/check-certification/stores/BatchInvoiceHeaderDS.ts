@@ -41,7 +41,7 @@ export default (): DataSetProps => {
       },
     },
     primaryKey: 'needDownloadKey',
-    paging: false,
+    pageSize: 10,
     fields: [
       {
         name: 'batchNo',
