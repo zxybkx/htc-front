@@ -39,7 +39,7 @@ export default (): DataSetProps => {
         name: 'kprq',
         label: intl.get('htc.common.view.invoiceDate').d('开票日期'),
         type: FieldType.date,
-        transformResponse: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformResponse: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'xfnsrmc',
@@ -63,7 +63,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'gxsj',
-        label: intl.get(`${modelCode}.view.ConfirmOrCertificationDate`).d('确认/认证日期'),
+        label: intl.get(`${modelCode}.view.checkDate`).d('勾选日期'),
         type: FieldType.date,
       },
       {

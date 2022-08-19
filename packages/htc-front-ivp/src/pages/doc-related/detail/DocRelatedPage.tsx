@@ -325,11 +325,7 @@ export default class DocRelatedPage extends Component<DocRelatedPageProps> {
     const subTabKey = activeTabKey.substr(15); // 获取当前子标签
     return (
       <>
-        <Header backPath={backPath} title={intl.get('hivp.bill.button.relateDoc').d('单据关联')}>
-          {/* <Button onClick={() => this.handleSelectDocumentType()}>
-            {intl.get(`${modelCode}.button.disabled`).d('添加关联')}
-          </Button> */}
-        </Header>
+        <Header backPath={backPath} title={intl.get('hivp.bill.button.relateDoc').d('单据关联')} />
         <Content style={{ background: '#F6F6F6' }}>
           <Spin dataSet={this.invoiceDS}>
             <Collapse bordered={false} defaultActiveKey={['HEADER', 'TABLE']}>

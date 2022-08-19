@@ -804,9 +804,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       if (props.dataSet && props.companyDataSet) {
         const { queryDataSet } = props.dataSet;
         const { queryDataSet: companyQueryDS } = props.companyDataSet;
-        const currentPeriod = queryDataSet && queryDataSet.current!.get('currentPeriod');
+        const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
         const _checkInvoiceCount =
-          companyQueryDS && companyQueryDS.current!.get('checkInvoiceCount');
+          companyQueryDS && companyQueryDS.current?.get('checkInvoiceCount');
         disabled = !currentPeriod || _checkInvoiceCount !== 0;
       }
       return (
@@ -839,7 +839,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       let disabled = false;
       if (props.dataSet) {
         const { queryDataSet } = props.dataSet;
-        const currentPeriod = queryDataSet && queryDataSet.current!.get('currentPeriod');
+        const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
         disabled = !currentPeriod;
       }
       return (
@@ -857,7 +857,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     });
     const Tooltips = observer((props: any) => {
       const { queryDataSet } = props.dataSet;
-      const _checkInvoiceCount = queryDataSet && queryDataSet.current!.get('checkInvoiceCount');
+      const _checkInvoiceCount = queryDataSet && queryDataSet.current?.get('checkInvoiceCount');
       const title =
         _checkInvoiceCount === 0
           ? ''
@@ -1874,6 +1874,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
   @Bind()
   handleScanGun() {
     // 扫发票二维码对应字段
+    let scanInput: TextField | null;
     const scanInvObjKeys = [
       'version',
       'invoiceType',
@@ -1915,13 +1916,16 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         }
       }
     };
+    const getFocus = () => scanInput?.focus();
     const handleScanInput = e => {
       const {
         target: { value },
       } = e;
+      const strArray = value.split(',');
+      if (strArray.length < 9) return;
       const invObj: any = {};
       if (value.trim()) {
-        value.split(',').forEach((key, index) => {
+        strArray.forEach((key, index) => {
           if (scanInvObjKeys[index] === 'invoiceDate') {
             invObj[scanInvObjKeys[index]] = `${key.slice(0, 4)}-${key.slice(4, 6)}-${key.slice(6)}`;
           } else {
@@ -1941,8 +1945,14 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
               undefined,
               'top'
             );
+            setTimeout(() => {
+              getFocus();
+            }, 300);
           } else {
             ds.create({ invoiceType, invoiceCode, invoiceNo, invoiceAmount, invoiceDate }, 0);
+            setTimeout(() => {
+              getFocus();
+            }, 500);
           }
         } else {
           message.warning(
@@ -1951,6 +1961,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
             undefined,
             'top'
           );
+          setTimeout(() => {
+            getFocus();
+          }, 300);
         }
         e.target.value = '';
       }
@@ -1983,8 +1996,12 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       children: (
         <div>
           <TextField
+            style={{ width: '450px' }}
             placeholder={intl.get(`${modelCode}.scanGun.acceptData`).d('请点击此处接受扫码枪数据')}
             onInput={handleScanInput}
+            ref={input => {
+              scanInput = input;
+            }}
           />
           <Table
             dataSet={ds}
@@ -2015,6 +2032,9 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       resizable: true,
       footer: '',
     });
+    setTimeout(() => {
+      getFocus();
+    }, 300);
   }
 
   // 批量发票勾选（取消）可认证发票: 按钮
@@ -2022,9 +2042,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     const { empInfo, authorityCode } = this.state;
     const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
-    console.log('authorityCode', authorityCode);
-    console.log('empInfo', empInfo);
-    console.log('taxDiskPassword', taxDiskPassword);
     const uploadProps = {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -2037,6 +2054,19 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       onUploadSuccess: this.handleUploadSuccess,
       onUploadError: this.handleUploadError,
     };
+    const UploadButton = observer(() => {
+      return (
+        <Upload
+          {...uploadProps}
+          disabled={!companyId}
+          accept={[
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-excel',
+          ]}
+          action={`${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`}
+        />
+      );
+    });
     const HeaderButtons = observer((props: any) => {
       const isDisabled = props.dataSet!.selected.length === 0;
       return (
@@ -2127,15 +2157,16 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       </Menu>
     );
     return [
-      <Upload
-        {...uploadProps}
-        disabled={!companyId}
-        accept={[
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'application/vnd.ms-excel',
-        ]}
-        action={`${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`}
-      />,
+      <UploadButton />,
+      // <Upload
+      //   {...uploadProps}
+      //   disabled={!companyId}
+      //   accept={[
+      //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      //     'application/vnd.ms-excel',
+      //   ]}
+      //   action={`${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`}
+      // />,
       <HeaderButtons
         key="downloadFile"
         onClick={() => this.downLoad()}
@@ -2319,7 +2350,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     try {
       const multipleData = JSON.parse(response);
       const res = getResponse(multipleData);
-      if (res && res.status === '1000') {
+      if (res) {
         notification.success({
           description: '',
           message: intl.get('hzero.c7nProUI.Upload.upload_success').d('上传成功'),
@@ -2363,7 +2394,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
                   style={{
                     background: 'rgb(0,0,0,0.02)',
                     padding: '10px 10px 0px',
-                    // marginRight: '8px',
                   }}
                 >
                   <h3>
@@ -2671,7 +2701,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
             <div className={styles.header}>
               <Form
                 dataSet={this.props.checkCertificationListDS.queryDataSet}
-                // style={{ marginLeft: '-20px' }}
+                style={{ marginLeft: '-20px' }}
               >
                 <Output name="employeeDesc" />
                 <Output name="curDate" />

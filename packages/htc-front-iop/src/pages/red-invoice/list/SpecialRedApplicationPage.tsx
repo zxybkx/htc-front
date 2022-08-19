@@ -67,7 +67,7 @@ interface RedInvoiceRequisitionListPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-export default class RedInvoiceRequisitionListPage extends Component<
+export default class SpecialRedApplicationPage extends Component<
   RedInvoiceRequisitionListPageProps
 > {
   redInvoiceCreateDS = new DataSet({

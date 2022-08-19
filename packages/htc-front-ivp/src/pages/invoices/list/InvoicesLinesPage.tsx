@@ -1,5 +1,5 @@
 /**
- * @Descripttion:发票池-行
+ * @Description:发票池-行
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12

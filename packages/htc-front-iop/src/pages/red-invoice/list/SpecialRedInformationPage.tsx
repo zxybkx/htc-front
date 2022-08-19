@@ -64,7 +64,7 @@ interface RedInvoiceRequisitionListPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-export default class RedInvoiceInfoTableListPage extends Component<
+export default class SpecialRedInformationPage extends Component<
   RedInvoiceRequisitionListPageProps
 > {
   async componentDidMount() {
@@ -106,8 +106,6 @@ export default class RedInvoiceInfoTableListPage extends Component<
             <TextField name="extensionNumber" colSpan={2} />
             <Select name="invoiceType" newLine colSpan={1} optionsFilter={this.invoiceTypeFilter} />
             <Select name="overdueStatus" colSpan={1} />
-            {/* <TextField name="businessNoticeNum" colSpan={2} /> */}
-            {/* <Select name="resultName" colSpan={2} /> */}
           </Form>
           <Row type="flex" justify="space-between">
             <Col span={18}>{buttons}</Col>
@@ -369,7 +367,6 @@ export default class RedInvoiceInfoTableListPage extends Component<
           );
         },
       },
-      // { name: 'orderStatus', width: 120 },
       { name: 'redInvoiceDate', width: 150 },
       { name: 'taxDiskNumber', width: 150 },
       { name: 'extensionNumber', width: 150 },
@@ -378,15 +375,11 @@ export default class RedInvoiceInfoTableListPage extends Component<
       {
         name: 'invoiceAmount',
         width: 180,
-        // headerStyle: { color: 'red' },
-        // header: (_, __, title) => <span style={{ color: 'red' }}>{title}</span>,
         align: ColumnAlign.right,
       },
       {
         name: 'taxAmount',
         width: 180,
-        // headerStyle: { color: 'red' },
-        // header: (_, __, title) => <span style={{ color: 'red' }}>{title}</span>,
         align: ColumnAlign.right,
       },
       { name: 'buyerName', width: 180 },

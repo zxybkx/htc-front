@@ -79,6 +79,7 @@ export default class LayoutPushPage extends Component<LayoutPushPageProps> {
     }
   }
 
+  @Bind()
   commonSelectedListFn(selectedList) {
     return selectedList.map(rec => ({
       invoicePoolHeaderId: rec.invoicePoolHeaderId,
