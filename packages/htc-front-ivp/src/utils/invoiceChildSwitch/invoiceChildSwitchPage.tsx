@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: huishan.yu@hand-china.com
  * @Date: 2021-10-29 12:00:48
- * @LastEditTime: 2022-08-02 17:29:26
+ * @LastEditTime: 2022-08-19 09:57:30
  * @Copyright: Copyright (c) 2021, Hand
  */
 import React, { Component } from 'react';
@@ -196,7 +196,7 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
     } else if (activeTabKey.includes('/bills')) {
       record = JSON.parse(localStorage.getItem('currentBillrecord')!);
     } else {
-      record = JSON.parse(localStorage.getItem('myInvoicerecord')!);
+      record = JSON.parse(localStorage.getItem('myInvoicerecord')!) || {};
     }
     console.log('record', record);
     const { billPoolHeaderId } = record;
