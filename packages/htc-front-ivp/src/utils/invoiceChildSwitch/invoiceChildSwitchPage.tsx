@@ -191,8 +191,6 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
   render() {
     const activeTabKey = getActiveTabKey();
     let record; // 获取跳转record缓存
-    console.log('activeTabKey', activeTabKey);
-
     if (activeTabKey.includes('/invoices')) {
       record = JSON.parse(localStorage.getItem('currentInvoicerecord')!) || {};
     } else if (activeTabKey.includes('/bills')) {
