@@ -1773,7 +1773,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       const blob = new Blob([res]); // 字节流
       if ((window.navigator as any).msSaveBlob) {
         try {
-          (window.navigator as any).msSaveBlob(blob, `${taxpayerNumber}_${date}.zip`);
+          (window.navigator as any).msSaveBlob(blob, `${taxpayerNumber}_${date}.xls`);
         } catch (e) {
           notification.error({
             description: '',
@@ -1784,7 +1784,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         const aElement = document.createElement('a');
         const blobUrl = window.URL.createObjectURL(blob);
         aElement.href = blobUrl; // 设置a标签路径
-        aElement.download = `${taxpayerNumber}_${date}.zip`;
+        aElement.download = `${taxpayerNumber}_${date}.xls`;
         aElement.click();
         window.URL.revokeObjectURL(blobUrl);
       }
