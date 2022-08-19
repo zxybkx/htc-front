@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: huishan.yu@hand-china.com
  * @Date: 2021-10-29 12:00:48
- * @LastEditTime: 2022-08-19 09:57:30
+ * @LastEditTime: 2022-08-19 10:08:55
  * @Copyright: Copyright (c) 2021, Hand
  */
 import React, { Component } from 'react';
@@ -191,14 +191,16 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
   render() {
     const activeTabKey = getActiveTabKey();
     let record; // 获取跳转record缓存
+    console.log('activeTabKey', activeTabKey);
+
     if (activeTabKey.includes('/invoices')) {
-      record = JSON.parse(localStorage.getItem('currentInvoicerecord')!);
+      record = JSON.parse(localStorage.getItem('currentInvoicerecord')!) || {};
     } else if (activeTabKey.includes('/bills')) {
-      record = JSON.parse(localStorage.getItem('currentBillrecord')!);
+      record = JSON.parse(localStorage.getItem('currentBillrecord')!) || {};
     } else {
       record = JSON.parse(localStorage.getItem('myInvoicerecord')!) || {};
     }
-    console.log('record', record);
+    console.log('record//', record);
     const { billPoolHeaderId } = record;
     const { type } = this.props;
     return (
