@@ -635,6 +635,9 @@ export default (dsParams): DataSetProps => {
         type: FieldType.object,
         lovCode: 'HTC.SOURCE_SYSTEM',
         lovPara: { enabledFlag: 1 },
+        computedProps: {
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
         ignore: FieldIgnore.always,
       },
       {
@@ -643,7 +646,7 @@ export default (dsParams): DataSetProps => {
         bind: 'systemCodeObj.systemCode',
       },
       {
-        name: 'sysTypeHeaderId',
+        name: 'docTypeHeaderId',
         type: FieldType.number,
         bind: 'systemCodeObj.docTypeHeaderId',
         ignore: FieldIgnore.always,
@@ -653,8 +656,11 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
         type: FieldType.object,
         lovCode: 'HTC.DOCUMENT_TYPE',
-        cascadeMap: { docTypeHeaderId: 'sysTypeHeaderId' },
+        cascadeMap: { docTypeHeaderId: 'docTypeHeaderId' },
         lovPara: { enabledFlag: 1 },
+        computedProps: {
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
         ignore: FieldIgnore.always,
       },
       {

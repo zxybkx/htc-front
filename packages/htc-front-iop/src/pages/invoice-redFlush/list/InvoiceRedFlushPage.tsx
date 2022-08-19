@@ -318,6 +318,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         totalAmount += Math.abs(item.amount) + Math.abs(item.taxAmount);
       }
     });
+    totalAmount = Number(totalAmount.toFixed(2));
     const originalAmount = taxIncludedFlag === '1' ? redRemainAmount : originTotalAmount;
     if (totalAmount > originalAmount) {
       notification.error({
