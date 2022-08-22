@@ -271,7 +271,7 @@ export default (): DataSetProps => {
         name: 'uquantity',
         label: intl.get('hiop.tobeInvoice.modal.uquantity').d('开票数量'),
         type: FieldType.number,
-        max: 'quantity',
+        // max: 'quantity',
         computedProps: {
           required: ({ record }) => record.get('uprojectUnitPrice'),
           readOnly: ({ record, name }) => judgeReadOnly(record, name),

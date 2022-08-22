@@ -318,8 +318,6 @@ export async function batchScanGunInvoices(params) {
   return request(`${HIVP_API}/v1/${tenantId}/batch-check/short_program_partial-Check`, {
     method: 'POST',
     query: otherParams,
-    body: {
-      shortProgramCheckDtos: list,
-    },
+    body: list,
   });
 }
