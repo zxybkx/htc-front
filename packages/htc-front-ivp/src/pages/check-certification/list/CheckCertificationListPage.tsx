@@ -331,6 +331,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         break;
       case '3':
         this.setState({ activeKey: 'batchInvoice' });
+        this.props.batchInvoiceHeaderDS.query();
         break;
       default:
         break;
