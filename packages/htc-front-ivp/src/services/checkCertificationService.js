@@ -196,7 +196,7 @@ export async function downloadFile(params) {
     method: 'POST',
     query: otherParams,
     body: { needDownloadKey },
-    // responseType: 'blob',
+    responseType: 'blob',
   });
 }
 
