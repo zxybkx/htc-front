@@ -344,11 +344,17 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       if (res && res.content && res.content[0] && !curCompanyId) {
         this.getDataFromCompany(res.content[0], 0);
       }
-      const curInfo = await getCurrentEmployeeInfo({ tenantId, companyId: curCompanyId });
-      if (curCompanyId && curInfo && curInfo.content) {
-        const { competentTaxAuthorities } = await getTaxAuthorityCode({ tenantId, curCompanyId });
-        const empInfo = curInfo.content[0];
-        this.setState({ empInfo, authorityCode: competentTaxAuthorities });
+
+      if (curCompanyId) {
+        const curInfo = await getCurrentEmployeeInfo({ tenantId, companyId: curCompanyId });
+        const { competentTaxAuthorities } = await getTaxAuthorityCode({
+          tenantId,
+          companyId: curCompanyId,
+        });
+        if (curInfo && curInfo.content) {
+          const empInfo = curInfo.content[0];
+          this.setState({ empInfo, authorityCode: competentTaxAuthorities });
+        }
       }
     }
     this.ifFn(certifiableQueryDS, batchInvoiceHeaderDS, displayOptions);
@@ -2158,15 +2164,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     );
     return [
       <UploadButton />,
-      // <Upload
-      //   {...uploadProps}
-      //   disabled={!companyId}
-      //   accept={[
-      //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      //     'application/vnd.ms-excel',
-      //   ]}
-      //   action={`${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`}
-      // />,
       <HeaderButtons
         key="downloadFile"
         onClick={() => this.downLoad()}
