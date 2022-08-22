@@ -1831,6 +1831,10 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     const { queryDataSet } = this.props.batchInvoiceHeaderDS;
     const { empInfo } = this.state;
     const checkableTimeRange = queryDataSet && queryDataSet.current!.get('checkableTimeRange');
+    const rqq = queryDataSet && queryDataSet.current!.get('rqq');
+    const rqz = queryDataSet && queryDataSet.current!.get('rqz');
+    const xfsbh = queryDataSet && queryDataSet.current!.get('xfsbh');
+    const qt = queryDataSet && queryDataSet.current!.get('tjyf');
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
     if (!taxDiskPassword) {
@@ -1845,9 +1849,15 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       companyCode,
       employeeId,
       employeeNumber,
-      spmm: taxDiskPassword,
-      gxzt: '0',
-      checkableTimeRange,
+      list: {
+        spmm: taxDiskPassword,
+        gxzt: '0',
+        checkableTimeRange,
+        rqq,
+        rqz,
+        xfsbh,
+        qt,
+      },
     };
     const res = getResponse(await unCertifiedInvoiceQuery(params));
     if (res) {
@@ -2422,7 +2432,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
                     <Select name="currentCertState" />
                     <DatePicker name="rqq" />
                     <DatePicker name="rqz" />
-                    <TextField name="salerTaxNo" />
+                    <TextField name="xfsbh" />
                   </Form>
                 </div>
               </div>
