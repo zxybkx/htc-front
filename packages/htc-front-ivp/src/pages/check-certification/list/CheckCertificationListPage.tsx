@@ -211,7 +211,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     const { queryDataSet: statisticalDs } = this.props.statisticalConfirmDS;
     const { companyId } = companyObj;
     const apiCondition = process.env.EMPLOYEE_API;
-    let inChannelCode = '';
+    let inChannelCode: string;
     if (apiCondition === 'OP') {
       inChannelCode = 'UNAISINO_IN_CHANNEL';
     } else {
@@ -1774,6 +1774,15 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       employeeNumber: employeeNum,
       needDownloadKey,
     };
+    if (this.props.batchInvoiceHeaderDS.selected.length > 1) {
+      notification.warning({
+        description: '',
+        message: intl
+          .get('hivp.checkCertification.notification.warning.upload')
+          .d('当前只能同时操作一条数据，请重试！'),
+      });
+      return;
+    }
     const res = getResponse(await downloadFile(params));
     if (res) {
       const date = moment().format('YYYY-MM-DD HH:mm:ss');
