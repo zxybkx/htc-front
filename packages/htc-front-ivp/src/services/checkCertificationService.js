@@ -231,10 +231,11 @@ export async function checkInvoiceCount(params) {
  * 获取当前可勾选发票
  */
 export async function unCertifiedInvoiceQuery(params) {
-  const { tenantId, ...otherParams } = params;
+  const { tenantId, list, ...otherParams } = params;
   return request(`${HIVP_API}/v1/${tenantId}/batch-check/unCertified-invoice-query`, {
-    method: 'GET',
+    method: 'POST',
     query: otherParams,
+    body: list,
   });
 }
 

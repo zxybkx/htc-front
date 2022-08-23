@@ -211,7 +211,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     const { queryDataSet: statisticalDs } = this.props.statisticalConfirmDS;
     const { companyId } = companyObj;
     const apiCondition = process.env.EMPLOYEE_API;
-    let inChannelCode = '';
+    let inChannelCode: string;
     if (apiCondition === 'OP') {
       inChannelCode = 'UNAISINO_IN_CHANNEL';
     } else {
@@ -331,6 +331,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         break;
       case '3':
         this.setState({ activeKey: 'batchInvoice' });
+        this.props.batchInvoiceHeaderDS.query();
         break;
       default:
         break;
@@ -1773,6 +1774,15 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       employeeNumber: employeeNum,
       needDownloadKey,
     };
+    if (this.props.batchInvoiceHeaderDS.selected.length > 1) {
+      notification.warning({
+        description: '',
+        message: intl
+          .get('hivp.checkCertification.notification.warning.upload')
+          .d('当前只能同时操作一条数据，请重试！'),
+      });
+      return;
+    }
     const res = getResponse(await downloadFile(params));
     if (res) {
       const date = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -1831,6 +1841,10 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
     const { queryDataSet } = this.props.batchInvoiceHeaderDS;
     const { empInfo } = this.state;
     const checkableTimeRange = queryDataSet && queryDataSet.current!.get('checkableTimeRange');
+    const rqq = queryDataSet && queryDataSet.current!.get('rqq');
+    const rqz = queryDataSet && queryDataSet.current!.get('rqz');
+    const xfsbh = queryDataSet && queryDataSet.current!.get('xfsbh');
+    const qt = queryDataSet && queryDataSet.current!.get('tjyf');
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
     if (!taxDiskPassword) {
@@ -1845,9 +1859,15 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       companyCode,
       employeeId,
       employeeNumber,
-      spmm: taxDiskPassword,
-      gxzt: '0',
-      checkableTimeRange,
+      list: {
+        spmm: taxDiskPassword,
+        gxzt: '0',
+        checkableTimeRange,
+        rqq: rqq && rqq.format(DEFAULT_DATE_FORMAT),
+        rqz: rqz && rqz.format(DEFAULT_DATE_FORMAT),
+        xfsbh,
+        qt,
+      },
     };
     const res = getResponse(await unCertifiedInvoiceQuery(params));
     if (res) {
@@ -2422,7 +2442,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
                     <Select name="currentCertState" />
                     <DatePicker name="rqq" />
                     <DatePicker name="rqz" />
-                    <TextField name="salerTaxNo" />
+                    <TextField name="xfsbh" />
                   </Form>
                 </div>
               </div>
