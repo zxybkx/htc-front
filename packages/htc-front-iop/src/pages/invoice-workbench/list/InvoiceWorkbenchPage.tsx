@@ -111,7 +111,9 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       if (res && res.content) {
         const empInfo = res.content[0];
         if (empInfo && !curCompanyId) {
-          queryDataSet.current!.set({ companyObj: empInfo });
+          if (queryDataSet.current) {
+            queryDataSet.current.set({ companyObj: empInfo });
+          }
           curCompanyId = empInfo.companyId;
         }
       }
