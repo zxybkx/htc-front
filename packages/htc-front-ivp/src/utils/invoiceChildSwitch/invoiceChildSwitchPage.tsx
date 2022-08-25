@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: huishan.yu@hand-china.com
  * @Date: 2021-10-29 12:00:48
- * @LastEditTime: 2022-08-02 17:15:16
+ * @LastEditTime: 2022-08-25 10:52:27
  * @Copyright: Copyright (c) 2021, Hand
  */
 import React, { Component } from 'react';
@@ -14,7 +14,7 @@ import { Icon } from 'choerodon-ui/pro';
 import formatterCollections from 'utils/intl/formatterCollections';
 import queryString from 'query-string';
 import { Bind } from 'lodash-decorators';
-import { getActiveTabKey } from '@hzerojs/plugin-hzero-layout/browsers/clients/utils/utils';
+import { getActiveTabKey } from 'utils/menuTab';
 import style from './invoiceChildSwitchPage.model.less';
 
 interface InvoiceChildSwitchPageProps {
@@ -189,6 +189,7 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
   }
 
   render() {
+
     const activeTabKey = getActiveTabKey();
     let record; // 获取跳转record缓存
     if (activeTabKey.includes('/invoices')) {
