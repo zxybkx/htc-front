@@ -1,4 +1,4 @@
-import { extendParentConfig } from '@hzerojs/plugin-micro'
+import { extendParentConfig } from '@hzerojs/plugin-micro';
 
 const taxInfoRouterConfig = [
     {
@@ -25,17 +25,17 @@ const redInvoiceRouterConfig = [
             {
                 // 专用红字申请单列表
                 path: '/htc-front-iop/red-invoice-requisition/list',
-                component: '@/pages/red-invoice/list/RedInvoiceRequisitionListPage',
+                component: '@/pages/red-invoice/list/SpecialRedApplicationPage',
             },
             {
                 // 新建专用红字申请单
                 path: '/htc-front-iop/red-invoice-requisition/create/:companyId',
-                component: '@/pages/red-invoice/list/RedInvoiceRequisitionPage',
+                component: '@/pages/red-invoice/detail/SpecialRedApplicationPage',
             },
             {
                 // 专用红字申请单详情
                 path: '/htc-front-iop/red-invoice-requisition/detail/:companyId/:headerId',
-                component: '@/pages/red-invoice/list/RedInvoiceRequisitionPage',
+                component: '@/pages/red-invoice/detail/SpecialRedApplicationPage',
             },
         ],
     },
@@ -45,12 +45,12 @@ const redInvoiceRouterConfig = [
             {
                 // 专票红字信息表列表
                 path: '/htc-front-iop/red-invoice-info/list',
-                component: '@/pages/red-invoice/list/RedInvoiceInfoTableListPage',
+                component: '@/pages/red-invoice/list/SpecialRedInformationPage',
             },
             {
                 // 专票红字信息表列表-详情
                 path: '/htc-front-iop/red-invoice-info/detail/:companyId/:headerId',
-                component: '@/pages/red-invoice/detail/RedInvoiceInfoDetailPage',
+                component: '@/pages/red-invoice/detail/SpecialRedInformationPage',
             },
             {
                 // 同步请求列表
@@ -232,6 +232,17 @@ const taxRateStatisticsReportRouterConfig = [
         ],
     },
 ];
+const monthlyQuarterlyYearlyReport = [
+  {
+    path: '/htc-front-iop/monthly-quarterly-yearly-report',
+    routes: [
+      {
+        path: '/htc-front-iop/monthly-quarterly-yearly-report/list',
+        component: '@/pages/monthly-quarterly-yearly-report/list/StatisticsTablePage',
+      },
+    ],
+  },
+];
 const requestHistoryRouterConfig = [
     {
         path: '/htc-front-iop/request-history',
@@ -246,26 +257,27 @@ const requestHistoryRouterConfig = [
 // const path = require('path');
 // import routes from './routers'
 export default extendParentConfig({
-    webpack5: {},
-    devServer: {
-        port: 8887               //为了微前端本地启动，和主模块microService配置的端口对应
-    },
-    routes: [
-        ...invoiceReqRouterConfig,
-        ...invoiceRuleRouterConfig,
-        ...commodityInfoRouterConfig,
-        ...taxInfoRouterConfig,
-        ...redInvoiceRouterConfig,
-        ...invoiceWorkbenchRouterConfig,
-        ...permissionAssignRouterConfig,
-        ...customerInfoRouterConfig,
-        ...tobeInvoiceRouterConfig,
-        ...invoiceOperationMaintenanceRouterConfig,
-        ...taxRateStatisticsReportRouterConfig,
-      ...requestHistoryRouterConfig,
-    ],
+  webpack5: {},
+  devServer: {
+    port: 8887, // 为了微前端本地启动，和主模块microService配置的端口对应
+  },
+  routes: [
+    ...invoiceReqRouterConfig,
+    ...invoiceRuleRouterConfig,
+    ...commodityInfoRouterConfig,
+    ...taxInfoRouterConfig,
+    ...redInvoiceRouterConfig,
+    ...invoiceWorkbenchRouterConfig,
+    ...permissionAssignRouterConfig,
+    ...customerInfoRouterConfig,
+    ...tobeInvoiceRouterConfig,
+    ...invoiceOperationMaintenanceRouterConfig,
+    ...taxRateStatisticsReportRouterConfig,
+    ...requestHistoryRouterConfig,
+    ...monthlyQuarterlyYearlyReport,
+  ],
 
-    extraBabelPlugins: [       //原/packages/xxx/.babelrc.js--plugins
+    extraBabelPlugins: [ // 原/packages/xxx/.babelrc.js--plugins
         [
             'module-resolver',
             {
@@ -288,6 +300,6 @@ export default extendParentConfig({
             // "registerRegex": "(\\/aps)|(\\/orderPerfomace)|(\\/pub/aps)"
             //原先在.hzerorc.json使用的是"initLoad": true,现在使用的模块加载规则：当匹配到对应的路由后，才加载对应的模块。
             //主模块下microServices下registerRegex优先级最高
-        }
+        },
     },
 });

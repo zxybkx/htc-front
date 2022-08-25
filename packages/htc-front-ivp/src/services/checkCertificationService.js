@@ -195,7 +195,7 @@ export async function downloadFile(params) {
   return request(`${HIVP_API}/v1/${tenantId}/batch-check/download-certified-file`, {
     method: 'POST',
     query: otherParams,
-    body: needDownloadKey,
+    body: { needDownloadKey },
     responseType: 'blob',
   });
 }
@@ -204,7 +204,7 @@ export async function downloadFile(params) {
  * 刷新状态
  */
 export async function refreshStatus(params) {
-  const { tenantId, batchNoList, empInfo } = params;
+  const { tenantId, selectedList, empInfo } = params;
   return request(`${HIVP_API}/v1/${tenantId}/batch-check/refresh-status`, {
     method: 'POST',
     query: {
@@ -213,7 +213,7 @@ export async function refreshStatus(params) {
       employeeId: empInfo.employeeId,
       employeeNumber: empInfo.employeeNum,
     },
-    body: batchNoList,
+    body: selectedList,
   });
 }
 
@@ -231,10 +231,11 @@ export async function checkInvoiceCount(params) {
  * 获取当前可勾选发票
  */
 export async function unCertifiedInvoiceQuery(params) {
-  const { tenantId, ...otherParams } = params;
+  const { tenantId, list, ...otherParams } = params;
   return request(`${HIVP_API}/v1/${tenantId}/batch-check/unCertified-invoice-query`, {
-    method: 'GET',
+    method: 'POST',
     query: otherParams,
+    body: list,
   });
 }
 
@@ -256,17 +257,6 @@ export async function batchCheck(params) {
 export async function getTaskPassword(params) {
   const { tenantId, ...otherParams } = params;
   return request(`${HIVP_API}/v1/${tenantId}/enterprise-file-infos`, {
-    method: 'GET',
-    query: otherParams,
-  });
-}
-
-/**
- * 批量勾选明细
- */
-export async function failDetail(params) {
-  const { tenantId, ...otherParams } = params;
-  return request(`${HIVP_API}/v1/${tenantId}/batch-check/fail-detail`, {
     method: 'GET',
     query: otherParams,
   });
@@ -306,6 +296,29 @@ export async function enterpriseSave(params) {
   const { tenantId, list } = params;
   return request(`${HIVP_API}/v1/${tenantId}/enterprise-file-infos/batch-save`, {
     method: 'POST',
+    body: list,
+  });
+}
+/**
+ * @description: 生成批次号
+ * @function: creatBatchNumber
+ */
+export async function creatBatchNumber(params) {
+  const { tenantId } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/batch-check/create-batch-no`, {
+    method: 'GET',
+  });
+}
+/**
+ * @description: 扫码枪批量识别发票保存
+ * @function: batchScanGunInvoices
+ * @param {*} params
+ */
+export async function batchScanGunInvoices(params) {
+  const { tenantId, list, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/batch-check/short_program_partial-Check`, {
+    method: 'POST',
+    query: otherParams,
     body: list,
   });
 }

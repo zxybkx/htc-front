@@ -66,29 +66,39 @@ export default (): DataSetProps => {
     events: {
       update: ({ record, name }) => {
         // 限制发票订单数据权限变更
-        if (name === 'invoiceWorkbenchFlag') {
-          record.set({ invoiceWorkbenchListObj: '' });
-        }
-        // 限制发票申请单数据权限变更
-        if (name === 'invoiceApplyFlag') {
-          record.set({ invoiceRequestListObj: '' });
-        }
-        // 限制待开票数据权限变更
-        if (name === 'invoicePrepareFlag') {
-          record.set({ invoicePrepareListObj: '' });
-        }
-        // 启用动态备注生成规则变更
-        if (name === 'enableRulesFlag') {
-          record.set({
-            enableApplyOneFlag: '',
-            dynamicPrefixOne: '',
-            enableApplyTwoFlag: '',
-            dynamicPrefixTwo: '',
-            enableApplyThreeFlag: '',
-            dynamicPrefixThree: '',
-            enableApplyFourFlag: '',
-            dynamicPrefixFour: '',
-          });
+        switch (name) {
+          case 'invoiceWorkbenchFlag':
+            record.set({ invoiceWorkbenchListObj: '' });
+            break;
+          case 'invoiceApplyFlag':
+            record.set({ invoiceRequestListObj: '' });
+            break;
+          case 'invoicePrepareFlag':
+            record.set({ invoicePrepareListObj: '' });
+            break;
+          case 'enableRulesFlag':
+            record.set({
+              enableApplyOneFlag: '',
+              dynamicPrefixOne: '',
+              enableApplyTwoFlag: '',
+              dynamicPrefixTwo: '',
+              enableApplyThreeFlag: '',
+              dynamicPrefixThree: '',
+              enableApplyFourFlag: '',
+              dynamicPrefixFour: '',
+            });
+            break;
+          case 'monthlyInvoicingLimitRemind':
+            record.set('monthlyInvoicingLimit', '');
+            break;
+          case 'quarterInvoicingLimitRemind':
+            record.set('quarterInvoicingLimit', '');
+            break;
+          case 'annualInvoicingLimitRemind':
+            record.set('annualInvoicingLimit', '');
+            break;
+          default:
+            break;
         }
       },
     },
@@ -400,6 +410,54 @@ export default (): DataSetProps => {
         trueValue: 'Y',
         falseValue: 'N',
         defaultValue: 'N',
+      },
+      {
+        name: 'monthlyInvoicingLimitRemind',
+        label: intl.get('hiop.invoiceRule.modal.qyydkpxetx').d('启用月度开票限额提醒'),
+        type: FieldType.boolean,
+        defaultValue: false,
+      },
+      {
+        name: 'quarterInvoicingLimitRemind',
+        label: intl.get('hiop.invoiceRule.modal.qyjdkpxetx').d('启用季度开票限额提醒'),
+        type: FieldType.boolean,
+        defaultValue: false,
+      },
+      {
+        name: 'monthlyInvoicingLimit',
+        label: intl.get('hiop.invoiceRule.modal.ydkpxe').d('月度开票限额（元）'),
+        type: FieldType.currency,
+        min: 0,
+        computedProps: {
+          disabled: ({ record }) => !record.get('monthlyInvoicingLimitRemind'),
+          required: ({ record }) => record.get('monthlyInvoicingLimitRemind'),
+        },
+      },
+      {
+        name: 'quarterInvoicingLimit',
+        label: intl.get('hiop.invoiceRule.modal.jdkpxe').d('季度开票限额（元）'),
+        type: FieldType.currency,
+        min: 0,
+        computedProps: {
+          disabled: ({ record }) => !record.get('quarterInvoicingLimitRemind'),
+          required: ({ record }) => record.get('quarterInvoicingLimitRemind'),
+        },
+      },
+      {
+        name: 'annualInvoicingLimitRemind',
+        label: intl.get('hiop.invoiceRule.modal.qyndkpxetx').d('启用年度开票限额提醒'),
+        type: FieldType.boolean,
+        defaultValue: false,
+      },
+      {
+        name: 'annualInvoicingLimit',
+        label: intl.get('hiop.invoiceRule.modal.ndkpxe').d('年度开票限额（元）'),
+        type: FieldType.currency,
+        min: 0,
+        computedProps: {
+          disabled: ({ record }) => !record.get('annualInvoicingLimitRemind'),
+          required: ({ record }) => record.get('annualInvoicingLimitRemind'),
+        },
       },
       {
         name: 'invoiceWorkbenchListObj',

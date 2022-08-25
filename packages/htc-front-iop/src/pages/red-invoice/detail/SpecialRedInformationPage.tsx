@@ -36,7 +36,7 @@ interface RedInvoiceRequisitionPageProps extends RouteComponentProps<RouterInfo>
 @formatterCollections({
   code: ['hiop.redInvoiceInfo', 'hiop.invoiceWorkbench', 'htc.common', 'hiop.customerInfo'],
 })
-export default class RedInvoiceInfoDetailPage extends Component<RedInvoiceRequisitionPageProps> {
+export default class SpecialRedInformationPage extends Component<RedInvoiceRequisitionPageProps> {
   state = {
     empInfo: undefined as any,
   };
@@ -112,19 +112,6 @@ export default class RedInvoiceInfoDetailPage extends Component<RedInvoiceRequis
   }
 
   /**
-   * 返回员工信息
-   * @return {string}
-   */
-  get renderEmployeeDesc() {
-    const { empInfo } = this.state;
-    if (empInfo) {
-      return `${empInfo.companyCode || ''}-${empInfo.employeeNum || ''}-${empInfo.employeeName ||
-        ''}-${empInfo.mobile || ''}`;
-    }
-    return '';
-  }
-
-  /**
    * 自定义查询条
    * @return {ReactNode}
    */
@@ -180,10 +167,6 @@ export default class RedInvoiceInfoDetailPage extends Component<RedInvoiceRequis
                   label={intl.get('htc.common.modal.taxpayerNumber').d('纳税人识别号')}
                   value={empInfo && empInfo.taxpayerNumber}
                 />
-                {/* <Output
-                  label={intl.get(`${modelCode}.view.employeeDesc`).d('登录员工')}
-                  value={this.renderEmployeeDesc}
-                /> */}
                 <Select name="taxType" />
                 <TextField name="redInvoiceDate" />
                 <TextField name="redInfoSerialNumber" />

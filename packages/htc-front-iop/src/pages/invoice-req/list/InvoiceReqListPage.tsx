@@ -848,7 +848,6 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
         type="c7n-pro"
         funcType={FuncType.link}
         onClick={params.onClick}
-        style={{ color: 'rgba(56,137,255,0.8)' }}
         permissionList={[
           {
             code: `${permissionPath}.button.${params.permissionCode}`,
@@ -908,11 +907,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
     const viewInvoiceBtn = {
       key: 'viewInvoice',
       ele: (
-        <Button
-          funcType={FuncType.link}
-          onClick={() => this.handleViewInvoice(recordData)}
-          style={{ color: 'rgba(56,137,255,0.8)' }}
-        >
+        <Button funcType={FuncType.link} onClick={() => this.handleViewInvoice(recordData)}>
           {intl.get('hiop.invoiceReq.button.viewInvoice').d('查看发票')}
         </Button>
       ),
@@ -1343,7 +1338,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       { name: 'totalIssuesAmount', width: 150 },
       { name: 'totalIssuesTaxAmount', width: 150 },
       { name: 'salerName', width: 200 },
-      { name: 'billFlag' },
+      { name: 'billFlag', width: 120 },
       { name: 'reservationCode', width: 300 },
       { name: 'applicantName' },
       { name: 'authEmployees', width: 200 },
@@ -1357,7 +1352,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       { name: 'buyerTaxNo', width: 180 },
       { name: 'buyerAddressPhone', width: 300 },
       { name: 'buyerAccount', width: 300 },
-      { name: 'buyerType' },
+      { name: 'buyerType', width: 120 },
       { name: 'electronicType', width: 120 },
       { name: 'emailPhone', width: 200 },
       { name: 'paperRecipient' },
@@ -1366,7 +1361,9 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       { name: 'salerTaxNo', width: 180 },
       { name: 'salerAddressPhone', width: 300 },
       { name: 'salerAccount', width: 300 },
-      { name: 'salerType' },
+      { name: 'salerType', width: 120 },
+      { name: 'systemCode' },
+      { name: 'documentTypeCode', width: 120 },
       { name: 'creationDate', width: 160 },
       { name: 'deleteFlag' },
       {

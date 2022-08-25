@@ -323,6 +323,15 @@ export default (dsParams): DataSetProps => {
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('invoiceTypeTag') !== 'D',
           disabled: ({ record }) => record.get('invoiceTypeTag') !== 'D',
+          pattern: ({ record }) => {
+            if (record.get('paperPhone')) {
+              if (record.get('paperPhone').indexOf('-') > -1) {
+                return new RegExp(/^\d*[-]\d*$/);
+              } else {
+                return phoneReg;
+              }
+            }
+          },
         },
       },
       {
@@ -370,9 +379,6 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceReq.modal.emailPhone').d('手机邮件交付'),
         type: FieldType.string,
         computedProps: {
-          // required: ({ record }) =>{
-          //   return record.get('electronicType') === '1' || record.get('invoiceTypeTag') === 'E'
-          // },
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('invoiceTypeTag') !== 'E',
           disabled: ({ record }) => record.get('invoiceTypeTag') !== 'E',
@@ -622,6 +628,45 @@ export default (dsParams): DataSetProps => {
         name: 'extNumber',
         type: FieldType.string,
         bind: 'extNumberObj.value',
+      },
+      {
+        name: 'systemCodeObj',
+        label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
+        type: FieldType.object,
+        lovCode: 'HTC.SOURCE_SYSTEM',
+        lovPara: { enabledFlag: 1 },
+        computedProps: {
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+        ignore: FieldIgnore.always,
+      },
+      {
+        name: 'systemCode',
+        type: FieldType.string,
+        bind: 'systemCodeObj.systemCode',
+      },
+      {
+        name: 'docTypeHeaderId',
+        type: FieldType.number,
+        bind: 'systemCodeObj.docTypeHeaderId',
+        ignore: FieldIgnore.always,
+      },
+      {
+        name: 'documentTypeCodeObj',
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
+        type: FieldType.object,
+        lovCode: 'HTC.DOCUMENT_TYPE',
+        cascadeMap: { docTypeHeaderId: 'docTypeHeaderId' },
+        lovPara: { enabledFlag: 1 },
+        computedProps: {
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+        ignore: FieldIgnore.always,
+      },
+      {
+        name: 'documentTypeCode',
+        type: FieldType.string,
+        bind: 'documentTypeCodeObj.documentTypeCode',
       },
     ],
   };

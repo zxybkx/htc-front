@@ -111,20 +111,6 @@ export default class FileDownloadPage extends Component<FileDownloadPageProps> {
           message: res && res.message,
         });
       }
-      // lineList.forEach((ll) => {
-      //   const queryParams = [
-      //     { name: 'url', value: encodeURIComponent(ll.fileUrl) },
-      //     { name: 'bucketName', value: bucketName },
-      //   ];
-      //   const api = `${HZERO_FILE}/v1/${isTenantRoleLevel() ? `${tenantId}/` : ''}files/download`;
-      //   downloadFile({
-      //     requestUrl: api,
-      //     queryParams,
-      //   } as DownloadFileParams).then((result) => {
-      //     // 获取返回信息，不做处理
-      //     getResponse(result, null);
-      //   });
-      // });
     }
   }
 
@@ -187,13 +173,6 @@ export default class FileDownloadPage extends Component<FileDownloadPageProps> {
     });
   }
 
-  // @Bind()
-  // handleRow() {
-  //   return {
-  //     onClick: () => this.openModal(),
-  //   };
-  // }
-
   render() {
     const { companyDesc, backPath } = this.state;
     return (
@@ -216,12 +195,7 @@ export default class FileDownloadPage extends Component<FileDownloadPageProps> {
           </Form>
         </div>
         <Content>
-          <Table
-            dataSet={this.tableDS}
-            columns={this.columns}
-            style={{ height: 200 }}
-            // onRow={() => this.handleRow()}
-          />
+          <Table dataSet={this.tableDS} columns={this.columns} style={{ height: 200 }} />
           <Table
             dataSet={this.detailDS}
             columns={this.detailColumns}

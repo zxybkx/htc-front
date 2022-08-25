@@ -167,16 +167,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
                 <Lov name="companyObj" onChange={value => this.handleCompanyChange(value)} />
                 <TextField name="taxpayerNumber" />
                 <TextField name="employeeDesc" />
-
                 <DateTimePicker name="creatDate" />
-                {/* <DateTimePicker name="creationDate" />
-                <DateTimePicker name="creationDateTo" /> */}
                 <DateTimePicker name="invoiceDates" />
-                {/* <DateTimePicker name="invoiceDate" />
-                <DateTimePicker name="invoiceDateTo" /> */}
-
-                {/* <TextField name="bankNumber" /> */}
-                {/* <TextField name="addressPhone"/> */}
                 <TextField name="invoiceSourceOrder" />
                 <Select name="invoiceState" />
                 <Select name="orderStatus" />
@@ -1119,8 +1111,6 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         type="c7n-pro"
         funcType={FuncType.link}
         onClick={params.onClick}
-        // color={ButtonColor.primary}
-        // style={{ color: 'rgba(56,137,255,0.8)' }}
         permissionList={[
           {
             code: `${permissionPath}.${params.permissionCode}`,
@@ -1355,10 +1345,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       { name: 'checkNumber', width: 190 },
       { name: 'remark', width: 160 },
       { name: 'invoiceState' },
-      { name: 'electronicReceiverInfo' },
-      { name: 'downloadUrl', width: 130 },
+      { name: 'electronicReceiverInfo', width: 120 },
+      { name: 'downloadUrl', width: 150 },
       { name: 'printFileDownloadUrl' },
-      { name: 'printNum', renderer: ({ value }) => <span>{value}</span> },
+      { name: 'printNum', width: 120, renderer: ({ value }) => <span>{value}</span> },
       { name: 'purchaseInvoiceFlag' },
       { name: 'listFlag' },
       { name: 'extNumber' },
@@ -1369,16 +1359,18 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       { name: 'buyerTaxpayerNumber', width: 190 },
       { name: 'sellerTaxpayerNumber', width: 190 },
       { name: 'blueInvoiceCode', width: 160 },
-      { name: 'blueInvoiceNo' },
+      { name: 'blueInvoiceNo', width: 120 },
       { name: 'redMarkReason', width: 130 },
-      { name: 'specialRedMark' },
+      { name: 'specialRedMark', width: 120 },
       { name: 'redInfoSerialNumber', width: 130 },
       { name: 'referenceNumber' },
       { name: 'dataPermission' },
+      { name: 'systemCode' },
+      { name: 'documentTypeCode', width: 120 },
       { name: 'paperTicketReceiverName' },
       { name: 'paperTicketReceiverPhone' },
       { name: 'paperTicketReceiverAddress' },
-      { name: 'nextDefaultFlag' },
+      { name: 'nextDefaultFlag', width: 120 },
       { name: 'employeeName', width: 130 },
       { name: 'creationDate', width: 190 },
       { name: 'submitterName' },
@@ -1409,8 +1401,6 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           onClick={props.onClick}
           disabled={isDisabled}
           funcType={props.funcType}
-          // color={ButtonColor.primary}
-          // style={props.style}
           permissionList={[
             {
               code: `${permissionPath}.${props.permissionCode}`,

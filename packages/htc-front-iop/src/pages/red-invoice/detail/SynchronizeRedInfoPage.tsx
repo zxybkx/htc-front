@@ -315,7 +315,6 @@ export default class SynchronizeRedInfoPage extends Component<RedInvoiceRequisit
           type="c7n-pro"
           key={props.key}
           onClick={props.onClick}
-          // disabled={isDisabled}
           funcType={FuncType.flat}
           color={ButtonColor.primary}
           permissionList={[

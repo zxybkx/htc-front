@@ -117,7 +117,7 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
 
   /**
    * 禁用/启用
-   * @param {*} [params={}]
+   * @param {*} [records={}]
    * @memberof FileAggregate
    */
   @Bind()

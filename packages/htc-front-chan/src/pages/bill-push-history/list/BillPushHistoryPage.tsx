@@ -11,7 +11,6 @@ import { DataSet, Table } from 'choerodon-ui/pro';
 import { Header, Content } from 'components/Page';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Dispatch } from 'redux';
-import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
 import { RouteComponentProps } from 'react-router-dom';
 import queryString from 'query-string';
@@ -26,7 +25,6 @@ interface BillPushHistoryPageProps extends RouteComponentProps {
   tableDS: DataSet;
 }
 
-@connect()
 @withProps(
   () => {
     const tableDS = new DataSet({

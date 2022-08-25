@@ -476,7 +476,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
     if (checkdFlag) {
       notification.warning({
         description: '',
-        message: intl.get(`${modelCode}.view.checkdFlag`).d('不允许删除购方名称为当前公司的发票'),
+        message: intl.get(`${modelCode}.view.checkdFlag`).d('不允许删除本公司的进销项发票'),
       });
       return;
     }
@@ -660,10 +660,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
         search: queryString.stringify({
           invoiceInfo: encodeURIComponent(
             JSON.stringify({
-              // companyDesc: `${headerData.companyCode}-${headerData.companyName}`,
               companyId: headerData.companyId,
-              // companyCode: headerData.companyCode,
-              // employeeNum: headerData.employeeNum,
               ...comParams.otherSearch,
             })
           ),

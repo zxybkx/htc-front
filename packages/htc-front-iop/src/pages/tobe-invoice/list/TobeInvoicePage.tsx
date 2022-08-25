@@ -609,7 +609,6 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
       { name: 'businessDate', width: 120 },
       { name: 'documentLineType', editor: record => renderLineType(record) },
       { name: 'projectNumber', width: 150 },
-      // { name: 'uprojectUnit', editor: (record) => adjustUunitAble(record) },
       { name: 'uquantity', editor: record => adjustEditAble(record) },
       {
         name: 'uprojectUnitPrice',

@@ -61,7 +61,7 @@ interface RedInvoiceRequisitionPageProps extends RouteComponentProps<RouterInfo>
 @formatterCollections({
   code: ['hiop.redInvoiceInfo', 'hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq'],
 })
-export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequisitionPageProps> {
+export default class SpecialRedApplicationPage extends Component<RedInvoiceRequisitionPageProps> {
   state = {
     empInfo: undefined as any,
     editable: false,
@@ -318,7 +318,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
   @Bind()
   async handleAddReq(invoiceInfo) {
     const { empInfo } = this.state;
-    const { invoiceCode, invoiceNo, deductionStatus, applicantType } = invoiceInfo;
+    const { invoiceCode, invoiceNo, deductionStatus, applicantType, taxType } = invoiceInfo;
     const params = {
       tenantId,
       invoiceCode,
@@ -327,6 +327,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
       employeeNumber: empInfo.employeeNum,
       deductionStatus,
       applicantType,
+      taxType,
     };
     const headerRes = getResponse(await createRedInvoiceReq(params));
     if (headerRes) {
@@ -341,7 +342,7 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
       this.setState({ status, isMultipleTaxRate, listFlag });
     }
     if (deductionStatus !== '01') {
-      const lineRes = await createRedInvoiceReqLines(params);
+      const lineRes = getResponse(await createRedInvoiceReqLines(params));
       if (lineRes && lineRes.length > 0) {
         lineRes.forEach(line => this.linesDS.create(line));
       }
@@ -571,7 +572,6 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
     const applicantType = this.headerDS.current!.get('applicantType');
     const buyerName = this.headerDS.current!.get('buyerName');
     const sellerName = this.headerDS.current!.get('sellerName');
-    // const invoiceDate = this.headerDS.current!.get('invoiceDate');
     const customerName = applicantType === '01' ? sellerName : buyerName;
     if (!extNumber || !invoiceType || !customerName) {
       notification.info({
@@ -623,7 +623,6 @@ export default class RedInvoiceRequisitionPage extends Component<RedInvoiceRequi
           onClick={() => this.handleAddLine()}
           title={intl.get('hzero.common.button.add').d('新增')}
         />,
-        // TableButtonType.delete,
       ];
     }
   }

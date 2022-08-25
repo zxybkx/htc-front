@@ -395,6 +395,15 @@ export default (dsParams): DataSetProps => {
         pattern: phoneReg,
         computedProps: {
           readOnly: ({ record }) => judgePaperReadonly(record),
+          pattern: ({ record }) => {
+            if (record.get('paperTicketReceiverPhone')) {
+              if (record.get('paperTicketReceiverPhone').indexOf('-') > -1) {
+                return new RegExp(/^\d*[-]\d*$/);
+              } else {
+                return phoneReg;
+              }
+            }
+          },
         },
       },
       {
@@ -594,6 +603,45 @@ export default (dsParams): DataSetProps => {
         computedProps: {
           readOnly: ({ record }) => judgeSource(record),
         },
+      },
+      {
+        name: 'systemCodeObj',
+        label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
+        type: FieldType.object,
+        lovCode: 'HTC.SOURCE_SYSTEM',
+        lovPara: { enabledFlag: 1 },
+        computedProps: {
+          readOnly: ({ record }) => record.get('readonly'),
+        },
+        ignore: FieldIgnore.always,
+      },
+      {
+        name: 'systemCode',
+        type: FieldType.string,
+        bind: 'systemCodeObj.systemCode',
+      },
+      {
+        name: 'docTypeHeaderId',
+        type: FieldType.number,
+        bind: 'systemCodeObj.docTypeHeaderId',
+        ignore: FieldIgnore.always,
+      },
+      {
+        name: 'documentTypeCodeObj',
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
+        type: FieldType.object,
+        lovCode: 'HTC.DOCUMENT_TYPE',
+        cascadeMap: { docTypeHeaderId: 'docTypeHeaderId' },
+        computedProps: {
+          readOnly: ({ record }) => record.get('readonly'),
+        },
+        lovPara: { enabledFlag: 1 },
+        ignore: FieldIgnore.always,
+      },
+      {
+        name: 'documentTypeCode',
+        type: FieldType.string,
+        bind: 'documentTypeCodeObj.documentTypeCode',
       },
     ],
   };

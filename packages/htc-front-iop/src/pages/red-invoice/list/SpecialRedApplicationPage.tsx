@@ -67,7 +67,7 @@ interface RedInvoiceRequisitionListPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
-export default class RedInvoiceRequisitionListPage extends Component<
+export default class SpecialRedApplicationPage extends Component<
   RedInvoiceRequisitionListPageProps
 > {
   redInvoiceCreateDS = new DataSet({
@@ -476,7 +476,12 @@ export default class RedInvoiceRequisitionListPage extends Component<
       len: 4,
       title: intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态'),
     };
-    if (['U'].includes(status)) {
+    if (['R', 'I'].includes(status)) {
+      // 当状态为撤销和撤销中时去掉（删除撤销按钮）
+      const delBtnIndex = operators.findIndex(item => item.key === 'deleteOrWithdraw');
+      operators.splice(delBtnIndex, 1);
+    }
+    if (['U', 'I'].includes(status)) {
       operators.push(updateStatusBtn);
     }
     const downloadBtn = {

@@ -859,38 +859,37 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       });
       return;
     }
-    const judgeLineIsQualified = await (!isEmpty(lineList) &&
-      this.validateLine(lineList, companyType));
-    if (judgeLineIsQualified) {
-      let mark = userRemark;
-      if (remark) {
-        mark = replace(userRemark, `${remark}`, '');
-      }
-      const params = {
-        ...headerData,
-        curEmployeeId: employeeInfo.employeeId,
-        billingType,
-        tenantId,
-        userRemark: mark,
-        lines: lineList,
-        discountSplitFlag: !!(this.invoiceOrderLinesDS.dirty && calculateSpin),
-      };
-      // 审核（提交）1
-      switch (type) {
-        case 0:
-          this.createOrder(params, companyId);
-          break;
-        case 1:
-          this.handleSubmit(lineList, params, sourceType, companyId, invoicingOrderHeaderId);
-          break;
-        case 2:
-          this.editOrder(params, companyId, source);
-          break;
-        case 3:
-          return this.copyOrder(params, employeeInfo);
-        default:
-          break;
-      }
+    if (!isEmpty(lineList)) {
+      this.validateLine(lineList, companyType);
+    }
+    let mark = userRemark;
+    if (remark) {
+      mark = replace(userRemark, `${remark}`, '');
+    }
+    const params = {
+      ...headerData,
+      curEmployeeId: employeeInfo.employeeId,
+      billingType,
+      tenantId,
+      userRemark: mark,
+      lines: lineList,
+      discountSplitFlag: this.invoiceOrderLinesDS.dirty && calculateSpin,
+    };
+    // 审核（提交）1
+    switch (type) {
+      case 0:
+        this.createOrder(params, companyId);
+        break;
+      case 1:
+        this.handleSubmit(lineList, params, sourceType, companyId, invoicingOrderHeaderId);
+        break;
+      case 2:
+        this.editOrder(params, companyId, source);
+        break;
+      case 3:
+        return this.copyOrder(params, employeeInfo);
+      default:
+        break;
     }
   }
 
@@ -1378,11 +1377,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
               <div
                 style={{
                   background: 'rgb(0,0,0,0.02)',
-                  padding: '16px 16px 0px',
                   marginRight: '8px',
                 }}
               >
-                <h3>
+                <h3 style={{ marginLeft: '5px' }}>
                   <b>{intl.get('hiop.invoiceWorkbench.label.buyer').d('购买方')}</b>
                 </h3>
                 <Form
@@ -1407,8 +1405,8 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
                   <TextField name="buyerBankNumber" colSpan={2} />
                 </Form>
               </div>
-              <div style={{ background: 'rgb(0,0,0,0.02)', padding: '16px 16px 0px' }}>
-                <h3>
+              <div style={{ background: 'rgb(0,0,0,0.02)' }}>
+                <h3 style={{ marginLeft: '5px' }}>
                   <b>{intl.get('hiop.invoiceWorkbench.label.seller').d('销售方')}</b>
                 </h3>
                 <Form
@@ -1453,6 +1451,8 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
               <Currency name="invoiceAmountDifference" />
               {this.invoiceTypeTag()}
               <CheckBox name="nextDefaultFlag" />
+              <Lov name="systemCodeObj" />
+              <Lov name="documentTypeCodeObj" />
             </Form>
             <Form
               dataSet={this.invoiceOrderHeaderDS}

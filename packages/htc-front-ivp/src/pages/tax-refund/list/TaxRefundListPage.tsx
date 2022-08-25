@@ -185,12 +185,10 @@ export default class TaxRefundListPage extends Component<TaxRefundPageProps> {
       queryDataSet.current!.set({ companyObj });
       curTaxDs.current!.set({ companyObj });
       batchDs.current!.set({ companyObj });
-      // queryDataSet.current!.set({ inChannelCode });
       this.props.companyAndPassword.current!.set({ inChannelCode });
       curTaxDs.current!.set({ authorityCode: competentTaxAuthorities });
       batchDs.current!.set({ authorityCode: competentTaxAuthorities });
       if (inChannelCode === 'AISINO_IN_CHANNEL') {
-        // queryDataSet.current!.set({ taxDiskPassword: '88888888' });
         this.props.companyAndPassword.current!.set({ taxDiskPassword: '88888888' });
       } else {
         // 获取税盘密码
