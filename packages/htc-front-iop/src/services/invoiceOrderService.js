@@ -7,6 +7,7 @@
  */
 import request from 'utils/request';
 import commonConfig from '@htccommon/config/commonConfig';
+import { getCurrentOrganizationId } from 'utils/utils';
 
 const HIOP_API = commonConfig.IOP_API || '';
 const HCAN_API = commonConfig.CHAN_API || '';
@@ -377,5 +378,18 @@ export async function batchInvalid(params) {
       submit,
     },
     body: [otherParams],
+  });
+}
+/**
+ * @description: 电票=>电票下载
+ * @function: paperDeliverNotice
+ * @param {object} params
+ * @returns {object} fetch Promise
+ */
+export async function electronicDownload(params) {
+  const tenantId = getCurrentOrganizationId();
+  return request(`${HIOP_API}/v1/${tenantId}/invoicing-order-headers/electricity-ticket-download`, {
+    method: 'POST',
+    body: params,
   });
 }
