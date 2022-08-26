@@ -1,52 +1,47 @@
-/*
- * @Description:手工发票查验
+/**
+ * @Description: 手工发票查验
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 16:19:48
- * @LastEditTime: 2022-07-26 16:26:47
+ * @LastEditTime: 2020-12-25 11:42:23
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
-import { Header, Content } from 'components/Page';
+import { Content, Header } from 'components/Page';
 import { Bind } from 'lodash-decorators';
 import { Dispatch } from 'redux';
 import { observer } from 'mobx-react-lite';
-import { routerRedux } from 'dva/router';
+import { RouteComponentProps } from 'react-router-dom';
 import formatterCollections from 'utils/intl/formatterCollections';
 import {
-  DataSet,
-  Form,
-  TextField,
   Button,
-  Output,
   Currency,
+  DataSet,
   DatePicker,
+  Form,
   Lov,
-  Icon,
-  Dropdown,
-  Menu,
+  Output,
+  TextField,
 } from 'choerodon-ui/pro';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
 import notification from 'utils/notification';
 import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
 import withProps from 'utils/withProps';
-import { RouteComponentProps } from 'react-router-dom';
 import { isEmpty } from 'lodash';
 import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
-import { handleInvoiceCheckApi, addToInvoicePool } from '@src/services/invoiceCheckService';
+import { addToInvoicePool, handleInvoiceCheckApi } from '@src/services/invoiceCheckService';
 import InvoiceCheckQueryDS from '../stores/InvoiceCheckQueryDS';
-import style from '../invoiceCheck.model.less';
+import style from '../invoiceCheck.module.less';
 
-const modelCode = 'hcan.invoiceCheck';
-const { Item: MenuItem } = Menu;
+const modelCode = 'hcan.invoice-check';
 interface InvoiceCheckQueryPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   queryDS: DataSet;
 }
 
 @formatterCollections({
-  code: [modelCode, 'hivp.batchCheck', 'hivp.bill', 'htc.common'],
+  code: [modelCode],
 })
 @withProps(
   () => {
@@ -86,7 +81,6 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
             this.props.queryDS
               .getField('employeeId')!
               .set('defaultValue', resp.content[0].employeeId);
-            // this.props.queryDS.getField('taxpayerIdentificationNumber')!.set('defaultValue', resp[0].taxpayerNumber);
             this.props.queryDS.create({
               taxpayerIdentificationNumber: resp.content[0].taxpayerNumber,
             });
@@ -98,7 +92,9 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
     });
   }
 
-  // 查验
+  /**
+   * 查验
+   */
   @Bind()
   async handleInvoiceCheck() {
     const validateValue = await this.props.queryDS.validate(false, false);
@@ -106,7 +102,7 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
     if (!validateValue) {
       notification.error({
         description: '',
-        message: intl.get('hivp.batchCheck.notification.invalid').d('数据校验不通过！'),
+        message: intl.get('hzero.common.notification.invalid').d('数据校验不通过！'),
       });
       return;
     }
@@ -131,20 +127,21 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
     }
   }
 
-  // 查看发票明细
+  /**
+   * 查看发票明细
+   */
   @Bind()
   handleGotoDetailPage() {
     const invoiceHeaderId = this.props.queryDS.current!.get('invoiceHeaderId');
     const invoiceType = this.props.queryDS.current!.get('invoiceType');
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const pathname = `/htc-front-ivp/invoice-check/detail/${invoiceHeaderId}/${invoiceType}`;
-    dispatch(
-      routerRedux.push({
-        pathname,
-      })
-    );
+    history.push(pathname);
   }
 
+  /**
+   * 添加至发票池
+   */
   @Bind()
   async handleAddToInvoicePool() {
     const curData = this.props.queryDS.current!.toData();
@@ -173,7 +170,9 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
     }
   }
 
-  // 重置
+  /**
+   * 重置
+   */
   @Bind()
   handleResetQuery() {
     this.props.queryDS.current!.reset();
@@ -183,49 +182,37 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
     const ObserverButtons = observer((props: any) => {
       if (props.dataSet.current && props.dataSet.current.get('checkStatus') === '0001') {
         return (
-          <a key={props.key} onClick={props.onClick}>
+          <Button key={props.key} onClick={props.onClick}>
             {props.title}
-          </a>
+          </Button>
         );
       }
       return <></>;
     });
-    const menu = (
-      <Menu>
-        <MenuItem>
-          <ObserverButtons
-            key="viewDetail"
-            onClick={this.handleGotoDetailPage}
-            dataSet={this.props.queryDS}
-            title={intl.get('hcan.invoiceDetail.title.detail').d('查看全票面信息')}
-          />
-        </MenuItem>
-        <MenuItem>
-          <ObserverButtons
-            key="addPool"
-            onClick={this.handleAddToInvoicePool}
-            dataSet={this.props.queryDS}
-            title={intl.get(`${modelCode}.button.addPool`).d('添加至发票池')}
-          />
-        </MenuItem>
-      </Menu>
-    );
     const MenuContainer = observer((props: any) => {
       if (props.dataSet.current && props.dataSet.current.get('checkStatus') === '0001') {
         return (
-          <Dropdown overlay={menu}>
-            <Button color={ButtonColor.primary}>
-              {intl.get(`${modelCode}.button.assetChange`).d('添加/查看')}
-              <Icon type="arrow_drop_down" />
-            </Button>
-          </Dropdown>
+          <span style={{ marginLeft: 10 }}>
+            <ObserverButtons
+              key="viewDetail"
+              onClick={this.handleGotoDetailPage}
+              dataSet={this.props.queryDS}
+              title={intl.get(`${modelCode}.button.viewDetail`).d('查看全票面信息')}
+            />
+            <ObserverButtons
+              key="addPool"
+              onClick={this.handleAddToInvoicePool}
+              dataSet={this.props.queryDS}
+              title={intl.get(`${modelCode}.button.addPool`).d('添加至发票池')}
+            />
+          </span>
         );
       }
       return <></>;
     });
     return (
       <>
-        <Header title={intl.get(`${modelCode}.view.title`).d('手工发票查验')} />
+        <Header title={intl.get(`${modelCode}.title`).d('手工发票查验')} />
         <Content className={style.main}>
           <Output
             name="desc"
@@ -234,7 +221,7 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
                 <span className={style.label}>
                   {intl
                     .get(`${modelCode}.view.checkTips`)
-                    .d('查验提示：国税查验平台可以查验发票类型五年内的发票')}
+                    .d('查验提示：国税查验平台可以查验五年内的发票')}
                 </span>
               );
             }}
@@ -245,11 +232,7 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
               name="taxpayerIdentificationNumber"
               help={intl.get(`${modelCode}.view.editAble`).d('(可修改)')}
             />
-            {/* <TextField name="employeeNumber" readOnly /> */}
-            <TextField
-              name="invoiceCode"
-              help={intl.get(`${modelCode}.view.required`).d('(必填)')}
-            />
+            <TextField name="invoiceCode" />
             <TextField
               name="invoiceNumber"
               help={intl.get(`${modelCode}.view.required`).d('(必填)')}
@@ -263,7 +246,7 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
               help={intl
                 .get(`${modelCode}.view.amountDesc`)
                 .d(
-                  '(增值税专用发票、货运增值税专用发票、机动车销售统一发票必填不含税金额；二手车发票必填发票车价合计)'
+                  '(增值税专用发票、货运增值税专用发票、机动车销售统一发票必填不含税金额；二手车发票必填发票车价合计；全电发票必填含税金额)'
                 )}
             />
             <TextField
@@ -274,12 +257,12 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
             />
             <div>
               <Button key="check" color={ButtonColor.primary} onClick={this.handleInvoiceCheck}>
-                {intl.get('hivp.batchCheck.button.Check').d('查验')}
+                {intl.get(`${modelCode}.button.check`).d('查验')}
               </Button>
-              <MenuContainer dataSet={this.props.queryDS} />
               <Button key="reset" onClick={this.handleResetQuery}>
                 {intl.get('hzero.common.button.reset').d('重置')}
               </Button>
+              <MenuContainer dataSet={this.props.queryDS} />
             </div>
           </Form>
         </Content>

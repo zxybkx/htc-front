@@ -757,9 +757,13 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         );
         return;
       }
-      const date = moment().format('YYYY-MM-DD');
-      name = `${date}-电子发票`;
       params = [...invoicingOrderHeaderList];
+      if (params.length > 1) {
+        const date = moment().format('YYYY-MM-DD');
+        name = `${date}-电子发票`;
+      } else {
+        name = `${params[0].invoiceCode}_${params[0].invoiceNo}`;
+      }
     }
     const res = getResponse(await electronicDownload(params));
     if (res) {
