@@ -104,6 +104,7 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
     empInfo: {} as any,
     activeKey: 'certifiableInvoice',
     currentPeriodData: {} as any,
+    checkInvoiceCountRes: 0,
   };
 
   @Bind()
@@ -144,7 +145,9 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
           this.props.companyAndPassword.loadData(res.content);
           // 获取是否有勾选请求中的发票
           const checkInvoiceCountRes = await checkInvoiceCount({ tenantId });
-          queryDataSet.current!.set({ checkInvoiceCount: checkInvoiceCountRes });
+          if (checkInvoiceCountRes) {
+            this.setState({ checkInvoiceCountRes });
+          }
           this.getEmpInfoAndAuthorityCode(res.content[0]);
         }
       }
@@ -449,8 +452,7 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
   }
 
   render() {
-    const { empInfo, activeKey, currentPeriodData } = this.state;
-    console.log('currentPeriodData', currentPeriodData);
+    const { empInfo, activeKey, currentPeriodData, checkInvoiceCountRes } = this.state;
     return (
       <>
         <Header title={intl.get(`${modelCode}.title.CheckCertification`).d('勾选认证')}>
@@ -520,6 +522,7 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
                     companyAndPassword={this.props.companyAndPassword}
                     empInfo={empInfo}
                     currentPeriodData={currentPeriodData}
+                    checkInvoiceCount={checkInvoiceCountRes}
                   />
                 </TabPane>
                 <TabPane

@@ -1,5 +1,5 @@
 /**
- * @Description:勾选认证
+ * @Description:勾选认证-当期勾选可认证发票
  * @version: 1.0
  * @Author: shan.zhang@hand-china.com
  * @Date: 2020-09-23 14:26:15
@@ -56,6 +56,7 @@ interface CheckCertificationPageProps {
   companyAndPassword: DataSet;
   empInfo: any;
   currentPeriodData: any;
+  checkInvoiceCount: number;
   certifiableInvoiceListDS?: DataSet;
   location?: any;
   history?: any;
@@ -98,7 +99,7 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
   };
 
   async componentDidMount() {
-    const { certifiableInvoiceListDS, empInfo } = this.props;
+    const { certifiableInvoiceListDS } = this.props;
     const curDisplayOptions = certifiableInvoiceListDS?.queryDataSet?.current?.get(
       'invoiceDisplayOptions'
     );
@@ -114,8 +115,6 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
             'DOCS_UNITED',
             'NON_DOCS',
           ],
-          companyObj: empInfo,
-          authorityCode: empInfo.authorityCode,
         });
       } else {
         const invoiceDisplayOptionsArr = split(curDisplayOptions, ',');
@@ -147,6 +146,16 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
   }
 
   async componentDidUpdate(prevProps) {
+    if (prevProps.empInfo && prevProps.empInfo !== this.props.empInfo) {
+      const { certifiableInvoiceListDS } = this.props;
+      if (certifiableInvoiceListDS) {
+        const { queryDataSet } = certifiableInvoiceListDS;
+        queryDataSet?.current!.set({
+          companyObj: this.props.empInfo,
+          authorityCode: this.props.empInfo.authorityCode,
+        });
+      }
+    }
     if (
       prevProps.currentPeriodData &&
       prevProps.currentPeriodData !== this.props.currentPeriodData
@@ -255,7 +264,6 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
       const certifiableQueryData = certifiableQueryDS.current!.toData();
       const {
         checkableTimeRange,
-        authorityCode,
         invoiceCategory,
         currentPeriod,
         invoiceNumber,
@@ -271,7 +279,7 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
         employeeNumber,
         spmm: taxDiskPassword,
         checkableTimeRange,
-        authorityCode,
+        authorityCode: empInfo.authorityCode,
         invoiceCategory,
         qt: 'dq',
         tjyf: currentPeriod,
@@ -285,13 +293,13 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
       } else {
         set(findParams, 'rzzt', '0');
       }
-      const res = await findVerifiableInvoice(findParams);
-      if (res && res.failed) {
+      const res = getResponse(await findVerifiableInvoice(findParams));
+      if (res) {
         notification.error({
           description: '',
           message: res.message,
         });
-        return;
+        // return;
       }
       this.setState({
         progressValue: 0,
@@ -478,26 +486,7 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
 
   // 当期勾选(取消)可认证发票: 按钮
   get verifiableButtons(): Buttons[] {
-    const VerifiableInvoicesButton = observer((props: any) => {
-      let disabled = false;
-      if (props.dataSet && props.companyDataSet) {
-        const { queryDataSet } = props.dataSet;
-        const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
-        const _checkInvoiceCount = props.companyDataSet?.current?.get('checkInvoiceCount');
-        disabled = !currentPeriod || _checkInvoiceCount !== 0;
-      }
-      return (
-        <Button
-          key={props.key}
-          onClick={props.onClick}
-          funcType={FuncType.flat}
-          disabled={disabled}
-          color={ButtonColor.primary}
-        >
-          {props.title}
-        </Button>
-      );
-    });
+    const { checkInvoiceCount, currentPeriodData } = this.props;
     const TickButton = observer((props: any) => {
       const isDisabled = props.dataSet!.selected.length === 0;
       const { condition } = props;
@@ -512,30 +501,9 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
         </Button>
       );
     });
-    const BatchButtons = observer((props: any) => {
-      let disabled = false;
-      if (props.dataSet) {
-        const { queryDataSet } = props.dataSet;
-        const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
-        disabled = !currentPeriod;
-      }
-      return (
-        <Button
-          key={props.key}
-          onClick={props.onClick}
-          funcType={FuncType.flat}
-          disabled={disabled}
-          color={ButtonColor.default}
-          style={{ marginLeft: 10 }}
-        >
-          {props.title}
-        </Button>
-      );
-    });
-    const Tooltips = observer((props: any) => {
-      const _checkInvoiceCount = props.dataSet?.current?.get('checkInvoiceCount');
+    const Tooltips = () => {
       const title =
-        _checkInvoiceCount === 0
+        checkInvoiceCount === 0
           ? ''
           : '当前系统中存在请求中的发票，可在当期勾选可认证发票查看，请请求完成后再重新获取';
       return (
@@ -543,11 +511,11 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
           <Icon
             type="help_outline"
             className={styles.icon}
-            style={{ display: _checkInvoiceCount === 0 ? 'none' : 'inline' }}
+            style={{ display: checkInvoiceCount === 0 ? 'none' : 'inline' }}
           />
         </Tooltip>
       );
-    });
+    };
     const btnMenu = (
       <Menu>
         <MenuItem>
@@ -575,21 +543,26 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
           <Icon type="arrow_drop_down" />
         </Button>
       </Dropdown>,
-      <VerifiableInvoicesButton
+      <Button
+        funcType={FuncType.flat}
+        disabled={!currentPeriodData.currentPeriod || checkInvoiceCount !== 0}
+        color={ButtonColor.primary}
         key="getVerifiableInvoices"
         onClick={() => this.handleFindVerifiableInvoice()}
-        dataSet={this.props.certifiableInvoiceListDS}
-        companyDataSet={this.props.companyAndPassword}
-        title={intl.get(`${modelCode}.button.getVerifiableInvoices`).d('实时查找可认证发票')}
-        condition="getVerifiableInvoices"
-      />,
-      <Tooltips dataSet={this.props.companyAndPassword} />,
-      <BatchButtons
+      >
+        {intl.get(`${modelCode}.button.getVerifiableInvoices`).d('实时查找可认证发票')}
+      </Button>,
+      <Tooltips />,
+      <Button
         key="certifiedDetails"
         onClick={() => this.handleGoToDetail()}
-        dataSet={this.props.certifiableInvoiceListDS}
-        title={intl.get(`${modelCode}.button.certifiedDetails`).d('已认证详情')}
-      />,
+        funcType={FuncType.flat}
+        disabled={!currentPeriodData.currentPeriod}
+        color={ButtonColor.default}
+        style={{ marginLeft: 10 }}
+      >
+        {intl.get(`${modelCode}.button.certifiedDetails`).d('已认证详情')}
+      </Button>,
       <TickButton
         key="refresh"
         onClick={() => this.verifiableRefresh()}
