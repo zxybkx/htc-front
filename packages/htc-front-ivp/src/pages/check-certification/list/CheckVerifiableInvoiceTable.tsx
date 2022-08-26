@@ -40,7 +40,6 @@ import queryString from 'query-string';
 import { ProgressStatus } from 'choerodon-ui/lib/progress/enum';
 import { observer } from 'mobx-react-lite';
 import { set, split, uniqBy } from 'lodash';
-// import { set, uniqBy } from 'lodash';
 import { Col, Icon, Modal, Row, Tag, Tooltip } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import CertifiableInvoiceListDS from '../stores/CertifiableInvoiceListDS';
@@ -57,9 +56,8 @@ interface CheckCertificationPageProps {
   empInfo: any;
   currentPeriodData: any;
   checkInvoiceCount: number;
+  history: any;
   certifiableInvoiceListDS?: DataSet;
-  location?: any;
-  history?: any;
 }
 
 @withProps(
@@ -485,7 +483,7 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
   }
 
   // 当期勾选(取消)可认证发票: 按钮
-  get verifiableButtons(): Buttons[] {
+  get buttons(): Buttons[] {
     const { checkInvoiceCount, currentPeriodData } = this.props;
     const TickButton = observer((props: any) => {
       const isDisabled = props.dataSet!.selected.length === 0;
@@ -616,7 +614,7 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
 
   // 当期勾选(取消)可认证发票: 头
   @Bind()
-  renderVerifiableBar(props) {
+  renderQueryBar(props) {
     const { queryDataSet, buttons } = props;
     const { displayOptions, verfiableMoreDisplay } = this.state;
     let optionList: any = [];
@@ -800,7 +798,7 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
   }
 
   // 当期勾选(取消)可认证发票: 行
-  get verifiableColumns(): ColumnProps[] {
+  get columns(): ColumnProps[] {
     return [
       { name: 'invoiceType', width: 150 },
       { name: 'invoiceCode', width: 150 },
@@ -861,9 +859,9 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
           <>
             <Table
               dataSet={certifiableInvoiceListDS}
-              columns={this.verifiableColumns}
-              buttons={this.verifiableButtons}
-              queryBar={this.renderVerifiableBar}
+              columns={this.columns}
+              buttons={this.buttons}
+              queryBar={this.renderQueryBar}
               style={{ height: 320 }}
             />
             <Modal title="" visible={visible} closable={false} footer={null}>

@@ -7,7 +7,6 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
-import { Dispatch } from 'redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { Bind } from 'lodash-decorators';
 import { Content, Header } from 'components/Page';
@@ -58,7 +57,6 @@ const modelCode = 'hivp.checkCertification';
 const tenantId = getCurrentOrganizationId();
 
 interface CheckCertificationPageProps extends RouteComponentProps {
-  dispatch: Dispatch<any>;
   location: any;
   checkCertificationListDS: DataSet;
   taxDiskPasswordDS: DataSet;
@@ -452,6 +450,7 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
   }
 
   render() {
+    const { history } = this.props;
     const { empInfo, activeKey, currentPeriodData, checkInvoiceCountRes } = this.state;
     return (
       <>
@@ -523,6 +522,7 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
                     empInfo={empInfo}
                     currentPeriodData={currentPeriodData}
                     checkInvoiceCount={checkInvoiceCountRes}
+                    history={history}
                   />
                 </TabPane>
                 <TabPane
