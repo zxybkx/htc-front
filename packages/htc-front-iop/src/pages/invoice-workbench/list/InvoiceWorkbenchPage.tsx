@@ -54,6 +54,7 @@ import {
   exportPrintFile,
   refresh,
   updatePrintNum,
+  electronicDownload,
 } from '@src/services/invoiceOrderService';
 import { judgeRedFlush } from '@src/services/invoiceReqService';
 import { paperDeliverNotice, electronicRePush } from '@src/services/deliverInvoiceService';
@@ -111,7 +112,9 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       if (res && res.content) {
         const empInfo = res.content[0];
         if (empInfo && !curCompanyId) {
-          queryDataSet.current!.set({ companyObj: empInfo });
+          if (queryDataSet.current) {
+            queryDataSet.current.set({ companyObj: empInfo });
+          }
           curCompanyId = empInfo.companyId;
         }
       }
@@ -701,6 +704,74 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   }
 
   /**
+   * @description: 公共下载方法
+   * @function: commonDownload
+   */
+  commonDownload({ type, name, stream }) {
+    const blob = new Blob([base64toBlob(stream)]);
+    if (window.navigator.msSaveBlob) {
+      try {
+        window.navigator.msSaveBlob(blob, `${name}.${type}`);
+      } catch (e) {
+        notification.error({
+          description: '',
+          message: intl.get('hzero.common.notification.download.error').d('下载失败'),
+        });
+      }
+    } else {
+      const aElement = document.createElement('a');
+      const blobUrl = window.URL.createObjectURL(blob);
+      aElement.href = blobUrl; // 设置a标签路径
+      aElement.download = `${name}.${type}`;
+      aElement.click();
+      window.URL.revokeObjectURL(blobUrl);
+    }
+  }
+
+  /**
+   * @description: 电子发票=>批量下载
+   * @function: handleBatchDownload
+   */
+  @Bind()
+  async handleBatchDownload(record?) {
+    let params: any[] = [];
+    let name = '';
+    if (record) {
+      // 单个下载
+      params = [record.toData()];
+      name = `${record.get('invoiceCode')}_${record.get('invoiceNo')}`;
+    } else {
+      // 批量下载
+      const invoicingOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map(item =>
+        item.toData()
+      );
+      const Jres = invoicingOrderHeaderList.some(
+        item =>
+          item.orderStatus !== 'F' || (item.invoiceVariety !== '51' && item.invoiceVariety !== '52')
+      );
+      if (Jres) {
+        Modal.warning(
+          intl
+            .get('hiop.invoiceWorkbench.notification.waring.noDownload')
+            .d('存在纸质发票或未完成状态的发票，无法下载!')
+        );
+        return;
+      }
+      const date = moment().format('YYYY-MM-DD');
+      name = `${date}-电子发票`;
+      params = [...invoicingOrderHeaderList];
+    }
+    const res = getResponse(await electronicDownload(params));
+    if (res) {
+      this.commonDownload({
+        type: res.data.fileType.toLowerCase(),
+        name,
+        stream: res.data.data,
+      });
+    }
+  }
+
+  /**
    * 空白废开具
    */
   @Bind()
@@ -1223,6 +1294,17 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       len: 6,
       title: intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态'),
     };
+    const downloadBtn = {
+      key: 'download',
+      ele: renderPermissionButton({
+        onClick: () => this.handleBatchDownload(record),
+        permissionCode: 'download',
+        permissionMeaning: '按钮-电票下载',
+        title: intl.get('hiop.invoiceWorkbench.button.download').d('电票下载'),
+      }),
+      len: 6,
+      title: intl.get('hiop.invoiceWorkbench.button.download').d('电票下载'),
+    };
     // 新建、取消
     if (orderStatus === 'N' || orderStatus === 'Q') {
       operators.push(submitInvoiceBtn, deleteInvoiceBtn);
@@ -1263,6 +1345,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     // 提交
     if (orderStatus === 'C' || orderStatus === 'I') {
       operators.push(freshStateBtn);
+    }
+    // 批量下载
+    if (orderStatus === 'F' && ['52', '51'].includes(invoiceVariety)) {
+      operators.push(downloadBtn);
     }
     const newOperators = operators.filter(Boolean);
     return operatorRender(newOperators, record, { limit: 2 });
@@ -1456,6 +1542,17 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
             dataSet={this.props.invoiceWorkbenchDS}
             title={intl.get('hiop.invoiceWorkbench.button.batchDeliver').d('批量交付')}
             permissionCode="batch-deliver"
+            permissionMeaning="按钮-批量交付"
+          />
+        </MenuItem>
+        <MenuItem>
+          <BatchButtons
+            key="batchDownloadr"
+            funcType={FuncType.link}
+            onClick={() => this.handleBatchDownload()}
+            dataSet={this.props.invoiceWorkbenchDS}
+            title={intl.get('hiop.invoiceWorkbench.button.batchDownload').d('批量下载')}
+            permissionCode="batch-download"
             permissionMeaning="按钮-批量交付"
           />
         </MenuItem>
