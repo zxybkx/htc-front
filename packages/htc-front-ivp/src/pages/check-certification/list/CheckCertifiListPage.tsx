@@ -19,9 +19,9 @@ import {
   Modal as ModalPro,
   Output,
   Password,
-  Spin,
+  // Spin,
   Table,
-  Tabs,
+  // Tabs,
   TextField,
 } from 'choerodon-ui/pro';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
@@ -49,10 +49,10 @@ import { Col, Icon, Row, Tooltip } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import CheckCertificationListDS, { TaxDiskPasswordDS } from '../stores/CheckCertificationListDS';
 import CompanyAndPasswordDS from '../stores/CompanyAndPasswordDS';
-import CheckVerifiableInvoiceTable from './CheckVerifiableInvoiceTable';
+// import CheckVerifiableInvoiceTable from './CheckVerifiableInvoiceTable';
 import styles from '../checkcertification.less';
 
-const { TabPane } = Tabs;
+// const { TabPane } = Tabs;
 
 const modelCode = 'hivp.checkCertification';
 const tenantId = getCurrentOrganizationId();
@@ -85,7 +85,7 @@ interface CheckCertificationPageProps extends RouteComponentProps {
       companyAndPassword,
     };
   },
-  { cacheState: true }
+  { cacheState: true },
 )
 @formatterCollections({
   code: [
@@ -102,8 +102,9 @@ interface CheckCertificationPageProps extends RouteComponentProps {
 export default class CheckCertifiListPage extends Component<CheckCertificationPageProps> {
   state = {
     empInfo: {} as any,
-    spinning: true,
-    activeKey: 'certifiableInvoice',
+    authorityCode: undefined,
+    // spinning: true,
+    // activeKey: 'certifiableInvoice',
   };
 
   @Bind()
@@ -145,13 +146,13 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
     }
     if (queryDataSet) {
       const checkInvoiceCountRes = await checkInvoiceCount({ tenantId });
-      queryDataSet.current!.set({ companyObj });
+      queryDataSet.current!.set({ companyObj, authorityCode: competentTaxAuthorities });
       this.props.companyAndPassword.current!.set({
         inChannelCode,
         authorityCode: competentTaxAuthorities,
         checkInvoiceCount: checkInvoiceCountRes,
       });
-      queryDataSet.current!.set({ authorityCode: competentTaxAuthorities });
+      // queryDataSet.current!.set({ authorityCode: competentTaxAuthorities });
     }
     if (inChannelCode === 'AISINO_IN_CHANNEL') {
       this.props.companyAndPassword.current!.set({ taxDiskPassword: '88888888' });
@@ -170,10 +171,10 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
     const type = new URLSearchParams(query).get('type');
     switch (type) {
       case '2':
-        this.setState({ activeKey: 'statisticalConfirm' });
+        // this.setState({ activeKey: 'statisticalConfirm' });
         break;
       case '3':
-        this.setState({ activeKey: 'batchInvoice' });
+        // this.setState({ activeKey: 'batchInvoice' });
         break;
       default:
         break;
@@ -183,7 +184,28 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
       if (res && res.content && res.content[0] && !curCompanyId) {
         this.getDataFromCompany(res.content[0], 0);
       }
+      if (curCompanyId) {
+        const curInfo = await getCurrentEmployeeInfo({ tenantId, companyId: curCompanyId });
+        // const { competentTaxAuthorities } = await getTaxAuthorityCode({
+        //   tenantId,
+        //   companyId: curCompanyId,
+        // });
+        if (curInfo && curInfo.content) {
+          const empInfo = curInfo.content[0];
+          this.setState({ empInfo });
+        }
+      }
     }
+  }
+
+  // 获取主管机构代码
+  @Bind()
+  async getEmpInfoAndAuthorityCode(empInfo) {
+    const { competentTaxAuthorities } = await getTaxAuthorityCode({
+      tenantId,
+      companyId: empInfo.companyId,
+    });
+    this.setState({ authorityCode: competentTaxAuthorities });
   }
 
   /**
@@ -282,7 +304,7 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
         employeeId,
         employeeNumber,
         taxDiskPassword,
-      })
+      }),
     );
     if (res) {
       const {
@@ -455,7 +477,7 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
   @Bind()
   async handleTabChange(newActiveKey) {
     const { queryDataSet } = this.props.checkCertificationListDS;
-    this.setState({ activeKey: newActiveKey });
+    // this.setState({ activeKey: newActiveKey });
     if (queryDataSet) {
       if (['batchInvoice', 'certifiableInvoice'].includes(newActiveKey)) {
         const res = await checkInvoiceCount({ tenantId });
@@ -471,8 +493,8 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
   }
 
   render() {
-    const { spinning, empInfo, activeKey } = this.state;
-
+    const { empInfo, authorityCode } = this.state;
+    console.log(authorityCode);
     return (
       <>
         <Header title={intl.get(`${modelCode}.title.CheckCertification`).d('勾选认证')}>
@@ -527,37 +549,6 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
                   <Icon type="help_outline" className={styles.icon} />
                 </Tooltip>
               </div>
-              <Spin spinning={spinning}>
-                <Tabs
-                  className={styles.tabsTitle}
-                  activeKey={activeKey}
-                  onChange={this.handleTabChange}
-                >
-                  <TabPane
-                    tab={intl
-                      .get(`${modelCode}.tabPane.certifiableInvoiceTitle`)
-                      .d('当期勾选可认证发票')}
-                    key="certifiableInvoice"
-                  >
-                    <CheckVerifiableInvoiceTable
-                      companyAndPassword={this.props.companyAndPassword}
-                      empInfo={empInfo}
-                    />
-                  </TabPane>
-                  <TabPane
-                    tab={intl.get(`${modelCode}.statisticalConfirm`).d('申请统计及确签')}
-                    key="statisticalConfirm"
-                  >
-                    222
-                  </TabPane>
-                  <TabPane
-                    tab={intl.get(`${modelCode}.tabPane.batchInvoice`).d('批量勾选可认证发票')}
-                    key="batchInvoice"
-                  >
-                    123
-                  </TabPane>
-                </Tabs>
-              </Spin>
             </Content>
           </Col>
         </Row>

@@ -32,14 +32,15 @@ import {
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import { getResponse } from 'utils/utils';
-import { queryIdpValue } from 'hzero-front/lib/services/api';
+// import { queryIdpValue } from 'hzero-front/lib/services/api';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import queryString from 'query-string';
 import { ProgressStatus } from 'choerodon-ui/lib/progress/enum';
 import { observer } from 'mobx-react-lite';
-import { set, split, uniqBy } from 'lodash';
+// import { set, split, uniqBy } from 'lodash';
+import { set, uniqBy } from 'lodash';
 import { Col, Icon, Modal, Row, Tag, Tooltip } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import CertifiableInvoiceListDS from '../stores/CertifiableInvoiceListDS';
@@ -96,64 +97,66 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
   };
 
   async componentDidMount() {
-    const { certifiableInvoiceListDS, empInfo, companyAndPassword } = this.props;
-    const curDisplayOptions = certifiableInvoiceListDS?.queryDataSet?.current?.get(
-      'invoiceDisplayOptions'
-    );
-    const companyData = companyAndPassword.current!.toData();
-    const displayOptions = await queryIdpValue('HIVP.CHECK_CONFIRM_DISPLAY_OPTIONS');
-    const {
-      currentPeriod,
-      currentOperationalDeadline,
-      checkableTimeRange,
-      currentCertState,
-      authorityCode,
-    } = companyData;
-    if (certifiableInvoiceListDS) {
-      const { queryDataSet } = certifiableInvoiceListDS;
-      if (!curDisplayOptions) {
-        queryDataSet?.current!.set({
-          invoiceDisplayOptions: [
-            'UNCHECKED',
-            'ACCOUNTED',
-            'DISACCOUNT',
-            'DOCS_UNITED',
-            'NON_DOCS',
-          ],
-          companyObj: empInfo,
-          authorityCode,
-          currentPeriod,
-          currentOperationalDeadline,
-          checkableTimeRange,
-          currentCertState,
-        });
-      } else {
-        const invoiceDisplayOptionsArr = split(curDisplayOptions, ',');
-        if (invoiceDisplayOptionsArr.indexOf('CURRENT_PERIOD_CHECKED') > -1) {
-          this.setState({
-            checked: false,
-            unchecked: true,
-          });
-        } else {
-          this.setState({
-            unchecked: false,
-          });
-        }
-        if (invoiceDisplayOptionsArr.indexOf('UNCHECKED') > -1) {
-          this.setState({
-            unchecked: false,
-            checked: true,
-          });
-        } else {
-          this.setState({
-            checked: false,
-          });
-        }
-      }
-    }
-    this.setState({
-      displayOptions,
-    });
+    // const { certifiableInvoiceListDS, empInfo, companyAndPassword } = this.props;
+    // const curDisplayOptions = certifiableInvoiceListDS?.queryDataSet?.current?.get(
+    //   'invoiceDisplayOptions'
+    // );
+    // const companyData = companyAndPassword.current?.toData();
+    // const displayOptions = await queryIdpValue('HIVP.CHECK_CONFIRM_DISPLAY_OPTIONS');
+    // if(companyData) {
+    //   const {
+    //     currentPeriod,
+    //     currentOperationalDeadline,
+    //     checkableTimeRange,
+    //     currentCertState,
+    //     authorityCode,
+    //   } = companyData;
+    //   if (certifiableInvoiceListDS) {
+    //     const { queryDataSet } = certifiableInvoiceListDS;
+    //     if (!curDisplayOptions) {
+    //       queryDataSet?.current!.set({
+    //         invoiceDisplayOptions: [
+    //           'UNCHECKED',
+    //           'ACCOUNTED',
+    //           'DISACCOUNT',
+    //           'DOCS_UNITED',
+    //           'NON_DOCS',
+    //         ],
+    //         companyObj: empInfo,
+    //         authorityCode,
+    //         currentPeriod,
+    //         currentOperationalDeadline,
+    //         checkableTimeRange,
+    //         currentCertState,
+    //       });
+    //     } else {
+    //       const invoiceDisplayOptionsArr = split(curDisplayOptions, ',');
+    //       if (invoiceDisplayOptionsArr.indexOf('CURRENT_PERIOD_CHECKED') > -1) {
+    //         this.setState({
+    //           checked: false,
+    //           unchecked: true,
+    //         });
+    //       } else {
+    //         this.setState({
+    //           unchecked: false,
+    //         });
+    //       }
+    //       if (invoiceDisplayOptionsArr.indexOf('UNCHECKED') > -1) {
+    //         this.setState({
+    //           unchecked: false,
+    //           checked: true,
+    //         });
+    //       } else {
+    //         this.setState({
+    //           checked: false,
+    //         });
+    //       }
+    //     }
+    //   }
+    //   this.setState({
+    //     displayOptions,
+    //   });
+    // }
   }
 
   // 已认证详情
