@@ -21,7 +21,7 @@ import {
   Password,
   // Spin,
   Table,
-  // Tabs,
+  Tabs,
   TextField,
 } from 'choerodon-ui/pro';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
@@ -49,10 +49,10 @@ import { Col, Icon, Row, Tooltip } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import CheckCertificationListDS, { TaxDiskPasswordDS } from '../stores/CheckCertificationListDS';
 import CompanyAndPasswordDS from '../stores/CompanyAndPasswordDS';
-// import CheckVerifiableInvoiceTable from './CheckVerifiableInvoiceTable';
+import CheckVerifiableInvoiceTable from './CheckVerifiableInvoiceTable';
 import styles from '../checkcertification.less';
 
-// const { TabPane } = Tabs;
+const { TabPane } = Tabs;
 
 const modelCode = 'hivp.checkCertification';
 const tenantId = getCurrentOrganizationId();
@@ -85,7 +85,7 @@ interface CheckCertificationPageProps extends RouteComponentProps {
       companyAndPassword,
     };
   },
-  { cacheState: true },
+  { cacheState: true }
 )
 @formatterCollections({
   code: [
@@ -102,9 +102,8 @@ interface CheckCertificationPageProps extends RouteComponentProps {
 export default class CheckCertifiListPage extends Component<CheckCertificationPageProps> {
   state = {
     empInfo: {} as any,
-    authorityCode: undefined,
-    // spinning: true,
-    // activeKey: 'certifiableInvoice',
+    activeKey: 'certifiableInvoice',
+    currentPeriodData: {} as any,
   };
 
   @Bind()
@@ -119,93 +118,67 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
     }
   }
 
-  // 根据所属公司获取数据
-  @Bind()
-  async getDataFromCompany(companyObj, type) {
-    const { queryDataSet } = this.props.checkCertificationListDS;
-    const { companyId } = companyObj;
-    const apiCondition = process.env.EMPLOYEE_API;
-    let inChannelCode: string;
-    if (apiCondition === 'OP') {
-      inChannelCode = 'UNAISINO_IN_CHANNEL';
-    } else {
-      const resCop = await getTenantAgreementCompany({ companyId, tenantId });
-      ({ inChannelCode } = resCop);
-    }
-    const { competentTaxAuthorities } = await getTaxAuthorityCode({ tenantId, companyId });
-    const res = await getCurrentEmployeeInfo({ tenantId });
-    if (type === 0) {
-      this.props.companyAndPassword.loadData(res.content);
-    }
-    if (companyObj && type === 1) {
-      if (res && res.content) {
-        remove(res.content, (item: any) => item.companyId === companyObj.companyId);
-        const data = [companyObj, ...res.content];
-        this.props.companyAndPassword.loadData(data);
-      }
-    }
-    if (queryDataSet) {
-      const checkInvoiceCountRes = await checkInvoiceCount({ tenantId });
-      queryDataSet.current!.set({ companyObj, authorityCode: competentTaxAuthorities });
-      this.props.companyAndPassword.current!.set({
-        inChannelCode,
-        authorityCode: competentTaxAuthorities,
-        checkInvoiceCount: checkInvoiceCountRes,
-      });
-      // queryDataSet.current!.set({ authorityCode: competentTaxAuthorities });
-    }
-    if (inChannelCode === 'AISINO_IN_CHANNEL') {
-      this.props.companyAndPassword.current!.set({ taxDiskPassword: '88888888' });
-    } else {
-      this.getTaskPassword(companyObj, this.props.companyAndPassword);
-    }
-    this.props.checkCertificationListDS.setQueryParameter('companyId', companyId);
-    this.props.checkCertificationListDS.query();
-  }
-
   async componentDidMount() {
     const { checkCertificationListDS } = this.props;
     const { queryDataSet } = checkCertificationListDS;
-    const res = await getCurrentEmployeeInfo({ tenantId });
     const query = location.search;
     const type = new URLSearchParams(query).get('type');
     switch (type) {
       case '2':
-        // this.setState({ activeKey: 'statisticalConfirm' });
+        this.setState({ activeKey: 'statisticalConfirm' });
         break;
       case '3':
-        // this.setState({ activeKey: 'batchInvoice' });
+        this.setState({ activeKey: 'batchInvoice' });
         break;
       default:
         break;
     }
     if (queryDataSet) {
-      const curCompanyId = queryDataSet.current!.get('companyId');
-      if (res && res.content && res.content[0] && !curCompanyId) {
-        this.getDataFromCompany(res.content[0], 0);
-      }
+      const curCompanyId = queryDataSet.current?.get('companyId');
       if (curCompanyId) {
         const curInfo = await getCurrentEmployeeInfo({ tenantId, companyId: curCompanyId });
-        // const { competentTaxAuthorities } = await getTaxAuthorityCode({
-        //   tenantId,
-        //   companyId: curCompanyId,
-        // });
-        if (curInfo && curInfo.content) {
-          const empInfo = curInfo.content[0];
-          this.setState({ empInfo });
+        if (curInfo && curInfo.content) this.getEmpInfoAndAuthorityCode(curInfo.content[0]);
+      } else {
+        const res = await getCurrentEmployeeInfo({ tenantId });
+        if (res && res.content && res.content[0]) {
+          this.props.companyAndPassword.loadData(res.content);
+          // 获取是否有勾选请求中的发票
+          const checkInvoiceCountRes = await checkInvoiceCount({ tenantId });
+          queryDataSet.current!.set({ checkInvoiceCount: checkInvoiceCountRes });
+          this.getEmpInfoAndAuthorityCode(res.content[0]);
         }
       }
     }
   }
 
-  // 获取主管机构代码
+  // 获取基础数据（主管架构代码、员工信息、通道编码、税盘密码）
   @Bind()
-  async getEmpInfoAndAuthorityCode(empInfo) {
+  async getEmpInfoAndAuthorityCode(curEmpInfo) {
+    const { queryDataSet } = this.props.checkCertificationListDS;
+    const apiCondition = process.env.EMPLOYEE_API;
+    let inChannelCode: string;
+    if (apiCondition === 'OP') {
+      inChannelCode = 'UNAISINO_IN_CHANNEL';
+    } else {
+      const resCop = await getTenantAgreementCompany({ companyId: curEmpInfo.companyId, tenantId });
+      ({ inChannelCode } = resCop);
+    }
+    this.props.companyAndPassword.current!.set({ inChannelCode });
+    if (inChannelCode === 'AISINO_IN_CHANNEL') {
+      this.props.companyAndPassword.current!.set({ taxDiskPassword: '88888888' });
+    } else {
+      this.getTaskPassword(curEmpInfo, this.props.companyAndPassword);
+    }
     const { competentTaxAuthorities } = await getTaxAuthorityCode({
       tenantId,
-      companyId: empInfo.companyId,
+      companyId: curEmpInfo.companyId,
     });
-    this.setState({ authorityCode: competentTaxAuthorities });
+    if (queryDataSet) {
+      queryDataSet.current!.set({ companyObj: curEmpInfo, authorityCode: competentTaxAuthorities });
+    }
+    this.props.checkCertificationListDS.setQueryParameter('companyId', curEmpInfo.companyId);
+    this.props.checkCertificationListDS.query();
+    this.setState({ empInfo: { authorityCode: competentTaxAuthorities, ...curEmpInfo } });
   }
 
   /**
@@ -223,25 +196,22 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
         message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
       });
     }
-    const res = await updateEnterpriseFile({
-      tenantId,
-      companyId,
-      companyCode,
-      employeeId,
-      employeeNumber,
-      taxDiskPassword,
-    });
-    if (res && !res.failed) {
+    const res = getResponse(
+      await updateEnterpriseFile({
+        tenantId,
+        companyId,
+        companyCode,
+        employeeId,
+        employeeNumber,
+        taxDiskPassword,
+      })
+    );
+    if (res) {
       notification.success({
         description: '',
         message: intl.get('hzero.common.notification.success').d('操作成功'),
       });
       this.props.checkCertificationListDS.query();
-    } else {
-      notification.error({
-        description: '',
-        message: res && res.message,
-      });
     }
   }
 
@@ -277,16 +247,24 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
     const { checkCertificationListDS } = this.props;
     const { queryDataSet } = checkCertificationListDS;
     if (queryDataSet && value) {
-      this.getDataFromCompany(value, type);
+      if (type === 0) {
+        this.getEmpInfoAndAuthorityCode(value);
+      } else {
+        const companyData = this.props.companyAndPassword.toData();
+        if (companyData) {
+          remove(companyData, (item: any) => item.companyId === value.companyId);
+          const data = [value, ...companyData];
+          this.props.companyAndPassword.loadData(data);
+          this.getEmpInfoAndAuthorityCode(value);
+        }
+      }
     }
   }
 
   // 获取当前所属期
   @Bind()
   async getCurrentPeriod() {
-    const { checkCertificationListDS, companyAndPassword } = this.props;
-    // const { queryDataSet: statisticalDs } = this.props.statisticalConfirmDS;
-    // const { queryDataSet: batchInvoiceHeaderDS } = this.props.batchInvoiceHeaderDS;
+    const { companyAndPassword } = this.props;
     const { empInfo } = this.state;
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
@@ -304,29 +282,9 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
         employeeId,
         employeeNumber,
         taxDiskPassword,
-      }),
+      })
     );
-    if (res) {
-      const {
-        currentPeriod,
-        currentOperationalDeadline,
-        checkableTimeRange,
-        currentCertState,
-      } = res;
-      // 所属期数据存在技术DS中
-      checkCertificationListDS.current!.set({
-        currentPeriod,
-        currentCertState,
-        currentOperationalDeadline,
-        checkableTimeRange,
-      });
-      companyAndPassword.current!.set({
-        currentPeriod,
-        currentCertState,
-        currentOperationalDeadline,
-        checkableTimeRange,
-      });
-    }
+    if (res) this.setState({ currentPeriodData: res });
   }
 
   @Bind()
@@ -334,7 +292,6 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
     const modal = ModalPro.open({
       title: intl.get('hiop.invoiceReq.title.companyInfo').d('公司信息'),
       drawer: true,
-      // width: 480,
       children: (
         <Form dataSet={this.props.checkCertificationListDS}>
           <Output name="companyName" renderer={({ value }) => value || '-'} />
@@ -379,7 +336,6 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
   @Bind()
   async handlePasswordSave(modal) {
     const validate = await this.props.companyAndPassword.validate(false, false);
-    console.log('validate', validate);
     if (validate) {
       const res = await this.props.companyAndPassword.submit();
       if (res && res.status === 'H1014') {
@@ -455,7 +411,7 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
   @Bind()
   handleRow(record) {
     return {
-      onClick: () => this.companyChange(record.toData(), 2),
+      onClick: () => this.companyChange(record.toData(), 0),
     };
   }
 
@@ -477,24 +433,24 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
   @Bind()
   async handleTabChange(newActiveKey) {
     const { queryDataSet } = this.props.checkCertificationListDS;
-    // this.setState({ activeKey: newActiveKey });
+    this.setState({ activeKey: newActiveKey });
     if (queryDataSet) {
       if (['batchInvoice', 'certifiableInvoice'].includes(newActiveKey)) {
         const res = await checkInvoiceCount({ tenantId });
-        if (res === 0 && newActiveKey === 'batchInvoice') {
-          const checkInvoiceButton = document.getElementById('checkInvoice');
-          if (checkInvoiceButton) {
-            checkInvoiceButton.click();
-          }
-        }
+        // if (res === 0 && newActiveKey === 'batchInvoice') {
+        //   const checkInvoiceButton = document.getElementById('checkInvoice');
+        //   if (checkInvoiceButton) {
+        //     checkInvoiceButton.click();
+        //   }
+        // }
         queryDataSet.current!.set({ checkInvoiceCount: res });
       }
     }
   }
 
   render() {
-    const { empInfo, authorityCode } = this.state;
-    console.log(authorityCode);
+    const { empInfo, activeKey, currentPeriodData } = this.state;
+    console.log('currentPeriodData', currentPeriodData);
     return (
       <>
         <Header title={intl.get(`${modelCode}.title.CheckCertification`).d('勾选认证')}>
@@ -549,6 +505,36 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
                   <Icon type="help_outline" className={styles.icon} />
                 </Tooltip>
               </div>
+              <Tabs
+                className={styles.tabsTitle}
+                activeKey={activeKey}
+                onChange={this.handleTabChange}
+              >
+                <TabPane
+                  tab={intl
+                    .get(`${modelCode}.tabPane.certifiableInvoiceTitle`)
+                    .d('当期勾选可认证发票')}
+                  key="certifiableInvoice"
+                >
+                  <CheckVerifiableInvoiceTable
+                    companyAndPassword={this.props.companyAndPassword}
+                    empInfo={empInfo}
+                    currentPeriodData={currentPeriodData}
+                  />
+                </TabPane>
+                <TabPane
+                  tab={intl.get(`${modelCode}.statisticalConfirm`).d('申请统计及确签')}
+                  key="statisticalConfirm"
+                >
+                  2
+                </TabPane>
+                <TabPane
+                  tab={intl.get(`${modelCode}.tabPane.batchInvoice`).d('批量勾选可认证发票')}
+                  key="batchInvoice"
+                >
+                  3
+                </TabPane>
+              </Tabs>
             </Content>
           </Col>
         </Row>
