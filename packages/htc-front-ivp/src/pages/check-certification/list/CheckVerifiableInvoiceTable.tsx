@@ -260,7 +260,7 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
   async handleFindVerifiableInvoice() {
     const { certifiableInvoiceListDS, empInfo } = this.props;
     const { progressValue } = this.state;
-    const { queryDataSet: certifiableQueryDS } = certifiableInvoiceListDS!;
+    const { queryDataSet } = certifiableInvoiceListDS!;
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
     if (!taxDiskPassword) {
@@ -269,8 +269,8 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
         message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
       });
     }
-    if (certifiableQueryDS) {
-      const certifiableQueryData = certifiableQueryDS.current!.toData();
+    if (queryDataSet) {
+      const certifiableQueryData = queryDataSet.current!.toData();
       const {
         checkableTimeRange,
         invoiceCategory,
@@ -308,7 +308,7 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
           description: '',
           message: res.message,
         });
-        // return;
+        return;
       }
       this.setState({
         progressValue: 0,
