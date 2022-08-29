@@ -36,7 +36,6 @@ export default (): DataSetProps => {
       },
     },
     pageSize: 10,
-    // selection: false,
     primaryKey: 'detailInfoHeaderId',
     fields: [
       {
@@ -85,12 +84,6 @@ export default (): DataSetProps => {
     ],
     queryDataSet: new DataSet({
       fields: [
-        // {
-        //   name: 'statisticalPeriod',
-        //   label: intl.get(`${modelCode}.view.statisticalPeriod`).d('认证所属期'),
-        //   type: FieldType.string,
-        //   readOnly: true,
-        // },
         {
           name: 'companyId',
           type: FieldType.number,

@@ -213,7 +213,7 @@ export default class ApplicationStatisticsConfirmationTable extends Component<
       const curInfo = queryDataSet?.current!.toData();
       const employeeDesc = `${companyCode}-${employeeNumber}-${employeeName}-${mobile}`;
       const companyDesc = `${companyCode}-${companyName}`;
-      const { confirmPassword, authenticationDate } = curInfo;
+      const { confirmPassword, statisticalPeriod } = curInfo;
       const params = {
         tenantId,
         companyId,
@@ -224,7 +224,7 @@ export default class ApplicationStatisticsConfirmationTable extends Component<
         employeeDesc,
         taxDiskPassword,
         taxpayerNumber,
-        currentPeriod: authenticationDate,
+        currentPeriod: statisticalPeriod,
         confirmFlag: 1,
         confirmPassword,
       };
