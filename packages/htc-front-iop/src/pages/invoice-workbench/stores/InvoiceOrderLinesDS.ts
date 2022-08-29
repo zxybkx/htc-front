@@ -628,8 +628,8 @@ export default (): DataSetProps => {
           // readOnly: ({ record }) => record.get('projectUnitPrice') && record.get('quantity'),
           max: ({ record }) => (record.get('invoiceLineNature') === '1' ? 0 : 9999999999),
           min: ({ record }) => (record.get('invoiceLineNature') !== '1' ? 0.01 : -9999999999),
-          readOnly: ({ record }) =>
-            record.get('invoiceLineNature') === '1' && record.status !== 'add',
+          // readOnly: ({ record }) =>
+          //   record.get('invoiceLineNature') === '1' && record.status !== 'add',
         },
         required: true,
         validator: (value, name, record) => amountValidator(value, name, record),
