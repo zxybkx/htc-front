@@ -313,7 +313,7 @@ export default class ApplicationStatisticsConfirmationTable extends Component<
   }
 
   // 当期已勾选发票统计确签: 按钮
-  get statisticalConfirmButtons(): Buttons[] {
+  get buttons(): Buttons[] {
     const BatchBtn = observer((props: any) => {
       const isDisabled = props.dataSet!.selected.length === 0;
       return (
@@ -697,7 +697,7 @@ export default class ApplicationStatisticsConfirmationTable extends Component<
           <Table
             dataSet={statisticalConfirmDS}
             columns={this.statisticalConfirmColumns}
-            buttons={this.statisticalConfirmButtons}
+            buttons={this.buttons}
             queryBar={this.renderQueryBar}
             style={{ height: 300 }}
           />

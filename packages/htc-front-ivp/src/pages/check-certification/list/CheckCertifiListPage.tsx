@@ -49,6 +49,7 @@ import CheckCertificationListDS, { TaxDiskPasswordDS } from '../stores/CheckCert
 import CompanyAndPasswordDS from '../stores/CompanyAndPasswordDS';
 import CheckVerifiableInvoiceTable from './CheckVerifiableInvoiceTable';
 import ApplicationStatisticsConfirmationTable from './ApplicationStatisticsConfirmationTable';
+import BatchCheckVerifiableInvoicesTable from './BatchCheckVerifiableInvoicesTable';
 import styles from '../checkcertification.less';
 
 const { TabPane } = Tabs;
@@ -436,12 +437,12 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
     if (queryDataSet) {
       if (['batchInvoice', 'certifiableInvoice'].includes(newActiveKey)) {
         const res = await checkInvoiceCount({ tenantId });
-        // if (res === 0 && newActiveKey === 'batchInvoice') {
-        //   const checkInvoiceButton = document.getElementById('checkInvoice');
-        //   if (checkInvoiceButton) {
-        //     checkInvoiceButton.click();
-        //   }
-        // }
+        if (res === 0 && newActiveKey === 'batchInvoice') {
+          const checkInvoiceButton = document.getElementById('checkInvoice');
+          if (checkInvoiceButton) {
+            checkInvoiceButton.click();
+          }
+        }
         queryDataSet.current!.set({ checkInvoiceCountRes: res });
       }
     }
@@ -538,7 +539,13 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
                   tab={intl.get(`${modelCode}.tabPane.batchInvoice`).d('批量勾选可认证发票')}
                   key="batchInvoice"
                 >
-                  3
+                  <BatchCheckVerifiableInvoicesTable
+                    companyAndPassword={this.props.companyAndPassword}
+                    empInfo={empInfo}
+                    currentPeriodData={currentPeriodData}
+                    checkInvoiceCount={checkInvoiceCountRes}
+                    history={history}
+                  />
                 </TabPane>
               </Tabs>
             </Content>
