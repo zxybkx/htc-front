@@ -18,7 +18,6 @@ import {
   Modal as ModalPro,
   Output,
   Password,
-  // Spin,
   Table,
   Tabs,
   TextField,
@@ -49,6 +48,7 @@ import formatterCollections from 'utils/intl/formatterCollections';
 import CheckCertificationListDS, { TaxDiskPasswordDS } from '../stores/CheckCertificationListDS';
 import CompanyAndPasswordDS from '../stores/CompanyAndPasswordDS';
 import CheckVerifiableInvoiceTable from './CheckVerifiableInvoiceTable';
+import ApplicationStatisticsConfirmationTable from './ApplicationStatisticsConfirmationTable';
 import styles from '../checkcertification.less';
 
 const { TabPane } = Tabs;
@@ -143,9 +143,7 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
           this.props.companyAndPassword.loadData(res.content);
           // 获取是否有勾选请求中的发票
           const checkInvoiceCountRes = await checkInvoiceCount({ tenantId });
-          if (checkInvoiceCountRes) {
-            this.setState({ checkInvoiceCountRes });
-          }
+          this.setState({ checkInvoiceCountRes });
           this.getEmpInfoAndAuthorityCode(res.content[0]);
         }
       }
@@ -444,7 +442,7 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
         //     checkInvoiceButton.click();
         //   }
         // }
-        queryDataSet.current!.set({ checkInvoiceCount: res });
+        queryDataSet.current!.set({ checkInvoiceCountRes: res });
       }
     }
   }
@@ -529,7 +527,12 @@ export default class CheckCertifiListPage extends Component<CheckCertificationPa
                   tab={intl.get(`${modelCode}.statisticalConfirm`).d('申请统计及确签')}
                   key="statisticalConfirm"
                 >
-                  2
+                  <ApplicationStatisticsConfirmationTable
+                    companyAndPassword={this.props.companyAndPassword}
+                    empInfo={empInfo}
+                    currentPeriodData={currentPeriodData}
+                    history={history}
+                  />
                 </TabPane>
                 <TabPane
                   tab={intl.get(`${modelCode}.tabPane.batchInvoice`).d('批量勾选可认证发票')}

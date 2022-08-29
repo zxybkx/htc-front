@@ -97,7 +97,7 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
   };
 
   async componentDidMount() {
-    const { certifiableInvoiceListDS } = this.props;
+    const { certifiableInvoiceListDS, checkInvoiceCount } = this.props;
     const curDisplayOptions = certifiableInvoiceListDS?.queryDataSet?.current?.get(
       'invoiceDisplayOptions'
     );
@@ -113,6 +113,7 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
             'DOCS_UNITED',
             'NON_DOCS',
           ],
+          checkInvoiceCount,
         });
       } else {
         const invoiceDisplayOptionsArr = split(curDisplayOptions, ',');
@@ -144,8 +145,8 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
   }
 
   async componentDidUpdate(prevProps) {
+    const { certifiableInvoiceListDS } = this.props;
     if (prevProps.empInfo && prevProps.empInfo !== this.props.empInfo) {
-      const { certifiableInvoiceListDS } = this.props;
       if (certifiableInvoiceListDS) {
         const { queryDataSet } = certifiableInvoiceListDS;
         queryDataSet?.current!.set({
@@ -158,7 +159,6 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
       prevProps.currentPeriodData &&
       prevProps.currentPeriodData !== this.props.currentPeriodData
     ) {
-      const { certifiableInvoiceListDS } = this.props;
       if (certifiableInvoiceListDS) {
         const { queryDataSet } = certifiableInvoiceListDS;
         const {
@@ -174,6 +174,17 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
             checkableTimeRange,
             currentCertState,
           });
+        }
+      }
+    }
+    if (
+      prevProps.checkInvoiceCount &&
+      prevProps.checkInvoiceCount !== this.props.checkInvoiceCount
+    ) {
+      if (certifiableInvoiceListDS) {
+        const { queryDataSet } = certifiableInvoiceListDS;
+        if (queryDataSet) {
+          queryDataSet?.current!.set({ checkInvoiceCount: this.props.checkInvoiceCount });
         }
       }
     }
@@ -484,7 +495,6 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
 
   // 当期勾选(取消)可认证发票: 按钮
   get buttons(): Buttons[] {
-    const { checkInvoiceCount, currentPeriodData } = this.props;
     const TickButton = observer((props: any) => {
       const isDisabled = props.dataSet!.selected.length === 0;
       const { condition } = props;
@@ -499,7 +509,9 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
         </Button>
       );
     });
-    const Tooltips = () => {
+    const Tooltips = observer((props: any) => {
+      const { queryDataSet } = props.dataSet;
+      const checkInvoiceCount = queryDataSet && queryDataSet.current?.get('checkInvoiceCount');
       const title =
         checkInvoiceCount === 0
           ? ''
@@ -513,7 +525,7 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
           />
         </Tooltip>
       );
-    };
+    });
     const btnMenu = (
       <Menu>
         <MenuItem>
@@ -534,6 +546,37 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
         </MenuItem>
       </Menu>
     );
+    const VerifiableButton = observer((props: any) => {
+      const { queryDataSet } = props.dataSet;
+      const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
+      const checkInvoiceCount = queryDataSet && queryDataSet.current?.get('checkInvoiceCount');
+      const isDisabled = !currentPeriod || checkInvoiceCount !== 0;
+      return (
+        <Button
+          key={props.key}
+          onClick={props.onClick}
+          disabled={isDisabled}
+          funcType={FuncType.flat}
+        >
+          {props.title}
+        </Button>
+      );
+    });
+    const CertifiedDetail = observer((props: any) => {
+      const { queryDataSet } = props.dataSet;
+      const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
+      const isDisabled = !currentPeriod;
+      return (
+        <Button
+          key={props.key}
+          onClick={props.onClick}
+          disabled={isDisabled}
+          funcType={FuncType.flat}
+        >
+          {props.title}
+        </Button>
+      );
+    });
     return [
       <Dropdown overlay={btnMenu}>
         <Button color={ButtonColor.primary}>
@@ -541,26 +584,19 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
           <Icon type="arrow_drop_down" />
         </Button>
       </Dropdown>,
-      <Button
-        funcType={FuncType.flat}
-        disabled={!currentPeriodData.currentPeriod || checkInvoiceCount !== 0}
-        color={ButtonColor.primary}
-        key="getVerifiableInvoices"
+      <VerifiableButton
+        key="verifiableInvoices"
+        dataSet={this.props.certifiableInvoiceListDS}
         onClick={() => this.handleFindVerifiableInvoice()}
-      >
-        {intl.get(`${modelCode}.button.getVerifiableInvoices`).d('实时查找可认证发票')}
-      </Button>,
-      <Tooltips />,
-      <Button
+        title={intl.get(`${modelCode}.button.getVerifiableInvoices`).d('实时查找可认证发票')}
+      />,
+      <Tooltips dataSet={this.props.certifiableInvoiceListDS} />,
+      <CertifiedDetail
         key="certifiedDetails"
+        dataSet={this.props.certifiableInvoiceListDS}
         onClick={() => this.handleGoToDetail()}
-        funcType={FuncType.flat}
-        disabled={!currentPeriodData.currentPeriod}
-        color={ButtonColor.default}
-        style={{ marginLeft: 10 }}
-      >
-        {intl.get(`${modelCode}.button.certifiedDetails`).d('已认证详情')}
-      </Button>,
+        title={intl.get(`${modelCode}.button.certifiedDetails`).d('已认证详情')}
+      />,
       <TickButton
         key="refresh"
         onClick={() => this.verifiableRefresh()}
