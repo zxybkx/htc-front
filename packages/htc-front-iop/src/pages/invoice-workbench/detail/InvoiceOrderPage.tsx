@@ -860,7 +860,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       return;
     }
     if (!isEmpty(lineList)) {
-      this.validateLine(lineList, companyType);
+      const ifRes = this.validateLine(lineList, companyType);
+      if (!ifRes) {
+        return;
+      }
     }
     let mark = userRemark;
     if (remark) {
