@@ -102,7 +102,7 @@ const checkCertificationRouterConfig = [
     routes: [
       {
         path: '/htc-front-ivp/check-certification/list',
-        component: '@/pages/check-certification/list/CheckCertifiListPage',
+        component: '@/pages/check-certification/list/Test',
       },
       {
         //  已认证详情
