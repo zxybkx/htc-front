@@ -252,9 +252,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'projectNumber',
-        label: intl
-          .get('hiop.tobeInvoice.modal.materialCode-selfCoding)')
-          .d('物料编码（自行编码）'),
+        label: intl.get('hiop.tobeInvoice.modal.materialCode-selfCoding').d('物料编码（自行编码）'),
         type: FieldType.string,
       },
       {
