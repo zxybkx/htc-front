@@ -413,7 +413,9 @@ export default (): DataSetProps => {
       },
       {
         name: 'monthlyInvoicingLimitRemind',
-        label: intl.get('hiop.invoiceRule.modal.qyydkpxetx').d('启用月度开票限额提醒'),
+        label: intl
+          .get('hiop.invoiceRule.modal.monthlyInvoicingLimitRemind')
+          .d('启用月度开票限额提醒'),
         type: FieldType.boolean,
         defaultValue: false,
       },
@@ -425,7 +427,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'monthlyInvoicingLimit',
-        label: intl.get('hiop.invoiceRule.modal.ydkpxe').d('月度开票限额（元）'),
+        label: intl.get('hiop.invoiceRule.modal.monthlyInvoicingLimit').d('月度开票限额（元）'),
         type: FieldType.currency,
         min: 0,
         computedProps: {
@@ -435,7 +437,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'quarterInvoicingLimit',
-        label: intl.get('hiop.invoiceRule.modal.jdkpxe').d('季度开票限额（元）'),
+        label: intl.get('hiop.invoiceRule.modal.quarterInvoicingLimit').d('季度开票限额（元）'),
         type: FieldType.currency,
         min: 0,
         computedProps: {
@@ -445,13 +447,15 @@ export default (): DataSetProps => {
       },
       {
         name: 'annualInvoicingLimitRemind',
-        label: intl.get('hiop.invoiceRule.modal.qyndkpxetx').d('启用年度开票限额提醒'),
+        label: intl
+          .get('hiop.invoiceRule.modal.annualInvoicingLimitRemind')
+          .d('启用年度开票限额提醒'),
         type: FieldType.boolean,
         defaultValue: false,
       },
       {
         name: 'annualInvoicingLimit',
-        label: intl.get('hiop.invoiceRule.modal.ndkpxe').d('年度开票限额（元）'),
+        label: intl.get('hiop.invoiceRule.modal.annualInvoicingLimit').d('年度开票限额（元）'),
         type: FieldType.currency,
         min: 0,
         computedProps: {
