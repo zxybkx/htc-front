@@ -421,7 +421,9 @@ export default (): DataSetProps => {
       },
       {
         name: 'quarterInvoicingLimitRemind',
-        label: intl.get('hiop.invoiceRule.modal.qyjdkpxetx').d('启用季度开票限额提醒'),
+        label: intl
+          .get('hiop.invoiceRule.modal.quarterInvoicingLimitRemind')
+          .d('启用季度开票限额提醒'),
         type: FieldType.boolean,
         defaultValue: false,
       },
