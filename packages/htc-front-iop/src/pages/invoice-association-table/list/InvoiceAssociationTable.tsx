@@ -19,7 +19,12 @@ import InvoiceAssociationTableDS from '../stores/InvoiceAssociationTableDS';
 const tenantId = getCurrentOrganizationId();
 
 @formatterCollections({
-  code: ['htc.common', 'hiop.taxRateStatistic', 'hiop.invoiceWorkbench'],
+  code: [
+    'htc.common',
+    'hiop.taxRateStatistic',
+    'hiop.invoiceWorkbench',
+    'hiop.invoiceAssociationTable',
+  ],
 })
 export default class InvoiceAssociationTable extends Component {
   invoiceAssociationTable = new DataSet({
@@ -83,7 +88,7 @@ export default class InvoiceAssociationTable extends Component {
   render() {
     return (
       <>
-        <Header title={intl.get('hiop.statisticsTable.title').d('销项开票关联表')} />
+        <Header title={intl.get('hiop.invoiceAssociationTable.title').d('销项开票关联表')} />
         <Content>
           <Table
             dataSet={this.invoiceAssociationTable}
