@@ -320,7 +320,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'sellerTaxpayerNumber',
-        label: intl.get('hiop.invoiceWorkbench.modal.taxpayerNumber').d('纳税人识别号'),
+        label: intl.get('htc.common.modal.taxpayerNumber').d('纳税人识别号'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -334,7 +334,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'sellerCompanyAddressPhone',
-        label: intl.get('hiop.invoiceWorkbench.modal.companyAddressPhone').d('地址、电话'),
+        label: intl.get('htc.common.modal.companyAddressPhone').d('地址、电话'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -344,7 +344,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'sellerBankNumber',
-        label: intl.get('hiop.invoiceWorkbench.modal.bankNumber').d('开户行及账号'),
+        label: intl.get('htc.common.modal.bankNumber').d('开户行及账号'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
