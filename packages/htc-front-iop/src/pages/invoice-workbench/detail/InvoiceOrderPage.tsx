@@ -74,7 +74,14 @@ interface InvoiceOrderPageProps extends RouteComponentProps {
 }
 
 @formatterCollections({
-  code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq', 'hiop.tobeInvoice'],
+  code: [
+    'hiop.invoiceWorkbench',
+    'htc.common',
+    'hiop.invoiceReq',
+    'hiop.tobeInvoice',
+    'hivp.invoices',
+    'hivp.invoicesArchiveUpload',
+  ],
 })
 export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   invoiceOrderLinesDS = new DataSet({
@@ -860,7 +867,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       return;
     }
     if (!isEmpty(lineList)) {
-      this.validateLine(lineList, companyType);
+      const ifRes = this.validateLine(lineList, companyType);
+      if (!ifRes) {
+        return;
+      }
     }
     let mark = userRemark;
     if (remark) {
@@ -907,7 +917,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         onClick={() => this.handleAddLine()}
         disabled={isDisabled || addDisabled}
       >
-        {intl.get('hzero.c7nProUI.Table.create_button').d('新增')}
+        {intl.get('hzero.common.add').d('新增')}
       </Button>,
     ];
   }
