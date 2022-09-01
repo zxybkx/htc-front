@@ -307,7 +307,7 @@ export default class InvoiceRuleListPage extends Component<InvoiceRuleListPagePr
         {intl.get('hzero.common.button.delete').d('删除')}
       </Button>,
       <Button key="editRegistry" color={ButtonColor.default} onClick={() => this.editRegistry()}>
-        {intl.get('hiop.invoiceRule.button.editRegistr ').d('下载注册表文件')}
+        {intl.get('hiop.invoiceRule.button.editRegistry').d('下载注册表文件')}
       </Button>,
       <Button icon="playlist_add" onClick={this.handleAddLine}>
         {intl.get('hzero.common.button.add').d('新增')}

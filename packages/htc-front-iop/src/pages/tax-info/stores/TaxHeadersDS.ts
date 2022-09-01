@@ -110,7 +110,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'taxDiskSize',
-        label: intl.get('hiop.taxInfo.modal.taxDiskSize').d('金税盘容量'),
+        label: intl.get('hiop.taxInfo.modal.programVersionNumber').d('金税盘容量'),
         type: FieldType.string,
       },
       {
