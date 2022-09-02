@@ -34,7 +34,7 @@ import { addToInvoicePool, handleInvoiceCheckApi } from '@src/services/invoiceCh
 import InvoiceCheckQueryDS from '../stores/InvoiceCheckQueryDS';
 import style from '../invoiceCheck.module.less';
 
-const modelCode = 'hcan.invoice-check';
+const modelCode = 'hcan.invoiceCheck';
 interface InvoiceCheckQueryPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   queryDS: DataSet;
@@ -212,7 +212,7 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
     });
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('手工发票查验')} />
+        <Header title={intl.get(`${modelCode}.view.title`).d('手工发票查验')} />
         <Content className={style.main}>
           <Output
             name="desc"

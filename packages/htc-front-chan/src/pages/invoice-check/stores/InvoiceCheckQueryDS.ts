@@ -12,7 +12,7 @@ import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
 import intl from 'utils/intl';
 import moment from 'moment';
 
-const modelCode = 'hcan.invoice-check';
+const modelCode = 'hcan.invoiceCheck';
 
 export default (): DataSetProps => {
   const tenantId = getCurrentOrganizationId();
@@ -66,7 +66,8 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
         type: FieldType.string,
         computedProps: {
-          required: ({ record }) => record.get('invoiceNumber') && record.get('invoiceNumber').length !== 20,
+          required: ({ record }) =>
+            record.get('invoiceNumber') && record.get('invoiceNumber').length !== 20,
         },
       },
       {
@@ -82,7 +83,7 @@ export default (): DataSetProps => {
         type: FieldType.date,
         format: 'YYYYMMDD',
         required: true,
-        transformRequest: (value) => moment(value).format('YYYYMMDD'),
+        transformRequest: value => moment(value).format('YYYYMMDD'),
       },
       {
         name: 'invoiceAmount',

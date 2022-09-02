@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-26 11:01:10
- * @LastEditTime:
+ * @LastEditTime: 2022-09-01 17:47:50
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -15,7 +15,7 @@ import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import moment from 'moment';
 
-const modelCode = 'hivp.tax-refund';
+const modelCode = 'hivp.taxRefund';
 
 export default (): DataSetProps => {
   const tenantId = getCurrentOrganizationId();
@@ -45,7 +45,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'checkState',
-        label: intl.get(`${modelCode}.view.checkState`).d('勾选标志'),
+        label: intl.get(`hivp.taxRefund.view.checkState`).d('勾选标志'),
         type: FieldType.string,
         lookupCode: 'HIVP.CHECK_STATE',
       },

@@ -74,7 +74,13 @@ interface InvoiceReqListPageProps extends RouteComponentProps {
 }
 
 @formatterCollections({
-  code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq', 'hiop.tobeInvoice'],
+  code: [
+    'hiop.invoiceWorkbench',
+    'htc.common',
+    'hiop.invoiceReq',
+    'hiop.tobeInvoice',
+    'hivp.invoices',
+  ],
 })
 @withProps(
   () => {
