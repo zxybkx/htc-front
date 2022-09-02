@@ -32,7 +32,14 @@ interface FileDownloadPageProps extends RouteComponentProps<RouterInfo> {
 }
 
 @formatterCollections({
-  code: [modelCode, 'htc.common', 'hiop.invoiceRule', 'hivp.batchCheck', 'hivp.bill'],
+  code: [
+    modelCode,
+    'htc.common',
+    'hiop.invoiceRule',
+    'hivp.batchCheck',
+    'hivp.bill',
+    'hivp.invoicesFileArchive',
+  ],
 })
 export default class FileDownloadPage extends Component<FileDownloadPageProps> {
   state = { companyDesc: '', backPath: '', companyCode: '', employeeNumber: '' };

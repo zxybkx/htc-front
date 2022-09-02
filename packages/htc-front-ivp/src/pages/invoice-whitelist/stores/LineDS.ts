@@ -98,7 +98,7 @@ export default (): DataSetProps => {
       fields: [
         {
           name: 'companyObj',
-          label: intl.get('hzero.hzeroTheme.page.companyName').d('公司名称'),
+          label: intl.get('htc.common.view.companyName').d('公司名称'),
           type: FieldType.object,
           lovCode: 'HMDM.CURRENT_EMPLOYEE',
           lovPara: { tenantId },
