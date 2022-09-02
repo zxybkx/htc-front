@@ -65,7 +65,7 @@ export default (dsParams): DataSetProps => {
         label: intl.get('htc.common.view.invoiceDate').d('开票日期'),
         type: FieldType.date,
         required: true,
-        transformResponse: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformResponse: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'buyerTaxNo',
@@ -100,7 +100,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'invoiceState',
-        label: intl.get('hivp.batchCheck.	view.invoiceStatus').d('发票状态'),
+        label: intl.get('hivp.batchCheck.view.invoiceStatus').d('发票状态'),
         type: FieldType.string,
         lookupCode: 'HMDM.INVOICE_STATE',
       },
@@ -190,7 +190,7 @@ export default (dsParams): DataSetProps => {
         },
         {
           name: 'authenticationState',
-          label: intl.get(`${modelCode}.view.currentCertState`).d('当期认证状态'),
+          label: intl.get('hivp.checkCertification.view.currentCertState').d('当期认证状态'),
           type: FieldType.string,
           readOnly: true,
           lookupCode: 'HIVP.CHECK_CONFIRM_STATE',
@@ -233,14 +233,14 @@ export default (dsParams): DataSetProps => {
           label: intl.get(`${modelCode}.view.checkTimeFrom`).d('勾选日期从'),
           type: FieldType.date,
           defaultValue: monthStart,
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'checkTimeTo',
           label: intl.get(`${modelCode}.view.checkTimeTo`).d('勾选日期至'),
           type: FieldType.date,
           defaultValue: monthEnd,
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
       ],
     }),
