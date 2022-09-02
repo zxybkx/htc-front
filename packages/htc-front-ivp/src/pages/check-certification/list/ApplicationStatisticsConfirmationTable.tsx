@@ -452,7 +452,6 @@ export default class ApplicationStatisticsConfirmationTable extends Component<
       taxpayerNumber,
       companyName,
     } = empInfo;
-    // const invoiceCategory = cerQueryDataSet && cerQueryDataSet.current?.get('invoiceCategory');
     const taxDiskPassword = this.props.companyAndPassword.current?.get('taxDiskPassword');
     const invoiceDateFrom = record.get('invoiceDateFrom');
     const invoiceDateTo = record.get('invoiceDateTo');
@@ -485,7 +484,7 @@ export default class ApplicationStatisticsConfirmationTable extends Component<
               employeeId,
               employeeNum,
               taxpayerNumber,
-              // invoiceCategory,
+              invoiceCategory: '01',
               taxDiskPassword,
               invoiceDateFromStr,
               invoiceDateToStr,
