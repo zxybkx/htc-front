@@ -320,7 +320,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'systemCode',
-        label: intl.get('hiop.invoiceReq.modal.systemCode').d('来源系统'),
+        label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
         type: FieldType.string,
       },
       {

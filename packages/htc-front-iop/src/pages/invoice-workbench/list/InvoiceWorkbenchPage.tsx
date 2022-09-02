@@ -89,7 +89,13 @@ interface InvoiceWorkbenchPageProps extends RouteComponentProps {
   { cacheState: true }
 )
 @formatterCollections({
-  code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.tobeInvoice', 'hiop.invoiceReq'],
+  code: [
+    'hiop.invoiceWorkbench',
+    'htc.common',
+    'hiop.tobeInvoice',
+    'hiop.invoiceReq',
+    'hivp.invoices',
+  ],
 })
 export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPageProps> {
   state = {
@@ -1695,13 +1701,18 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     return (
       <div>
         <span>
-          {`当前页：合计含税金额：${totalPriceTaxAmount.toFixed(
-            2
-          )}，合计不含税金额：${totalExcludingTaxAmount.toFixed(2)}，合计税额：${totalTax.toFixed(
-            2
-          )}`}
+          {intl.get('hiop.invoiceWorkbench.modal.totalAmount').d('当前页：合计含税金额：')}
+          {totalPriceTaxAmount.toFixed(2)}
+          {intl.get('hiop.invoiceWorkbench.modal.totalAmountExcludeTax').d('合计不含税金额：')}
+          {totalExcludingTaxAmount.toFixed(2)}
+          {intl.get('hiop.invoiceWorkbench.label.totalTax').d('合计税额：')}
+          {totalTax.toFixed(2)}
         </span>
-        <span style={{ float: 'right' }}>累加当前页所有状态的蓝票红票、蓝废红废</span>
+        <span style={{ float: 'right' }}>
+          {intl
+            .get('hiop.invoiceWorkbench.modal.tableFoot')
+            .d('累加当前页所有状态的蓝票红票、蓝废红废')}
+        </span>
       </div>
     );
   }
