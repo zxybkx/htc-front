@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2021-01-12 16:29:24
- * @LastEditTime: 2022-07-29 13:40:13
+ * @LastEditTime: 2022-09-02 10:41:09
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -706,7 +706,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'ticketCollectorObj',
-          label: intl.get('hivp.batchCheck.view.ticketCollectorObj').d('收票员工'),
+          label: intl.get('hivp.batchCheck.view.collectionStaff').d('收票员工'),
           type: FieldType.object,
           lovCode: 'HMDM.EMPLOYEE_NAME',
           cascadeMap: { companyId: 'companyId' },
@@ -800,7 +800,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'amount',
-          label: intl.get('htc.bill.view.amountExcludeTax').d('金额（不含税）'),
+          label: intl.get('hivp.bill.view.amountExcludeTax').d('金额（不含税）'),
           type: FieldType.currency,
         },
         // {
@@ -820,14 +820,14 @@ export default (): DataSetProps => {
         },
         {
           name: 'entryAccountStates',
-          label: intl.get(`${modelCode}.view.entryAccountStates`).d('入账状态'),
+          label: intl.get(`${modelCode}.view.entryAccountState`).d('入账状态'),
           type: FieldType.string,
           lookupCode: 'HIVP.ACCOUNT_STATE',
           multiple: ',',
         },
         {
           name: 'receiptsStates',
-          label: intl.get(`${modelCode}.view.receiptsStates`).d('单据状态'),
+          label: intl.get(`${modelCode}.view.receiptsState`).d('单据状态'),
           type: FieldType.string,
           lookupCode: 'HIVP.INTERFACE_DOCS_STATE',
           multiple: ',',

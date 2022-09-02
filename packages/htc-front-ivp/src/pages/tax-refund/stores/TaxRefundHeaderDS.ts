@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-24 14:27:22
- * @LastEditTime: 2022-07-26 17:25:40
+ * @LastEditTime: 2022-09-02 10:14:42
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -15,7 +15,7 @@ import { FieldType, FieldIgnore } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import moment from 'moment';
 
-const modelCode = 'hivp.tax-refund';
+const modelCode = 'hivp.taxRefund';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
@@ -207,7 +207,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'employeeDesc',
-          label: intl.get(`${modelCode}.view.employeeDesc`).d('登录员工'),
+          label: intl.get(`hivp.batchCheck.view.employeeDesc`).d('登录员工'),
           type: FieldType.string,
           readOnly: true,
           ignore: FieldIgnore.always,
@@ -235,7 +235,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'curDate',
-          label: intl.get(`${modelCode}.view.curDate`).d('当前日期'),
+          label: intl.get(`hivp.invoicesArchiveUpload.view.curDate`).d('当前日期'),
           type: FieldType.date,
           defaultValue: moment(),
           ignore: FieldIgnore.always,

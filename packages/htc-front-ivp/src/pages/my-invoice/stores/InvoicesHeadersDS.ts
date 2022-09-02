@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
- * @LastEditTime: 2022-07-26 17:13:02
+ * @LastEditTime: 2022-09-01 17:15:30
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -115,7 +115,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceState',
-        label: intl.get('hivp.batchCheck.view.invoiceState').d('发票状态'),
+        label: intl.get('hivp.batchCheck.view.invoiceStatus').d('发票状态'),
         type: FieldType.string,
         lookupCode: 'HMDM.INVOICE_STATE',
       },
