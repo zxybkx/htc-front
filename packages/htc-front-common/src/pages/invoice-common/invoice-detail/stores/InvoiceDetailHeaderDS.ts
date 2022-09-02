@@ -182,7 +182,7 @@ export default (invoiceHeaderId): DataSetProps => {
       },
       {
         name: 'blueInvoiceNo',
-        label: intl.get(`${modelCode}.view.blueInvoiceNo`).d('蓝票发票号码'),
+        label: intl.get(`${modelCode}.blueInvoiceNo`).d('蓝票发票号码'),
         type: FieldType.string,
         readOnly: true,
       },

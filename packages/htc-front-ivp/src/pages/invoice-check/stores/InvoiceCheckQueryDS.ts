@@ -20,7 +20,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'companyObj',
-        label: intl.get(`${modelCode}.view.companyName`).d('公司'),
+        label: intl.get('hiop.redInvoiceInfo.modal.companyName').d('公司'),
         type: FieldType.object,
         lovCode: 'HMDM.CURRENT_EMPLOYEE',
         lovPara: { tenantId },
@@ -98,7 +98,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'checkNumber',
-        label: intl.get(`${modelCode}.view.checkNumber`).d('校验码（后6位）'),
+        label: intl.get('hcan.invoiceCheck.view.checkNumber').d('校验码（后6位）'),
         type: FieldType.string,
         pattern: /^[a-zA-Z0-9]{6}$/,
         defaultValidationMessages: {

@@ -265,7 +265,7 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
                   queryDataSet.create();
                 }}
               >
-                {intl.get('hzero.hzeroTheme.page.reset').d('重置')}
+                {intl.get('hzero.common.button.common.reset').d('重置')}
               </Button>
               <Button color={ButtonColor.primary} onClick={() => dataSet.query()}>
                 {intl.get('hzero.common.button.search').d('查询')}

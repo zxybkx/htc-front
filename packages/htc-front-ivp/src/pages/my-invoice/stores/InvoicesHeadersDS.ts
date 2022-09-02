@@ -287,7 +287,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'salerName',
-          label: intl.get(`购方名称.view.salerName`).d('销方名称'),
+          label: intl.get('htc.common.view.salerName').d('销方名称'),
           type: FieldType.string,
         },
         {

@@ -813,7 +813,7 @@ export default (): DataSetProps => {
         // },
         {
           name: 'invoiceStates',
-          label: intl.get(`${modelCode}.view.invoiceStates`).d('发票状态'),
+          label: intl.get('hivp.batchCheck.view.invoiceStatus').d('发票状态'),
           type: FieldType.string,
           lookupCode: 'HMDM.INVOICE_STATE',
           multiple: ',',

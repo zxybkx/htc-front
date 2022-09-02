@@ -45,7 +45,7 @@ interface InvoiceCheckQueryPageProps extends RouteComponentProps {
 }
 
 @formatterCollections({
-  code: [modelCode, 'hivp.batchCheck', 'hivp.bill', 'htc.common'],
+  code: [modelCode, 'hivp.batchCheck', 'hivp.bill', 'htc.common', 'hiop.redInvoiceInfo'],
 })
 @withProps(
   () => {
