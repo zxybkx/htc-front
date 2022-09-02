@@ -70,7 +70,14 @@ interface RouterInfo {
 interface InvoiceReqDetailPageProps extends RouteComponentProps<RouterInfo> {}
 
 @formatterCollections({
-  code: ['hiop.invoiceWorkbench', 'htc.common', 'hiop.invoiceReq', 'hiop.tobeInvoice'],
+  code: [
+    'hiop.invoiceWorkbench',
+    'htc.common',
+    'hiop.invoiceReq',
+    'hiop.tobeInvoice',
+    'hivp.invoices',
+    'hivp.invoicesArchiveUpload',
+  ],
 })
 export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPageProps> {
   state = {
@@ -489,7 +496,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
           )
         }
       >
-        {intl.get('hzero.c7nProUI.Table.create_button').d('新增')}
+        {intl.get('hzero.common.add').d('新增')}
       </Button>,
     ];
   }

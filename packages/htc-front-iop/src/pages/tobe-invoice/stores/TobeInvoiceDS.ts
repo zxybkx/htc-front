@@ -608,7 +608,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'sourceNumber1',
-          label: intl.get('hiop.tobeInvoice.modal.sourceNumber1').d('来源单据号1'),
+          label: intl.get('hiop.invoiceReq.modal.sourceDocumentNumber1').d('来源单据号1'),
           type: FieldType.string,
         },
         {
