@@ -1067,7 +1067,7 @@ export default class BillsHeadersPage extends Component<BillsHeadersPageProps> {
       </PermissionButton>,
       <Dropdown overlay={btnMenu}>
         <Button>
-          {intl.get('hzero.common.view.archives').d('档案')}
+          {intl.get('hivp.bill.view.archives').d('档案')}
           <Icon type="arrow_drop_down" />
         </Button>
       </Dropdown>,

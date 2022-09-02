@@ -161,6 +161,7 @@ interface CheckCertificationPageProps extends RouteComponentProps {
   code: [
     modelCode,
     'hiop.invoiceWorkbench',
+    'hivp.batchCheck',
     'hiop.invoiceRule',
     'hivp.taxRefund',
     'hiop.redInvoiceInfo',
@@ -926,7 +927,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         key="refresh"
         onClick={() => this.verifiableRefresh()}
         dataSet={this.props.certifiableInvoiceListDS}
-        title={intl.get('hiop.invoiceWorkbench.button.refresh').d('刷新状态')}
+        title={intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态')}
         condition="refresh"
       />,
     ];
@@ -2195,7 +2196,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         key="refresh"
         onClick={() => this.batchInvoiceRefresh()}
         dataSet={this.props.batchInvoiceHeaderDS}
-        title={intl.get(`${modelCode}.button.batchRefresh`).d('刷新状态')}
+        title={intl.get(`hiop.invoiceWorkbench.button.fresh`).d('刷新状态')}
       />,
       <CurrentCheckInvoicesButton
         key="getCurrentCheckInvoices"
@@ -2779,7 +2780,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
                     />
                   </TabPane>
                   <TabPane
-                    tab={intl.get(`${modelCode}.statisticalConfirm`).d('申请统计及确签')}
+                    tab={intl.get(`${modelCode}.tabPane.statisticalConfirm`).d('申请统计及确签')}
                     key="statisticalConfirm"
                   >
                     <Table
