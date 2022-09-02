@@ -31,6 +31,7 @@ import { Col, Row } from 'choerodon-ui';
 import ExcelExport from 'components/ExcelExport';
 import commonConfig from '@htccommon/config/commonConfig';
 import notification from 'utils/notification';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { getPresentMenu } from '@htccommon/utils/utils';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
@@ -49,7 +50,15 @@ interface CertifiedDetailPageProps {
   location: any;
   match: any;
 }
-
+@formatterCollections({
+  code: [
+    'hivp.taxRefund',
+    'htc.common',
+    'hivp.checkCertification',
+    'hiop.invoiceReq',
+    'hivp.batchCheck',
+  ],
+})
 export default class TaxRefundConfirmPage extends Component<CertifiedDetailPageProps> {
   state = {};
 

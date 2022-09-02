@@ -127,7 +127,7 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
               }}
               loading={loadingFlag}
             >
-              {intl.get('hzero.c7nProUI.Table.query_button').d('查询')}
+              {intl.get('hzero.common.button.query').d('查询')}
             </Button>
           </Form>
         </>

@@ -128,12 +128,12 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'isMatch',
-        label: intl.get('hivp.bill.view.fppp').d('发票匹配'),
+        label: intl.get('hivp.checkCertification.view.isMatch').d('发票匹配'),
         type: FieldType.string,
       },
       {
         name: 'invoiceState',
-        label: intl.get('hivp.batchCheck.view.invoiceState').d('发票状态'),
+        label: intl.get('hivp.batchCheck.view.invoiceStatus').d('发票状态'),
         type: FieldType.string,
         lookupCode: 'HMDM.INVOICE_STATE',
       },
@@ -150,7 +150,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'authenticationState',
-        label: intl.get(`${modelCode}.view.currentCertState`).d('认证状态'),
+        label: intl.get('hivp.checkCertification.view.authenticationState').d('认证状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.CERTIFICATION_STATE',
       },
