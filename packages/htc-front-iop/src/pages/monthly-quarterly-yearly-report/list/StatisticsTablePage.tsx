@@ -15,7 +15,7 @@ import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import StatisticsTableDS from '../stores/StatisticsTableDS';
 
 @formatterCollections({
-  code: ['htc.common', 'hiop.taxRateStatistic', 'hiop.invoiceWorkbench'],
+  code: ['hiop.statisticsTable', 'htc.common', 'hiop.taxRateStatistic', 'hiop.invoiceWorkbench'],
 })
 export default class StatisticsTablePage extends Component {
   statisticsTable = new DataSet({

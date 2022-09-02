@@ -41,9 +41,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'redInfoSerialNumber',
-        label: intl
-          .get('hiop.redInvoiceInfo.notification.modal.redInfoSerialNumber')
-          .d('红字信息表编码'),
+        label: intl.get('hiop.redInvoiceInfo.modal.redInfoSerialNumber').d('红字信息表编码'),
         type: FieldType.string,
         required: true,
       },
