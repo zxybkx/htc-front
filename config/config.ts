@@ -47,7 +47,7 @@ export default {
             MULTIPLE_SKIN_ENABLE: 'true', // UED配置是否启用，true / false
         },
     },
-
+  hzeroUed: {},
     manifest: {
         basePath: '/',
     },
@@ -55,8 +55,7 @@ export default {
         '@hzerojs/preset-hzero',
     ],
     plugins: [
-        '@hzerojs/plugin-hzero-layout',
-        '@hzerojs/plugin-hzero-ued',
+      'hzero-front'
     ],
     alias: {
         'components': 'hzero-front/lib/components',
