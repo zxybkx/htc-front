@@ -13,12 +13,13 @@ import { DataSet } from 'choerodon-ui/pro';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
+import { EMAIL } from 'utils/regExp';
 
 const modelCode = 'hivp.checkCertification';
+const API_PREFIX = commonConfig.IVP_API || '';
+const tenantId = getCurrentOrganizationId();
 
 export default (): DataSetProps => {
-  const API_PREFIX = commonConfig.IVP_API || '';
-  const tenantId = getCurrentOrganizationId();
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -110,11 +111,6 @@ export default (): DataSetProps => {
           lookupCode: 'HIVP.CHECK_CONFIRM_STATE',
           readOnly: true,
         },
-        {
-          name: 'confirmPassword',
-          label: intl.get(`${modelCode}.view.confirmPassword`).d('确认密码'),
-          type: FieldType.string,
-        },
       ],
     }),
   };
@@ -141,4 +137,75 @@ const TimeRange = (): DataSetProps => {
     ],
   };
 };
-export { TimeRange };
+
+const AutomaticStatistics = (): DataSetProps => {
+  return {
+    transport: {
+      submit: ({ data, params }) => {
+        return {
+          url: `${API_PREFIX}/v1/${tenantId}/invoice-pool-header-infos/batch-save`,
+          data,
+          params,
+          method: 'POST',
+        };
+      },
+    },
+    fields: [
+      {
+        name: 'myzdtj',
+        label: intl.get('hiop.invoiceWorkbench.modal.myzdtj').d('每月自动统计'),
+        type: FieldType.boolean,
+        trueValue: 1,
+        falseValue: 0,
+      },
+      {
+        name: 'jgjsyx',
+        label: intl.get(`${modelCode}.view.jgjsyx`).d('结果接受邮箱'),
+        type: FieldType.string,
+        pattern: EMAIL,
+        computedProps: {
+          required: ({ record }) => record.get('myzdtj') || record.get('myzdqq'),
+        },
+      },
+      {
+        name: 'myzdtjrq',
+        label: intl.get(`${modelCode}.view.myzdtjrq`).d('自动统计日期'),
+        type: FieldType.number,
+        min: 1,
+        max: 31,
+        computedProps: {
+          required: ({ record }) => record.get('myzdtj'),
+        },
+        labelWidth: '120',
+      },
+      {
+        name: 'myzdqq',
+        label: intl.get('hiop.invoiceWorkbench.modal.myzdqq').d('每月自动确签'),
+        type: FieldType.boolean,
+        trueValue: 1,
+        falseValue: 0,
+      },
+      {
+        name: 'myzdqqrq',
+        label: intl.get(`${modelCode}.view.myzdqqrq`).d('自动确签日期'),
+        type: FieldType.number,
+        computedProps: {
+          required: ({ record }) => record.get('myzdqq'),
+          readOnly: ({ record }) => !record.get('myzdtjrq'),
+          min: ({ record }) =>
+            record.get('myzdtjrq') && record.get('myzdtjrq') < 16 ? record.get('myzdtjrq') : 1,
+          max: ({ record }) => (record.get('myzdtjrq') && record.get('myzdtjrq') < 16 ? 15 : 31),
+        },
+      },
+      {
+        name: 'confirmPassword',
+        label: intl.get(`${modelCode}.view.confirmPassword`).d('确认密码'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => record.get('myzdqq'),
+        },
+      },
+    ],
+  };
+};
+export { TimeRange, AutomaticStatistics };

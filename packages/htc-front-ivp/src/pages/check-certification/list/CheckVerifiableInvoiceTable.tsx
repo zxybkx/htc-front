@@ -104,8 +104,8 @@ export default class CheckVerifiableInvoiceTable extends Component<CheckCertific
     const displayOptions = await queryIdpValue('HIVP.CHECK_CONFIRM_DISPLAY_OPTIONS');
     if (certifiableInvoiceListDS) {
       const { queryDataSet } = certifiableInvoiceListDS;
-      if (!curDisplayOptions) {
-        queryDataSet?.current!.set({
+      if (!curDisplayOptions && queryDataSet) {
+        queryDataSet.create({
           invoiceDisplayOptions: [
             'UNCHECKED',
             'ACCOUNTED',

@@ -20,6 +20,7 @@ import {
   Password,
   Table,
   TextField,
+  CheckBox,
 } from 'choerodon-ui/pro';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
@@ -44,7 +45,8 @@ import { Col, Icon, Row, Tag } from 'choerodon-ui';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
 import formatterCollections from 'utils/intl/formatterCollections';
-import StatisticalConfirmDS, { TimeRange } from '../stores/StatisticalConfirmDS';
+import { ShowHelp } from 'choerodon-ui/pro/lib/field/enum';
+import StatisticalConfirmDS, { TimeRange, AutomaticStatistics } from '../stores/StatisticalConfirmDS';
 import StatisticalDetailDS from '../stores/StatisticalDetailDS';
 
 const { Item: MenuItem } = Menu;
@@ -79,7 +81,7 @@ interface ApplicationStatisticsConfirmationTableProps {
       statisticalDetailDS,
     };
   },
-  { cacheState: true }
+  { cacheState: true },
 )
 @formatterCollections({
   code: [
@@ -93,12 +95,16 @@ interface ApplicationStatisticsConfirmationTableProps {
     'hivp.bill',
   ],
 })
-export default class ApplicationStatisticsConfirmationTable extends Component<
-  ApplicationStatisticsConfirmationTableProps
-> {
+export default class ApplicationStatisticsConfirmationTable extends Component<ApplicationStatisticsConfirmationTableProps> {
+  state = { applyStatisticMoreDisplay: false };
+
   timeRangeDS = new DataSet({
     autoQuery: false,
     ...TimeRange(),
+  });
+
+  automaticStatisticsDS = new DataSet({
+    ...AutomaticStatistics(),
   });
 
   async componentDidMount() {
@@ -231,7 +237,7 @@ export default class ApplicationStatisticsConfirmationTable extends Component<
       if (!confirmPassword) {
         notification.info({
           description: '',
-          message: intl.get(`${modelCode}.view.confirmPassword`).d('请输入确认密码'),
+          message: intl.get(`${modelCode}.view.validate.confirmPassword`).d('请输入确认密码'),
         });
         return;
       }
@@ -283,7 +289,7 @@ export default class ApplicationStatisticsConfirmationTable extends Component<
       const employeeDesc = `${companyCode}-${employeeNumber}-${employeeName}-${mobile}`;
       const companyDesc = `${companyCode}-${companyName}`;
       const statisticalPeriod = statisticalConfirmDS.queryDataSet?.current!.get(
-        'statisticalPeriod'
+        'statisticalPeriod',
       );
       let statisticalFlag;
       if (['0', '1'].includes(currentCertState)) statisticalFlag = 1;
@@ -490,7 +496,7 @@ export default class ApplicationStatisticsConfirmationTable extends Component<
               invoiceDateToStr,
               companyName,
               authorityCode: empInfo.authorityCode,
-            })
+            }),
           ),
         }),
       });
@@ -632,17 +638,69 @@ export default class ApplicationStatisticsConfirmationTable extends Component<
   @Bind()
   renderQueryBar(props) {
     const { dataSet, queryDataSet, buttons } = props;
+    const { applyStatisticMoreDisplay } = this.state;
     return (
       <div style={{ marginBottom: '0.1rem' }}>
         <Row>
           <Col span={20}>
-            <Form dataSet={queryDataSet} columns={3}>
-              <Lov name="authenticationDateObj" />
-              <TextField name="currentCertState" />
-              <Password name="confirmPassword" reveal={false} />
-            </Form>
+            {
+              applyStatisticMoreDisplay ? (
+                <div>
+                  <div
+                    style={{
+                      background: 'rgb(0,0,0,0.02)',
+                      padding: '10px 10px 0px',
+                    }}
+                  >
+                    <h3><b>{intl.get('hivp.checkCertification.view.queryConditions').d('查询条件')}</b></h3>
+                    <Form dataSet={queryDataSet} columns={3}>
+                      <Lov name="authenticationDateObj" />
+                      <TextField name="currentCertState" />
+                    </Form>
+                  </div>
+                  <div
+                    style={{
+                      background: 'rgb(0,0,0,0.02)',
+                      padding: '10px 10px 0px',
+                      margin: '10px 0 10px 0',
+                    }}
+                  >
+                    <h3><b>{intl.get('hivp.checkCertification.view.automaticRules').d('自动规则设置')}</b></h3>
+                    <Form dataSet={this.automaticStatisticsDS} columns={3}>
+                      <CheckBox name="myzdtj" />
+                      <TextField name="jgjsyx" />
+                      <TextField name="myzdtjrq" showHelp={ShowHelp.tooltip} help={intl.get(`${modelCode}.view.autoStatisticsInfo`).d('填入15日之前获取的所属期为当月的前一月所属期，填写天数若大于当月最大天数，则默认为当月最后一天')} />
+                      <CheckBox name="myzdqq" />
+                      <Password name="confirmPassword" reveal={false} />
+                      <TextField name="myzdqqrq" showHelp={ShowHelp.tooltip} help={intl.get(`${modelCode}.view.autoConfirmInfo`).d('自动统计日期在1-15时，自动确签日期须大于等于统计日期。填写天数若大于当月最大天数，则默认为当月最后一天')} />
+                    </Form>
+                  </div>
+                </div>
+              ) : (
+                <Form dataSet={queryDataSet} columns={3}>
+                  <Lov name="authenticationDateObj" />
+                  <TextField name="currentCertState" />
+                </Form>
+              )
+            }
           </Col>
           <Col span={4} style={{ textAlign: 'end', marginBottom: '4px' }}>
+            <Button
+              funcType={FuncType.link}
+              onClick={() => this.setState({ applyStatisticMoreDisplay: !applyStatisticMoreDisplay })}
+            >
+              {applyStatisticMoreDisplay ? (
+                <span>
+                  {intl.get('hzero.common.button.option').d('更多')}
+                  <Icon type="expand_more" />
+                </span>
+              ) : (
+                <span>
+                  {intl.get('hzero.common.button.option').d('更多')}
+                  <Icon type="expand_less" />
+                </span>
+              )}
+            </Button>
             <Button
               onClick={() => {
                 queryDataSet.reset();
