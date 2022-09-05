@@ -417,7 +417,7 @@ export default class InvoiceRuleListPage extends Component<InvoiceRuleListPagePr
       backObj = {
         ...backObj,
         // closable: true,
-        title: '新增开票人员规则',
+        title: intl.get('hiop.invoiceRule.modal.title').d('新增开票人员规则'),
         drawer: true,
         width: 480,
         children: (

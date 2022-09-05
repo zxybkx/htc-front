@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-24 14:23:33
- * @LastEditTime: 2022-07-29 14:21:12
+ * @LastEditTime: 2022-09-02 10:13:04
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -123,6 +123,10 @@ interface TaxRefundPageProps {
     'hiop.invoiceWorkbench',
     'hiop.invoiceRule',
     'hiop.invoiceReq',
+    'hivp.bill',
+    'htc.common',
+    'hivp.batchCheck',
+    'hivp.invoicesArchiveUpload',
   ],
 })
 export default class TaxRefundListPage extends Component<TaxRefundPageProps> {
@@ -932,7 +936,7 @@ export default class TaxRefundListPage extends Component<TaxRefundPageProps> {
           },
         ]}
       >
-        {intl.get(`${modelCode}.button.getVerifiableInvoices`).d('退税发票实时查询')}
+        {intl.get(`${modelCode}.button.getVerifiableInvoice`).d('退税发票实时查询')}
       </PermissionButton>,
       <PermissionButton
         type="c7n-pro"

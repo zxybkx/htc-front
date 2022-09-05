@@ -338,7 +338,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
           <Tabs>
             <TabPane tab={intl.get(`${modelCode}.view.applyDeductionSummary`).d('申请抵扣汇总')}>
               <div style={{ textAlign: 'right' }}>
-                <span>单位：元</span>
+                <span>{intl.get(`${modelCode}.title.unit`).d('单位：元')}</span>
               </div>
               <Table
                 className={styles.tableTh}
@@ -353,7 +353,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
             </TabPane>
             <TabPane tab={intl.get(`${modelCode}.title.applyDeductionDetail`).d('申请抵扣明细')}>
               <div style={{ textAlign: 'right' }}>
-                <span>单位：元</span>
+                <span>{intl.get(`${modelCode}.title.unit`).d('单位：元')}</span>
               </div>
               <Table dataSet={this.detailDS} columns={this.detailColumns} />
               <Pagination

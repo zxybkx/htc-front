@@ -102,7 +102,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'specificationModel',
-        label: intl.get(`${modelCode}.view.specificationModel`).d('规格型号'),
+        label: intl.get('htc.common.view.specificationModel').d('规格型号'),
         type: FieldType.string,
       },
       {
@@ -126,7 +126,7 @@ export default (): DataSetProps => {
 
       {
         name: 'amount',
-        label: intl.get(`${modelCode}.view.amount`).d('金额'),
+        label: intl.get('htc.common.view.amount').d('金额'),
         type: FieldType.currency,
       },
       {

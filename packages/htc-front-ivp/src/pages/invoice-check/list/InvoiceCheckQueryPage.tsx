@@ -22,6 +22,9 @@ import {
   Lov,
   Output,
   TextField,
+  Menu,
+  Icon,
+  Dropdown,
 } from 'choerodon-ui/pro';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
@@ -34,14 +37,15 @@ import { addToInvoicePool, handleInvoiceCheckApi } from '@src/services/invoiceCh
 import InvoiceCheckQueryDS from '../stores/InvoiceCheckQueryDS';
 import style from '../invoiceCheck.module.less';
 
-const modelCode = 'hcan.invoice-check';
+const { Item: MenuItem } = Menu;
+const modelCode = 'hcan.invoiceCheck';
 interface InvoiceCheckQueryPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   queryDS: DataSet;
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: [modelCode, 'hivp.batchCheck', 'hivp.bill', 'htc.common', 'hiop.redInvoiceInfo'],
 })
 @withProps(
   () => {
@@ -102,7 +106,7 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
     if (!validateValue) {
       notification.error({
         description: '',
-        message: intl.get('hzero.common.notification.invalid').d('数据校验不通过！'),
+        message: intl.get('hivp.batchCheck.notification.invalid').d('数据校验不通过！'),
       });
       return;
     }
@@ -182,37 +186,50 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
     const ObserverButtons = observer((props: any) => {
       if (props.dataSet.current && props.dataSet.current.get('checkStatus') === '0001') {
         return (
-          <Button key={props.key} onClick={props.onClick}>
+          <a key={props.key} onClick={props.onClick}>
             {props.title}
-          </Button>
+          </a>
         );
       }
       return <></>;
     });
+    const menu = (
+      <Menu>
+        <MenuItem>
+          <ObserverButtons
+            key="viewDetail"
+            onClick={this.handleGotoDetailPage}
+            dataSet={this.props.queryDS}
+            title={intl.get('hcan.invoiceDetail.title.detail').d('查看全票面信息')}
+          />
+        </MenuItem>
+        <MenuItem>
+          <ObserverButtons
+            key="addPool"
+            onClick={this.handleAddToInvoicePool}
+            dataSet={this.props.queryDS}
+            title={intl.get(`${modelCode}.button.addPool`).d('添加至发票池')}
+          />
+        </MenuItem>
+      </Menu>
+    );
     const MenuContainer = observer((props: any) => {
       if (props.dataSet.current && props.dataSet.current.get('checkStatus') === '0001') {
         return (
-          <span style={{ marginLeft: 10 }}>
-            <ObserverButtons
-              key="viewDetail"
-              onClick={this.handleGotoDetailPage}
-              dataSet={this.props.queryDS}
-              title={intl.get(`${modelCode}.button.viewDetail`).d('查看全票面信息')}
-            />
-            <ObserverButtons
-              key="addPool"
-              onClick={this.handleAddToInvoicePool}
-              dataSet={this.props.queryDS}
-              title={intl.get(`${modelCode}.button.addPool`).d('添加至发票池')}
-            />
-          </span>
+          <Dropdown overlay={menu}>
+            <Button color={ButtonColor.primary}>
+              {intl.get(`${modelCode}.button.assetChange`).d('添加/查看')}
+              <Icon type="arrow_drop_down" />
+            </Button>
+          </Dropdown>
         );
       }
       return <></>;
     });
+
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('手工发票查验')} />
+        <Header title={intl.get(`${modelCode}.view.title`).d('手工发票查验')} />
         <Content className={style.main}>
           <Output
             name="desc"
@@ -221,7 +238,7 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
                 <span className={style.label}>
                   {intl
                     .get(`${modelCode}.view.checkTips`)
-                    .d('查验提示：国税查验平台可以查验五年内的发票')}
+                    .d('查验提示：国税查验平台可以查验发票类型五年内的发票')}
                 </span>
               );
             }}
@@ -232,7 +249,10 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
               name="taxpayerIdentificationNumber"
               help={intl.get(`${modelCode}.view.editAble`).d('(可修改)')}
             />
-            <TextField name="invoiceCode" />
+            <TextField
+              name="invoiceCode"
+              help={intl.get(`${modelCode}.view.required`).d('(必填)')}
+            />
             <TextField
               name="invoiceNumber"
               help={intl.get(`${modelCode}.view.required`).d('(必填)')}
@@ -257,7 +277,7 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
             />
             <div>
               <Button key="check" color={ButtonColor.primary} onClick={this.handleInvoiceCheck}>
-                {intl.get(`${modelCode}.button.check`).d('查验')}
+                {intl.get('hivp.batchCheck.button.Check').d('查验')}
               </Button>
               <Button key="reset" onClick={this.handleResetQuery}>
                 {intl.get('hzero.common.button.reset').d('重置')}

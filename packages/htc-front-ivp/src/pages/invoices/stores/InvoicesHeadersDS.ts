@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-09-14 09:10:12
- * @LastEditTime: 2021-01-06 10:46:21
+ * @LastEditTime: 2022-09-02 10:27:37
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -826,7 +826,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'employeeDesc',
-          label: intl.get(`htc.common.view.employeeDesc`).d('登录员工'),
+          label: intl.get(`htc.common.modal.employeeDesc`).d('登录员工'),
           type: FieldType.string,
           readOnly: true,
           ignore: FieldIgnore.always,
@@ -1020,7 +1020,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'invoiceStateStr',
-          label: intl.get(`hivp.batchCheck.view.invoiceState`).d('发票状态'),
+          label: intl.get(`hivp.batchCheck.view.invoiceStatus`).d('发票状态'),
           type: FieldType.string,
           lookupCode: 'HMDM.INVOICE_STATE',
           // required: true,
@@ -1108,7 +1108,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'checkStates',
-          label: intl.get(`hivp.checkCertification.view.checkStates`).d('勾选状态'),
+          label: intl.get(`hivp.checkCertification.view.checkState`).d('勾选状态'),
           type: FieldType.string,
           lookupCode: 'HIVP.CHECK_STATE',
           multiple: ',',
@@ -1125,7 +1125,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'invoiceAmount',
-          label: intl.get('htc.bill.view.amountExcludeTax').d('金额（不含税）'),
+          label: intl.get('hivp.bill.view.amountExcludeTax').d('金额（不含税）'),
           type: FieldType.currency,
         },
         {

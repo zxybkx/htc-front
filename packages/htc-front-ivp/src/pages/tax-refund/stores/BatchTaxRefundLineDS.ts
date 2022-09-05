@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-26 11:01:10
- * @LastEditTime: 2022-07-26 17:25:29
+ * @LastEditTime: 2022-09-01 17:18:46
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -14,7 +14,7 @@ import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import { assign } from 'lodash';
 
-const modelCode = 'hivp.tax-refund';
+const modelCode = 'hivp.taxRefund';
 
 export default (): DataSetProps => {
   const tenantId = getCurrentOrganizationId();

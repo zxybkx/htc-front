@@ -926,7 +926,7 @@ export default class BatchCheckPage extends Component<BatchCheckPageProps> {
           >
             <Button color={ButtonColor.primary}>
               <Icon type="backup-o" className={styles.btnIcon} />
-              上传文件
+              {intl.get('hivp.invoicesArchiveUpload.button.uploadFile').d('上传文件')}
             </Button>
           </Upload>
           <HeaderButtons
