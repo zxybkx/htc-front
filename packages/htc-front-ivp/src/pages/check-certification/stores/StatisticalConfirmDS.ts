@@ -143,8 +143,8 @@ const AutomaticStatistics = (): DataSetProps => {
     transport: {
       submit: ({ data, params }) => {
         return {
-          url: `${API_PREFIX}/v1/${tenantId}/invoice-pool-header-infos/batch-save`,
-          data,
+          url: `${API_PREFIX}/v1/${tenantId}/invoice-operation/auto-stat-sign-config`,
+          data: { ...data[0], tenantId },
           params,
           method: 'POST',
         };
@@ -152,57 +152,61 @@ const AutomaticStatistics = (): DataSetProps => {
     },
     fields: [
       {
-        name: 'myzdtj',
-        label: intl.get('hiop.invoiceWorkbench.modal.myzdtj').d('每月自动统计'),
+        name: 'autoSignatureSign',
+        label: intl.get(`${modelCode}.modal.autoSignatureSign`).d('每月自动统计'),
         type: FieldType.boolean,
         trueValue: 1,
         falseValue: 0,
       },
       {
-        name: 'jgjsyx',
-        label: intl.get(`${modelCode}.view.jgjsyx`).d('结果接受邮箱'),
+        name: 'mailbox',
+        label: intl.get(`${modelCode}.modal.mailbox`).d('结果接受邮箱'),
         type: FieldType.string,
         pattern: EMAIL,
         computedProps: {
-          required: ({ record }) => record.get('myzdtj') || record.get('myzdqq'),
+          required: ({ record }) =>
+            record.get('autoSignatureSign') || record.get('autoStatisticsSign'),
         },
       },
       {
-        name: 'myzdtjrq',
-        label: intl.get(`${modelCode}.view.myzdtjrq`).d('自动统计日期'),
+        name: 'autoStatisticsTime',
+        label: intl.get(`${modelCode}.modal.autoStatisticsTime`).d('自动统计日期'),
         type: FieldType.number,
         min: 1,
         max: 31,
         computedProps: {
-          required: ({ record }) => record.get('myzdtj'),
+          required: ({ record }) => record.get('autoSignatureSign'),
         },
         labelWidth: '120',
       },
       {
-        name: 'myzdqq',
-        label: intl.get('hiop.invoiceWorkbench.modal.myzdqq').d('每月自动确签'),
+        name: 'autoStatisticsSign',
+        label: intl.get(`${modelCode}.modal.autoStatisticsSign`).d('每月自动确签'),
         type: FieldType.boolean,
         trueValue: 1,
         falseValue: 0,
       },
       {
-        name: 'myzdqqrq',
-        label: intl.get(`${modelCode}.view.myzdqqrq`).d('自动确签日期'),
+        name: 'autoSignatureTime',
+        label: intl.get(`${modelCode}.modal.autoSignatureTime`).d('自动确签日期'),
         type: FieldType.number,
         computedProps: {
-          required: ({ record }) => record.get('myzdqq'),
-          readOnly: ({ record }) => !record.get('myzdtjrq'),
+          required: ({ record }) => record.get('autoStatisticsSign'),
+          readOnly: ({ record }) => !record.get('autoStatisticsTime'),
           min: ({ record }) =>
-            record.get('myzdtjrq') && record.get('myzdtjrq') < 16 ? record.get('myzdtjrq') : 1,
-          max: ({ record }) => (record.get('myzdtjrq') && record.get('myzdtjrq') < 16 ? 15 : 31),
+            record.get('autoStatisticsTime') && record.get('autoStatisticsTime') < 16
+              ? record.get('autoStatisticsTime')
+              : 1,
+          max: ({ record }) =>
+            record.get('autoStatisticsTime') && record.get('autoStatisticsTime') < 16 ? 15 : 31,
         },
       },
       {
         name: 'confirmPassword',
-        label: intl.get(`${modelCode}.view.confirmPassword`).d('确认密码'),
+        label: intl.get(`${modelCode}.modal.confirmPassword`).d('确认密码'),
         type: FieldType.string,
         computedProps: {
-          required: ({ record }) => record.get('myzdqq'),
+          required: ({ record }) => record.get('autoStatisticsSign'),
         },
       },
     ],

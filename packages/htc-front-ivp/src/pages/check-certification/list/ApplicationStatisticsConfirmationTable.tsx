@@ -46,7 +46,10 @@ import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { ShowHelp } from 'choerodon-ui/pro/lib/field/enum';
-import StatisticalConfirmDS, { TimeRange, AutomaticStatistics } from '../stores/StatisticalConfirmDS';
+import StatisticalConfirmDS, {
+  TimeRange,
+  AutomaticStatistics,
+} from '../stores/StatisticalConfirmDS';
 import StatisticalDetailDS from '../stores/StatisticalDetailDS';
 
 const { Item: MenuItem } = Menu;
@@ -81,7 +84,7 @@ interface ApplicationStatisticsConfirmationTableProps {
       statisticalDetailDS,
     };
   },
-  { cacheState: true },
+  { cacheState: true }
 )
 @formatterCollections({
   code: [
@@ -95,7 +98,9 @@ interface ApplicationStatisticsConfirmationTableProps {
     'hivp.bill',
   ],
 })
-export default class ApplicationStatisticsConfirmationTable extends Component<ApplicationStatisticsConfirmationTableProps> {
+export default class ApplicationStatisticsConfirmationTable extends Component<
+  ApplicationStatisticsConfirmationTableProps
+> {
   state = { applyStatisticMoreDisplay: false };
 
   timeRangeDS = new DataSet({
@@ -110,6 +115,7 @@ export default class ApplicationStatisticsConfirmationTable extends Component<Ap
   async componentDidMount() {
     const { statisticalConfirmDS, currentPeriodData, empInfo } = this.props;
     const { currentPeriod, currentCertState } = currentPeriodData;
+    const { companyId, employeeId, employeeNum } = empInfo;
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
       if (queryDataSet) {
@@ -117,9 +123,10 @@ export default class ApplicationStatisticsConfirmationTable extends Component<Ap
         if (!statisticalPeriod) {
           queryDataSet.create({
             authenticationDateObj: { currentPeriod },
-            companyId: empInfo.companyId,
+            companyId,
             currentCertState,
           });
+          this.automaticStatisticsDS.create({ companyId, employeeId, employeeNum });
         }
       }
     }
@@ -130,7 +137,9 @@ export default class ApplicationStatisticsConfirmationTable extends Component<Ap
     if (prevProps.empInfo && prevProps.empInfo !== this.props.empInfo) {
       if (statisticalConfirmDS) {
         const { queryDataSet } = statisticalConfirmDS;
-        queryDataSet?.current!.set({ companyId: this.props.empInfo.companyId });
+        const { companyId, employeeId, employeeNum } = this.props.empInfo;
+        queryDataSet?.current!.set({ companyId });
+        this.automaticStatisticsDS.create({ companyId, employeeId, employeeNum });
       }
     }
     if (
@@ -219,7 +228,8 @@ export default class ApplicationStatisticsConfirmationTable extends Component<Ap
       const curInfo = queryDataSet?.current!.toData();
       const employeeDesc = `${companyCode}-${employeeNumber}-${employeeName}-${mobile}`;
       const companyDesc = `${companyCode}-${companyName}`;
-      const { confirmPassword, statisticalPeriod } = curInfo;
+      const { statisticalPeriod } = curInfo;
+      const confirmPassword = this.automaticStatisticsDS.current!.get('confirmPassword');
       const params = {
         tenantId,
         companyId,
@@ -289,7 +299,7 @@ export default class ApplicationStatisticsConfirmationTable extends Component<Ap
       const employeeDesc = `${companyCode}-${employeeNumber}-${employeeName}-${mobile}`;
       const companyDesc = `${companyCode}-${companyName}`;
       const statisticalPeriod = statisticalConfirmDS.queryDataSet?.current!.get(
-        'statisticalPeriod',
+        'statisticalPeriod'
       );
       let statisticalFlag;
       if (['0', '1'].includes(currentCertState)) statisticalFlag = 1;
@@ -496,7 +506,7 @@ export default class ApplicationStatisticsConfirmationTable extends Component<Ap
               invoiceDateToStr,
               companyName,
               authorityCode: empInfo.authorityCode,
-            }),
+            })
           ),
         }),
       });
@@ -643,51 +653,85 @@ export default class ApplicationStatisticsConfirmationTable extends Component<Ap
       <div style={{ marginBottom: '0.1rem' }}>
         <Row>
           <Col span={20}>
-            {
-              applyStatisticMoreDisplay ? (
-                <div>
-                  <div
-                    style={{
-                      background: 'rgb(0,0,0,0.02)',
-                      padding: '10px 10px 0px',
-                    }}
-                  >
-                    <h3><b>{intl.get('hivp.checkCertification.view.queryConditions').d('查询条件')}</b></h3>
-                    <Form dataSet={queryDataSet} columns={3}>
-                      <Lov name="authenticationDateObj" />
-                      <TextField name="currentCertState" />
-                    </Form>
-                  </div>
-                  <div
-                    style={{
-                      background: 'rgb(0,0,0,0.02)',
-                      padding: '10px 10px 0px',
-                      margin: '10px 0 10px 0',
-                    }}
-                  >
-                    <h3><b>{intl.get('hivp.checkCertification.view.automaticRules').d('自动规则设置')}</b></h3>
-                    <Form dataSet={this.automaticStatisticsDS} columns={3}>
-                      <CheckBox name="myzdtj" />
-                      <TextField name="jgjsyx" />
-                      <TextField name="myzdtjrq" showHelp={ShowHelp.tooltip} help={intl.get(`${modelCode}.view.autoStatisticsInfo`).d('填入15日之前获取的所属期为当月的前一月所属期，填写天数若大于当月最大天数，则默认为当月最后一天')} />
-                      <CheckBox name="myzdqq" />
-                      <Password name="confirmPassword" reveal={false} />
-                      <TextField name="myzdqqrq" showHelp={ShowHelp.tooltip} help={intl.get(`${modelCode}.view.autoConfirmInfo`).d('自动统计日期在1-15时，自动确签日期须大于等于统计日期。填写天数若大于当月最大天数，则默认为当月最后一天')} />
-                    </Form>
-                  </div>
+            {applyStatisticMoreDisplay ? (
+              <div>
+                <div
+                  style={{
+                    background: 'rgb(0,0,0,0.02)',
+                    padding: '10px 10px 0px',
+                  }}
+                >
+                  <h3>
+                    <b>{intl.get('hivp.checkCertification.view.queryConditions').d('查询条件')}</b>
+                  </h3>
+                  <Form dataSet={queryDataSet} columns={3}>
+                    <Lov name="authenticationDateObj" />
+                    <TextField name="currentCertState" />
+                  </Form>
                 </div>
-              ) : (
-                <Form dataSet={queryDataSet} columns={3}>
-                  <Lov name="authenticationDateObj" />
-                  <TextField name="currentCertState" />
-                </Form>
-              )
-            }
+                <div
+                  style={{
+                    background: 'rgb(0,0,0,0.02)',
+                    padding: '10px 10px 0px',
+                    margin: '10px 0 10px 0',
+                  }}
+                >
+                  <h3>
+                    <b>
+                      {intl.get('hivp.checkCertification.view.automaticRules').d('自动规则设置')}
+                    </b>
+                  </h3>
+                  <Form dataSet={this.automaticStatisticsDS} columns={3}>
+                    <CheckBox
+                      name="autoSignatureSign"
+                      onBlur={() => this.automaticStatisticsDS.submit()}
+                    />
+                    <TextField name="mailbox" onBlur={() => this.automaticStatisticsDS.submit()} />
+                    <TextField
+                      name="autoStatisticsTime"
+                      onBlur={() => this.automaticStatisticsDS.submit()}
+                      showHelp={ShowHelp.tooltip}
+                      help={intl
+                        .get(`${modelCode}.view.autoStatisticsInfo`)
+                        .d(
+                          '填入15日之前获取的所属期为当月的前一月所属期，填写天数若大于当月最大天数，则默认为当月最后一天'
+                        )}
+                    />
+                    <CheckBox
+                      name="autoStatisticsSign"
+                      onBlur={() => this.automaticStatisticsDS.submit()}
+                    />
+                    <Password
+                      name="confirmPassword"
+                      reveal={false}
+                      onBlur={() => this.automaticStatisticsDS.submit()}
+                    />
+                    <TextField
+                      name="autoSignatureTime"
+                      onBlur={() => this.automaticStatisticsDS.submit()}
+                      showHelp={ShowHelp.tooltip}
+                      help={intl
+                        .get(`${modelCode}.view.autoConfirmInfo`)
+                        .d(
+                          '自动统计日期在1-15时，自动确签日期须大于等于统计日期。填写天数若大于当月最大天数，则默认为当月最后一天'
+                        )}
+                    />
+                  </Form>
+                </div>
+              </div>
+            ) : (
+              <Form dataSet={queryDataSet} columns={3}>
+                <Lov name="authenticationDateObj" />
+                <TextField name="currentCertState" />
+              </Form>
+            )}
           </Col>
           <Col span={4} style={{ textAlign: 'end', marginBottom: '4px' }}>
             <Button
               funcType={FuncType.link}
-              onClick={() => this.setState({ applyStatisticMoreDisplay: !applyStatisticMoreDisplay })}
+              onClick={() =>
+                this.setState({ applyStatisticMoreDisplay: !applyStatisticMoreDisplay })
+              }
             >
               {applyStatisticMoreDisplay ? (
                 <span>
