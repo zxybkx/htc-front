@@ -137,9 +137,10 @@ export default class ApplicationStatisticsConfirmationTable extends Component<
     if (prevProps.empInfo && prevProps.empInfo !== this.props.empInfo) {
       if (statisticalConfirmDS) {
         const { queryDataSet } = statisticalConfirmDS;
+        const { queryDataSet: autoQueryDataSet } = this.automaticStatisticsDS;
         const { companyId, employeeId, employeeNum } = this.props.empInfo;
         queryDataSet?.current!.set({ companyId });
-        this.automaticStatisticsDS.create({ companyId, employeeId, employeeNum });
+        autoQueryDataSet?.current!.set({ companyId, employeeId, employeeNum });
       }
     }
     if (
