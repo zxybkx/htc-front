@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-26 11:01:10
- * @LastEditTime:
+ * @LastEditTime: 2022-09-01 17:47:50
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -15,7 +15,7 @@ import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import moment from 'moment';
 
-const modelCode = 'hivp.tax-refund';
+const modelCode = 'hivp.taxRefund';
 
 export default (): DataSetProps => {
   const tenantId = getCurrentOrganizationId();
@@ -45,7 +45,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'checkState',
-        label: intl.get(`${modelCode}.view.checkState`).d('勾选标志'),
+        label: intl.get(`hivp.taxRefund.view.checkState`).d('勾选标志'),
         type: FieldType.string,
         lookupCode: 'HIVP.CHECK_STATE',
       },
@@ -66,22 +66,22 @@ export default (): DataSetProps => {
       },
       {
         name: 'batchNo',
-        label: intl.get(`${modelCode}.view.batchNo`).d('批次号'),
+        label: intl.get('hivp.checkCertification.view.batchNo').d('批次号'),
         type: FieldType.string,
       },
       {
         name: 'failReason',
-        label: intl.get(`${modelCode}.view.failReason`).d('失败原因'),
+        label: intl.get('hivp.checkCertification.view.failReason').d('失败原因'),
         type: FieldType.string,
       },
       {
         name: 'requestTime',
-        label: intl.get(`${modelCode}.view.requestTime`).d('请求时间'),
+        label: intl.get('hivp.checkCertification.view.requestTime').d('请求时间'),
         type: FieldType.string,
       },
       {
         name: 'completeTime',
-        label: intl.get(`${modelCode}.view.completeTime`).d('完成时间'),
+        label: intl.get('hivp.checkCertification.view.completeTime').d('完成时间'),
         type: FieldType.string,
       },
     ],
@@ -142,31 +142,31 @@ export default (): DataSetProps => {
         },
         {
           name: 'checkMonth',
-          label: intl.get(`${modelCode}.view.checkMonth`).d('勾选月份'),
+          label: intl.get('hivp.checkCertification.view.checkMonth').d('勾选月份'),
           type: FieldType.string,
           defaultValue: moment().format('YYYYMM'),
           readOnly: true,
         },
         {
           name: 'invoiceDateFrom',
-          label: intl.get(`${modelCode}.view.invoiceDateFrom`).d('开票日期从'),
+          label: intl.get('hivp.bill.view.invoiceDateFrom').d('开票日期从'),
           max: 'invoiceDateTo',
           type: FieldType.date,
         },
         {
           name: 'invoiceDateTo',
-          label: intl.get(`${modelCode}.view.invoiceDateTo`).d('开票日期至'),
+          label: intl.get('hivp.bill.view.invoiceDateTo').d('开票日期至'),
           min: 'invoiceDateFrom',
           type: FieldType.date,
         },
         {
           name: 'salerTaxNo',
-          label: intl.get(`${modelCode}.view.salerTaxNo`).d('销方税号'),
+          label: intl.get('htc.common.view.salerTaxNo').d('销方税号'),
           type: FieldType.string,
         },
         {
           name: 'checkFlag',
-          label: intl.get(`${modelCode}.view.checkFlag`).d('勾选标志'),
+          label: intl.get('hivp.taxRefund.view.checkState').d('勾选标志'),
           type: FieldType.string,
           lookupCode: 'HIVP.CHECK_STATE',
           defaultValue: '0',

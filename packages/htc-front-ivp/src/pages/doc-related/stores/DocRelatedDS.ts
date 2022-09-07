@@ -119,7 +119,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'documentTypeObj',
-        label: intl.get(`${modelCode}.view.documentTypeObj`).d('单据类型'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
         type: FieldType.object,
         lovCode: 'HIVP.DOCUMENT_TYPE',
         cascadeMap: { systemCode: 'systemCode' },

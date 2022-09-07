@@ -86,9 +86,12 @@
     "emitDecoratorMetadata": true,
     /* Enables experimental support for emitting type metadata for decorators. */
     "paths": {
-      "components/*": ["./node_modules/hzero-front/lib/components/*",  "../../node_modules/hzero-front/lib/components/*", "./../../../node_modules/hzero-front/lib/components/*", "./../../../../../node_modules/hzero-front/lib/components/*"],
-      "utils/*": ["./node_modules/hzero-front/lib/utils/*", "../../node_modules/hzero-front/lib/utils/*", "./../../../node_modules/hzero-front/lib/utils/*", "./../../../../../node_modules/hzero-front/lib/utils/*"],
-
+      "hzero-front/lib/*": ["./node_modules/hzero-front/src/*", "./src/*", "../../node_modules/hzero-front/src/*"],
+      "components/*": ["./node_modules/hzero-front/src/components/*",  "../../node_modules/hzero-front/src/components/*"],
+      "utils/*": ["./node_modules/hzero-front/src/utils/*", "../../node_modules/hzero-front/src/utils/*"],
+      "services/*": ["./node_modules/hzero-front/src/services/*", "../../node_modules/hzero-front/src/services/*"],
+      "hzero-boot/lib/*": ["./node_modules/hzero-front/src/hzero-boot-mock/*", "../../node_modules/hzero-front/src/hzero-boot-mock/*"],
+      "hzero-boot": ["./node_modules/hzero-front/src/hzero-boot-mock/hzero-boot", "../../node_modules/hzero-front/src/hzero-boot-mock/hzero-boot"],
       "@htccommon/*": ["./packages/htc-front-common/lib/*", "../htc-front-common/lib/*"],
       "@src/*": ["./src/*", "./node_modules/hzero-front/lib/*"]
     }

@@ -48,7 +48,7 @@ interface BillPoolDetailPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
 @formatterCollections({
-  code: [modelCode, 'hivp.bill', 'htc.common'],
+  code: [modelCode, 'hivp.bill', 'htc.common', 'hcan.invoiceDetail'],
 })
 export default class BillPoolDetailPage extends Component<BillPoolDetailPageProps> {
   state = { billType: '' };
@@ -143,10 +143,7 @@ export default class BillPoolDetailPage extends Component<BillPoolDetailPageProp
       subTabKey === 'my-invoice' ? '/htc-front-ivp/my-invoice/list' : '/htc-front-ivp/bills/list';
     return (
       <>
-        <Header
-          title={intl.get(`${modelCode}.title.detail`).d('票据池明细信息')}
-          backPath={backPath}
-        >
+        <Header title={intl.get('hivp.bill.title.tpd').d('票据池明细信息')} backPath={backPath}>
           <Button onClick={() => this.handleSave()} color={ButtonColor.primary}>
             {intl.get('hzero.common.button.save').d('保存')}
           </Button>
@@ -209,7 +206,7 @@ export default class BillPoolDetailPage extends Component<BillPoolDetailPageProp
                   <TextField name="remark" colSpan={6} newLine />
                 </Form>
               </Panel>
-              <Panel header={intl.get('hivp.bill.view.LinesTitle').d('票据池行')} key="LINES">
+              <Panel header={intl.get('hivp.bill.linesTitle').d('票据池行')} key="LINES">
                 <Table buttons={this.buttons} dataSet={this.linesDS} columns={this.lineColumns} />
               </Panel>
             </Collapse>

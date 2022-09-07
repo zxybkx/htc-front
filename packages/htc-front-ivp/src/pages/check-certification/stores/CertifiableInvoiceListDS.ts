@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: shan.zhang@hand-china.com
  * @Date: 2020-09-29 10:24:22
- * @LastEditTime: 2022-07-26 16:14:45
+ * @LastEditTime: 2022-09-02 11:03:24
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -206,7 +206,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceState',
-        label: intl.get('hivp.batchCheck.view.invoiceState').d('发票状态'),
+        label: intl.get('hivp.batchCheck.view.invoiceStatus').d('发票状态'),
         type: FieldType.string,
         lookupCode: 'HMDM.INVOICE_STATE',
       },
@@ -223,7 +223,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'authenticationState',
-        label: intl.get(`${modelCode}.view.currentCertState`).d('认证状态'),
+        label: intl.get(`${modelCode}.view.authenticationState`).d('认证状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.CERTIFICATION_STATE',
       },

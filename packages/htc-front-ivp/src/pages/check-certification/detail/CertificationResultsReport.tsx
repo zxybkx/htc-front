@@ -241,7 +241,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
           <Tabs>
             <TabPane tab={intl.get(`${modelCode}.title.applyDeductionSummary`).d('认证报表汇总')}>
               <div style={{ textAlign: 'right' }}>
-                <span>单位：元</span>
+                <span>{intl.get(`${modelCode}.title.unit`).d('单位：元')}</span>
               </div>
               <Table
                 className={styles.tableTh}
@@ -258,7 +258,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
               tab={intl.get(`${modelCode}.title.summaryOfCertificationReports`).d('认证报表明细')}
             >
               <div style={{ textAlign: 'right' }}>
-                <span>单位：元</span>
+                <span>{intl.get(`${modelCode}.title.unit`).d('单位：元')}</span>
               </div>
               <Table dataSet={this.detailDS} columns={this.detailColumns} />
               <Pagination

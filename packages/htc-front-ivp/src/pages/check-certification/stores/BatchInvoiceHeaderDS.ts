@@ -45,7 +45,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'batchNo',
-        label: intl.get('hiop.redInvoiceInfo.modal.bcbh').d('批次编号'),
+        label: intl.get(`${modelCode}.modal.bcbh`).d('批次编号'),
         type: FieldType.string,
       },
       {
@@ -71,7 +71,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'checkResource',
-        label: intl.get('hiop.redInvoiceInfo.modal.lylx').d('来源类型'),
+        label: intl.get(`${modelCode}.modal.lylx`).d('来源类型'),
         lookupCode: 'HTC.IVP.CHECK_RESOURCE',
         type: FieldType.string,
       },
@@ -82,7 +82,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'batchNumber',
-        label: intl.get('hiop.redInvoiceInfo.modal.qqpch').d('请求批次号'),
+        label: intl.get(`${modelCode}.modal.qqpch`).d('请求批次号'),
         type: FieldType.string,
       },
       {
@@ -92,12 +92,12 @@ export default (): DataSetProps => {
       },
       {
         name: 'taxStatistics',
-        label: intl.get(`${modelCode}.view.taxStatistics`).d('本次勾选税额'),
+        label: intl.get(`hivp.checkCertification.view.taxselectedAmount`).d('本次勾选税额'),
         type: FieldType.currency,
       },
       {
         name: 'failReason',
-        label: intl.get(`${modelCode}.view.failReason`).d('失败原因'),
+        label: intl.get(`hivp.checkCertification.view.failReason`).d('失败原因'),
         type: FieldType.string,
       },
       {
@@ -217,7 +217,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'batchNo',
-          label: intl.get('hiop.redInvoiceInfo.modal.pcbh').d('批次编号'),
+          label: intl.get(`${modelCode}.modal.bcbh`).d('批次编号'),
           type: FieldType.string,
         },
         {
@@ -243,7 +243,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'checkResource',
-          label: intl.get('hiop.redInvoiceInfo.modal.lylx').d('来源类型'),
+          label: intl.get('hivp.taxRefund.modal.lylx').d('来源类型'),
           lookupCode: 'HTC.IVP.CHECK_RESOURCE',
           type: FieldType.string,
         },

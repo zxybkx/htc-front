@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-24 14:27:22
- * @LastEditTime: 2022-07-26 17:25:40
+ * @LastEditTime: 2022-09-02 10:14:42
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -15,7 +15,7 @@ import { FieldType, FieldIgnore } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import moment from 'moment';
 
-const modelCode = 'hivp.tax-refund';
+const modelCode = 'hivp.taxRefund';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
@@ -42,38 +42,38 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'companyName',
-        label: intl.get(`${modelCode}.view.companyName`).d('公司名称'),
+        label: intl.get('htc.common.view.companyName').d('公司名称'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'currentTaxpayerNumber',
-        label: intl.get(`${modelCode}.view.currentTaxpayerNumber`).d('当前纳税人识别号'),
+        label: intl.get('hivp.checkCertification.view.currentTaxpayerNumber').d('当前纳税人识别号'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'usedTaxpayerNumber',
-        label: intl.get(`${modelCode}.view.usedTaxpayerNumber`).d('曾用纳税人识别号'),
+        label: intl.get('hivp.checkCertification.view.usedTaxpayerNumber').d('曾用纳税人识别号'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'declarePeriod',
-        label: intl.get(`${modelCode}.view.declarePeriodObj`).d('申报周期'),
+        label: intl.get('hivp.checkCertification.view.declarePeriodObj').d('申报周期'),
         type: FieldType.string,
         lookupCode: 'HIVP.DELARE_PERIOD',
         readOnly: true,
       },
       {
         name: 'creditRating',
-        label: intl.get(`${modelCode}.view.creditRating`).d('信用等级'),
+        label: intl.get('hivp.checkCertification.view.creditRating').d('信用等级'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'exportComType',
-        label: intl.get(`${modelCode}.view.exportComType`).d('出口退税企业类型'),
+        label: intl.get('hivp.checkCertification.view.exportComType').d('出口退税企业类型'),
         labelWidth: '100',
         lookupCode: 'HIVP.EXPORT_COM_TYPE',
         type: FieldType.string,
@@ -81,28 +81,32 @@ export default (): DataSetProps => {
       },
       {
         name: 'taxpayerType',
-        label: intl.get(`${modelCode}.view.taxpayerType`).d('纳税人资格'),
+        label: intl.get('hivp.checkCertification.view.taxpayerType').d('纳税人资格'),
         type: FieldType.string,
         lookupCode: 'HIVP.TAXPAYER_TYPE',
         readOnly: true,
       },
       {
         name: 'taxpayerRegisterDateFrom',
-        label: intl.get(`${modelCode}.view.taxpayerRegisterDateFrom`).d('转登记纳税人登记时间起'),
+        label: intl
+          .get('hivp.checkCertification.view.taxpayerRegisterDateFrom')
+          .d('转登记纳税人登记时间起'),
         labelWidth: '150',
         type: FieldType.date,
         readOnly: true,
       },
       {
         name: 'taxpayerRegisterDateTo',
-        label: intl.get(`${modelCode}.view.taxpayerRegisterDateTo`).d('转登记纳税人登记时间止'),
+        label: intl
+          .get('hivp.checkCertification.view.taxpayerRegisterDateTo')
+          .d('转登记纳税人登记时间止'),
         labelWidth: '150',
         type: FieldType.date,
         readOnly: true,
       },
       {
         name: 'isSpecificCom',
-        label: intl.get(`${modelCode}.view.isSpecificCom`).d('是否特定企业'),
+        label: intl.get('hivp.checkCertification.view.isSpecificCom').d('是否特定企业'),
         type: FieldType.string,
         lookupCode: 'HIVP.IS_SPECIFIC_COM',
         // trueValue: 'Y',
@@ -111,7 +115,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'isParentCom',
-        label: intl.get(`${modelCode}.view.isParentCom`).d('是否分公司'),
+        label: intl.get('hivp.checkCertification.view.isParentCom').d('是否分公司'),
         type: FieldType.string,
         lookupCode: 'HIVP.IS_PARENT_COM',
         // trueValue: '2',
@@ -120,14 +124,16 @@ export default (): DataSetProps => {
       },
       {
         name: 'oilsComType',
-        label: intl.get(`${modelCode}.view.oilsComType`).d('油类企业类型'),
+        label: intl.get('hivp.checkCertification.view.oilsComType').d('油类企业类型'),
         type: FieldType.string,
         lookupCode: 'HIVP.OILS_COM_TYPE',
         readOnly: true,
       },
       {
         name: 'oilsComTaxPeriod',
-        label: intl.get(`${modelCode}.view.oilsComTaxPeriod`).d('油类企业类型为生产企业的报税周期'),
+        label: intl
+          .get('hivp.checkCertification.view.oilsComTaxPeriod')
+          .d('油类企业类型为生产企业的报税周期'),
         labelWidth: '220',
         type: FieldType.string,
         lookupCode: 'HIVP.OILS_MANUFACTURING_ENTERPRISE_DECLARE_PERIOD',
@@ -135,7 +141,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'ethylAlcoholOilsCom',
-        label: intl.get(`${modelCode}.view.ethylAlcoholOilsCom`).d('是否乙醇调和油企业'),
+        label: intl.get('hivp.checkCertification.view.ethylAlcoholOilsCom').d('是否乙醇调和油企业'),
         labelWidth: '160',
         lookupCode: 'HIVP.ETHYL_ALCOHOL_OILS_COM',
         type: FieldType.string,
@@ -145,13 +151,13 @@ export default (): DataSetProps => {
       },
       {
         name: 'parentComInfo',
-        label: intl.get(`${modelCode}.view.parentComInfo`).d('总公司信息'),
+        label: intl.get('hivp.checkCertification.view.parentComInfo').d('总公司信息'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'fileSynchronizationTime',
-        label: intl.get(`${modelCode}.view.fileSynchronizationTime`).d('档案同步时间'),
+        label: intl.get('hivp.checkCertification.view.fileSynchronizationTime').d('档案同步时间'),
         type: FieldType.dateTime,
         readOnly: true,
       },
@@ -207,7 +213,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'employeeDesc',
-          label: intl.get(`${modelCode}.view.employeeDesc`).d('登录员工'),
+          label: intl.get(`hivp.batchCheck.view.employeeDesc`).d('登录员工'),
           type: FieldType.string,
           readOnly: true,
           ignore: FieldIgnore.always,
@@ -235,7 +241,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'curDate',
-          label: intl.get(`${modelCode}.view.curDate`).d('当前日期'),
+          label: intl.get(`hivp.invoicesArchiveUpload.view.curDate`).d('当前日期'),
           type: FieldType.date,
           defaultValue: moment(),
           ignore: FieldIgnore.always,

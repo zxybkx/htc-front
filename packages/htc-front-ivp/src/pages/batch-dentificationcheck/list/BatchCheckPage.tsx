@@ -62,7 +62,7 @@ const API_PREFIX = commonConfig.IVP_API || '';
 const { Option } = Select;
 const { TabPane } = Tabs;
 const { Item: MenuItem } = Menu;
-const acceptType = ['.pdf', '.jpg', '.png', '.ofd', '.zip', '.rar', '.7z'];
+const acceptType = ['.pdf', '.jpg', '.png', '.ofd', '.zip', '.rar', '.7z', 'image/jpeg'];
 
 interface BatchCheckPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
@@ -926,7 +926,7 @@ export default class BatchCheckPage extends Component<BatchCheckPageProps> {
           >
             <Button color={ButtonColor.primary}>
               <Icon type="backup-o" className={styles.btnIcon} />
-              上传文件
+              {intl.get('hivp.invoicesArchiveUpload.button.uploadFile').d('上传文件')}
             </Button>
           </Upload>
           <HeaderButtons
