@@ -13,12 +13,13 @@ import { DataSet } from 'choerodon-ui/pro';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
+import { EMAIL } from 'utils/regExp';
 
 const modelCode = 'hivp.checkCertification';
+const API_PREFIX = commonConfig.IVP_API || '';
+const tenantId = getCurrentOrganizationId();
 
 export default (): DataSetProps => {
-  const API_PREFIX = commonConfig.IVP_API || '';
-  const tenantId = getCurrentOrganizationId();
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -36,7 +37,6 @@ export default (): DataSetProps => {
       },
     },
     pageSize: 10,
-    // selection: false,
     primaryKey: 'detailInfoHeaderId',
     fields: [
       {
@@ -85,12 +85,6 @@ export default (): DataSetProps => {
     ],
     queryDataSet: new DataSet({
       fields: [
-        // {
-        //   name: 'statisticalPeriod',
-        //   label: intl.get(`${modelCode}.view.statisticalPeriod`).d('认证所属期'),
-        //   type: FieldType.string,
-        //   readOnly: true,
-        // },
         {
           name: 'companyId',
           type: FieldType.number,
@@ -116,11 +110,6 @@ export default (): DataSetProps => {
           type: FieldType.string,
           lookupCode: 'HIVP.CHECK_CONFIRM_STATE',
           readOnly: true,
-        },
-        {
-          name: 'confirmPassword',
-          label: intl.get(`${modelCode}.view.confirmPassword`).d('确认密码'),
-          type: FieldType.string,
         },
       ],
     }),
@@ -148,4 +137,93 @@ const TimeRange = (): DataSetProps => {
     ],
   };
 };
-export { TimeRange };
+
+const AutomaticStatistics = (): DataSetProps => {
+  return {
+    transport: {
+      read: (config): AxiosRequestConfig => {
+        const url = `${API_PREFIX}/v1/${tenantId}/invoice-operation/auto-stat-sign-config`;
+        const axiosConfig: AxiosRequestConfig = {
+          ...config,
+          url,
+          params: {
+            ...config.params,
+            tenantId,
+          },
+          method: 'GET',
+        };
+        return axiosConfig;
+      },
+      submit: ({ data, params }) => {
+        return {
+          url: `${API_PREFIX}/v1/${tenantId}/invoice-operation/auto-stat-sign-config`,
+          data: { ...data[0], tenantId },
+          params,
+          method: 'POST',
+        };
+      },
+    },
+    paging: false,
+    fields: [
+      {
+        name: 'autoSignatureSign',
+        label: intl.get(`${modelCode}.modal.autoSignatureSign`).d('每月自动统计'),
+        type: FieldType.boolean,
+        trueValue: 1,
+        falseValue: 0,
+      },
+      {
+        name: 'mailbox',
+        label: intl.get(`${modelCode}.modal.mailbox`).d('结果接受邮箱'),
+        type: FieldType.string,
+        pattern: EMAIL,
+        computedProps: {
+          required: ({ record }) =>
+            record.get('autoSignatureSign') || record.get('autoStatisticsSign'),
+        },
+      },
+      {
+        name: 'autoStatisticsTime',
+        label: intl.get(`${modelCode}.modal.autoStatisticsTime`).d('自动统计日期'),
+        type: FieldType.number,
+        min: 1,
+        max: 31,
+        computedProps: {
+          required: ({ record }) => record.get('autoSignatureSign'),
+        },
+        labelWidth: '120',
+      },
+      {
+        name: 'autoStatisticsSign',
+        label: intl.get(`${modelCode}.modal.autoStatisticsSign`).d('每月自动确签'),
+        type: FieldType.boolean,
+        trueValue: 1,
+        falseValue: 0,
+      },
+      {
+        name: 'autoSignatureTime',
+        label: intl.get(`${modelCode}.modal.autoSignatureTime`).d('自动确签日期'),
+        type: FieldType.number,
+        computedProps: {
+          required: ({ record }) => record.get('autoStatisticsSign'),
+          readOnly: ({ record }) => !record.get('autoStatisticsTime'),
+          min: ({ record }) =>
+            record.get('autoStatisticsTime') && record.get('autoStatisticsTime') < 16
+              ? record.get('autoStatisticsTime')
+              : 1,
+          max: ({ record }) =>
+            record.get('autoStatisticsTime') && record.get('autoStatisticsTime') < 16 ? 15 : 31,
+        },
+      },
+      {
+        name: 'confirmPassword',
+        label: intl.get(`${modelCode}.modal.confirmPassword`).d('确认密码'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => record.get('autoStatisticsSign'),
+        },
+      },
+    ],
+  };
+};
+export { TimeRange, AutomaticStatistics };

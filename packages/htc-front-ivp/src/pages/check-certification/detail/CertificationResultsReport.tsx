@@ -224,7 +224,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
     return (
       <>
         <Header
-          backPath="/htc-front-ivp/check-certification/list"
+          backPath="/htc-front-ivp/check-certification/list?type=2"
           title={intl.get(`${modelCode}.title.certificationResult`).d('认证结果报表')}
         >
           <Button color={ButtonColor.primary} onClick={this.handlePrint}>
