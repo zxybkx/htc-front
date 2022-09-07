@@ -141,6 +141,19 @@ const TimeRange = (): DataSetProps => {
 const AutomaticStatistics = (): DataSetProps => {
   return {
     transport: {
+      read: (config): AxiosRequestConfig => {
+        const url = `${API_PREFIX}/v1/${tenantId}/invoice-operation/auto-stat-sign-config`;
+        const axiosConfig: AxiosRequestConfig = {
+          ...config,
+          url,
+          params: {
+            ...config.params,
+            tenantId,
+          },
+          method: 'GET',
+        };
+        return axiosConfig;
+      },
       submit: ({ data, params }) => {
         return {
           url: `${API_PREFIX}/v1/${tenantId}/invoice-operation/auto-stat-sign-config`,
@@ -150,6 +163,7 @@ const AutomaticStatistics = (): DataSetProps => {
         };
       },
     },
+    paging: false,
     fields: [
       {
         name: 'autoSignatureSign',

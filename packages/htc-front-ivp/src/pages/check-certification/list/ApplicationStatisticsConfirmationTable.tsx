@@ -120,6 +120,7 @@ export default class ApplicationStatisticsConfirmationTable extends Component<
       const { queryDataSet } = statisticalConfirmDS;
       if (queryDataSet) {
         const statisticalPeriod = queryDataSet?.current?.get('statisticalPeriod');
+        const curCompanyId = queryDataSet?.current?.get('companyId');
         if (!statisticalPeriod) {
           queryDataSet.create({
             authenticationDateObj: { currentPeriod },
@@ -128,6 +129,8 @@ export default class ApplicationStatisticsConfirmationTable extends Component<
           });
           this.automaticStatisticsDS.create({ companyId, employeeId, employeeNum });
         }
+        this.automaticStatisticsDS.setQueryParameter('companyId', companyId || curCompanyId);
+        this.automaticStatisticsDS.query();
       }
     }
   }
