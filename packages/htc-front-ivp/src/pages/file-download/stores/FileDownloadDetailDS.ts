@@ -103,7 +103,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'recordPeriod',
-        label: intl.get(`${modelCode}.view.archiveDate`).d('归档期间'),
+        label: intl.get('hivp.invoicesFileArchive.view.archiveDate').d('归档期间'),
         type: FieldType.month,
       },
       {

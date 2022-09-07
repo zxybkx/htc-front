@@ -282,7 +282,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'systemCode',
-        label: intl.get('hiop.invoiceReq.modal.systemCode').d('来源系统'),
+        label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
         type: FieldType.string,
       },
       {
@@ -392,12 +392,14 @@ export default (): DataSetProps => {
           label: intl.get('hiop.invoiceWorkbench.modal.invoiceState').d('发票状态'),
           type: FieldType.string,
           lookupCode: 'HMDM.INVOICE_STATE',
+          multiple: ',',
         },
         {
           name: 'billingType',
           label: intl.get('hiop.invoiceWorkbench.modal.billingType').d('开票类型'),
           type: FieldType.string,
           lookupCode: 'HIOP.INVOICE_TYPE',
+          multiple: ',',
         },
         {
           name: 'employeeNameObj',
@@ -483,18 +485,21 @@ export default (): DataSetProps => {
           label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
           type: FieldType.string,
           lookupCode: 'HMDM.INVOICE_TYPE',
+          multiple: ',',
         },
         {
           name: 'printFlag',
           label: intl.get('hiop.invoiceWorkbench.modal.printFlag').d('打印状态'),
           type: FieldType.string,
           lookupCode: 'HIOP.PRINT_STATUS',
+          multiple: ',',
         },
         {
           name: 'invoiceSourceType',
           label: intl.get('hiop.invoiceWorkbench.modal.invoiceSourceType').d('来源类型'),
           type: FieldType.string,
           lookupCode: 'HIOP.INVOICE_SOURCE_TYPE',
+          multiple: ',',
         },
         {
           name: 'invoiceSourceFlag',
@@ -506,12 +511,14 @@ export default (): DataSetProps => {
           label: intl.get('hiop.tobeInvoice.modal.requestTypeObj').d('业务类型'),
           type: FieldType.string,
           lookupCode: 'HIOP.PURCHASE_MARK',
+          multiple: ',',
         },
         {
           name: 'orderStatus',
           label: intl.get('hiop.invoiceWorkbench.modal.orderStatus').d('订单状态'),
           type: FieldType.string,
           lookupCode: 'HIOP.ORDER_STATUS',
+          multiple: ',',
         },
         {
           name: 'buyerName',

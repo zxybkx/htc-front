@@ -1,5 +1,5 @@
-/*
- * @Description:手工发票查验
+/**
+ * @Description: 手工发票查验
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 11:54:42
@@ -7,12 +7,12 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
-import { FieldType, FieldIgnore } from 'choerodon-ui/pro/lib/data-set/enum';
+import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
 import intl from 'utils/intl';
 import moment from 'moment';
 
-const modelCode = 'hcan.invoiceCheck';
+const modelCode = 'hcan.invoice-check';
 
 export default (): DataSetProps => {
   const tenantId = getCurrentOrganizationId();
@@ -20,7 +20,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'companyObj',
-        label: intl.get(`${modelCode}.view.companyName`).d('公司'),
+        label: intl.get('hiop.redInvoiceInfo.modal.companyName').d('公司'),
         type: FieldType.object,
         lovCode: 'HMDM.CURRENT_EMPLOYEE',
         lovPara: { tenantId },
@@ -88,7 +88,7 @@ export default (): DataSetProps => {
         type: FieldType.date,
         format: 'YYYYMMDD',
         required: true,
-        transformRequest: (value) => moment(value).format('YYYYMMDD'),
+        transformRequest: value => moment(value).format('YYYYMMDD'),
       },
       {
         name: 'invoiceAmount',
@@ -98,7 +98,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'checkNumber',
-        label: intl.get(`${modelCode}.view.checkNumber`).d('校验码（后6位）'),
+        label: intl.get('hcan.invoiceCheck.view.checkNumber').d('校验码（后6位）'),
         type: FieldType.string,
         pattern: /^[a-zA-Z0-9]{6}$/,
         defaultValidationMessages: {

@@ -42,7 +42,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'companyName',
-        label: intl.get('hzero.hzeroTheme.page.companyName').d('公司名称'),
+        label: intl.get('htc.common.view.companyName').d('公司名称'),
         type: FieldType.string,
         readOnly: true,
       },

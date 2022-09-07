@@ -80,6 +80,7 @@ import { Col, Icon, message, Modal, Row, Tag, Tooltip } from 'choerodon-ui';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
 import formatterCollections from 'utils/intl/formatterCollections';
+import { ValueChangeAction } from 'choerodon-ui/pro/lib/text-field/enum';
 import StatisticalConfirmDS, { TimeRange } from '../stores/StatisticalConfirmDS';
 import CertifiableInvoiceListDS from '../stores/CertifiableInvoiceListDS';
 import CheckCertificationListDS, { TaxDiskPasswordDS } from '../stores/CheckCertificationListDS';
@@ -160,6 +161,7 @@ interface CheckCertificationPageProps extends RouteComponentProps {
   code: [
     modelCode,
     'hiop.invoiceWorkbench',
+    'hivp.batchCheck',
     'hiop.invoiceRule',
     'hivp.taxRefund',
     'hiop.redInvoiceInfo',
@@ -925,7 +927,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         key="refresh"
         onClick={() => this.verifiableRefresh()}
         dataSet={this.props.certifiableInvoiceListDS}
-        title={intl.get('hiop.invoiceWorkbench.button.refresh').d('刷新状态')}
+        title={intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态')}
         condition="refresh"
       />,
     ];
@@ -1943,14 +1945,10 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
       }
     };
     const getFocus = () => scanInput?.focus();
-    const handleScanInput = e => {
-      const {
-        target: { value },
-      } = e;
-      const strArray = value.split(',');
-      if (strArray.length < 9) return;
+    const handleScanInput = value => {
+      const strArray = value ? value.split(',') : [];
       const invObj: any = {};
-      if (value.trim()) {
+      if (value && value.trim()) {
         strArray.forEach((key, index) => {
           if (scanInvObjKeys[index] === 'invoiceDate') {
             invObj[scanInvObjKeys[index]] = `${key.slice(0, 4)}-${key.slice(4, 6)}-${key.slice(6)}`;
@@ -1972,13 +1970,15 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
               'top'
             );
             setTimeout(() => {
+              scanInput!.value = '';
               getFocus();
             }, 300);
           } else {
             ds.create({ invoiceType, invoiceCode, invoiceNo, invoiceAmount, invoiceDate }, 0);
             setTimeout(() => {
+              scanInput!.value = '';
               getFocus();
-            }, 500);
+            }, 300);
           }
         } else {
           message.warning(
@@ -1991,7 +1991,6 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
             getFocus();
           }, 300);
         }
-        e.target.value = '';
       }
     };
     const ObBtn = observer((props: any) => {
@@ -2024,7 +2023,10 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
           <TextField
             style={{ width: '450px' }}
             placeholder={intl.get(`${modelCode}.scanGun.acceptData`).d('请点击此处接受扫码枪数据')}
-            onInput={handleScanInput}
+            // onInput={handleScanInput}
+            onChange={handleScanInput}
+            valueChangeAction={ValueChangeAction.input}
+            wait={200}
             ref={input => {
               scanInput = input;
             }}
@@ -2194,7 +2196,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
         key="refresh"
         onClick={() => this.batchInvoiceRefresh()}
         dataSet={this.props.batchInvoiceHeaderDS}
-        title={intl.get(`${modelCode}.button.batchRefresh`).d('刷新状态')}
+        title={intl.get(`hiop.invoiceWorkbench.button.fresh`).d('刷新状态')}
       />,
       <CurrentCheckInvoicesButton
         key="getCurrentCheckInvoices"
@@ -2778,7 +2780,7 @@ export default class CheckCertificationListPage extends Component<CheckCertifica
                     />
                   </TabPane>
                   <TabPane
-                    tab={intl.get(`${modelCode}.statisticalConfirm`).d('申请统计及确签')}
+                    tab={intl.get(`${modelCode}.tabPane.statisticalConfirm`).d('申请统计及确签')}
                     key="statisticalConfirm"
                   >
                     <Table

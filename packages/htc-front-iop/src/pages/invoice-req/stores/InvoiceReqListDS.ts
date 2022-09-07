@@ -320,7 +320,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'systemCode',
-        label: intl.get('hiop.invoiceReq.modal.systemCode').d('来源系统'),
+        label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
         type: FieldType.string,
       },
       {
@@ -471,24 +471,28 @@ export default (): DataSetProps => {
           label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
           type: FieldType.string,
           lookupCode: 'HMDM.INVOICE_TYPE',
+          multiple: ',',
         },
         {
           name: 'sourceType',
           label: intl.get('hiop.invoiceWorkbench.modal.invoiceSourceType').d('来源类型'),
           type: FieldType.string,
           lookupCode: 'HIOP.APPLY_SOURCE_TYPE',
+          multiple: ',',
         },
         {
           name: 'requestType',
           label: intl.get('hiop.tobeInvoice.modal.requestTypeObj').d('业务类型'),
           type: FieldType.string,
           lookupCode: 'HIOP.INVOICE_REQUEST_TYPE',
+          multiple: ',',
         },
         {
           name: 'requestStatus',
           label: intl.get('hiop.invoiceReq.modal.requestStatus').d('申请单状态'),
           type: FieldType.string,
           lookupCode: 'HIOP.APPLY_STATUS',
+          multiple: ',',
         },
         {
           name: 'requestNumber',
@@ -534,6 +538,7 @@ export default (): DataSetProps => {
           label: intl.get('hiop.invoiceWorkbench.modal.billingType').d('开票类型'),
           lookupCode: 'HIOP.INVOICE_TYPE',
           type: FieldType.string,
+          multiple: ',',
         },
         {
           name: 'sourceNumber1',

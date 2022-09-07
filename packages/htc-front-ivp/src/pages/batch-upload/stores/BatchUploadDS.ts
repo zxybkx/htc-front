@@ -10,7 +10,7 @@ import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { FieldType, DataSetSelection } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 
-const modelCode = 'hivp.invoicesFileArchive';
+const modelCode = 'hivp.invoicesArchiveUpload';
 
 export default (): DataSetProps => {
   return {
@@ -63,7 +63,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceCode',
-        label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
+        label: intl.get('htc.common.view.invoiceCode').d('发票代码'),
         type: FieldType.string,
       },
       {

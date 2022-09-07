@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-26 11:01:10
- * @LastEditTime:
+ * @LastEditTime: 2022-09-02 10:05:43
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -15,7 +15,7 @@ import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import moment from 'moment';
 
-const modelCode = 'hivp.tax-refund';
+const modelCode = 'hivp.checkCertification';
 
 export default (): DataSetProps => {
   const tenantId = getCurrentOrganizationId();
@@ -99,13 +99,13 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'checkState',
-        label: intl.get(`${modelCode}.view.checkState`).d('勾选状态'),
+        label: intl.get('hivp.checkCertification.view.checkState').d('勾选状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.CHECK_STATE',
       },
       {
         name: 'annotation',
-        label: intl.get(`${modelCode}.view.annotation`).d('特殊标记/说明/备忘/注释'),
+        label: intl.get(`hivp.checkCertification.view.annotation`).d('特殊标记/说明/备忘/注释'),
         type: FieldType.string,
       },
       {
@@ -117,7 +117,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'entryAccountState',
-        label: intl.get(`${modelCode}.view.entryAccountState`).d('入账状态'),
+        label: intl.get(`hivp.bill.view.entryAccountState`).d('入账状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.ACCOUNT_STATE',
       },
@@ -129,59 +129,59 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceType',
-        label: intl.get(`${modelCode}.view.invoiceType`).d('发票类型'),
+        label: intl.get(`htc.common.view.invoiceType`).d('发票类型'),
         type: FieldType.string,
         lookupCode: 'HIVC.INVOICE_TYPE',
       },
       {
         name: 'invoiceState',
-        label: intl.get(`${modelCode}.view.invoiceState`).d('发票状态'),
+        label: intl.get(`hivp.batchCheck.view.invoiceStatus`).d('发票状态'),
         type: FieldType.string,
         lookupCode: 'HMDM.INVOICE_STATE',
       },
       {
         name: 'invoiceCode',
-        label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
+        label: intl.get(`htc.common.view.invoiceCode`).d('发票代码'),
         type: FieldType.string,
       },
       {
         name: 'invoiceNo',
-        label: intl.get(`${modelCode}.view.invoiceNo`).d('发票号码'),
+        label: intl.get(`htc.common.view.invoiceNo`).d('发票号码'),
         type: FieldType.string,
       },
       {
         name: 'invoiceDate',
-        label: intl.get(`${modelCode}.view.invoiceDate`).d('开票日期'),
+        label: intl.get(`htc.common.view.invoiceDate`).d('开票日期'),
         type: FieldType.string,
       },
       {
         name: 'invoiceAmountGross',
-        label: intl.get(`${modelCode}.view.invoiceAmountGross`).d('发票金额'),
+        label: intl.get(`htc.common.view.invoiceAmount`).d('发票金额'),
         type: FieldType.currency,
       },
       {
         name: 'invoiceTheAmount',
-        label: intl.get(`${modelCode}.view.invoiceTheAmount`).d('发票税额'),
+        label: intl.get(`${modelCode}.view.taxAmount`).d('发票税额'),
         type: FieldType.currency,
       },
       {
         name: 'buyerName',
-        label: intl.get(`${modelCode}.view.buyerName`).d('购方名称'),
+        label: intl.get(`htc.common.view.buyerName`).d('购方名称'),
         type: FieldType.string,
       },
       {
         name: 'buyerTaxNo',
-        label: intl.get(`${modelCode}.view.buyerTaxNo`).d('购方纳税人识别号'),
+        label: intl.get(`htc.common.view.buyerTaxNo`).d('购方纳税人识别号'),
         type: FieldType.string,
       },
       {
         name: 'salerTaxName',
-        label: intl.get(`${modelCode}.view.salerTaxName`).d('销方名称'),
+        label: intl.get(`htc.common.view.salerName`).d('销方名称'),
         type: FieldType.string,
       },
       {
         name: 'salerTaxNo',
-        label: intl.get(`${modelCode}.view.salerTaxNo`).d('销方纳税人识别号'),
+        label: intl.get(`htc.common.view.salerTaxNo`).d('销方纳税人识别号'),
         type: FieldType.string,
       },
       {
@@ -310,48 +310,48 @@ export default (): DataSetProps => {
         },
         {
           name: 'invoiceType',
-          label: intl.get(`${modelCode}.view.invoiceType`).d('发票类型'),
+          label: intl.get(`htc.common.view.invoiceType`).d('发票类型'),
           type: FieldType.string,
           lookupCode: 'HIVC.INVOICE_TYPE',
           defaultValue: '01',
         },
         {
           name: 'invoiceCode',
-          label: intl.get(`${modelCode}.view.invoiceCode`).d('发票代码'),
+          label: intl.get(`htc.common.view.invoiceCode`).d('发票代码'),
           type: FieldType.string,
         },
         {
           name: 'invoiceNo',
-          label: intl.get(`${modelCode}.view.invoiceNo`).d('发票号码'),
+          label: intl.get(`htc.common.view.invoiceNo`).d('发票号码'),
           type: FieldType.string,
         },
         {
           name: 'invoiceDateFrom',
-          label: intl.get(`${modelCode}.view.invoiceDateFrom`).d('开票日期从'),
+          label: intl.get(`hivp.bill.view.invoiceDateFrom`).d('开票日期从'),
           max: 'invoiceDateTo',
           type: FieldType.date,
         },
         {
           name: 'invoiceDateTo',
-          label: intl.get(`${modelCode}.view.invoiceDateTo`).d('开票日期至'),
+          label: intl.get(`hivp.bill.view.invoiceDateTo`).d('开票日期至'),
           min: 'invoiceDateFrom',
           type: FieldType.date,
         },
         {
           name: 'salerTaxNo',
-          label: intl.get(`${modelCode}.view.salerTaxNo`).d('销方税号'),
+          label: intl.get(`htc.common.view.salerTaxNo`).d('销方税号'),
           type: FieldType.string,
         },
         {
           name: 'manageState',
-          label: intl.get(`${modelCode}.view.manageState`).d('管理状态'),
+          label: intl.get(`${modelCode}.view.managementState`).d('管理状态'),
           type: FieldType.string,
           lookupCode: 'HIVP.SAT_MANAGEMENT_STATE',
           defaultValue: '0',
         },
         {
           name: 'invoiceState',
-          label: intl.get(`${modelCode}.view.invoiceState`).d('发票状态'),
+          label: intl.get(`hivp.batchCheck.view.invoiceStatus`).d('发票状态'),
           type: FieldType.string,
           lookupCode: 'HMDM.INVOICE_STATE',
           defaultValue: '0',
@@ -370,7 +370,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'number',
-          label: intl.get(`${modelCode}.view.number`).d('本次勾选'),
+          label: intl.get(`${modelCode}.view.CheckThisTime`).d('本次勾选'),
           type: FieldType.number,
           ignore: FieldIgnore.always,
           readOnly: true,
@@ -378,7 +378,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'amount',
-          label: intl.get(`${modelCode}.view.amount`).d('本次勾选金额'),
+          label: intl.get(`${modelCode}.view.TheAmountSelected`).d('本次勾选金额'),
           type: FieldType.currency,
           ignore: FieldIgnore.always,
           readOnly: true,
@@ -386,7 +386,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'taxAmount',
-          label: intl.get(`${modelCode}.view.taxAmount`).d('本次勾选税额'),
+          label: intl.get(`${modelCode}.view.taxselectedAmount`).d('本次勾选税额'),
           type: FieldType.currency,
           ignore: FieldIgnore.always,
           readOnly: true,

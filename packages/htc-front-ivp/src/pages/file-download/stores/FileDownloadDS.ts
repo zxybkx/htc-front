@@ -39,7 +39,12 @@ export default (): DataSetProps => {
     events: {
       query({ params }) {
         if (params.showInInvoiceFile === '0' && params.showOutInvoiceFile === '0') {
-          message.warning(intl.get('hivp.bill.notice.fileType').d('请勾选查询档案类型'), undefined, undefined, 'rightBottom');
+          message.warning(
+            intl.get('hivp.bill.notice.fileType').d('请勾选查询档案类型'),
+            undefined,
+            undefined,
+            'rightBottom'
+          );
           return false;
         }
       },
@@ -59,7 +64,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'recordPeriod',
-        label: intl.get(`${modelCode}.view.archiveDate`).d('归档期间'),
+        label: intl.get('hivp.invoicesFileArchive.view.archiveDate').d('归档期间'),
         type: FieldType.month,
       },
       {
@@ -79,7 +84,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'inOutType',
-        label: intl.get(`${modelCode}.view.inOutType`).d('进销项'),
+        label: intl.get('hivp.invoicesFileArchive.view.inOutType').d('进销项'),
         type: FieldType.string,
         lookupCode: 'HIVP.IN_OUT_TYPE',
       },
@@ -113,14 +118,14 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.recordDateFrom`).d('归档期间从'),
         type: FieldType.month,
         bind: 'recordDate.recordDateFrom',
-        transformRequest: (value) => value && moment(value).format('YYYY-MM'),
+        transformRequest: value => value && moment(value).format('YYYY-MM'),
       },
       {
         name: 'recordDateTo',
         label: intl.get(`${modelCode}.view.recordDateTo`).d('归档期间至'),
         type: FieldType.month,
         bind: 'recordDate.recordDateTo',
-        transformRequest: (value) => value && moment(value).format('YYYY-MM'),
+        transformRequest: value => value && moment(value).format('YYYY-MM'),
       },
       {
         name: 'showInInvoiceFile',

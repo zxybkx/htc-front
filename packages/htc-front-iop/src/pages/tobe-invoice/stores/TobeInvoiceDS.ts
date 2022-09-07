@@ -252,9 +252,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'projectNumber',
-        label: intl
-          .get('hiop.tobeInvoice.modal.materialCode-selfCoding)')
-          .d('物料编码（自行编码）'),
+        label: intl.get('hiop.tobeInvoice.modal.materialCode-selfCoding').d('物料编码（自行编码）'),
         type: FieldType.string,
       },
       {
@@ -398,32 +396,32 @@ export default (): DataSetProps => {
       },
       {
         name: 'remark',
-        label: intl.get('hiop.invoiceReq.modal.remark').d('备注'),
+        label: intl.get('hzero.common.model.remark').d('备注'),
         type: FieldType.string,
       },
       {
         name: 'salesMan',
-        label: intl.get('hiop.invoiceReq.modal.salesMan').d('业务员'),
+        label: intl.get('hiop.tobeInvoice.modal.salesMan').d('业务员'),
         type: FieldType.string,
       },
       {
         name: 'erpSalesOrderNumber',
-        label: intl.get('hiop.invoiceReq.modal.erpSalesOrderNumber').d('销售订单号'),
+        label: intl.get('hiop.tobeInvoice.modal.erpSalesOrderNumber').d('销售订单号'),
         type: FieldType.string,
       },
       {
         name: 'erpSalesOrderLineNumber',
-        label: intl.get('hiop.invoiceReq.modal.erpSalesOrderLineNumber').d('销售订单行号'),
+        label: intl.get('hiop.tobeInvoice.modal.erpSalesOrderLineNumber').d('销售订单行号'),
         type: FieldType.string,
       },
       {
         name: 'erpDeliveryNumber',
-        label: intl.get('hiop.invoiceReq.modal.erpDeliveryNumber').d('交货单号'),
+        label: intl.get('hiop.tobeInvoice.modal.deliveryNumber').d('交货单号'),
         type: FieldType.string,
       },
       {
         name: 'erpDeliveryLineNumber',
-        label: intl.get('hiop.invoiceReq.modal.erpDeliveryLineNumber').d('交货单行号'),
+        label: intl.get('hiop.tobeInvoice.modal.erpDeliveryLineNumber').d('交货单行号'),
         type: FieldType.string,
       },
       {
@@ -433,17 +431,17 @@ export default (): DataSetProps => {
       },
       {
         name: 'sourceLineNumber1',
-        label: intl.get('hiop.invoiceReq.modal.sourceLineNumber1').d('来源单据行号1'),
+        label: intl.get('hiop.tobeInvoice.modal.sourceLineNumber1').d('来源单据行号1'),
         type: FieldType.string,
       },
       {
         name: 'importDate',
-        label: intl.get('hiop.invoiceReq.modal.importDate').d('导入日期'),
+        label: intl.get('hiop.tobeInvoice.modal.importdate').d('导入日期'),
         type: FieldType.string,
       },
       {
         name: 'batchNo',
-        label: intl.get('hiop.invoiceReq.modal.batchNo').d('待开票批次号'),
+        label: intl.get('hiop.tobeInvoice.modal.batchNo').d('待开票批次号'),
         type: FieldType.string,
       },
       {
@@ -610,7 +608,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'sourceNumber1',
-          label: intl.get('hiop.tobeInvoice.modal.sourceNumber1').d('来源单据号1'),
+          label: intl.get('hiop.invoiceReq.modal.sourceDocumentNumber1').d('来源单据号1'),
           type: FieldType.string,
         },
         {
