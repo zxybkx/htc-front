@@ -14,7 +14,6 @@ import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import { DataSet } from 'choerodon-ui/pro';
 import intl from 'utils/intl';
 import moment from 'moment';
-// import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IOP_API || '';
@@ -24,14 +23,14 @@ export default (): DataSetProps => {
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const url = `${API_PREFIX}/v1/${tenantId}/monthly-quarter-annual/query-report`;
+        const url = `${API_PREFIX}/v1/${tenantId}/invoice-association-table/list`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
           url,
-          params: {
-            ...config.params,
-            tenantId,
-          },
+          // params: {
+          //   ...config.params,
+          //   tenantId,
+          // },
           method: 'GET',
         };
         return axiosConfig;
@@ -84,8 +83,8 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
-        name: 'ddlydh',
-        label: intl.get('hiop.statisticsTable.view.ddlydh').d('订单来源单号'),
+        name: 'invoiceSourceOrder',
+        label: intl.get('hiop.statisticsTable.view.invoiceSourceOrder').d('订单来源单号'),
         type: FieldType.string,
       },
       {
@@ -99,43 +98,43 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
-        name: 'yinvoiceCode',
-        label: intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('原蓝字代码'),
+        name: 'blueInvoiceCode',
+        label: intl.get('hiop.invoiceWorkbench.modal.blueInvoiceCode').d('原蓝字代码'),
         type: FieldType.string,
       },
       {
-        name: 'yinvoiceNo',
-        label: intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('原蓝字号码'),
+        name: 'blueInvoiceNo',
+        label: intl.get('hiop.invoiceWorkbench.modal.blueInvoiceNo').d('原蓝字号码'),
         type: FieldType.string,
       },
       {
-        name: 'fphsje',
+        name: 'invoiceTotalPriceTaxAmount',
         label: intl.get('hiop.statisticsTable.view.quarterInvoicedAmount').d('发票含税金额'),
         type: FieldType.currency,
       },
       {
-        name: 'fpbhsje',
+        name: 'invoiceExcludeTaxAmount',
         label: intl.get('hiop.statisticsTable.view.annualInvoicingLimit').d('发票不含税金额'),
         type: FieldType.currency,
       },
       {
-        name: 'fpse',
+        name: 'invoiceTotalTax',
         label: intl.get('htc.common.view.taxAmount').d('发票税额'),
         type: FieldType.currency,
       },
       {
-        name: 'ddhsje',
-        label: intl.get('hiop.statisticsTable.view.monthlyInvoicingLimit').d('订单含税金额'),
+        name: 'totalPriceTaxAmount',
+        label: intl.get('hiop.statisticsTable.view.totalPriceTaxAmount').d('订单含税金额'),
         type: FieldType.currency,
       },
       {
-        name: 'ddbhsje',
-        label: intl.get('hiop.statisticsTable.view.monthlyInvoicedAmount').d('订单不含税金额'),
+        name: 'totalExcludingTaxAmount',
+        label: intl.get('hiop.statisticsTable.view.totalExcludingTaxAmount').d('订单不含税金额'),
         type: FieldType.currency,
       },
       {
-        name: 'ddse',
-        label: intl.get('hiop.statisticsTable.view.quarterInvoicingLimit').d('订单税额'),
+        name: 'totalTax',
+        label: intl.get('hiop.statisticsTable.view.totalTax').d('订单税额'),
         type: FieldType.currency,
       },
       {
@@ -155,41 +154,41 @@ export default (): DataSetProps => {
       //   lookupCode: 'HIOP.APPLY_STATUS',
       // },
       {
-        name: 'sqdhsje',
+        name: 'requisitionTotalPriceTaxAmount',
         label: intl.get('hiop.invoiceReq.modal.requestStatus').d('申请单含税金额'),
         type: FieldType.currency,
       },
       {
-        name: 'sqdbhsje',
+        name: 'requisitionExcludingTaxAmount',
         label: intl.get('hiop.invoiceReq.modal.requestStatus').d('申请单不含税金额'),
         type: FieldType.currency,
       },
       {
-        name: 'sqdse',
+        name: 'totalAmount',
         label: intl.get('hiop.invoiceReq.modal.requestStatus').d('申请单税额'),
         type: FieldType.currency,
       },
       {
-        name: 'sqdlydh',
-        label: intl.get('hiop.statisticsTable.view.sqdlydh').d('申请单来源单号'),
+        name: 'sourceNumber',
+        label: intl.get('hiop.statisticsTable.view.sourceNumber').d('申请单来源单号'),
         type: FieldType.string,
         labelWidth: '120',
       },
       {
-        name: 'kpsqdh1',
-        label: intl.get('hiop.statisticsTable.view.currentTime').d('申请单来源单号1'),
+        name: 'sourceNumber1',
+        label: intl.get('hiop.statisticsTable.view.sourceNumber1').d('申请单来源单号1'),
         type: FieldType.string,
         labelWidth: '120',
       },
       {
-        name: 'kpsqdh2',
-        label: intl.get('hiop.statisticsTable.view.currentTime').d('申请单来源单号2'),
+        name: 'sourceNumber2',
+        label: intl.get('hiop.statisticsTable.view.sourceNumber2').d('申请单来源单号2'),
         type: FieldType.string,
         labelWidth: '120',
       },
       {
-        name: 'dkplydjh',
-        label: intl.get('hiop.invoiceReq.modal.requestStatus').d('待开票来源单据号'),
+        name: 'sourceHeadNumber',
+        label: intl.get('hiop.invoiceReq.modal.sourceHeadNumber').d('待开票来源单据号'),
         type: FieldType.string,
       },
       {
@@ -204,18 +203,18 @@ export default (): DataSetProps => {
       //   lookupCode: 'HTC.HIOP.TOBE_INVOICED_LINE_STATUS',
       // },
       {
-        name: 'sssqhsje',
-        label: intl.get('hiop.invoiceReq.modal.requestStatus').d('待开票含税金额'),
+        name: 'prepareTotalPriceTaxAmount',
+        label: intl.get('hiop.invoiceReq.modal.prepareTotalPriceTaxAmount').d('待开票含税金额'),
         type: FieldType.currency,
       },
       {
-        name: 'sssqbhsje',
-        label: intl.get('hiop.invoiceReq.modal.requestStatus').d('待开票不含税金额'),
+        name: 'prepareExcludingTaxAmount',
+        label: intl.get('hiop.invoiceReq.modal.prepareExcludingTaxAmount').d('待开票不含税金额'),
         type: FieldType.currency,
       },
       {
-        name: 'sssqse',
-        label: intl.get('hiop.invoiceReq.modal.requestStatus').d('待开票税额'),
+        name: 'utaxAmount',
+        label: intl.get('hiop.invoiceReq.modal.utaxAmount').d('待开票税额'),
         type: FieldType.currency,
       },
       {
@@ -246,7 +245,7 @@ export default (): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
-          name: 'tenantId',
+          name: 'organizationId',
           type: FieldType.number,
           bind: `tenantObject.tenantId`,
         },
@@ -262,6 +261,21 @@ export default (): DataSetProps => {
           name: 'companyId',
           type: FieldType.number,
           bind: 'companyObj.companyId',
+        },
+        {
+          name: 'companyCode',
+          type: FieldType.string,
+          bind: 'companyObj.companyCode',
+        },
+        {
+          name: 'companyName',
+          type: FieldType.string,
+          bind: 'companyObj.companyName',
+        },
+        {
+          name: 'employeeId',
+          type: FieldType.number,
+          bind: 'companyObj.employeeId',
         },
         {
           name: 'employeeDesc',
@@ -286,7 +300,7 @@ export default (): DataSetProps => {
           required: true,
           range: ['invoiceDateFrom', 'invoiceDateTo'],
           defaultValue: {
-            invoiceDateFrom: moment().startOf('day'),
+            invoiceDateFrom: moment().startOf('month'),
             invoiceDateTo: moment(),
           },
           ignore: FieldIgnore.always,
@@ -296,62 +310,60 @@ export default (): DataSetProps => {
           label: intl.get(`hivp.bill.view.invoiceDateFrom`).d('开票日期从'),
           type: FieldType.dateTime,
           bind: 'invoiceDate.invoiceDateFrom',
-          // transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'invoiceDateTo',
-          label: intl.get(`hivp.bill.view.invoiceDateTo`).d('开票日期至'),
+          label: intl.get('hivp.bill.view.invoiceDateTo').d('开票日期至'),
           type: FieldType.dateTime,
           bind: 'invoiceDate.invoiceDateTo',
-          // transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
-          name: 'kpddh',
-          label: intl.get('hiop.statisticsTable.view.kpddh').d('开票订单号'),
+          name: 'orderNumber',
+          label: intl.get('hiop.statisticsTable.view.orderNumber').d('开票订单号'),
           type: FieldType.string,
         },
         {
-          name: 'ddlydh',
-          label: intl.get('hiop.statisticsTable.view.ddlydh').d('订单来源单号'),
+          name: 'invoiceSourceOrder',
+          label: intl.get('hiop.statisticsTable.view.invoiceSourceOrder').d('订单来源单号'),
           type: FieldType.string,
         },
         {
-          name: 'ddlybz',
-          label: intl.get('hiop.statisticsTable.view.ddlybz').d('订单来源标识'),
+          name: 'invoiceSourceFlag',
+          label: intl.get('hiop.statisticsTable.view.invoiceSourceFlag').d('订单来源标识'),
           type: FieldType.string,
           labelWidth: '100',
         },
         {
-          name: 'kpsqdh',
-          label: intl.get('hiop.statisticsTable.view.kpsqdh').d('开票申请单号'),
+          name: 'requestNumber',
+          label: intl.get('hiop.statisticsTable.view.requestNumber').d('开票申请单号'),
           type: FieldType.string,
         },
         {
-          name: 'sqdlydh',
-          label: intl.get('hiop.statisticsTable.view.sqdlydh').d('申请单来源单号'),
-          type: FieldType.string,
-          labelWidth: '120',
-        },
-        {
-          name: 'kpsqdh1',
-          label: intl.get('hiop.statisticsTable.view.currentTime').d('申请单来源单号1'),
+          name: 'sourceNumber',
+          label: intl.get('hiop.statisticsTable.view.sourceNumber').d('申请单来源单号'),
           type: FieldType.string,
           labelWidth: '120',
         },
         {
-          name: 'kpsqdh2',
-          label: intl.get('hiop.statisticsTable.view.currentTime').d('申请单来源单号2'),
+          name: 'sourceNumber1',
+          label: intl.get('hiop.statisticsTable.view.sourceNumber1').d('申请单来源单号1'),
           type: FieldType.string,
           labelWidth: '120',
         },
         {
-          name: 'dkpdjh',
-          label: intl.get('hiop.statisticsTable.view.currentTime').d('待开票单据号'),
+          name: 'sourceNumber2',
+          label: intl.get('hiop.statisticsTable.view.sourceNumber2').d('申请单来源单号2'),
+          type: FieldType.string,
+          labelWidth: '120',
+        },
+        {
+          name: 'sourceHeadNumber',
+          label: intl.get('hiop.statisticsTable.view.sourceHeadNumber').d('待开票单据号'),
           type: FieldType.string,
         },
         {
-          name: 'dkppch',
-          label: intl.get('hiop.statisticsTable.view.dkppch').d('待开票批次号'),
+          name: 'batchNo',
+          label: intl.get('hiop.statisticsTable.view.batchNo').d('待开票批次号'),
           type: FieldType.string,
         },
       ],

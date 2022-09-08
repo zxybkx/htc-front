@@ -9,6 +9,8 @@
 import React, { Component } from 'react';
 import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
+import queryString from 'query-string';
+import { openTab } from 'utils/menuTab';
 import { Content, Header } from 'components/Page';
 import { DataSet, Table } from 'choerodon-ui/pro';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
@@ -38,8 +40,52 @@ export default class InvoiceAssociationTable extends Component {
     if (res && res.content) {
       const empInfo = res.content[0];
       if (empInfo && queryDataSet) {
-        queryDataSet.current!.set({ companyObj: empInfo });
+        queryDataSet.create({ companyObj: empInfo });
       }
+    }
+  }
+
+  viewDetail(record, type) {
+    const billFlag = record.get('billFlag');
+    const companyId = record.get('companyId');
+    const invoicingOrderHeaderId = record.get('invoicingOrderHeaderId');
+    const headerId = record.get('headerId');
+    const sourceHeadNumber = record.get('sourceHeadNumber');
+    switch (type) {
+      case 0:
+        openTab({
+          key: `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${companyId}/${invoicingOrderHeaderId}`,
+          path: `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${companyId}/${invoicingOrderHeaderId}`,
+          title: intl.get('hiop.invoiceWorkbench.title.invoiceOrder').d('开票订单'),
+          closable: true,
+          // type: 'menu',
+        });
+        break;
+      case 1:
+        openTab({
+          key: `/htc-front-iop/invoice-req/detail/${companyId}/${headerId}/${billFlag}`,
+          path: `/htc-front-iop/invoice-req/detail/${companyId}/${headerId}/${billFlag}`,
+          title: intl.get('hiop.invoiceReq.title.billApply').d('开票申请单'),
+          closable: true,
+        });
+        break;
+      case 2:
+        openTab({
+          key: '/htc-front-iop/tobe-invoice/list',
+          path: '/htc-front-iop/tobe-invoice/list',
+          title: intl.get('hiop.tobeInvoice.title.tobeInvoice').d('待开票数据勾选'),
+          search: queryString.stringify({
+            invoiceInfo: encodeURIComponent(
+              JSON.stringify({
+                sourceHeadNumber,
+                companyId,
+              })
+            ),
+          }),
+        });
+        break;
+      default:
+        break;
     }
   }
 
@@ -56,41 +102,61 @@ export default class InvoiceAssociationTable extends Component {
           return record ? record.index + 1 : '';
         },
       },
-      { name: 'companyName' },
+      { name: 'companyName', width: 210 },
       {
         name: 'orderNumber',
-        renderer: ({ value }) => <a>{value}</a>,
+        width: 230,
+        renderer: ({ value, record }) => <a onClick={() => this.viewDetail(record, 0)}>{value}</a>,
       },
       { name: 'billingType' },
       { name: 'invoiceVariety' },
-      { name: 'invoiceCode' },
+      { name: 'invoiceCode', width: 130 },
       { name: 'invoiceNo' },
-      { name: 'buyerName' },
-      { name: 'sellerName' },
-      { name: 'ddlydh', width: 110 },
-      { name: 'invoiceSourceFlag', width: 110 },
-      { name: 'invoiceDate' },
-      { name: 'yinvoiceCode' },
-      { name: 'yinvoiceNo' },
-      { name: 'fphsje', width: 110 },
-      { name: 'fpbhsje', width: 120 },
-      { name: 'fpse' },
-      { name: 'ddhsje', width: 110 },
-      { name: 'ddbhsje', width: 120 },
-      { name: 'ddse' },
+      { name: 'buyerName', width: 210 },
+      { name: 'sellerName', width: 210 },
+      { name: 'invoiceSourceOrder', width: 210 },
+      { name: 'invoiceSourceFlag', width: 210 },
+      { name: 'invoiceDate', width: 150 },
+      { name: 'blueInvoiceCode', width: 130 },
+      { name: 'blueInvoiceNo', width: 110 },
+      { name: 'invoiceTotalPriceTaxAmount', width: 110 },
+      { name: 'invoiceExcludeTaxAmount', width: 120 },
+      { name: 'invoiceTotalTax' },
+      { name: 'totalPriceTaxAmount', width: 110 },
+      { name: 'totalExcludingTaxAmount', width: 120 },
+      { name: 'totalTax' },
       { name: 'invoiceAmountDifference' },
-      { name: 'requestNumber' },
-      { name: 'sqdhsje', width: 120 },
-      { name: 'sqdbhsje', width: 130 },
-      { name: 'sqdse' },
-      { name: 'sqdlydh', width: 130 },
-      { name: 'kpsqdh1', width: 130 },
-      { name: 'kpsqdh2', width: 130 },
-      { name: 'dkplydjh', width: 130 },
+      {
+        name: 'requestNumber',
+        width: 230,
+        renderer: ({ value, record }) => <a onClick={() => this.viewDetail(record, 1)}>{value}</a>,
+      },
+      { name: 'requisitionTotalPriceTaxAmount', width: 120 },
+      { name: 'requisitionExcludingTaxAmount', width: 130 },
+      { name: 'totalAmount' },
+      {
+        name: 'sourceNumber',
+        width: 230,
+        renderer: ({ value, record }) => {
+          const reg = new RegExp(/^R/i);
+          if (value && reg.test(value)) {
+            return <a onClick={() => this.viewDetail(record, 1)}>{value}</a>;
+          } else {
+            return value;
+          }
+        },
+      },
+      { name: 'sourceNumber1', width: 130 },
+      { name: 'sourceNumber2', width: 130 },
+      {
+        name: 'sourceHeadNumber',
+        width: 130,
+        renderer: ({ value, record }) => <a onClick={() => this.viewDetail(record, 2)}>{value}</a>,
+      },
       { name: 'sourceLineNumber', width: 120 },
-      { name: 'sssqhsje', width: 130 },
-      { name: 'sssqbhsje', width: 140 },
-      { name: 'sssqse', width: 110 },
+      { name: 'prepareTotalPriceTaxAmount', width: 130 },
+      { name: 'prepareExcludingTaxAmount', width: 140 },
+      { name: 'utaxAmount', width: 110 },
       { name: 'batchNo', width: 110 },
     ];
   }
@@ -101,9 +167,11 @@ export default class InvoiceAssociationTable extends Component {
         <Header title={intl.get('hiop.invoiceAssociationTable.title').d('销项开票关联表')} />
         <Content>
           <Table
+            customizable
+            customizedCode="customized"
             dataSet={this.invoiceAssociationTable}
             columns={this.columns}
-            style={{ height: 400 }}
+            style={{ height: 440 }}
           />
         </Content>
       </>
