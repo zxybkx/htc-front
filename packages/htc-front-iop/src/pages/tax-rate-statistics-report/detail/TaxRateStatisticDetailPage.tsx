@@ -72,7 +72,7 @@ export default class TaxRateStatisticDetailPage extends Component<
         ),
       }),
       closable: true,
-      type: 'menu',
+      // type: 'menu',
     });
   };
 

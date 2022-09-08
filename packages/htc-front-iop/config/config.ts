@@ -254,28 +254,40 @@ const requestHistoryRouterConfig = [
     ],
   },
 ];
+const invoiceAssociationTable = [
+  {
+    path: '/htc-front-iop/invoice-association-table',
+    routes: [
+      {
+        path: '/htc-front-iop/invoice-association-table/list',
+        component: '@/pages/invoice-association-table/list/InvoiceAssociationTable',
+      },
+    ],
+  },
+];
 // const path = require('path');
 // import routes from './routers'
 export default extendParentConfig({
-    webpack5: {},
-    devServer: {
-        port: 8887, // 为了微前端本地启动，和主模块microService配置的端口对应
-    },
-    routes: [
-        ...invoiceReqRouterConfig,
-        ...invoiceRuleRouterConfig,
-        ...commodityInfoRouterConfig,
-        ...taxInfoRouterConfig,
-        ...redInvoiceRouterConfig,
-        ...invoiceWorkbenchRouterConfig,
-        ...permissionAssignRouterConfig,
-        ...customerInfoRouterConfig,
-        ...tobeInvoiceRouterConfig,
-        ...invoiceOperationMaintenanceRouterConfig,
-        ...taxRateStatisticsReportRouterConfig,
-      ...requestHistoryRouterConfig,
-      ...monthlyQuarterlyYearlyReport,
-    ],
+  webpack5: {},
+  devServer: {
+    port: 8887, // 为了微前端本地启动，和主模块microService配置的端口对应
+  },
+  routes: [
+    ...invoiceReqRouterConfig,
+    ...invoiceRuleRouterConfig,
+    ...commodityInfoRouterConfig,
+    ...taxInfoRouterConfig,
+    ...redInvoiceRouterConfig,
+    ...invoiceWorkbenchRouterConfig,
+    ...permissionAssignRouterConfig,
+    ...customerInfoRouterConfig,
+    ...tobeInvoiceRouterConfig,
+    ...invoiceOperationMaintenanceRouterConfig,
+    ...taxRateStatisticsReportRouterConfig,
+    ...requestHistoryRouterConfig,
+    ...monthlyQuarterlyYearlyReport,
+    ...invoiceAssociationTable,
+  ],
 
     extraBabelPlugins: [ // 原/packages/xxx/.babelrc.js--plugins
         [

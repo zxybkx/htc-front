@@ -42,7 +42,10 @@ import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { operatorRender } from 'utils/renderer';
 import notification from 'utils/notification';
 import { observer } from 'mobx-react-lite';
-import { getCurrentEmployeeInfoOut } from '@htccommon/services/commonService';
+import {
+  getCurrentEmployeeInfoOut,
+  getCurrentEmployeeInfo,
+} from '@htccommon/services/commonService';
 import {
   cancelMerge,
   invoiceMerge,
@@ -94,17 +97,34 @@ export default class TobeInvoicePage extends Component<InvoiceWorkbenchPageProps
   async componentDidMount() {
     const { queryDataSet } = this.props.tobeInvoiceDS;
     if (queryDataSet) {
-      const res = await getCurrentEmployeeInfoOut({ tenantId });
-      let curCompanyId = queryDataSet.current!.get('companyId');
-      if (res && res.content) {
-        const empInfo = res.content[0];
-        if (empInfo && !curCompanyId) {
-          queryDataSet.current!.set({ companyObj: empInfo });
-          curCompanyId = empInfo.companyId;
+      const { search } = this.props.location;
+      const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
+      if (invoiceInfoStr) {
+        const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
+        const { companyId, sourceHeadNumber } = invoiceInfo;
+        const res = await getCurrentEmployeeInfo({ tenantId, companyId });
+        if (res && res.content) {
+          const empInfo = res.content[0];
+          if (empInfo) {
+            queryDataSet.current!.set({ companyObj: empInfo });
+            queryDataSet.current!.set({ sourceHeadNumber });
+          }
+          this.setState({ curCompanyId: companyId });
+          this.props.tobeInvoiceDS.query();
         }
+      } else {
+        const res = await getCurrentEmployeeInfoOut({ tenantId });
+        let curCompanyId = queryDataSet.current!.get('companyId');
+        if (res && res.content) {
+          const empInfo = res.content[0];
+          if (empInfo && !curCompanyId) {
+            queryDataSet.current!.set({ companyObj: empInfo });
+            curCompanyId = empInfo.companyId;
+          }
+        }
+        this.setState({ curCompanyId });
+        this.props.tobeInvoiceDS.query(this.props.tobeInvoiceDS.currentPage || 0);
       }
-      this.setState({ curCompanyId });
-      this.props.tobeInvoiceDS.query(this.props.tobeInvoiceDS.currentPage || 0);
     }
   }
 
