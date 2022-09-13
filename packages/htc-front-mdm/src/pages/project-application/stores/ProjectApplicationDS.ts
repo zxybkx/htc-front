@@ -63,7 +63,7 @@ export default (): DataSetProps => {
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.APPLY_ACCOUNT_STATUS',
         defaultValue: '1',
-        readOnly: true,
+        disabled: true,
       },
       {
         name: 'creationDate',
@@ -75,12 +75,18 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.contractCustomerName`).d('客户全称'),
         type: FieldType.string,
         required: true,
+        computedProps: {
+          disabled: ({ record }) => record.get('subAccountStatus') === '2',
+        },
       },
       {
         name: 'customerAdmin',
         label: intl.get(`${modelCode}.view.customerAdmin`).d('客户管理员'),
         type: FieldType.string,
         required: true,
+        computedProps: {
+          disabled: ({ record }) => record.get('subAccountStatus') === '2',
+        },
       },
       {
         name: 'customerPhone',
@@ -88,6 +94,9 @@ export default (): DataSetProps => {
         type: FieldType.string,
         pattern: phoneReg,
         required: true,
+        computedProps: {
+          disabled: ({ record }) => record.get('subAccountStatus') === '2',
+        },
       },
       {
         name: 'customerEmail',
@@ -102,28 +111,43 @@ export default (): DataSetProps => {
         type: FieldType.string,
         labelWidth: '130',
         required: true,
+        computedProps: {
+          disabled: ({ record }) => record.get('subAccountStatus') === '2',
+        },
       },
       {
         name: 'contractNumber',
         label: intl.get(`${modelCode}.view.contractNumber`).d('合同号'),
         type: FieldType.string,
         required: true,
+        computedProps: {
+          disabled: ({ record }) => record.get('subAccountStatus') === '2',
+        },
       },
       {
         name: 'collection',
         label: intl.get(`${modelCode}.view.collection`).d('是否回款'),
         type: FieldType.string,
         required: true,
+        computedProps: {
+          disabled: ({ record }) => record.get('subAccountStatus') === '2',
+        },
       },
       {
         name: 'deliveryName',
         label: intl.get(`${modelCode}.view.deliveryName`).d('汉得交付人'),
         type: FieldType.string,
+        computedProps: {
+          disabled: ({ record }) => record.get('subAccountStatus') === '2',
+        },
       },
       {
         name: 'customerSystem',
         label: intl.get(`${modelCode}.view.customerSystem`).d('客户对接产品'),
         type: FieldType.string,
+        computedProps: {
+          disabled: ({ record }) => record.get('subAccountStatus') === '2',
+        },
       },
       {
         name: 'linksCode',
@@ -135,6 +159,9 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.systemTenantCode`).d('租户编码'),
         type: FieldType.string,
         required: true,
+        computedProps: {
+          disabled: ({ record }) => record.get('subAccountStatus') === '2',
+        },
       },
       {
         name: 'tenantId',
