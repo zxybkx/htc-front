@@ -268,13 +268,13 @@ export default class CommodityInfoListPage extends Component<CommodityInfoPagePr
         dataSet={this.tableDS.queryDataSet}
         title={intl.get('hzero.common.button.add').d('新增')}
       />,
-      <ObserverButtons
-        key="initComd"
-        onClick={() => this.handleInitCommodity()}
-        dataSet={this.tableDS.queryDataSet}
-        title={intl.get('hiop.commodityInfo.button.initializeProductInfo').d('初始化商品信息')}
-        condition="initComd"
-      />,
+      // <ObserverButtons
+      //   key="initComd"
+      //   onClick={() => this.handleInitCommodity()}
+      //   dataSet={this.tableDS.queryDataSet}
+      //   title={intl.get('hiop.commodityInfo.button.initializeProductInfo').d('初始化商品信息')}
+      //   condition="initComd"
+      // />,
       <DeleteButtons
         key="delete"
         onClick={() => this.handleDeleteCommodity()}
