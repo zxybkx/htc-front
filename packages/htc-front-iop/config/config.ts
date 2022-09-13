@@ -254,6 +254,17 @@ const requestHistoryRouterConfig = [
         ],
     },
 ];
+const invoiceAssociationTable = [
+  {
+    path: '/htc-front-iop/invoice-association-table',
+    routes: [
+      {
+        path: '/htc-front-iop/invoice-association-table/list',
+        component: '@/pages/invoice-association-table/list/InvoiceAssociationTable',
+      },
+    ],
+  },
+];
 // const path = require('path');
 // import routes from './routers'
 export default extendParentConfig({
@@ -275,6 +286,7 @@ export default extendParentConfig({
     ...taxRateStatisticsReportRouterConfig,
     ...requestHistoryRouterConfig,
     ...monthlyQuarterlyYearlyReport,
+    ...invoiceAssociationTable,
   ],
 
     extraBabelPlugins: [ // 原/packages/xxx/.babelrc.js--plugins
