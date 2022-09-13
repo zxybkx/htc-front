@@ -1139,7 +1139,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       const res = getResponse(await review(data));
       let pathname;
       let pathSearch;
-      if (['issues', 'invoiceOrder'].includes(sourceType)) {
+      if (['issues', 'invoiceOrder', 'likeOrder'].includes(sourceType)) {
         pathname = '/htc-front-iop/invoice-workbench/list';
       } else {
         const { search } = this.props.location;
@@ -1318,11 +1318,25 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     );
   };
 
+  // 获取关闭标签的key
+  handleBack() {
+    const { sourceType, companyId, invoicingOrderHeaderId } = this.props.match.params;
+    if (sourceType === 'likeOrder') {
+      closeTab(
+        `/htc-front-iop/invoice-workbench/edit/likeOrder/${companyId}/${invoicingOrderHeaderId}`
+      );
+    } else if (sourceType !== ('invoiceOrder' || 'issues')) {
+      closeTab(
+        `/htc-front-iop/invoice-workbench/edit/invoiceReq/${companyId}/${invoicingOrderHeaderId}`
+      );
+    }
+  }
+
   render() {
     const { invoiceVarietyOpt, purchaseMark } = this.state;
-    const { sourceType, companyId, invoicingOrderHeaderId } = this.props.match.params;
+    const { sourceType } = this.props.match.params;
     let pathname;
-    if (['issues', 'invoiceOrder'].includes(sourceType)) {
+    if (['issues', 'invoiceOrder', 'likeOrder'].includes(sourceType)) {
       pathname = '/htc-front-iop/invoice-workbench/list';
     } else {
       const { search } = this.props.location;
@@ -1337,12 +1351,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         <Header
           backPath={pathname}
           title={intl.get('hiop.invoiceWorkbench.title.invoiceOrder').d('开票订单')}
-          onBack={() =>
-            sourceType !== ('invoiceOrder' || 'issues') &&
-            closeTab(
-              `/htc-front-iop/invoice-workbench/edit/invoiceReq/${companyId}/${invoicingOrderHeaderId}`
-            )
-          }
+          onBack={() => this.handleBack()}
         >
           {this.renderHeaderBts()}
         </Header>
