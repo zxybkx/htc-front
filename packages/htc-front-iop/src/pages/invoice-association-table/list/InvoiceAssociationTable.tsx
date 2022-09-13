@@ -54,11 +54,10 @@ export default class InvoiceAssociationTable extends Component {
     switch (type) {
       case 0:
         openTab({
-          key: `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${companyId}/${invoicingOrderHeaderId}`,
-          path: `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${companyId}/${invoicingOrderHeaderId}`,
+          key: `/htc-front-iop/invoice-workbench/edit/likeOrder/${companyId}/${invoicingOrderHeaderId}`,
+          path: `/htc-front-iop/invoice-workbench/edit/likeOrder/${companyId}/${invoicingOrderHeaderId}`,
           title: intl.get('hiop.invoiceWorkbench.title.invoiceOrder').d('开票订单'),
           closable: true,
-          // type: 'menu',
         });
         break;
       case 1:
@@ -105,7 +104,7 @@ export default class InvoiceAssociationTable extends Component {
       { name: 'companyName', width: 210 },
       {
         name: 'orderNumber',
-        width: 230,
+        width: 240,
         renderer: ({ value, record }) => <a onClick={() => this.viewDetail(record, 0)}>{value}</a>,
       },
       { name: 'billingType' },

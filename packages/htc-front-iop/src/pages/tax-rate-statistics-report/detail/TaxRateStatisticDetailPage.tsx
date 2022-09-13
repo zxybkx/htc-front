@@ -60,14 +60,13 @@ export default class TaxRateStatisticDetailPage extends Component<
     const invoicingOrderHeaderId = record.get('invoicingOrderHeaderId');
     const companyId = record.get('companyId');
     openTab({
-      key: `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${companyId}/${invoicingOrderHeaderId}`,
-      path: `/htc-front-iop/invoice-workbench/edit/invoiceOrder/${companyId}/${invoicingOrderHeaderId}`,
+      key: `/htc-front-iop/invoice-workbench/edit/likeOrder/${companyId}/${invoicingOrderHeaderId}`,
+      path: `/htc-front-iop/invoice-workbench/edit/likeOrder/${companyId}/${invoicingOrderHeaderId}`,
       title: intl.get('hiop.invoiceWorkbench.title.invoiceOrder').d('开票订单'),
       search: queryString.stringify({
         invoiceInfo: encodeURIComponent(
           JSON.stringify({
             backPath: location.pathname,
-            backSearch: location.search,
           })
         ),
       }),
