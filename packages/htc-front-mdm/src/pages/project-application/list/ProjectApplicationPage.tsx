@@ -500,7 +500,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
       title,
       drawer: true,
       children: (
-        <Form record={record} disabled={type === 3} labelTooltip={Tooltip.overflow}>
+        <Form record={record} labelTooltip={Tooltip.overflow}>
           <Select name="subAccountStatus" />
           <TextField name="contractCustomerName" />
           <TextField name="customerAdmin" />
