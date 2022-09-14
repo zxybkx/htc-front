@@ -10,6 +10,7 @@ import {
   Output,
   Password,
   Table,
+  Tabs,
   TextField,
 } from 'choerodon-ui/pro';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
@@ -38,27 +39,36 @@ import { EmployeeInterface } from '@htccommon/utils/employee';
 import formatterCollections from 'utils/intl/formatterCollections';
 import CheckCertificationListDS from '../stores/CheckCertificationListDS';
 import CompanyAndPasswordDS from '../stores/CompanyAndPasswordDS';
+import CheckVerifiableInvoiceTable from './CheckVerifiableInvoiceTable';
+import ApplicationStatisticsConfirmationTable from './ApplicationStatisticsConfirmationTable';
+import BatchCheckVerifiableInvoicesTable from './BatchCheckVerifiableInvoicesTable';
 import styles from '../checkcertification.less';
 
+const { TabPane } = Tabs;
 const modelCode = 'hivp.checkCertification';
 const tenantId = getCurrentOrganizationId();
 
 interface CheckCertificationPageProps extends RouteComponentProps {
+  location: any;
   checkCertificationListDS: DataSet;
+  taxDiskPasswordDS: DataSet;
   companyAndPassword: DataSet;
 }
 
-const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
-  // const { propsData } = props;
-  const { checkCertificationListDS, companyAndPassword } = props;
+const CheckCertifiList: React.FC<CheckCertificationPageProps> = ({
+  checkCertificationListDS,
+  companyAndPassword,
+}) => {
+  // const { history } = props;
   // const { empInfo, activeKey, currentPeriodData, checkInvoiceCountRes } = this.state;
   const [empInfo, setEmpInfo] = useState({} as EmployeeInterface);
-  const [, setCurrentPeriod] = useState<object>({});
-  const [, setActiveKey] = useState<string>('certifiableInvoice');
-  const [, setInvoiceCount] = useState<number>(0);
+  const [currentPeriod, setCurrentPeriod] = useState<object>({});
+  const [activeKey, setActiveKey] = useState<string>('certifiableInvoice');
+  const [invoiceCount, setInvoiceCount] = useState<number>(0);
 
   // 获取初始值
   const getInitialValue = async () => {
+    // const { checkCertificationListDS } = this.props;
     const { queryDataSet } = checkCertificationListDS;
     const query = location.search;
     const type = new URLSearchParams(query).get('type');
@@ -84,6 +94,7 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
           // 获取是否有勾选请求中的发票
           const checkInvoiceCountRes = await checkInvoiceCount({ tenantId });
           setInvoiceCount(checkInvoiceCountRes);
+          // this.setState({ checkInvoiceCountRes });
           getEmpInfoAndAuthorityCode(res.content[0]);
         }
       }
@@ -155,6 +166,7 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
    * @returns
    */
   const updateEnterprise = async () => {
+    // const { empInfo } = this.state;
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
     if (!taxDiskPassword) {
@@ -187,6 +199,7 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
    * @returns
    */
   const enterpriseFileInit = async () => {
+    // const { empInfo } = this.state;
     const params = {
       tenantId,
       list: [
@@ -365,6 +378,24 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
     // this.setState({ currentPeriodData: res });
   };
 
+  const handleTabChange = async newActiveKey => {
+    const { queryDataSet } = checkCertificationListDS;
+    setActiveKey(newActiveKey);
+    // this.setState({ activeKey: newActiveKey });
+    if (queryDataSet) {
+      if (['batchInvoice', 'certifiableInvoice'].includes(newActiveKey)) {
+        const res = await checkInvoiceCount({ tenantId });
+        if (res === 0 && newActiveKey === 'batchInvoice') {
+          const checkInvoiceButton = document.getElementById('checkInvoice');
+          if (checkInvoiceButton) {
+            checkInvoiceButton.click();
+          }
+        }
+        // queryDataSet.current!.set({ checkInvoiceCountRes: res });
+      }
+    }
+  };
+
   return (
     <>
       <Header title={intl.get(`${modelCode}.title.CheckCertification`).d('勾选认证')}>
@@ -416,6 +447,45 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
                 <Icon type="help_outline" className={styles.icon} />
               </Tooltip>
             </div>
+            <Tabs className={styles.tabsTitle} activeKey={activeKey} onChange={handleTabChange}>
+              <TabPane
+                tab={intl
+                  .get(`${modelCode}.tabPane.certifiableInvoiceTitle`)
+                  .d('当期勾选可认证发票')}
+                key="certifiableInvoice"
+              >
+                <CheckVerifiableInvoiceTable
+                  companyAndPassword={companyAndPassword}
+                  empInfo={empInfo}
+                  currentPeriodData={currentPeriod}
+                  checkInvoiceCount={invoiceCount}
+                  history={history}
+                />
+              </TabPane>
+              <TabPane
+                tab={intl.get(`${modelCode}.statisticalConfirm`).d('申请统计及确签')}
+                key="statisticalConfirm"
+              >
+                <ApplicationStatisticsConfirmationTable
+                  companyAndPassword={companyAndPassword}
+                  empInfo={empInfo}
+                  currentPeriodData={currentPeriod}
+                  history={history}
+                />
+              </TabPane>
+              <TabPane
+                tab={intl.get(`${modelCode}.tabPane.batchInvoice`).d('批量勾选可认证发票')}
+                key="batchInvoice"
+              >
+                <BatchCheckVerifiableInvoicesTable
+                  companyAndPassword={companyAndPassword}
+                  empInfo={empInfo}
+                  currentPeriodData={currentPeriod}
+                  checkInvoiceCount={invoiceCount}
+                  history={history}
+                />
+              </TabPane>
+            </Tabs>
           </Content>
         </Col>
       </Row>
@@ -434,22 +504,21 @@ export default formatterCollections({
     'hcan.invoiceDetail',
     'hivp.bill',
   ],
-})(
-  withProps(
-    () => {
-      const checkCertificationListDS = new DataSet({
-        autoQuery: false,
-        ...CheckCertificationListDS(),
-      });
-      const companyAndPassword = new DataSet({
-        autoQuery: false,
-        ...CompanyAndPasswordDS(),
-      });
-      return {
-        checkCertificationListDS,
-        companyAndPassword,
-      };
-    },
-    { cacheState: true }
-  )(CheckCertifiList)
-);
+});
+withProps(
+  () => {
+    const checkCertificationListDS = new DataSet({
+      autoQuery: false,
+      ...CheckCertificationListDS(),
+    });
+    const companyAndPassword = new DataSet({
+      autoQuery: false,
+      ...CompanyAndPasswordDS(),
+    });
+    return {
+      checkCertificationListDS,
+      companyAndPassword,
+    };
+  },
+  { cacheState: true }
+)(CheckCertifiList);
