@@ -799,12 +799,18 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
    */
   renderHeaderBts = () => {
     const { requestStatus, deleteFlag, invoiceType, sourceType } = this.state;
+    const saveDisable =
+      !['N', 'Q'].includes(requestStatus) || deleteFlag === 'Y' || ['7', '8'].includes(sourceType);
     return (
       <>
         <PermissionButton
           type="c7n-pro"
-          // color={ButtonColor.dark}
-          disabled={this.isCreatePage || !['N', 'Q'].includes(requestStatus) || deleteFlag === 'Y'}
+          disabled={
+            this.isCreatePage ||
+            !['N', 'Q'].includes(requestStatus) ||
+            deleteFlag === 'Y' ||
+            ['7', '8'].includes(sourceType)
+          }
           onClick={() => this.handleSubmitReq()}
           permissionList={[
             {
@@ -818,7 +824,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
         </PermissionButton>
         <PermissionButton
           type="c7n-pro"
-          disabled={!['N', 'Q'].includes(requestStatus) || deleteFlag === 'Y'}
+          disabled={saveDisable}
           onClick={() => this.handleSaveReq(true)}
           permissionList={[
             {
@@ -832,7 +838,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
         </PermissionButton>
         <PermissionButton
           type="c7n-pro"
-          disabled={!['N', 'Q'].includes(requestStatus) || deleteFlag === 'Y'}
+          disabled={saveDisable}
           onClick={() => this.handleSaveReq(false)}
           permissionList={[
             {
