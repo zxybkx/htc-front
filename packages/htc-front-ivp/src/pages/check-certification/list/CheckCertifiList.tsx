@@ -136,7 +136,6 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
 
   // 改变所属公司
   const companyChange = (value, type) => {
-    // const { checkCertificationListDS } = this.props;
     const { queryDataSet } = checkCertificationListDS;
     if (queryDataSet && value) {
       if (type === 0) {
@@ -345,7 +344,6 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
 
   // 获取当前所属期
   const getCurrentPeriod = async () => {
-    // const { companyAndPassword } = this.props;
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
     if (!taxDiskPassword) {
@@ -365,13 +363,11 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
       })
     );
     if (res) setCurrentPeriod(res);
-    // this.setState({ currentPeriodData: res });
   };
 
   const handleTabChange = async newActiveKey => {
     const { queryDataSet } = checkCertificationListDS;
     setActiveKey(newActiveKey);
-    // this.setState({ activeKey: newActiveKey });
     if (queryDataSet) {
       if (['batchInvoice', 'certifiableInvoice'].includes(newActiveKey)) {
         const res = await checkInvoiceCount({ tenantId });
@@ -381,7 +377,6 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
             checkInvoiceButton.click();
           }
         }
-        // queryDataSet.current!.set({ checkInvoiceCountRes: res });
       }
     }
   };
