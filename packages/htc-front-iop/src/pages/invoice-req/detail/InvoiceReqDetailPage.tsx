@@ -30,6 +30,7 @@ import { Bind } from 'lodash-decorators';
 import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import intl from 'utils/intl';
 import { forEach, isEmpty } from 'lodash';
+import { closeTab } from 'utils/menuTab';
 import { FormLayout } from 'choerodon-ui/pro/lib/form/enum';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
@@ -972,6 +973,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
 
   render() {
     const { search } = this.props.location;
+    const { companyId, headerId, billFlag } = this.props.match.params;
     const { invoiceType } = this.state;
     const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
     let pathname = '/htc-front-iop/invoice-req/list';
@@ -993,6 +995,9 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
         <Header
           backPath={pathname}
           title={intl.get('hiop.invoiceReq.title.billApply').d('开票申请单')}
+          onBack={() =>
+            closeTab(`/htc-front-iop/invoice-req/detail/${companyId}/${headerId}/${billFlag}`)
+          }
         >
           {this.renderHeaderBts()}
         </Header>
