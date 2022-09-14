@@ -492,7 +492,6 @@ export default (): DataSetProps => {
           label: intl.get('hiop.invoiceWorkbench.modal.printFlag').d('打印状态'),
           type: FieldType.string,
           lookupCode: 'HIOP.PRINT_STATUS',
-          multiple: ',',
         },
         {
           name: 'invoiceSourceType',
