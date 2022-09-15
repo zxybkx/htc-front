@@ -21,6 +21,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import ExcelExport from 'components/ExcelExport';
 import { Col, Dropdown, Icon, Menu, Row, Tag } from 'choerodon-ui';
 import commonConfig from '@htccommon/config/commonConfig';
+import { getIeVersion } from 'utils/browser';
 import {
   Button,
   Currency,
@@ -35,7 +36,12 @@ import {
   TextArea,
   CheckBox,
 } from 'choerodon-ui/pro';
-import { base64toBlob, getPresentMenu } from '@htccommon/utils/utils';
+import {
+  base64toBlob,
+  downloadFileExceptIe,
+  downloadFileIe,
+  getPresentMenu,
+} from '@htccommon/utils/utils';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { operatorRender } from 'utils/renderer';
@@ -934,26 +940,11 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       }
     }
     if (res) {
-      res.forEach(item => {
-        const blob = new Blob([base64toBlob(item.data)]);
-        if (window.navigator.msSaveBlob) {
-          try {
-            window.navigator.msSaveBlob(blob, item.fileName);
-          } catch (e) {
-            notification.error({
-              description: '',
-              message: intl.get('hzero.common.notification.error').d('下载失败'),
-            });
-          }
-        } else {
-          const aElement = document.createElement('a');
-          const blobUrl = window.URL.createObjectURL(blob);
-          aElement.href = blobUrl; // 设置a标签路径
-          aElement.download = item.fileName;
-          aElement.click();
-          window.URL.revokeObjectURL(blobUrl);
-        }
-      });
+      if (getIeVersion() === -1) {
+        downloadFileExceptIe(res);
+      } else {
+        downloadFileIe(res);
+      }
       const printElement = document.createElement('a');
       printElement.href = regName; // 设置a标签路径
       printElement.click();
