@@ -55,7 +55,7 @@ export default {
         '@hzerojs/preset-hzero',
     ],
     plugins: [
-      'hzero-front'
+      'hzero-front',
     ],
     alias: {
         'components': 'hzero-front/lib/components',
@@ -71,7 +71,7 @@ export default {
         modifyMfRemotesArrayConfig(remoteArr, originPackageName) {
 
             if (process.env.ADDITIONAL !== 'true') {
-                return remoteArr
+                return remoteArr;
             }
             // c7n多版本的时候 ued的c7n也必须多版本 并且设置 mf-config
             const additionalArr = ['choerodon-ui', '@hzero-front-ui/c7n-ui'];
