@@ -41,6 +41,7 @@ import ExcelExport from 'components/ExcelExport';
 import { Button as PermissionButton } from 'components/Permission';
 import formatterCollections from 'utils/intl/formatterCollections';
 import withProps from 'utils/withProps';
+import { getIeVersion } from 'utils/browser';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { forEach, isEmpty } from 'lodash';
 import moment from 'moment';
@@ -61,7 +62,7 @@ import {
   runReport,
   sendQrCode,
 } from '@src/services/invoiceReqService';
-import { base64toBlob, getPresentMenu } from '@htccommon/utils/utils';
+import { base64toBlob, getPresentMenu, downloadFileIe, downloadFileExceptIe } from '@htccommon/utils/utils';
 import InvoiceReqListDS from '../stores/InvoiceReqListDS';
 
 const tenantId = getCurrentOrganizationId();
@@ -90,7 +91,7 @@ interface InvoiceReqListPageProps extends RouteComponentProps {
     });
     return { reqListDS };
   },
-  { cacheState: true }
+  { cacheState: true },
 )
 export default class InvoiceReqListPage extends Component<InvoiceReqListPageProps> {
   state = { curCompanyId: undefined, sendQrCodeEmail: '', queryMoreDisplay: false };
@@ -414,7 +415,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
         invoiceInfo: encodeURIComponent(
           JSON.stringify({
             backPath: '/htc-front-iop/invoice-req/list',
-          })
+          }),
         ),
       }),
     });
@@ -435,7 +436,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
         invoiceInfo: encodeURIComponent(
           JSON.stringify({
             backPath: '/htc-front-iop/invoice-req/list',
-          })
+          }),
         ),
       }),
     });
@@ -506,14 +507,14 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
         item =>
           !['N', 'Q'].includes(item.requestStatus) ||
           item.deleteFlag === 'H' ||
-          ['7', '8', '9', '10'].includes(item.sourceType)
+          ['7', '8', '9', '10'].includes(item.sourceType),
       )
     ) {
       notification.warning({
         message: intl
           .get('hiop.invoiceReq.notification.error.batchMerge')
           .d(
-            '存在已合并、非新建/取消状态或来源类型为发票红冲/发票作废/空白废/红字信息表的数据，请重新勾选'
+            '存在已合并、非新建/取消状态或来源类型为发票红冲/发票作废/空白废/红字信息表的数据，请重新勾选',
           ),
         description: '',
       });
@@ -713,26 +714,11 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       }
     }
     if (res) {
-      res.forEach(item => {
-        const blob = new Blob([base64toBlob(item.data)]);
-        if ((window.navigator as any).msSaveBlob) {
-          try {
-            (window.navigator as any).msSaveBlob(blob, item.fileName);
-          } catch (e) {
-            notification.error({
-              description: '',
-              message: intl.get('hzero.common.notification.download.error').d('下载失败'),
-            });
-          }
-        } else {
-          const aElement = document.createElement('a');
-          const blobUrl = window.URL.createObjectURL(blob);
-          aElement.href = blobUrl; // 设置a标签路径
-          aElement.download = item.fileName;
-          aElement.click();
-          window.URL.revokeObjectURL(blobUrl);
-        }
-      });
+      if (getIeVersion() === -1) {
+        downloadFileExceptIe(res);
+      } else {
+        downloadFileIe(res);
+      }
       const printElement = document.createElement('a');
       printElement.href = regName; // 设置a标签路径
       printElement.click();
@@ -814,7 +800,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       const res = getResponse(await judgeInvoiceVoid(params));
       if (res) {
         history.push(
-          `/htc-front-iop/invoice-req/invoice-main-void/REQUEST/${headerId}/${curCompanyId}`
+          `/htc-front-iop/invoice-req/invoice-main-void/REQUEST/${headerId}/${curCompanyId}`,
         );
       }
     }
@@ -836,7 +822,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
     const res = getResponse(await judgeRedFlush(params));
     if (res) {
       history.push(
-        `/htc-front-iop/invoice-req/invoice-main-red-flush/REQUEST/${headerId}/${curCompanyId}`
+        `/htc-front-iop/invoice-req/invoice-main-red-flush/REQUEST/${headerId}/${curCompanyId}`,
       );
     }
   }
