@@ -62,6 +62,7 @@ const InvoiceRuleHeaderForm: FunctionComponent<Props> = (props: Props) => {
           <Select name="businessFieldSplits" labelWidth={190} /> */}
           <Select name="autoApprovalRules" />
           <Select name="qrCodeInvalid" />
+          <Select name="projectNumberFlag" />
         </Form>
       </Card>
       <Card title={intl.get('hiop.invoiceRule.view.mergeRule').d('合并拆分规则')}>
