@@ -46,7 +46,7 @@ import {
   exportInfos,
   queryUploadInfo,
 } from '@src/services/projectApplicationService';
-import { base64toBlob } from '@htccommon/utils/utils';
+import { downLoadFiles } from '@htccommon/utils/utils';
 import ProjectApplicationDS, { LinkDS } from '../stores/ProjectApplicationDS';
 
 const modelCode = 'hmdm.project-application';
@@ -148,24 +148,31 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
    */
   @Bind()
   downLoadFile(name, text) {
-    const blob = new Blob([base64toBlob(text)]);
-    if ((window.navigator as any).msSaveBlob) {
-      try {
-        (window.navigator as any).msSaveBlob(blob, name);
-      } catch (e) {
-        notification.error({
-          description: '',
-          message: intl.get(`${modelCode}.view.ieUploadInfo`).d('下载失败'),
-        });
-      }
-    } else {
-      const aElement = document.createElement('a');
-      const blobUrl = window.URL.createObjectURL(blob);
-      aElement.href = blobUrl; // 设置a标签路径
-      aElement.download = name;
-      aElement.click();
-      window.URL.revokeObjectURL(blobUrl);
-    }
+    const fileList = [
+      {
+        data: text,
+        fileName: name,
+      },
+    ];
+    downLoadFiles(fileList);
+    // const blob = new Blob([base64toBlob(text)]);
+    // if ((window.navigator as any).msSaveBlob) {
+    //   try {
+    //     (window.navigator as any).msSaveBlob(blob, name);
+    //   } catch (e) {
+    //     notification.error({
+    //       description: '',
+    //       message: intl.get(`${modelCode}.view.ieUploadInfo`).d('下载失败'),
+    //     });
+    //   }
+    // } else {
+    //   const aElement = document.createElement('a');
+    //   const blobUrl = window.URL.createObjectURL(blob);
+    //   aElement.href = blobUrl; // 设置a标签路径
+    //   aElement.download = name;
+    //   aElement.click();
+    //   window.URL.revokeObjectURL(blobUrl);
+    // }
   }
 
   /**
