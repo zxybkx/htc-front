@@ -21,7 +21,6 @@ import { RouteComponentProps } from 'react-router-dom';
 import ExcelExport from 'components/ExcelExport';
 import { Col, Dropdown, Icon, Menu, Row, Tag } from 'choerodon-ui';
 import commonConfig from '@htccommon/config/commonConfig';
-import { getIeVersion } from 'utils/browser';
 import {
   Button,
   Currency,
@@ -36,12 +35,7 @@ import {
   TextArea,
   CheckBox,
 } from 'choerodon-ui/pro';
-import {
-  base64toBlob,
-  downloadFileExceptIe,
-  downloadFileIe,
-  getPresentMenu,
-} from '@htccommon/utils/utils';
+import { downLoadFiles, getPresentMenu } from '@htccommon/utils/utils';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { operatorRender } from 'utils/renderer';
@@ -720,24 +714,31 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
    * @function: commonDownload
    */
   commonDownload({ type, name, stream }) {
-    const blob = new Blob([base64toBlob(stream)]);
-    if (window.navigator.msSaveBlob) {
-      try {
-        window.navigator.msSaveBlob(blob, `${name}.${type}`);
-      } catch (e) {
-        notification.error({
-          description: '',
-          message: intl.get('hzero.common.notification.download.error').d('下载失败'),
-        });
-      }
-    } else {
-      const aElement = document.createElement('a');
-      const blobUrl = window.URL.createObjectURL(blob);
-      aElement.href = blobUrl; // 设置a标签路径
-      aElement.download = `${name}.${type}`;
-      aElement.click();
-      window.URL.revokeObjectURL(blobUrl);
-    }
+    const fileList = [
+      {
+        data: stream,
+        fileName: `${name}.${type}`,
+      },
+    ];
+    downLoadFiles(fileList);
+    // const blob = new Blob([base64toBlob(stream)]);
+    // if (window.navigator.msSaveBlob) {
+    //   try {
+    //     window.navigator.msSaveBlob(blob, `${name}.${type}`);
+    //   } catch (e) {
+    //     notification.error({
+    //       description: '',
+    //       message: intl.get('hzero.common.notification.download.error').d('下载失败'),
+    //     });
+    //   }
+    // } else {
+    //   const aElement = document.createElement('a');
+    //   const blobUrl = window.URL.createObjectURL(blob);
+    //   aElement.href = blobUrl; // 设置a标签路径
+    //   aElement.download = `${name}.${type}`;
+    //   aElement.click();
+    //   window.URL.revokeObjectURL(blobUrl);
+    // }
   }
 
   /**
@@ -838,28 +839,39 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
    */
   @Bind()
   printZip(list) {
+    // forEach(list, (item, key) => {
+    //   const date = moment().format('YYYY-MM-DD HH:mm:ss');
+    //   const zipName = `${date}-${key}`;
+    //   const blob = new Blob([base64toBlob(item)]);
+    //   if (window.navigator.msSaveBlob) {
+    //     try {
+    //       window.navigator.msSaveBlob(blob, `${zipName}.zip`);
+    //     } catch (e) {
+    //       notification.error({
+    //         description: '',
+    //         message: intl.get('hzero.common.notification.download.error').d('下载失败'),
+    //       });
+    //     }
+    //   } else {
+    //     const aElement = document.createElement('a');
+    //     const blobUrl = window.URL.createObjectURL(blob);
+    //     aElement.href = blobUrl; // 设置a标签路径
+    //     aElement.download = `${zipName}.zip`;
+    //     aElement.click();
+    //     window.URL.revokeObjectURL(blobUrl);
+    //   }
+    // });
+    const fileList: any[] = [];
     forEach(list, (item, key) => {
       const date = moment().format('YYYY-MM-DD HH:mm:ss');
       const zipName = `${date}-${key}`;
-      const blob = new Blob([base64toBlob(item)]);
-      if (window.navigator.msSaveBlob) {
-        try {
-          window.navigator.msSaveBlob(blob, `${zipName}.zip`);
-        } catch (e) {
-          notification.error({
-            description: '',
-            message: intl.get('hzero.common.notification.download.error').d('下载失败'),
-          });
-        }
-      } else {
-        const aElement = document.createElement('a');
-        const blobUrl = window.URL.createObjectURL(blob);
-        aElement.href = blobUrl; // 设置a标签路径
-        aElement.download = `${zipName}.zip`;
-        aElement.click();
-        window.URL.revokeObjectURL(blobUrl);
-      }
+      const file = {
+        data: item,
+        fileName: `${zipName}.zip`,
+      };
+      fileList.push(file);
     });
+    downLoadFiles(fileList);
   }
 
   @Bind()
@@ -940,11 +952,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       }
     }
     if (res) {
-      if (getIeVersion() === -1) {
-        downloadFileExceptIe(res);
-      } else {
-        downloadFileIe(res);
-      }
+      downLoadFiles(res);
       const printElement = document.createElement('a');
       printElement.href = regName; // 设置a标签路径
       printElement.click();
@@ -1053,26 +1061,35 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     if (res && res.data) {
       const { fileName } = res;
       const names = fileName.split('/');
+      const fileList: any[] = [];
       names.forEach(item => {
-        const blob = new Blob([base64toBlob(res.data)]);
-        if (window.navigator.msSaveBlob) {
-          try {
-            window.navigator.msSaveBlob(blob, item);
-          } catch (e) {
-            notification.error({
-              description: '',
-              message: intl.get('hzero.common.notification.error').d('操作失败'),
-            });
-          }
-        } else {
-          const aElement = document.createElement('a');
-          const blobUrl = window.URL.createObjectURL(blob);
-          aElement.href = blobUrl; // 设置a标签路径
-          aElement.download = item;
-          aElement.click();
-          window.URL.revokeObjectURL(blobUrl);
-        }
+        const file = {
+          data: res.data,
+          fileName: item,
+        };
+        fileList.push(file);
       });
+      downLoadFiles(fileList);
+      // names.forEach(item => {
+      //   const blob = new Blob([base64toBlob(res.data)]);
+      //   if (window.navigator.msSaveBlob) {
+      //     try {
+      //       window.navigator.msSaveBlob(blob, item);
+      //     } catch (e) {
+      //       notification.error({
+      //         description: '',
+      //         message: intl.get('hzero.common.notification.error').d('操作失败'),
+      //       });
+      //     }
+      //   } else {
+      //     const aElement = document.createElement('a');
+      //     const blobUrl = window.URL.createObjectURL(blob);
+      //     aElement.href = blobUrl; // 设置a标签路径
+      //     aElement.download = item;
+      //     aElement.click();
+      //     window.URL.revokeObjectURL(blobUrl);
+      //   }
+      // });
       const printElement = document.createElement('a');
       printElement.href = 'Webshell://'; // 设置a标签路径
       printElement.click();

@@ -41,7 +41,6 @@ import ExcelExport from 'components/ExcelExport';
 import { Button as PermissionButton } from 'components/Permission';
 import formatterCollections from 'utils/intl/formatterCollections';
 import withProps from 'utils/withProps';
-import { getIeVersion } from 'utils/browser';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { forEach, isEmpty } from 'lodash';
 import moment from 'moment';
@@ -62,7 +61,7 @@ import {
   runReport,
   sendQrCode,
 } from '@src/services/invoiceReqService';
-import { base64toBlob, getPresentMenu, downloadFileIe, downloadFileExceptIe } from '@htccommon/utils/utils';
+import { getPresentMenu, downLoadFiles } from '@htccommon/utils/utils';
 import InvoiceReqListDS from '../stores/InvoiceReqListDS';
 
 const tenantId = getCurrentOrganizationId();
@@ -91,7 +90,7 @@ interface InvoiceReqListPageProps extends RouteComponentProps {
     });
     return { reqListDS };
   },
-  { cacheState: true },
+  { cacheState: true }
 )
 export default class InvoiceReqListPage extends Component<InvoiceReqListPageProps> {
   state = { curCompanyId: undefined, sendQrCodeEmail: '', queryMoreDisplay: false };
@@ -334,24 +333,31 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       qrCodeUrl,
     };
     const res = getResponse(await downloadQrCode(params));
-    const blob = new Blob([base64toBlob(res.data.fileBase)]);
-    if ((window.navigator as any).msSaveBlob) {
-      try {
-        (window.navigator as any).msSaveBlob(blob);
-      } catch (e) {
-        notification.error({
-          description: '',
-          message: intl.get('hiop.invoiceReq.notification.error.orCode').d('二维码下载失败'),
-        });
-      }
-    } else {
-      const aElement = document.createElement('a');
-      const blobUrl = window.URL.createObjectURL(blob);
-      aElement.href = blobUrl; // 设置a标签路径
-      aElement.download = res.data.fileName;
-      aElement.click();
-      window.URL.revokeObjectURL(blobUrl);
-    }
+    const fileList = [
+      {
+        data: res.data.fileBase,
+        fileName: res.data.fileName,
+      },
+    ];
+    downLoadFiles(fileList);
+    // const blob = new Blob([base64toBlob(res.data.fileBase)]);
+    // if ((window.navigator as any).msSaveBlob) {
+    //   try {
+    //     (window.navigator as any).msSaveBlob(blob);
+    //   } catch (e) {
+    //     notification.error({
+    //       description: '',
+    //       message: intl.get('hiop.invoiceReq.notification.error.orCode').d('二维码下载失败'),
+    //     });
+    //   }
+    // } else {
+    //   const aElement = document.createElement('a');
+    //   const blobUrl = window.URL.createObjectURL(blob);
+    //   aElement.href = blobUrl; // 设置a标签路径
+    //   aElement.download = res.data.fileName;
+    //   aElement.click();
+    //   window.URL.revokeObjectURL(blobUrl);
+    // }
   }
 
   /**
@@ -415,7 +421,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
         invoiceInfo: encodeURIComponent(
           JSON.stringify({
             backPath: '/htc-front-iop/invoice-req/list',
-          }),
+          })
         ),
       }),
     });
@@ -436,7 +442,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
         invoiceInfo: encodeURIComponent(
           JSON.stringify({
             backPath: '/htc-front-iop/invoice-req/list',
-          }),
+          })
         ),
       }),
     });
@@ -507,14 +513,14 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
         item =>
           !['N', 'Q'].includes(item.requestStatus) ||
           item.deleteFlag === 'H' ||
-          ['7', '8', '9', '10'].includes(item.sourceType),
+          ['7', '8', '9', '10'].includes(item.sourceType)
       )
     ) {
       notification.warning({
         message: intl
           .get('hiop.invoiceReq.notification.error.batchMerge')
           .d(
-            '存在已合并、非新建/取消状态或来源类型为发票红冲/发票作废/空白废/红字信息表的数据，请重新勾选',
+            '存在已合并、非新建/取消状态或来源类型为发票红冲/发票作废/空白废/红字信息表的数据，请重新勾选'
           ),
         description: '',
       });
@@ -611,28 +617,39 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
    */
   @Bind()
   printZip(list) {
+    // forEach(list, (item, key) => {
+    //   const date = moment().format('YYYY-MM-DD HH:mm:ss');
+    //   const zipName = `${date}-${key}`;
+    //   const blob = new Blob([base64toBlob(item)]);
+    //   if ((window.navigator as any).msSaveBlob) {
+    //     try {
+    //       (window.navigator as any).msSaveBlob(blob, `${zipName}.zip`);
+    //     } catch (e) {
+    //       notification.error({
+    //         description: '',
+    //         message: intl.get('hzero.common.notification.download.error').d('下载失败'),
+    //       });
+    //     }
+    //   } else {
+    //     const aElement = document.createElement('a');
+    //     const blobUrl = window.URL.createObjectURL(blob);
+    //     aElement.href = blobUrl; // 设置a标签路径
+    //     aElement.download = `${zipName}.zip`;
+    //     aElement.click();
+    //     window.URL.revokeObjectURL(blobUrl);
+    //   }
+    // });
+    const fileList: any[] = [];
     forEach(list, (item, key) => {
       const date = moment().format('YYYY-MM-DD HH:mm:ss');
       const zipName = `${date}-${key}`;
-      const blob = new Blob([base64toBlob(item)]);
-      if ((window.navigator as any).msSaveBlob) {
-        try {
-          (window.navigator as any).msSaveBlob(blob, `${zipName}.zip`);
-        } catch (e) {
-          notification.error({
-            description: '',
-            message: intl.get('hzero.common.notification.download.error').d('下载失败'),
-          });
-        }
-      } else {
-        const aElement = document.createElement('a');
-        const blobUrl = window.URL.createObjectURL(blob);
-        aElement.href = blobUrl; // 设置a标签路径
-        aElement.download = `${zipName}.zip`;
-        aElement.click();
-        window.URL.revokeObjectURL(blobUrl);
-      }
+      const file = {
+        data: item,
+        fileName: `${zipName}.zip`,
+      };
+      fileList.push(file);
     });
+    downLoadFiles(fileList);
   }
 
   @Bind()
@@ -714,11 +731,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       }
     }
     if (res) {
-      if (getIeVersion() === -1) {
-        downloadFileExceptIe(res);
-      } else {
-        downloadFileIe(res);
-      }
+      downLoadFiles(res);
       const printElement = document.createElement('a');
       printElement.href = regName; // 设置a标签路径
       printElement.click();
@@ -800,7 +813,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       const res = getResponse(await judgeInvoiceVoid(params));
       if (res) {
         history.push(
-          `/htc-front-iop/invoice-req/invoice-main-void/REQUEST/${headerId}/${curCompanyId}`,
+          `/htc-front-iop/invoice-req/invoice-main-void/REQUEST/${headerId}/${curCompanyId}`
         );
       }
     }
@@ -822,7 +835,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
     const res = getResponse(await judgeRedFlush(params));
     if (res) {
       history.push(
-        `/htc-front-iop/invoice-req/invoice-main-red-flush/REQUEST/${headerId}/${curCompanyId}`,
+        `/htc-front-iop/invoice-req/invoice-main-red-flush/REQUEST/${headerId}/${curCompanyId}`
       );
     }
   }

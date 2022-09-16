@@ -9,6 +9,7 @@
 
 import { notification } from 'choerodon-ui/pro';
 import intl from 'utils/intl';
+import { getIeVersion } from 'utils/browser';
 
 /**
  * @name: getPresentMenu
@@ -53,7 +54,7 @@ export function base64toBlob(data) {
  * @description: IE浏览器下载文件
  * @param fileList-文件列表
  */
-export function downloadFileIe(fileList) {
+function downloadFileIe(fileList) {
   for (const item of fileList) {
     const blob = new Blob([base64toBlob(item.data)]);
     try {
@@ -78,7 +79,7 @@ function pause(msec) {
  * @description: 非ie浏览器下载文件
  * @param fileList-文件列表
  */
-export async function downloadFileExceptIe(fileList) {
+async function downloadFileExceptIe(fileList) {
   let count = 0;
   for (const item of fileList) {
     const blob = new Blob([base64toBlob(item.data)]);
@@ -93,6 +94,14 @@ export async function downloadFileExceptIe(fileList) {
       await pause(1000);
       count = 0;
     }
+  }
+}
+
+export function downLoadFiles(fileList) {
+  if (getIeVersion() === -1) {
+    downloadFileExceptIe(fileList);
+  } else {
+    downloadFileIe(fileList);
   }
 }
 

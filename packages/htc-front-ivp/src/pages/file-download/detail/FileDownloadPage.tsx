@@ -11,7 +11,7 @@ import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { DEFAULT_DATE_FORMAT } from 'hzero-front/lib/utils/constants';
 import moment from 'moment';
-import { base64toBlob } from '@htccommon/utils/utils';
+import { downLoadFiles } from '@htccommon/utils/utils';
 import { archivesDownload } from '@src/services/invoicesService';
 import { getCurrentOrganizationId } from 'utils/utils';
 import notification from 'utils/notification';
@@ -94,24 +94,31 @@ export default class FileDownloadPage extends Component<FileDownloadPageProps> {
       const res = await archivesDownload(params);
       if (res && res.status === '1000') {
         const date = moment().format('YYYY-MM-DD HH:mm:ss');
-        const blob = new Blob([base64toBlob(res.data)]);
-        if ((window.navigator as any).msSaveBlob) {
-          try {
-            (window.navigator as any).msSaveBlob(blob, `${date}.zip`);
-          } catch (e) {
-            notification.error({
-              description: '',
-              message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
-            });
-          }
-        } else {
-          const aElement = document.createElement('a');
-          const blobUrl = window.URL.createObjectURL(blob);
-          aElement.href = blobUrl; // 设置a标签路径
-          aElement.download = `${date}.zip`;
-          aElement.click();
-          window.URL.revokeObjectURL(blobUrl);
-        }
+        const fileList = [
+          {
+            data: res.data,
+            fileName: `${date}.zip`,
+          },
+        ];
+        downLoadFiles(fileList);
+        // const blob = new Blob([base64toBlob(res.data)]);
+        // if ((window.navigator as any).msSaveBlob) {
+        //   try {
+        //     (window.navigator as any).msSaveBlob(blob, `${date}.zip`);
+        //   } catch (e) {
+        //     notification.error({
+        //       description: '',
+        //       message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
+        //     });
+        //   }
+        // } else {
+        //   const aElement = document.createElement('a');
+        //   const blobUrl = window.URL.createObjectURL(blob);
+        //   aElement.href = blobUrl; // 设置a标签路径
+        //   aElement.download = `${date}.zip`;
+        //   aElement.click();
+        //   window.URL.revokeObjectURL(blobUrl);
+        // }
       } else {
         notification.error({
           description: '',
