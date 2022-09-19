@@ -285,7 +285,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
 
   // 发票勾选
   const checkRequest = async isTick => {
-    // const { certifiableInvoiceListDS, empInfo } = this.props;
     const {
       companyId,
       companyCode,
@@ -414,20 +413,14 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     const _progressValue = progressValue + 100 / (totalRequest + 2);
     setCount(count + 1);
     setProgressValue(_progressValue);
-    // this.setState({
-    //   count: this.state.count + 1,
-    //   progressValue,
-    // });
     if (counts < totalRequest - 2) {
       await loopRequest(totalRequest, startrow, contentrows, findParams, count);
     }
     setCount(0);
-    // this.setState({ count: 0 });
   };
 
   // 实时查找可认证发票
   const handleFindVerifiableInvoice = async () => {
-    // const { progressValue } = this.state;
     const { queryDataSet } = certifiableInvoiceListDS!;
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
@@ -447,7 +440,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         invoiceDateFrom,
         invoiceDateTo,
       } = certifiableQueryData;
-      // const { count } = this.state;
       const findParams = {
         tenantId,
         companyId,
@@ -481,11 +473,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       setProgressStatus(ProgressStatus.active);
       setProgressValue(0);
       setVisible(true);
-      // this.setState({
-      //   progressValue: 0,
-      //   progressStatus: ProgressStatus.active,
-      //   visible: true,
-      // });
       let i = 2;
       if (res && res.totalRequest > 1) {
         i += res.totalRequest;
@@ -495,12 +482,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       setProgressStatus(ProgressStatus.success);
       setProgressValue(100);
       setVisible(false);
-      // this.setState({ progressValue: progressValue + 100 / i });
-      // this.setState({
-      //   progressValue: 100,
-      //   progressStatus: ProgressStatus.success,
-      //   visible: false,
-      // });
       await certifiableInvoiceListDS?.query();
     }
   };
@@ -508,7 +489,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   // 已认证详情
   const handleGoToDetail = () => {
     const pathname = '/htc-front-ivp/check-certification/certifiableInvoice/detail';
-    // const { certifiableInvoiceListDS } = this.props;
     const { queryDataSet } = certifiableInvoiceListDS!;
     const {
       companyId,
@@ -707,29 +687,15 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     if (value && value.indexOf('CURRENT_PERIOD_CHECKED') > -1) {
       setChecked(false);
       setUnchecked(true);
-      // this.setState({
-      //   checked: false,
-      //   unchecked: true,
-      // });
     } else {
       setUnchecked(false);
-      // this.setState({
-      //   unchecked: false,
-      // });
     }
 
     if (value && value.indexOf('UNCHECKED') > -1) {
       setChecked(true);
       setUnchecked(false);
-      // this.setState({
-      //   unchecked: false,
-      //   checked: true,
-      // });
     } else {
       setChecked(false);
-      // this.setState({
-      //   checked: false,
-      // });
     }
   };
 
@@ -749,11 +715,9 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   // 当期勾选(取消)可认证发票: 头
   const renderQueryBar = propsDS => {
     const { queryDataSet, buttons } = propsDS;
-    // const { displayOptions, verfiableMoreDisplay } = this.state;
     let optionList: any = [];
     if (displayOptions.length > 0) {
       optionList = displayOptions.map((item: any) => {
-        // const { unchecked, checked } = this.state;
         let disabledParam;
         if (item.value === 'CURRENT_PERIOD_CHECKED') {
           disabledParam = checked;
