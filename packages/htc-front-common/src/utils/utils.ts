@@ -7,6 +7,10 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 
+import { notification } from 'choerodon-ui/pro';
+import intl from 'utils/intl';
+import { getIeVersion } from 'utils/browser';
+
 /**
  * @name: getPresentMenu
  * @description: 获取当前菜单的信息
@@ -15,7 +19,7 @@
 export function getPresentMenu() {
   const state = window.dvaApp._store.getState();
   const { global } = state;
-  const presentMenu = global.menuLeafNode.find((t) => {
+  const presentMenu = global.menuLeafNode.find(t => {
     const pathLength = t.path.length;
     return t.path === global.activeTabKey.substr(0, pathLength);
   });
@@ -43,6 +47,62 @@ export function base64toBlob(data) {
     byteArrays.push(byteArray);
   }
   return new Blob(byteArrays);
+}
+
+/**
+ * @name: downloadFileIe
+ * @description: IE浏览器下载文件
+ * @param fileList-文件列表
+ */
+function downloadFileIe(fileList) {
+  for (const item of fileList) {
+    const blob = new Blob([base64toBlob(item.data)]);
+    try {
+      window.navigator.msSaveBlob(blob, item.fileName);
+    } catch (e) {
+      notification.error({
+        description: '',
+        message: intl.get('hzero.common.notification.error').d('下载失败'),
+      });
+    }
+  }
+}
+
+function pause(msec) {
+  return new Promise(resolve => {
+    setTimeout(resolve, msec || 1000);
+  });
+}
+
+/**
+ * @name: downloadFileExceptIe
+ * @description: 非ie浏览器下载文件
+ * @param fileList-文件列表
+ */
+async function downloadFileExceptIe(fileList) {
+  let count = 0;
+  for (const item of fileList) {
+    const blob = new Blob([base64toBlob(item.data)]);
+    const aElement = document.createElement('a');
+    const blobUrl = window.URL.createObjectURL(blob);
+    aElement.href = blobUrl; // 设置a标签路径
+    aElement.download = item.fileName;
+    aElement.click();
+    window.URL.revokeObjectURL(blobUrl);
+    if (++count >= 10) {
+      // eslint-disable-next-line no-await-in-loop
+      await pause(1000);
+      count = 0;
+    }
+  }
+}
+
+export function downLoadFiles(fileList) {
+  if (getIeVersion() === -1) {
+    downloadFileExceptIe(fileList);
+  } else {
+    downloadFileIe(fileList);
+  }
 }
 
 /**

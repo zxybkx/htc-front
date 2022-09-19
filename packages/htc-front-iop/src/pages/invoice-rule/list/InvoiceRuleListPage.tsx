@@ -30,7 +30,7 @@ import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
-import { base64toBlob } from '@htccommon/utils/utils';
+import { downLoadFiles } from '@htccommon/utils/utils';
 import { getCurrentEmployeeInfoOut } from '@htccommon/services/commonService';
 import { enableRender } from 'utils/renderer';
 import notification from 'utils/notification';
@@ -265,24 +265,31 @@ export default class InvoiceRuleListPage extends Component<InvoiceRuleListPagePr
     };
     const res = getResponse(await getRegistry(params));
     if (res && res.status === '1000') {
-      const blob = new Blob([base64toBlob(res.data)]);
-      if (window.navigator.msSaveBlob) {
-        try {
-          window.navigator.msSaveBlob(blob, 'protocol.reg');
-        } catch (e) {
-          notification.error({
-            description: '',
-            message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
-          });
-        }
-      } else {
-        const aElement = document.createElement('a');
-        const blobUrl = window.URL.createObjectURL(blob);
-        aElement.href = blobUrl; // 设置a标签路径
-        aElement.download = 'protocol.reg';
-        aElement.click();
-        window.URL.revokeObjectURL(blobUrl);
-      }
+      const fileList = [
+        {
+          data: res.data,
+          fileName: 'protocol.reg',
+        },
+      ];
+      downLoadFiles(fileList);
+      // const blob = new Blob([base64toBlob(res.data)]);
+      // if (window.navigator.msSaveBlob) {
+      //   try {
+      //     window.navigator.msSaveBlob(blob, 'protocol.reg');
+      //   } catch (e) {
+      //     notification.error({
+      //       description: '',
+      //       message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
+      //     });
+      //   }
+      // } else {
+      //   const aElement = document.createElement('a');
+      //   const blobUrl = window.URL.createObjectURL(blob);
+      //   aElement.href = blobUrl; // 设置a标签路径
+      //   aElement.download = 'protocol.reg';
+      //   aElement.click();
+      //   window.URL.revokeObjectURL(blobUrl);
+      // }
       notification.info({
         description: '',
         message: intl
