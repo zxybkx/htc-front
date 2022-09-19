@@ -85,7 +85,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     if (certifiableInvoiceListDS) {
       const { queryDataSet } = certifiableInvoiceListDS;
       if (!curDisplayOptions && queryDataSet) {
-        queryDataSet.create({
+        queryDataSet.current!.set({
           invoiceDisplayOptions: [
             'UNCHECKED',
             'ACCOUNTED',
@@ -117,11 +117,13 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   const setCompanyObjFromProps = () => {
     if (certifiableInvoiceListDS) {
       const { queryDataSet } = certifiableInvoiceListDS;
-      queryDataSet!.create({
-        companyObj: empInfo,
-        authorityCode: empInfo.authorityCode,
-        checkInvoiceCount,
-      });
+      if (queryDataSet && queryDataSet.current) {
+        queryDataSet.current!.set({
+          companyObj: empInfo,
+          authorityCode: empInfo.authorityCode,
+          checkInvoiceCount,
+        });
+      }
     }
   };
 
@@ -150,10 +152,10 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   }, []);
   useEffect(() => {
     setCompanyObjFromProps();
-  }, empInfo);
+  }, [empInfo]);
   useEffect(() => {
     setCurrentPeriodFromProps();
-  }, currentPeriodData);
+  }, [currentPeriodData]);
 
   const commonRendererFn = (value, record) => {
     const checkState = record?.get('checkState');
@@ -682,7 +684,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       key="verifiableInvoices"
       dataSet={certifiableInvoiceListDS}
       onClick={() => handleFindVerifiableInvoice()}
-      title={intl.get(`${modelCode}.button.getVerifiableInvoices`).d('实时查找可认证发票')}
+      title={intl.get(`${modelCode}.button.verifiableInvoices`).d('实时查找可认证发票')}
     />,
     <Tooltips dataSet={certifiableInvoiceListDS} />,
     <CertifiedDetail

@@ -85,6 +85,14 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
     }
     if (queryDataSet) {
       const curCompanyId = queryDataSet.current?.get('companyId');
+      const _currentPeriod = queryDataSet.current?.get('currentPeriod');
+      const _invoiceCount = queryDataSet.current?.get('invoiceCount');
+      if (_currentPeriod) {
+        setCurrentPeriod(_currentPeriod);
+      }
+      if (_invoiceCount || _invoiceCount === 0) {
+        setInvoiceCount(_invoiceCount);
+      }
       if (curCompanyId) {
         const curInfo = await getCurrentEmployeeInfo({ tenantId, companyId: curCompanyId });
         if (curInfo && curInfo.content) getEmpInfoAndAuthorityCode(curInfo.content[0]);
@@ -95,6 +103,7 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
           // 获取是否有勾选请求中的发票
           const checkInvoiceCountRes = await checkInvoiceCount({ tenantId });
           setInvoiceCount(checkInvoiceCountRes);
+          queryDataSet.current!.set({ invoiceCount: checkInvoiceCountRes });
           getEmpInfoAndAuthorityCode(res.content[0]);
         }
       }
@@ -352,6 +361,7 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
 
   // 获取当前所属期
   const getCurrentPeriod = async () => {
+    const { queryDataSet } = checkCertificationListDS;
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
     if (!taxDiskPassword) {
@@ -370,7 +380,10 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
         taxDiskPassword,
       })
     );
-    if (res) setCurrentPeriod(res);
+    if (res) {
+      setCurrentPeriod(res);
+      if (queryDataSet) queryDataSet.current!.set({ currentPeriod: res });
+    }
   };
 
   const handleTabChange = async newActiveKey => {
