@@ -1,3 +1,11 @@
+/**
+ * @Description:勾选认证
+ * @version: 1.0
+ * @Author: shan.zhang@hand-china.com
+ * @Date: 2020-09-23 14:26:15
+ * @LastEditTime: 2022-09-19 9:50
+ * @Copyright: Copyright (c) 2020, Hand
+ */
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Content, Header } from 'components/Page';
@@ -39,7 +47,7 @@ import { EmployeeInterface } from '@htccommon/utils/employee';
 import formatterCollections from 'utils/intl/formatterCollections';
 import CheckCertificationListDS from '../stores/CheckCertificationListDS';
 import CompanyAndPasswordDS from '../stores/CompanyAndPasswordDS';
-import CheckVerifiableInvoiceTable from './CheckVerifiableInvoiceTable';
+import CheckVerifiableInvoiceTable from './CheckVerifiableInvoice';
 import ApplicationStatisticsConfirmationTable from './ApplicationStatisticsConfirmationTable';
 import BatchCheckVerifiableInvoicesTable from './BatchCheckVerifiableInvoicesTable';
 import styles from '../checkcertification.less';
