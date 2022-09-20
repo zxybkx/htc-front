@@ -720,7 +720,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         fileName: `${name}.${type}`,
       },
     ];
-    downLoadFiles(fileList);
+    downLoadFiles(fileList, 0);
     // const blob = new Blob([base64toBlob(stream)]);
     // if (window.navigator.msSaveBlob) {
     //   try {
@@ -871,7 +871,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       };
       fileList.push(file);
     });
-    downLoadFiles(fileList);
+    downLoadFiles(fileList, 0);
   }
 
   @Bind()
@@ -952,7 +952,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       }
     }
     if (res) {
-      downLoadFiles(res);
+      downLoadFiles(res, 0);
       const printElement = document.createElement('a');
       printElement.href = regName; // 设置a标签路径
       printElement.click();
@@ -1069,7 +1069,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         };
         fileList.push(file);
       });
-      downLoadFiles(fileList);
+      downLoadFiles(fileList, 0);
       // names.forEach(item => {
       //   const blob = new Blob([base64toBlob(res.data)]);
       //   if (window.navigator.msSaveBlob) {

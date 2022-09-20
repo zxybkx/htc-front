@@ -339,7 +339,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
         fileName: res.data.fileName,
       },
     ];
-    downLoadFiles(fileList);
+    downLoadFiles(fileList, 0);
     // const blob = new Blob([base64toBlob(res.data.fileBase)]);
     // if ((window.navigator as any).msSaveBlob) {
     //   try {
@@ -649,7 +649,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       };
       fileList.push(file);
     });
-    downLoadFiles(fileList);
+    downLoadFiles(fileList, 0);
   }
 
   @Bind()
@@ -731,7 +731,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       }
     }
     if (res) {
-      downLoadFiles(res);
+      downLoadFiles(res, 0);
       const printElement = document.createElement('a');
       printElement.href = regName; // 设置a标签路径
       printElement.click();

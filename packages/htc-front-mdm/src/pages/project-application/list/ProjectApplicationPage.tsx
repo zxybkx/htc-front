@@ -154,7 +154,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
         fileName: name,
       },
     ];
-    downLoadFiles(fileList);
+    downLoadFiles(fileList, 0);
     // const blob = new Blob([base64toBlob(text)]);
     // if ((window.navigator as any).msSaveBlob) {
     //   try {

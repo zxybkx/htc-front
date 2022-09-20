@@ -184,7 +184,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
             fileName: '认证结果通知书.pdf',
           },
         ];
-        downLoadFiles(fileList);
+        downLoadFiles(fileList, 0);
         // const blob = new Blob([base64toBlob(res)]);
         // if ((window.navigator as any).msSaveBlob) {
         //   try {
