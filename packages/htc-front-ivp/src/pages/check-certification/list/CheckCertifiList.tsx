@@ -50,6 +50,7 @@ import CompanyAndPasswordDS from '../stores/CompanyAndPasswordDS';
 import CheckVerifiableInvoiceTable from './CheckVerifiableInvoice';
 import ApplicationStatisticsConfirmationTable from './ApplicationStatisticsConfirmation';
 import BatchCheckVerifiableInvoicesTable from './BatchCheckVerifiableInvoices';
+import { CategoryProvider } from './CommonStore';
 import styles from '../checkcertification.less';
 
 const { TabPane } = Tabs;
@@ -453,45 +454,47 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
                 <Icon type="help_outline" className={styles.icon} />
               </Tooltip>
             </div>
-            <Tabs className={styles.tabsTitle} activeKey={activeKey} onChange={handleTabChange}>
-              <TabPane
-                tab={intl
-                  .get(`${modelCode}.tabPane.certifiableInvoiceTitle`)
-                  .d('当期勾选可认证发票')}
-                key="certifiableInvoice"
-              >
-                <CheckVerifiableInvoiceTable
-                  companyAndPassword={companyAndPassword}
-                  empInfo={empInfo}
-                  currentPeriodData={currentPeriod}
-                  checkInvoiceCount={invoiceCount}
-                  history={history}
-                />
-              </TabPane>
-              <TabPane
-                tab={intl.get(`${modelCode}.statisticalConfirm`).d('申请统计及确签')}
-                key="statisticalConfirm"
-              >
-                <ApplicationStatisticsConfirmationTable
-                  companyAndPassword={companyAndPassword}
-                  empInfo={empInfo}
-                  currentPeriodData={currentPeriod}
-                  history={history}
-                />
-              </TabPane>
-              <TabPane
-                tab={intl.get(`${modelCode}.tabPane.batchInvoice`).d('批量勾选可认证发票')}
-                key="batchInvoice"
-              >
-                <BatchCheckVerifiableInvoicesTable
-                  companyAndPassword={companyAndPassword}
-                  empInfo={empInfo}
-                  currentPeriodData={currentPeriod}
-                  checkInvoiceCount={invoiceCount}
-                  history={history}
-                />
-              </TabPane>
-            </Tabs>
+            <CategoryProvider>
+              <Tabs className={styles.tabsTitle} activeKey={activeKey} onChange={handleTabChange}>
+                <TabPane
+                  tab={intl
+                    .get(`${modelCode}.tabPane.certifiableInvoiceTitle`)
+                    .d('当期勾选可认证发票')}
+                  key="certifiableInvoice"
+                >
+                  <CheckVerifiableInvoiceTable
+                    companyAndPassword={companyAndPassword}
+                    empInfo={empInfo}
+                    currentPeriodData={currentPeriod}
+                    checkInvoiceCount={invoiceCount}
+                    history={history}
+                  />
+                </TabPane>
+                <TabPane
+                  tab={intl.get(`${modelCode}.statisticalConfirm`).d('申请统计及确签')}
+                  key="statisticalConfirm"
+                >
+                  <ApplicationStatisticsConfirmationTable
+                    companyAndPassword={companyAndPassword}
+                    empInfo={empInfo}
+                    currentPeriodData={currentPeriod}
+                    history={history}
+                  />
+                </TabPane>
+                <TabPane
+                  tab={intl.get(`${modelCode}.tabPane.batchInvoice`).d('批量勾选可认证发票')}
+                  key="batchInvoice"
+                >
+                  <BatchCheckVerifiableInvoicesTable
+                    companyAndPassword={companyAndPassword}
+                    empInfo={empInfo}
+                    currentPeriodData={currentPeriod}
+                    checkInvoiceCount={invoiceCount}
+                    history={history}
+                  />
+                </TabPane>
+              </Tabs>
+            </CategoryProvider>
           </Content>
         </Col>
       </Row>
