@@ -93,7 +93,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
             'DOCS_UNITED',
             'NON_DOCS',
           ],
-          checkInvoiceCount,
         });
       } else {
         const invoiceDisplayOptionsArr = split(curDisplayOptions, ',');
@@ -121,7 +120,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         queryDataSet.current!.set({
           companyObj: empInfo,
           authorityCode: empInfo.authorityCode,
-          checkInvoiceCount,
         });
       }
     }
@@ -309,7 +307,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     }
     if (certifiableInvoiceListDS) {
       const { queryDataSet } = certifiableInvoiceListDS;
-      const currentPeriod = queryDataSet?.current?.get('currentPeriod');
+      const { currentPeriod } = currentPeriodData;
       const invoiceCategory = queryDataSet?.current?.get('invoiceCategory');
       if (invoiceCategory === '01') {
         // 增值税
@@ -433,13 +431,12 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     if (queryDataSet) {
       const certifiableQueryData = queryDataSet.current!.toData();
       const {
-        checkableTimeRange,
         invoiceCategory,
-        currentPeriod,
         invoiceNumber,
         invoiceDateFrom,
         invoiceDateTo,
       } = certifiableQueryData;
+      const { currentPeriod, checkableTimeRange } = currentPeriodData;
       const findParams = {
         tenantId,
         companyId,
@@ -506,8 +503,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     }
     if (queryDataSet) {
       const companyDesc = `${companyCode}-${companyName}`;
-      const curInfo = queryDataSet.current!.toData();
-      const { currentPeriod, currentCertState } = curInfo;
+      const { currentPeriod, currentCertState } = currentPeriodData;
       history.push({
         pathname,
         search: queryString.stringify({
@@ -581,11 +577,9 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     );
   });
 
-  const Tooltips = observer((btnProps: any) => {
-    const { queryDataSet } = btnProps.dataSet;
-    const _checkInvoiceCount = queryDataSet && queryDataSet.current?.get('checkInvoiceCount');
+  const Tooltips = () => {
     const title =
-      _checkInvoiceCount === 0
+      checkInvoiceCount === 0
         ? ''
         : '当前系统中存在请求中的发票，可在当期勾选可认证发票查看，请请求完成后再重新获取';
     return (
@@ -593,11 +587,11 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         <Icon
           type="help_outline"
           className={styles.icon}
-          style={{ display: _checkInvoiceCount === 0 ? 'none' : 'inline' }}
+          style={{ display: checkInvoiceCount === 0 ? 'none' : 'inline' }}
         />
       </Tooltip>
     );
-  });
+  };
 
   const btnMenu = (
     <Menu>
@@ -620,11 +614,9 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     </Menu>
   );
 
-  const VerifiableButton = observer((btnProps: any) => {
-    const { queryDataSet } = btnProps.dataSet;
-    const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
-    const _checkInvoiceCount = queryDataSet && queryDataSet.current?.get('checkInvoiceCount');
-    const isDisabled = !currentPeriod || _checkInvoiceCount !== 0;
+  const VerifiableButton = btnProps => {
+    const { currentPeriod } = currentPeriodData;
+    const isDisabled = !currentPeriod || checkInvoiceCount !== 0;
     return (
       <Button
         key={btnProps.key}
@@ -635,11 +627,10 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         {btnProps.title}
       </Button>
     );
-  });
+  };
 
-  const CertifiedDetail = observer((btnProps: any) => {
-    const { queryDataSet } = btnProps.dataSet;
-    const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
+  const CertifiedDetail = btnProps => {
+    const { currentPeriod } = currentPeriodData;
     const isDisabled = !currentPeriod;
     return (
       <Button
@@ -651,7 +642,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         {btnProps.title}
       </Button>
     );
-  });
+  };
 
   const tableButtons: Buttons[] = [
     <Dropdown overlay={btnMenu}>
@@ -666,7 +657,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       onClick={() => handleFindVerifiableInvoice()}
       title={intl.get(`${modelCode}.button.verifiableInvoices`).d('实时查找可认证发票')}
     />,
-    <Tooltips dataSet={certifiableInvoiceListDS} />,
+    <Tooltips />,
     <CertifiedDetail
       key="certifiedDetails"
       dataSet={certifiableInvoiceListDS}

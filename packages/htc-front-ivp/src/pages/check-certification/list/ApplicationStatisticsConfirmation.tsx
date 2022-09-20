@@ -94,7 +94,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         if (queryDataSet.current) {
           queryDataSet.current!.set({
             companyId,
-            authenticationDateObj: { currentPeriod },
+            // authenticationDateObj: { currentPeriod },
             // statisticalPeriod: currentPeriod,
             currentCertState,
           });
@@ -289,7 +289,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   // 当期已勾选发票统计确签: 申请/取消统计
   const handleStatistics = async () => {
     if (statisticalConfirmDS) {
-      const { queryDataSet } = statisticalConfirmDS;
+      // const { queryDataSet } = statisticalConfirmDS;
       const {
         companyId,
         companyCode,
@@ -300,7 +300,8 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         employeeName,
         mobile,
       } = empInfo;
-      const currentCertState = queryDataSet?.current?.get('currentCertState');
+      const { currentCertState } = currentPeriodData;
+      // const currentCertState = queryDataSet?.current?.get('currentCertState');
       const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
       if (!taxDiskPassword) {
         return notification.warning({
@@ -375,7 +376,8 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   const statisticalConfirmSign = async () => {
     if (statisticalConfirmDS) {
       const list = statisticalConfirmDS?.map(record => record.toData());
-      const currentCertState = statisticalConfirmDS?.queryDataSet?.current!.get('currentCertState');
+      // const currentCertState = statisticalConfirmDS?.queryDataSet?.current!.get('currentCertState');
+      const { currentCertState } = currentPeriodData;
       if (list.some(record => record.requestState === 'RUNNING' || currentCertState === '3')) {
         notification.warning({
           message: intl

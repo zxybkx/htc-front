@@ -49,7 +49,7 @@ import CheckCertificationListDS from '../stores/CheckCertificationListDS';
 import CompanyAndPasswordDS from '../stores/CompanyAndPasswordDS';
 import CheckVerifiableInvoiceTable from './CheckVerifiableInvoice';
 import ApplicationStatisticsConfirmationTable from './ApplicationStatisticsConfirmation';
-import BatchCheckVerifiableInvoicesTable from './BatchCheckVerifiableInvoicesTable';
+import BatchCheckVerifiableInvoicesTable from './BatchCheckVerifiableInvoices';
 import styles from '../checkcertification.less';
 
 const { TabPane } = Tabs;

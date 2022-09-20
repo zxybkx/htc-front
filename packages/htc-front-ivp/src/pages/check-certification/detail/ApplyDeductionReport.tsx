@@ -281,7 +281,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
             fileName: '申报抵扣统计表.pdf',
           },
         ];
-        downLoadFiles(fileList);
+        downLoadFiles(fileList, 0);
         // const blob = new Blob([base64toBlob(res)]);
         // if ((window.navigator as any).msSaveBlob) {
         //   try {
