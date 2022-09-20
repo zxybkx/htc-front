@@ -65,6 +65,15 @@ interface ApplicationStatisticsConfirmationProps {
   statisticalDetailDS?: DataSet;
 }
 
+const timeRangeDS = new DataSet({
+  autoQuery: false,
+  ...TimeRange(),
+});
+
+const automaticStatisticsDS = new DataSet({
+  ...AutomaticStatistics(),
+});
+
 const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmationProps> = props => {
   const {
     statisticalConfirmDS,
@@ -75,15 +84,6 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     currentPeriodData,
   } = props;
   const [showMore, setShowMore] = useState<boolean>(false);
-
-  const timeRangeDS = new DataSet({
-    autoQuery: false,
-    ...TimeRange(),
-  });
-
-  const automaticStatisticsDS = new DataSet({
-    ...AutomaticStatistics(),
-  });
 
   const setCompanyObjFromProps = () => {
     const { companyId, employeeId, employeeNum } = empInfo;
@@ -110,9 +110,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
           automaticStatisticsDS.setQueryParameter('companyId', companyId);
           automaticStatisticsDS.query().then(res => {
             const { companyId: autoCompanyId } = res;
-            console.log('res', res);
             if (!autoCompanyId) {
-              console.log(23);
               automaticStatisticsDS.create({ companyId, employeeId, employeeNum });
             }
           });
