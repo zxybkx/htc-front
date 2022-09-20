@@ -1,7 +1,7 @@
 /**
  * @Description:勾选认证-当期勾选可认证发票
  * @version: 1.0
- * @Author: shan.zhang@hand-china.com
+ * @Author: xinyan.zhou@hand-china.com
  * @Date: 2020-09-23 14:26:15
  * @LastEditTime: 2022-09-19 09:51
  * @Copyright: Copyright (c) 2020, Hand
