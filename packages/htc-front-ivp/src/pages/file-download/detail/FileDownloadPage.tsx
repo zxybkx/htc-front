@@ -100,7 +100,7 @@ export default class FileDownloadPage extends Component<FileDownloadPageProps> {
             fileName: `${date}.zip`,
           },
         ];
-        downLoadFiles(fileList);
+        downLoadFiles(fileList, 0);
         // const blob = new Blob([base64toBlob(res.data)]);
         // if ((window.navigator as any).msSaveBlob) {
         //   try {

@@ -651,7 +651,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         };
         fileList.push(file);
       });
-      downLoadFiles(fileList);
+      downLoadFiles(fileList, 0);
       // names.forEach(item => {
       //   const blob = new Blob([base64toBlob(res.data)]);
       //   if ((window.navigator as any).msSaveBlob) {

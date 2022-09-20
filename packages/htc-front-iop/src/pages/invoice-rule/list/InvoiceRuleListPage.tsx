@@ -271,7 +271,7 @@ export default class InvoiceRuleListPage extends Component<InvoiceRuleListPagePr
           fileName: 'protocol.reg',
         },
       ];
-      downLoadFiles(fileList);
+      downLoadFiles(fileList, 0);
       // const blob = new Blob([base64toBlob(res.data)]);
       // if (window.navigator.msSaveBlob) {
       //   try {
