@@ -52,11 +52,11 @@ export function base64toBlob(data) {
 /**
  * @name: downloadFileIe
  * @description: IE浏览器下载文件
- * @param fileList-文件列表
+ * @param fileList-文件列表, type 0-base64 1-文件流
  */
-function downloadFileIe(fileList) {
+function downloadFileIe(fileList, type) {
   for (const item of fileList) {
-    const blob = new Blob([base64toBlob(item.data)]);
+    const blob = type === 0 ? new Blob([base64toBlob(item.data)]) : new Blob([item.data]);
     try {
       window.navigator.msSaveBlob(blob, item.fileName);
     } catch (e) {
@@ -77,12 +77,12 @@ function pause(msec) {
 /**
  * @name: downloadFileExceptIe
  * @description: 非ie浏览器下载文件
- * @param fileList-文件列表
+ * @param fileList-文件列表, type 0-base64 1-文件流
  */
-async function downloadFileExceptIe(fileList) {
+async function downloadFileExceptIe(fileList, type) {
   let count = 0;
   for (const item of fileList) {
-    const blob = new Blob([base64toBlob(item.data)]);
+    const blob = type === 0 ? new Blob([base64toBlob(item.data)]) : new Blob([item.data]);
     const aElement = document.createElement('a');
     const blobUrl = window.URL.createObjectURL(blob);
     aElement.href = blobUrl; // 设置a标签路径
@@ -97,11 +97,11 @@ async function downloadFileExceptIe(fileList) {
   }
 }
 
-export function downLoadFiles(fileList) {
+export function downLoadFiles(fileList, type) {
   if (getIeVersion() === -1) {
-    downloadFileExceptIe(fileList);
+    downloadFileExceptIe(fileList, type);
   } else {
-    downloadFileIe(fileList);
+    downloadFileIe(fileList, type);
   }
 }
 
