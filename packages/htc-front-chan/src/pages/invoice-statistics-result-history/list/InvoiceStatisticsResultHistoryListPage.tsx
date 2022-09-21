@@ -57,12 +57,12 @@ export default class InvoiceStatisticsResultHistoryListPage extends Component<
     return [
       {
         header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
-        width: 60,
         renderer: ({ record }) => {
           return record ? this.tableDS.indexOf(record) + 1 : '';
         },
       },
       { name: 'tenantName', width: 220 },
+      { name: 'inChannelCode', width: 140 },
       { name: 'companyName', width: 210 },
       { name: 'employeeName', width: 130 },
       { name: 'batchNo', width: 270 },

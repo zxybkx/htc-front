@@ -79,6 +79,13 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
+        name: 'inChannelCode',
+        label: intl.get(`${modelCode}.view.inChannelCode`).d('通道服务'),
+        type: FieldType.string,
+        required: true,
+        lookupCode: 'HMDM.IN_CHANNEL',
+      },
+      {
         name: 'processDateFrom',
         label: intl.get(`${modelCode}.view.processDateFrom`).d('处理日期从'),
         type: FieldType.dateTime,
@@ -147,7 +154,7 @@ export default (): DataSetProps => {
         name: 'statisticsDate',
         label: intl.get(`${modelCode}.view.statistics`).d('统计所属期'),
         type: FieldType.date,
-        transformRequest: (value) => value && moment(value).format('yyyyMM'),
+        transformRequest: value => value && moment(value).format('yyyyMM'),
       },
       {
         name: 'processDateFrom',
