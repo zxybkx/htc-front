@@ -110,6 +110,7 @@ export default (): DataSetProps => {
         name: 'checkChannelCode',
         label: intl.get(`${modelCode}.view.checkChannelCode`).d('查验通道'),
         type: FieldType.string,
+        lookupCode: 'HMDM.CHECK_CHANNEL',
       },
     ],
     queryDataSet: new DataSet({
@@ -219,7 +220,7 @@ export default (): DataSetProps => {
           name: 'invoiceDate',
           label: intl.get(`${modelCode}.view.invoiceDate`).d('开票日期'),
           type: FieldType.date,
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'invoiceAmount',

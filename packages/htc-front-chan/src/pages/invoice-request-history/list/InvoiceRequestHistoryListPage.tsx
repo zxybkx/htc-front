@@ -57,7 +57,6 @@ export default class InvoiceRequestHistoryListPage extends Component<
     return [
       {
         header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
-        width: 60,
         renderer: ({ record }) => {
           return record ? this.tableDS.indexOf(record) + 1 : '';
         },
@@ -67,9 +66,10 @@ export default class InvoiceRequestHistoryListPage extends Component<
       { name: 'employeeName', width: 130 },
       { name: 'requestType', width: 160 },
       { name: 'batchNo', width: 270 },
-      { name: 'contentRows', width: 130 },
+      { name: 'inChannelCode', width: 140 },
+      { name: 'contentRows', width: 110 },
       { name: 'competentAgencyCode', width: 130 },
-      { name: 'taxDiskPassword', width: 100 },
+      { name: 'taxDiskPassword' },
       { name: 'processStatusCode', width: 100 },
       { name: 'processRemark', width: 230 },
       { name: 'processDateFrom', width: 160 },

@@ -57,7 +57,6 @@ export default class ApplyStatisticsHistoryListPage extends Component<
     return [
       {
         header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
-        width: 60,
         renderer: ({ record }) => {
           return record ? this.tableDS.indexOf(record) + 1 : '';
         },
@@ -70,6 +69,7 @@ export default class ApplyStatisticsHistoryListPage extends Component<
       { name: 'taxDiscLoginPassword', width: 120 },
       { name: 'processStatusCode', width: 100 },
       { name: 'processRemark', width: 260 },
+      { name: 'inChannelCode', width: 140 },
       { name: 'processDateFrom', width: 160 },
       { name: 'processDateTo', width: 160 },
     ];
