@@ -14,7 +14,6 @@ import {
   Button,
   DataSet,
   Form,
-  notification,
   Pagination,
   Select,
   Table,
@@ -28,7 +27,7 @@ import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import { getCurrentOrganizationId, getCurrentTenant, getResponse } from 'utils/utils';
 import { chunk } from 'lodash';
 import { statisticReportDownload } from '@src/services/checkCertificationService';
-import { base64toBlob } from '@htccommon/utils/utils';
+import { downLoadFiles } from '@htccommon/utils/utils';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { ApplyDeductionHeader } from '../stores/ApplyDeductionSummary';
 import CertificationResultDetailsDS from '../stores/CertificationResultDetail';
@@ -179,24 +178,31 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
       };
       const res = getResponse(await statisticReportDownload(params));
       if (res) {
-        const blob = new Blob([base64toBlob(res)]);
-        if ((window.navigator as any).msSaveBlob) {
-          try {
-            (window.navigator as any).msSaveBlob(blob);
-          } catch (e) {
-            notification.error({
-              description: '',
-              message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
-            });
-          }
-        } else {
-          const aElement = document.createElement('a');
-          const blobUrl = window.URL.createObjectURL(blob);
-          aElement.href = blobUrl; // 设置a标签路径
-          aElement.download = '认证结果通知书.pdf';
-          aElement.click();
-          window.URL.revokeObjectURL(blobUrl);
-        }
+        const fileList = [
+          {
+            data: res,
+            fileName: '认证结果通知书.pdf',
+          },
+        ];
+        downLoadFiles(fileList, 0);
+        // const blob = new Blob([base64toBlob(res)]);
+        // if ((window.navigator as any).msSaveBlob) {
+        //   try {
+        //     (window.navigator as any).msSaveBlob(blob);
+        //   } catch (e) {
+        //     notification.error({
+        //       description: '',
+        //       message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
+        //     });
+        //   }
+        // } else {
+        //   const aElement = document.createElement('a');
+        //   const blobUrl = window.URL.createObjectURL(blob);
+        //   aElement.href = blobUrl; // 设置a标签路径
+        //   aElement.download = '认证结果通知书.pdf';
+        //   aElement.click();
+        //   window.URL.revokeObjectURL(blobUrl);
+        // }
       }
     }
   }
@@ -224,7 +230,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
     return (
       <>
         <Header
-          backPath="/htc-front-ivp/check-certification/list"
+          backPath="/htc-front-ivp/check-certification/list?type=2"
           title={intl.get(`${modelCode}.title.certificationResult`).d('认证结果报表')}
         >
           <Button color={ButtonColor.primary} onClick={this.handlePrint}>

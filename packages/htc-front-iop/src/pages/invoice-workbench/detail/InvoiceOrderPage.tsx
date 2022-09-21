@@ -15,7 +15,7 @@ import intl from 'utils/intl';
 import formatterCollections from 'utils/intl/formatterCollections';
 import queryString from 'query-string';
 import { Button as PermissionButton } from 'components/Permission';
-import { base64toBlob, getPresentMenu } from '@htccommon/utils/utils';
+import { downLoadFiles, getPresentMenu } from '@htccommon/utils/utils';
 import {
   Button,
   CheckBox,
@@ -643,26 +643,35 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     if (res && res.data) {
       const { fileName } = curInfo;
       const names = fileName.split('/');
+      const fileList: any[] = [];
       names.forEach(item => {
-        const blob = new Blob([base64toBlob(res.data)]);
-        if ((window.navigator as any).msSaveBlob) {
-          try {
-            (window.navigator as any).msSaveBlob(blob, item);
-          } catch (e) {
-            notification.error({
-              description: '',
-              message: intl.get('hzero.common.notification.download.error').d('下载失败'),
-            });
-          }
-        } else {
-          const aElement = document.createElement('a');
-          const blobUrl = window.URL.createObjectURL(blob);
-          aElement.href = blobUrl; // 设置a标签路径
-          aElement.download = item;
-          aElement.click();
-          window.URL.revokeObjectURL(blobUrl);
-        }
+        const file = {
+          data: res.data,
+          fileName: item,
+        };
+        fileList.push(file);
       });
+      downLoadFiles(fileList, 0);
+      // names.forEach(item => {
+      //   const blob = new Blob([base64toBlob(res.data)]);
+      //   if ((window.navigator as any).msSaveBlob) {
+      //     try {
+      //       (window.navigator as any).msSaveBlob(blob, item);
+      //     } catch (e) {
+      //       notification.error({
+      //         description: '',
+      //         message: intl.get('hzero.common.notification.download.error').d('下载失败'),
+      //       });
+      //     }
+      //   } else {
+      //     const aElement = document.createElement('a');
+      //     const blobUrl = window.URL.createObjectURL(blob);
+      //     aElement.href = blobUrl; // 设置a标签路径
+      //     aElement.download = item;
+      //     aElement.click();
+      //     window.URL.revokeObjectURL(blobUrl);
+      //   }
+      // });
       const printElement = document.createElement('a');
       printElement.href = 'Webshell://'; // 设置a标签路径
       printElement.click();

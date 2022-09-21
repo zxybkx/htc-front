@@ -38,7 +38,7 @@ export async function getCurrentEmployeeInfo(params) {
  * 根据当前登录用户查询员工信息-销项
  * @async
  * @function getCurrentEmployeeInfoOut
- * @param {object} param - 查询条件
+ * @param {object} params - 查询条件
  * @returns {object} fetch Promise
  */
 export async function getCurrentEmployeeInfoOut(params) {

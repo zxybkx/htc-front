@@ -16,7 +16,6 @@ import {
   Button,
   DataSet,
   Form,
-  notification,
   Pagination,
   Select,
   Table,
@@ -30,7 +29,7 @@ import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import { chunk } from 'lodash';
 import { DEFAULT_DATETIME_FORMAT } from 'utils/constants';
 import moment from 'moment';
-import { base64toBlob } from '@htccommon/utils/utils';
+import { downLoadFiles } from '@htccommon/utils/utils';
 import { deductionReportDownload } from '@src/services/checkCertificationService';
 import formatterCollections from 'utils/intl/formatterCollections';
 import ApplyDeductionSummaryDS, { ApplyDeductionHeader } from '../stores/ApplyDeductionSummary';
@@ -276,24 +275,31 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
       };
       const res = getResponse(await deductionReportDownload(params));
       if (res) {
-        const blob = new Blob([base64toBlob(res)]);
-        if ((window.navigator as any).msSaveBlob) {
-          try {
-            (window.navigator as any).msSaveBlob(blob);
-          } catch (e) {
-            notification.error({
-              description: '',
-              message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
-            });
-          }
-        } else {
-          const aElement = document.createElement('a');
-          const blobUrl = window.URL.createObjectURL(blob);
-          aElement.href = blobUrl; // 设置a标签路径
-          aElement.download = '申报抵扣统计表.pdf';
-          aElement.click();
-          window.URL.revokeObjectURL(blobUrl);
-        }
+        const fileList = [
+          {
+            data: res,
+            fileName: '申报抵扣统计表.pdf',
+          },
+        ];
+        downLoadFiles(fileList, 0);
+        // const blob = new Blob([base64toBlob(res)]);
+        // if ((window.navigator as any).msSaveBlob) {
+        //   try {
+        //     (window.navigator as any).msSaveBlob(blob);
+        //   } catch (e) {
+        //     notification.error({
+        //       description: '',
+        //       message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
+        //     });
+        //   }
+        // } else {
+        //   const aElement = document.createElement('a');
+        //   const blobUrl = window.URL.createObjectURL(blob);
+        //   aElement.href = blobUrl; // 设置a标签路径
+        //   aElement.download = '申报抵扣统计表.pdf';
+        //   aElement.click();
+        //   window.URL.revokeObjectURL(blobUrl);
+        // }
       }
     }
   }

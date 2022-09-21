@@ -111,7 +111,7 @@ export default class InvoiceReqOrderListPage extends Component<InvoiceReqOrderLi
         ),
       }),
       closable: true,
-      type: 'menu',
+      // type: 'menu',
     });
   };
 
