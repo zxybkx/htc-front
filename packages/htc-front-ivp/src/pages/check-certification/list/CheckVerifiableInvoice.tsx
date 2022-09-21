@@ -6,7 +6,7 @@
  * @LastEditTime: 2022-09-19 09:51
  * @Copyright: Copyright (c) 2020, Hand
  */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
   Button,
   Currency,
@@ -42,6 +42,7 @@ import { set, split, uniqBy } from 'lodash';
 import { Col, Icon, Modal, Row, Tag, Tooltip } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import CertifiableInvoiceListDS from '../stores/CertifiableInvoiceListDS';
+import InvoiceCategoryContext from './CommonStore';
 import styles from '../checkcertification.less';
 
 const { Option } = Select;
@@ -76,6 +77,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   const [progressValue, setProgressValue] = useState<number>(0);
   const [visible, setVisible] = useState<boolean>(false);
   const [verfiableMoreDisplay, setVerfiableMoreDisplay] = useState<boolean>(false);
+  const { setInvoiceCategory } = useContext(InvoiceCategoryContext);
 
   const setInitialValue = async () => {
     const curDisplayOptions = certifiableInvoiceListDS?.queryDataSet?.current?.get(
@@ -704,7 +706,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   };
 
   // 当期勾选(取消)可认证发票: 头
-  const renderQueryBar = propsDS => {
+  function renderQueryBar(propsDS) {
     const { queryDataSet, buttons } = propsDS;
     let optionList: any = [];
     if (displayOptions.length > 0) {
@@ -762,7 +764,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
           <Col span={18}>
             <Form dataSet={queryDataSet} columns={3}>
               <TextField name="currentPeriod" />
-              <Select name="invoiceCategory" />
+              <Select name="invoiceCategory" onChange={value => setInvoiceCategory(value)} />
               <DatePicker name="currentOperationalDeadline" />
               {verfiableMoreDisplay && queryMoreArray}
             </Form>
@@ -800,7 +802,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         {buttons}
       </div>
     );
-  };
+  }
 
   return (
     <>

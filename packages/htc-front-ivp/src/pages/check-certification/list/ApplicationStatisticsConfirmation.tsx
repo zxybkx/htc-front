@@ -6,7 +6,7 @@
  * @LastEditTime: 2022-09-19 17:21
  * @Copyright: Copyright (c) 2020, Hand
  */
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Button,
   DataSet,
@@ -50,6 +50,7 @@ import StatisticalConfirmDS, {
   AutomaticStatistics,
 } from '../stores/StatisticalConfirmDS';
 import StatisticalDetailDS from '../stores/StatisticalDetailDS';
+import InvoiceCategoryContext from './CommonStore';
 
 const { Item: MenuItem } = Menu;
 
@@ -84,6 +85,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     currentPeriodData,
   } = props;
   const [showMore, setShowMore] = useState<boolean>(false);
+  const { invoiceCategory } = useContext(InvoiceCategoryContext);
 
   const setCompanyObjFromProps = () => {
     const { companyId, employeeId, employeeNum } = empInfo;
@@ -518,7 +520,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
               employeeId,
               employeeNum,
               taxpayerNumber,
-              invoiceCategory: '01',
+              invoiceCategory,
               taxDiskPassword,
               invoiceDateFromStr,
               invoiceDateToStr,
