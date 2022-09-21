@@ -76,7 +76,6 @@ const automaticStatisticsDS = new DataSet({
 });
 
 const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmationProps> = props => {
-  const { invoiceCategory } = useContext(InvoiceCategoryContext);
   const {
     statisticalConfirmDS,
     statisticalDetailDS,
@@ -86,6 +85,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     currentPeriodData,
   } = props;
   const [showMore, setShowMore] = useState<boolean>(false);
+  const { invoiceCategory } = useContext(InvoiceCategoryContext);
 
   const setCompanyObjFromProps = () => {
     const { companyId, employeeId, employeeNum } = empInfo;

@@ -61,7 +61,6 @@ interface CheckCertificationPageProps {
 }
 
 const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
-  const { setInvoiceCategory } = useContext(InvoiceCategoryContext);
   const {
     certifiableInvoiceListDS,
     companyAndPassword,
@@ -78,6 +77,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   const [progressValue, setProgressValue] = useState<number>(0);
   const [visible, setVisible] = useState<boolean>(false);
   const [verfiableMoreDisplay, setVerfiableMoreDisplay] = useState<boolean>(false);
+  const { setInvoiceCategory } = useContext(InvoiceCategoryContext);
 
   const setInitialValue = async () => {
     const curDisplayOptions = certifiableInvoiceListDS?.queryDataSet?.current?.get(
