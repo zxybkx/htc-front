@@ -63,6 +63,12 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
+        name: 'inChannelCode',
+        label: intl.get(`${modelCode}.view.inChannelCode`).d('通道服务'),
+        type: FieldType.string,
+        lookupCode: 'HMDM.IN_CHANNEL',
+      },
+      {
         name: 'startDate',
         label: intl.get(`${modelCode}.view.startDate`).d('发票起始日期'),
         type: FieldType.string,

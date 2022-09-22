@@ -44,6 +44,12 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
+        name: 'inChannelCode',
+        label: intl.get(`${modelCode}.view.inChannelCode`).d('通道服务'),
+        type: FieldType.string,
+        lookupCode: 'HMDM.IN_CHANNEL',
+      },
+      {
         name: 'companyName',
         label: intl.get(`${modelCode}.view.companyName`).d('公司'),
         type: FieldType.string,
@@ -190,7 +196,7 @@ export default (): DataSetProps => {
         name: 'certificationPeriod',
         label: intl.get(`${modelCode}.view.certificationPeriod`).d('认证所属期'),
         type: FieldType.date,
-        transformRequest: (value) => value && moment(value).format('yyyyMM'),
+        transformRequest: value => value && moment(value).format('yyyyMM'),
       },
       {
         name: 'competentAgencyCode',

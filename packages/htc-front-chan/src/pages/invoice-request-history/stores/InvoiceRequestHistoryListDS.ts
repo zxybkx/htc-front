@@ -64,6 +64,12 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
+        name: 'inChannelCode',
+        label: intl.get(`${modelCode}.view.inChannelCode`).d('通道服务'),
+        type: FieldType.string,
+        lookupCode: 'HMDM.IN_CHANNEL',
+      },
+      {
         name: 'contentRows',
         label: intl.get(`${modelCode}.view.contentRows`).d('勾选发票总数'),
         type: FieldType.number,

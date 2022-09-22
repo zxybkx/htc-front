@@ -136,6 +136,12 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
+        name: 'inChannelCode',
+        label: intl.get(`${modelCode}.view.inChannelCode`).d('通道服务'),
+        type: FieldType.string,
+        lookupCode: 'HMDM.IN_CHANNEL',
+      },
+      {
         name: 'processDateFrom',
         label: intl.get(`${modelCode}.view.processDateFrom`).d('处理日期从'),
         type: FieldType.dateTime,
@@ -240,21 +246,21 @@ export default (): DataSetProps => {
         name: 'submissionMonth',
         label: intl.get(`${modelCode}.view.submissionMonth`).d('提交月份'),
         type: FieldType.date,
-        transformRequest: (value) => value && moment(value).format('yyyyMM'),
+        transformRequest: value => value && moment(value).format('yyyyMM'),
       },
       {
         name: 'invoiceDateFrom',
         label: intl.get(`${modelCode}.view.invoiceDateFrom`).d('开票日期起'),
         type: FieldType.date,
         max: 'invoiceDateInto',
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'invoiceDateInto',
         label: intl.get(`${modelCode}.view.invoiceDateInto`).d('开票日期止'),
         type: FieldType.date,
         min: 'invoiceDateFrom',
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'processDateFrom',
