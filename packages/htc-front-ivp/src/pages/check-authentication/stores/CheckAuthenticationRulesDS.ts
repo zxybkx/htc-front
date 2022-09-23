@@ -19,7 +19,7 @@ export default (): DataSetProps => {
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const url = `${API_PREFIX}/v1/${tenantId}/rules-header-infos`;
+        const url = `${API_PREFIX}/v1/${tenantId}/invoice-operation-new/auto-stat-sign-config`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
           url,
@@ -32,10 +32,8 @@ export default (): DataSetProps => {
         return axiosConfig;
       },
       submit: ({ data, params }) => {
-        console.log(456);
-
         return {
-          url: `${API_PREFIX}/v1/${tenantId}/rules-header-infos/save-info`,
+          url: `${API_PREFIX}/v1/${tenantId}/invoice-operation-new/auto-stat-sign-config`,
           data: data && data[0],
           params,
           method: 'POST',
@@ -135,7 +133,7 @@ export default (): DataSetProps => {
         ignore: FieldIgnore.always,
       },
       {
-        name: 'systemCode',
+        name: 'sourceSystem',
         type: FieldType.string,
         bind: 'systemCodeObj.systemCode',
       },
@@ -168,7 +166,7 @@ export default (): DataSetProps => {
         ignore: FieldIgnore.always,
       },
       {
-        name: 'documentTypeCode',
+        name: 'docType',
         type: FieldType.string,
         bind: 'documentTypeCodeObj.documentTypeCode',
       },
@@ -265,22 +263,22 @@ export default (): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
-          name: 'taxPeriod',
+          name: 'currentPeriod',
           label: intl.get('hivp.checkRule').d('当前所属期'),
           type: FieldType.string,
-          // readOnly: true,
+          readOnly: true,
         },
         {
-          name: 'expiredDate',
+          name: 'currentOperationalDeadline',
           label: intl.get('hivp.checkRule').d('操作截至日期'),
           type: FieldType.string,
-          // readOnly: true,
+          readOnly: true,
         },
         {
-          name: 'checkDate',
+          name: 'checkableTimeRange',
           label: intl.get('hivp.checkRule').d('可勾选时间范围'),
           type: FieldType.string,
-          // readOnly: true,
+          readOnly: true,
         },
       ],
     }),

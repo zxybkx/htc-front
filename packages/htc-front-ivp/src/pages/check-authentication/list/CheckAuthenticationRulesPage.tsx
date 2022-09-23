@@ -17,10 +17,11 @@ import { Col, Row } from 'choerodon-ui';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { getCurrentEmployeeInfoOut } from '@htccommon/services/commonService';
+import { getBusinessTime } from '@src/services/checkAuthenticationService';
+import notification from 'utils/notification';
 import CheckRuleHeaderForm from './CheckAuthenticationRulesForm';
 import CheckAuthenticationRulesDS from '../stores/CheckAuthenticationRulesDS';
 import CheckAuthenticationManualRulesDS from '../stores/CheckAuthenticationManualRulesDS';
-// import notification from 'utils/notification';
 
 const tenantId = getCurrentOrganizationId();
 
@@ -49,46 +50,72 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
   });
 
   @Bind()
+  async handleChangeCompanyCallBack(empInfo) {
+    const { companyCode, companyId, employeeId, employeeNum: employeeNumber } = empInfo;
+    const timeRes = await getBusinessTime({
+      tenantId,
+      companyCode,
+      companyId,
+      employeeId,
+      employeeNumber,
+    });
+    const { queryDataSet } = this.checkRuleDS;
+    const { current } = this.checkRuleManualDS;
+    if (queryDataSet && queryDataSet.current) {
+      queryDataSet.current.set({ companyObj: empInfo });
+      if (timeRes && timeRes.content) {
+        queryDataSet.current.set({
+          currentPeriod: timeRes.content[0].currentPeriod,
+          currentOperationalDeadline: timeRes.content[0].currentOperationalDeadline,
+          checkableTimeRange: timeRes.content[0].checkableTimeRange,
+        });
+      }
+      current!.set('companyId', empInfo.companyId);
+      this.loadData(empInfo);
+      this.setState({ curCompanyId: empInfo.companyId });
+    }
+  }
+
+  @Bind()
   async componentDidMount() {
     const res = await getCurrentEmployeeInfoOut({ tenantId });
     if (res && res.content) {
       const empInfo = res.content[0];
-      const { queryDataSet } = this.checkRuleDS;
-      const { current } = this.checkRuleManualDS;
-      if (queryDataSet && queryDataSet.current) {
-        queryDataSet.current.set({ companyObj: empInfo });
-        current!.set('companyId', empInfo.companyId);
-        // this.loadData(empInfo);
-        this.setState({ curCompanyId: empInfo.companyId });
+      this.handleChangeCompanyCallBack(empInfo);
+    }
+  }
+
+  @Bind()
+  loadData(empInfo) {
+    this.checkRuleDS.query().then(() => {
+      if (this.checkRuleDS.length === 0) {
+        this.checkRuleDS.create(
+          {
+            companyId: empInfo.companyId,
+            companyName: empInfo.companyName,
+          },
+          0
+        );
+      }
+    });
+  }
+
+  @Bind()
+  async handleSaveRule() {
+    const validate = await this.checkRuleDS.validate();
+    if (validate) {
+      const res = await this.checkRuleDS.submit();
+      if (res === undefined) {
+        notification.warning({
+          description: '',
+          message: intl.get(`hivp.notice.editData`).d('请先修改数据'),
+        });
       }
     }
   }
 
-  // @Bind()
-  // loadData(empInfo) {
-  //     this.checkRuleDS.query().then(() => {
-  //         if (this.checkRuleDS.length === 0) {
-  //             this.checkRuleDS.create(
-  //                 {
-  //                     companyId: empInfo.companyId,
-  //                     companyName: empInfo.companyName,
-  //                 },
-  //                 0
-  //             );
-  //         }
-  //     });
-  // }
   @Bind()
-  async handleSaveRule() {
-    // const { queryDataSet } = this.checkRuleDS;
-    // const companyObj = queryDataSet && queryDataSet.current?.get('companyObj');
-    // console.log('///', await this.checkRuleDS.validate());
-    const res = await this.checkRuleDS.submit();
-    console.log(res);
-  }
-
-  @Bind()
-  async handleCompanyChange(_, oldValue) {
+  async handleCompanyChange(value, oldValue) {
     if (this.checkRuleDS.dirty) {
       await Modal.confirm({
         title: intl.get('htc.common.view.changeRemind').d('当前页面有修改信息未保存！'),
@@ -100,8 +127,8 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
           </span>
         ),
         onOk: async () => {
-          // this.handleModalOk(queryDataSet, oldValue);
-          this.checkRuleDS.submit(false, false);
+          await this.checkRuleDS.submit(false, false);
+          this.handleChangeCompanyCallBack(value);
         },
         onCancel: () => {
           const { queryDataSet } = this.checkRuleDS;
@@ -109,10 +136,8 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
           if (queryDataSet && queryDataSet.current) {
             queryDataSet.current.set({ companyObj: oldValue });
             current!.set('companyId', oldValue.companyId);
-            // this.loadData(empInfo);
             this.setState({ curCompanyId: oldValue.companyId });
           }
-          // this.setHeaderValue(queryDataSet, value);
         },
       });
     }

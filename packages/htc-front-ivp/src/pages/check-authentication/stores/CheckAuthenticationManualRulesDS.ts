@@ -10,6 +10,7 @@ import commonConfig from '@htccommon/config/commonConfig';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 // import { DataSet } from 'choerodon-ui/pro';
 import { getCurrentOrganizationId } from 'utils/utils';
+import { DEFAULT_DATE_FORMAT } from 'hzero-front/lib/utils/constants';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import moment from 'moment';
@@ -21,7 +22,7 @@ export default (): DataSetProps => {
     transport: {
       submit: ({ data, params }) => {
         return {
-          url: `${API_PREFIX}/v1/${tenantId}/rules-header-infos/save-info`,
+          url: `${API_PREFIX}/v1/${tenantId}/invoice-operation-new/get-check-invoice`,
           data: data && data[0],
           params,
           method: 'POST',
@@ -48,8 +49,8 @@ export default (): DataSetProps => {
       {
         name: 'invoiceDate',
         label: intl.get('htc.common.v').d('手动获取发票开票日期范围'),
-        range: ['start', 'end'],
-        defaultValue: { start: moment().subtract(1, 'day'), end: new Date() },
+        range: ['invoiceDateStart', 'invoiceDateEnd'],
+        defaultValue: { invoiceDateStart: moment().subtract(1, 'day'), invoiceDateEnd: new Date() },
         type: FieldType.date,
         computedProps: {
           required: ({ record }) => {
@@ -66,11 +67,24 @@ export default (): DataSetProps => {
             }
           },
         },
+        ignore: FieldIgnore.always,
+      },
+      {
+        name: 'invoiceDateStart',
+        type: FieldType.date,
+        bind: 'invoiceDate.invoiceDateStart',
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+      },
+      {
+        name: 'invoiceDateEnd',
+        type: FieldType.date,
+        bind: 'invoiceDate.invoiceDateEnd',
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'invoiceTickDate',
         label: intl.get('htc.common.v').d('手动获取勾选发票勾选时间范围'),
-        range: ['start', 'end'],
+        range: ['invoiceTickDateStart', 'invoiceTickDateEnd'],
         type: FieldType.date,
         computedProps: {
           required: ({ record }) => {
@@ -86,12 +100,38 @@ export default (): DataSetProps => {
             }
           },
         },
+        ignore: FieldIgnore.always,
+      },
+      {
+        name: 'invoiceTickDateStart',
+        type: FieldType.date,
+        bind: 'invoiceTickDate.invoiceTickDateStart',
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+      },
+      {
+        name: 'invoiceTickDateEnd',
+        type: FieldType.date,
+        bind: 'invoiceTickDate.invoiceTickDateEnd',
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'invoiceInDate',
         label: intl.get('htc.common.view.i').d('手动获取勾选发票入库时间范围'),
-        range: ['start', 'end'],
+        range: ['invoiceInDateStart', 'invoiceInDateEnd'],
         type: FieldType.date,
+        ignore: FieldIgnore.always,
+      },
+      {
+        name: 'invoiceInDateStart',
+        type: FieldType.date,
+        bind: 'invoiceInDate.invoiceInDateStart',
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+      },
+      {
+        name: 'invoiceInDateEnd',
+        type: FieldType.date,
+        bind: 'invoiceInDate.invoiceInDateEnd',
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'deductionType',
@@ -187,7 +227,7 @@ export default (): DataSetProps => {
         label: intl.get('hivp.checkRule').d('已认证查询月份'),
         type: FieldType.object,
         lovCode: 'HIVP.BUSINESS_TIME_INFO',
-        cascadeMap: { companyId: 'companyId' },
+        // cascadeMap: { companyId: 'companyId' },
         computedProps: {
           required: ({ record }) => {
             if (record.get('certificationStatus')) {
