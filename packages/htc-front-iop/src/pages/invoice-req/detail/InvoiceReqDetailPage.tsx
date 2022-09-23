@@ -704,7 +704,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       };
       fileList.push(file);
     });
-    downLoadFiles(fileList);
+    downLoadFiles(fileList, 0);
   }
 
   @Bind()
@@ -765,7 +765,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
         };
         fileList.push(file);
       });
-      downLoadFiles(fileList);
+      downLoadFiles(fileList, 0);
       const printElement = document.createElement('a');
       printElement.href = 'Webshell://'; // 设置a标签路径
       printElement.click();

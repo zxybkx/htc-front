@@ -524,7 +524,7 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
         fileName: name,
       },
     ];
-    downLoadFiles(fileList);
+    downLoadFiles(fileList, 0);
     // const blob = new Blob([base64toBlob(text)]);
     // if ((window.navigator as any).msSaveBlob) {
     //   try {
