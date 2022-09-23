@@ -321,6 +321,17 @@ const invoiceCheck = [
     ],
   },
 ];
+const checkRules = [
+  {
+    path: '/htc-front-ivp/check-authentication',
+    routes: [
+      {
+        path: '/htc-front-ivp/check-authentication/list',
+        component: '@/pages/check-authentication/list/CheckAuthenticationRulesPage',
+      }
+    ],
+  },
+]
 export default extendParentConfig({
   webpack5: {},
   devServer: {
@@ -336,6 +347,7 @@ export default extendParentConfig({
     ...batchDentificationCheck,
     ...taxRefund,
     ...invoiceCheck,
+    ...checkRules,
   ],
 
   extraBabelPlugins: [       //原/packages/xxx/.babelrc.js--plugins
