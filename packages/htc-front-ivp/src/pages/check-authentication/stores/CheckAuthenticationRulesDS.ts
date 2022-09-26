@@ -72,11 +72,11 @@ export default (): DataSetProps => {
       {
         name: 'autoStatisticsSign',
         label: intl.get('hivp.checkRule').d('每月自动统计'),
-        type: FieldType.boolean,
+        type: FieldType.string,
         labelWidth: '140',
       },
       {
-        name: 'email',
+        name: 'mailbox',
         label: intl.get('hivp.checkRule').d('统计认证结果接收通知邮箱'),
         type: FieldType.string,
         computedProps: {
@@ -85,7 +85,7 @@ export default (): DataSetProps => {
         },
       },
       {
-        name: 'autoStatisticsDate',
+        name: 'autoStatisticsTime',
         label: intl.get('hivp.checkRule').d('自动统计日期'),
         lookupCode: 'HIVP.AUTO_STATISTICS_TIME',
         type: FieldType.string,
@@ -96,7 +96,7 @@ export default (): DataSetProps => {
       {
         name: 'autoSignatureSign',
         label: intl.get('hivp.checkRule').d('每月自动确签'),
-        type: FieldType.boolean,
+        type: FieldType.string,
         labelWidth: '140',
       },
       {
@@ -108,7 +108,7 @@ export default (): DataSetProps => {
         },
       },
       {
-        name: 'autoSgnatureDate',
+        name: 'autoSignatureTime',
         label: intl.get('hivp.checkRule').d('自动确签日期'),
         type: FieldType.string,
         computedProps: {
@@ -148,7 +148,7 @@ export default (): DataSetProps => {
         name: 'documentTypeCodeObj',
         label: intl.get('hivp.checkRule.view.documentTypeMeaning').d('单据类型'),
         type: FieldType.object,
-        lovCode: 'HTC.DOCUMENT_TYPE',
+        lovCode: 'HTC.DOCUMENT_TYPE_LOV',
         disabled: true,
         // cascadeMap: { docTypeHeaderId: 'sysTypeHeaderId' },
         computedProps: {
