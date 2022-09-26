@@ -94,9 +94,9 @@ const InvoiceRuleHeaderForm: FunctionComponent<Props> = (props: Props) => {
           </Form>
           <Form dataSet={dataSet} columns={4} labelTooltip={Tooltip.overflow}>
             <CheckBox name='autoStatisticsSign' />
-            <TextField name="email" />
+            <TextField name="mailbox" />
             <Select
-              name='autoStatisticsDate'
+              name='autoStatisticsTime'
               help={intl
                             .get('hivp.checkRule')
                             .d(
@@ -108,7 +108,7 @@ const InvoiceRuleHeaderForm: FunctionComponent<Props> = (props: Props) => {
           <Form dataSet={dataSet} columns={4} labelTooltip={Tooltip.overflow}>
             <CheckBox name='autoSignatureSign' />
             <TextField name="confirmPassword" />
-            <Select name='autoSgnatureDate' />
+            <Select name='autoSignatureTime' />
           </Form>
         </Card>
         <Card
