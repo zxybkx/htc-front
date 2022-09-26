@@ -63,7 +63,7 @@ export default (): DataSetProps => {
         name: 'autoDayGetTime',
         label: intl.get('hivp.checkRule').d('每日自动获取时间'),
         type: FieldType.string,
-        multiple: true,
+        multiple: ',',
         lookupCode: 'HIVP.AUTO_GET_TIME',
         computedProps: {
           required: ({ record }) => record.get('autoDayGetAccounts'),
@@ -135,6 +135,7 @@ export default (): DataSetProps => {
       {
         name: 'sourceSystem',
         type: FieldType.string,
+        multiple: ',',
         bind: 'systemCodeObj.systemCode',
       },
       {
@@ -168,6 +169,7 @@ export default (): DataSetProps => {
       {
         name: 'docType',
         type: FieldType.string,
+        multiple: ',',
         bind: 'documentTypeCodeObj.documentTypeCode',
       },
       {
@@ -181,14 +183,14 @@ export default (): DataSetProps => {
         label: intl.get('hivp.checkRule').d('发票类型'),
         type: FieldType.string,
         // defaultValue: ['01'],
-        multiple: true,
+        multiple: ',',
         lookupCode: 'HIVP.CHECK_INVOICE_TYPE',
       },
       {
         name: 'accountStatus',
         label: intl.get('hivp.checkRule').d('入账状态'),
         type: FieldType.string,
-        multiple: true,
+        multiple: ',',
         lookupCode: 'HIVP.ACCOUNT_STATE',
       },
     ],

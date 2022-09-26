@@ -11,7 +11,7 @@ import { Dispatch } from 'redux';
 import { Bind } from 'lodash-decorators';
 import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
-import { Button, DataSet, Form, Lov, Spin, TextField, Modal } from 'choerodon-ui/pro';
+import { Button, DataSet, Form, Lov, Spin, TextField } from 'choerodon-ui/pro';
 import { Content, Header } from 'components/Page';
 import { Col, Row } from 'choerodon-ui';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
@@ -63,11 +63,11 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
     const { current } = this.checkRuleManualDS;
     if (queryDataSet && queryDataSet.current) {
       queryDataSet.current.set({ companyObj: empInfo });
-      if (timeRes && timeRes.content) {
+      if (timeRes) {
         queryDataSet.current.set({
-          currentPeriod: timeRes.content[0].currentPeriod,
-          currentOperationalDeadline: timeRes.content[0].currentOperationalDeadline,
-          checkableTimeRange: timeRes.content[0].checkableTimeRange,
+          currentPeriod: timeRes.currentPeriod,
+          currentOperationalDeadline: timeRes.currentOperationalDeadline,
+          checkableTimeRange: timeRes.checkableTimeRange,
         });
       }
       current!.set('companyId', empInfo.companyId);
@@ -115,32 +115,33 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
   }
 
   @Bind()
-  async handleCompanyChange(value, oldValue) {
-    if (this.checkRuleDS.dirty) {
-      await Modal.confirm({
-        title: intl.get('htc.common.view.changeRemind').d('当前页面有修改信息未保存！'),
-        children: (
-          <span style={{ fontSize: '12px' }}>
-            {intl
-              .get('hiop.invoiceRule.message.operation')
-              .d('点击下方“确定”按钮，即可保存，或点击“取消”放弃保存内容')}
-          </span>
-        ),
-        onOk: async () => {
-          await this.checkRuleDS.submit(false, false);
-          this.handleChangeCompanyCallBack(value);
-        },
-        onCancel: () => {
-          const { queryDataSet } = this.checkRuleDS;
-          const { current } = this.checkRuleManualDS;
-          if (queryDataSet && queryDataSet.current) {
-            queryDataSet.current.set({ companyObj: oldValue });
-            current!.set('companyId', oldValue.companyId);
-            this.setState({ curCompanyId: oldValue.companyId });
-          }
-        },
-      });
-    }
+  async handleCompanyChange(value) {
+    // if (this.checkRuleDS.dirty) {
+    //   await Modal.confirm({
+    //     title: intl.get('htc.common.view.changeRemind').d('当前页面有修改信息未保存！'),
+    //     children: (
+    //       <span style={{ fontSize: '12px' }}>
+    //         {intl
+    //           .get('hiop.invoiceRule.message.operation')
+    //           .d('点击下方“确定”按钮，即可保存，或点击“取消”放弃保存内容')}
+    //       </span>
+    //     ),
+    //     onOk: async () => {
+    //       await this.checkRuleDS.submit(false, false);
+    //       this.handleChangeCompanyCallBack(value);
+    //     },
+    //     onCancel: () => {
+    //       const { queryDataSet } = this.checkRuleDS;
+    //       const { current } = this.checkRuleManualDS;
+    //       if (queryDataSet && queryDataSet.current) {
+    //         queryDataSet.current.set({ companyObj: oldValue });
+    //         current!.set('companyId', oldValue.companyId);
+    //         this.setState({ curCompanyId: oldValue.companyId });
+    //       }
+    //     },
+    //   });
+    // }
+    this.handleChangeCompanyCallBack(value);
   }
 
   render() {
@@ -158,9 +159,9 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
                   onChange={this.handleCompanyChange}
                 />
                 <TextField name="employeeDesc" />
-                <TextField name="taxPeriod" />
-                <TextField name="expiredDate" />
-                <TextField name="checkDate" />
+                <TextField name="currentPeriod" />
+                <TextField name="currentOperationalDeadline" />
+                <TextField name="checkableTimeRange" />
                 <TextField name="taxpayerNumber" />
               </Form>
             </Col>
