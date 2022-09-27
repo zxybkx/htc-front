@@ -16,7 +16,6 @@ import {
   isTenantRoleLevel,
 } from 'utils/utils';
 import { urlTojpg, fileStream } from '@src/services/invoicesService';
-// import { downLoadFiles } from '@htccommon/utils/utils';
 import SubPageBillHeadersDS from '@src/pages/bill-pool/stores/SubPageBillHeadersDS';
 import SubPageInvoicesHeadersDS from '@src/pages/invoices/stores/SubPageInvoicesHeadersDS';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
@@ -170,16 +169,6 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
       aElement.download = `档案系统调阅档案.${suffix}`;
       aElement.click();
     }
-    // else {
-    //     const suffix = toLower(recordType);
-    //     const fileList = [
-    //       {
-    //         data: recordType === 'OFD' ? fileUrl : curImgUrl,
-    //         fileName: `档案系统调阅档案.${suffix}`,
-    //       },
-    //     ];
-    //     downLoadFiles(fileList, 0);
-    //   }
   }
 
   setViewerVisible = () => {
