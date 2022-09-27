@@ -74,6 +74,12 @@ export default (): DataSetProps => {
         label: intl.get('hivp.checkRule').d('每月自动统计'),
         type: FieldType.string,
         labelWidth: '140',
+        transformRequest: value => {
+          return value ? 1 : 0;
+        },
+        transformResponse(value) {
+          return value !== 0;
+        },
       },
       {
         name: 'mailbox',
@@ -98,6 +104,12 @@ export default (): DataSetProps => {
         label: intl.get('hivp.checkRule').d('每月自动确签'),
         type: FieldType.string,
         labelWidth: '140',
+        transformRequest: value => {
+          return value ? 1 : 0;
+        },
+        transformResponse(value) {
+          return value !== 0;
+        },
       },
       {
         name: 'confirmPassword',
