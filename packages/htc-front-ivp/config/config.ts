@@ -321,6 +321,17 @@ const invoiceCheck = [
     ],
   },
 ];
+const deductionStatement = [
+  {
+    path: '/htc-front-ivp/deduction-statement',
+    routes: [
+      {
+        path: '/htc-front-ivp/deduction-statement/list',
+        component: '@/pages/deduction-statement/list/DeductionStatementListPage',
+      },
+    ],
+  },
+]
 export default extendParentConfig({
   webpack5: {},
   devServer: {
@@ -336,6 +347,7 @@ export default extendParentConfig({
     ...batchDentificationCheck,
     ...taxRefund,
     ...invoiceCheck,
+    ...deductionStatement,
   ],
 
   extraBabelPlugins: [       //原/packages/xxx/.babelrc.js--plugins
