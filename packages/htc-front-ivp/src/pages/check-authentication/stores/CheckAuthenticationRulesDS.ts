@@ -72,7 +72,7 @@ export default (): DataSetProps => {
       {
         name: 'autoStatisticsSign',
         label: intl.get('hivp.checkRule').d('每月自动统计'),
-        type: FieldType.string,
+        type: FieldType.boolean,
         labelWidth: '140',
         transformRequest: value => {
           return value ? 1 : 0;
@@ -102,7 +102,7 @@ export default (): DataSetProps => {
       {
         name: 'autoSignatureSign',
         label: intl.get('hivp.checkRule').d('每月自动确签'),
-        type: FieldType.string,
+        type: FieldType.boolean,
         labelWidth: '140',
         transformRequest: value => {
           return value ? 1 : 0;
