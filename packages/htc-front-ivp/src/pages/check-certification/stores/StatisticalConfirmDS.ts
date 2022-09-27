@@ -85,6 +85,7 @@ export default (): DataSetProps => {
       },
     ],
     queryDataSet: new DataSet({
+      autoCreate: true,
       fields: [
         {
           name: 'companyId',
