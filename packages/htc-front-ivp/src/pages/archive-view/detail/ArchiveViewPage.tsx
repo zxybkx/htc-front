@@ -202,10 +202,10 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
           noNameUrl = `data:application/pdf;base64,${curImgUrl}`;
           break;
         case 'PNG':
-          noNameUrl = `data:image/png;base64,base64,${curImgUrl}`;
+          noNameUrl = `data:image/png;base64,${curImgUrl}`;
           break;
         case 'JPG':
-          noNameUrl = `data:image/jpg;base64,base64,${curImgUrl}`;
+          noNameUrl = `data:image/jpg;base64,${curImgUrl}`;
           break;
         default:
           break;
