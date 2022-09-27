@@ -19,6 +19,7 @@ import {
   Select,
   Table,
   TextField,
+  Lov,
 } from 'choerodon-ui/pro';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
@@ -30,22 +31,21 @@ import {
   handlecheckRequest,
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
+import moment from 'moment';
 import { getResponse } from 'utils/utils';
-import { queryIdpValue } from 'hzero-front/lib/services/api';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import queryString from 'query-string';
 import { ProgressStatus } from 'choerodon-ui/lib/progress/enum';
 import { observer } from 'mobx-react-lite';
-import { set, split, uniqBy } from 'lodash';
+import { set, uniqBy } from 'lodash';
 import { Col, Icon, Modal, Row, Tag, Tooltip } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import CertifiableInvoiceListDS from '../stores/CertifiableInvoiceListDS';
 import InvoiceCategoryContext from './CommonStore';
 import styles from '../checkcertification.less';
 
-const { Option } = Select;
 const { Item: MenuItem } = Menu;
 
 const modelCode = 'hivp.checkCertification';
@@ -70,50 +70,11 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     currentPeriodData,
   } = props;
   const [progressStatus, setProgressStatus] = useState<any>(ProgressStatus.active);
-  const [displayOptions, setDisplayOptions] = useState<[]>([]);
-  const [checked, setChecked] = useState<boolean>(true);
-  const [unchecked, setUnchecked] = useState<boolean>(false);
   const [count, setCount] = useState<number>(0);
   const [progressValue, setProgressValue] = useState<number>(0);
   const [visible, setVisible] = useState<boolean>(false);
   const [verfiableMoreDisplay, setVerfiableMoreDisplay] = useState<boolean>(false);
   const { setInvoiceCategory } = useContext(InvoiceCategoryContext);
-
-  const setInitialValue = async () => {
-    const curDisplayOptions = certifiableInvoiceListDS?.queryDataSet?.current?.get(
-      'invoiceDisplayOptions'
-    );
-    const conDisplayOptions = await queryIdpValue('HIVP.CHECK_CONFIRM_DISPLAY_OPTIONS');
-    if (certifiableInvoiceListDS) {
-      const { queryDataSet } = certifiableInvoiceListDS;
-      if (!curDisplayOptions && queryDataSet) {
-        queryDataSet.current!.set({
-          invoiceDisplayOptions: [
-            'UNCHECKED',
-            'ACCOUNTED',
-            'DISACCOUNT',
-            'DOCS_UNITED',
-            'NON_DOCS',
-          ],
-        });
-      } else {
-        const invoiceDisplayOptionsArr = split(curDisplayOptions, ',');
-        if (invoiceDisplayOptionsArr.indexOf('CURRENT_PERIOD_CHECKED') > -1) {
-          setChecked(false);
-          setUnchecked(true);
-        } else {
-          setUnchecked(false);
-        }
-        if (invoiceDisplayOptionsArr.indexOf('UNCHECKED') > -1) {
-          setChecked(true);
-          setUnchecked(false);
-        } else {
-          setChecked(false);
-        }
-      }
-    }
-    setDisplayOptions(conDisplayOptions);
-  };
 
   const setCompanyObjFromProps = () => {
     if (certifiableInvoiceListDS) {
@@ -139,20 +100,21 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
             checkableTimeRange,
             currentCertState,
           } = currentPeriodData;
+          const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
+          const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
           queryDataSet.current!.set({
             currentPeriod,
             currentOperationalDeadline,
             checkableTimeRange,
             currentCertState,
+            rzrqq: dateFrom,
+            rzrqz: dateTo,
           });
         }
       }
     }
   };
 
-  useEffect(() => {
-    setInitialValue();
-  }, []);
   useEffect(() => {
     setCompanyObjFromProps();
   }, [empInfo]);
@@ -724,23 +686,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     />,
   ];
 
-  // 多值选框互斥
-  const handleOptChange = value => {
-    if (value && value.indexOf('CURRENT_PERIOD_CHECKED') > -1) {
-      setChecked(false);
-      setUnchecked(true);
-    } else {
-      setUnchecked(false);
-    }
-
-    if (value && value.indexOf('UNCHECKED') > -1) {
-      setChecked(true);
-      setUnchecked(false);
-    } else {
-      setChecked(false);
-    }
-  };
-
   const handleVerifiableQuery = () => {
     if (certifiableInvoiceListDS) {
       const { queryDataSet } = certifiableInvoiceListDS;
@@ -757,23 +702,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   // 当期勾选(取消)可认证发票: 头
   function renderQueryBar(propsDS) {
     const { queryDataSet, buttons } = propsDS;
-    let optionList: any = [];
-    if (displayOptions.length > 0) {
-      optionList = displayOptions.map((item: any) => {
-        let disabledParam;
-        if (item.value === 'CURRENT_PERIOD_CHECKED') {
-          disabledParam = checked;
-        }
-        if (item.value === 'UNCHECKED') {
-          disabledParam = unchecked;
-        }
-        return (
-          <Option value={item.value} key={item.value} disabled={disabledParam}>
-            {item.meaning}
-          </Option>
-        );
-      });
-    }
     const queryMoreArray: JSX.Element[] = [];
     queryMoreArray.push(<Select name="currentCertState" />);
     queryMoreArray.push(
@@ -783,34 +711,25 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     queryMoreArray.push(<TextField name="invoiceNumber" />);
     queryMoreArray.push(<DatePicker name="invoiceDate" />);
     queryMoreArray.push(<Select name="gxzt" />);
+    queryMoreArray.push(<Lov name="systemCodeObj" />);
+    queryMoreArray.push(<Lov name="documentTypeCodeObj" />);
+    queryMoreArray.push(<Lov name="documentNumberObj" />);
     queryMoreArray.push(<Select name="isPoolFlag" />);
     queryMoreArray.push(<Select name="entryAccountState" />);
     queryMoreArray.push(<DatePicker name="entryAccountDate" />);
-    queryMoreArray.push(<Select name="managementState" />);
-    queryMoreArray.push(<Select name="invoiceState" />);
-    queryMoreArray.push(
-      <Select
-        name="invoiceType"
-        optionsFilter={record => ['01', '03', '08', '14'].includes(record.get('value'))}
-      />
-    );
-    queryMoreArray.push(
-      <Select name="invoiceDisplayOptions" multiple onChange={handleOptChange} colSpan={3}>
-        {optionList}
-      </Select>
-    );
+    queryMoreArray.push(<TextField name="salerName" />);
     queryMoreArray.push(
       <TextField
         name="number"
-        newLine
         renderer={value =>
           value.text && `${value.text}${intl.get('hivp.checkCertification.view.share').d('份')}`
         }
       />
     );
-    queryMoreArray.push(<Currency name="amount" />);
+    queryMoreArray.push(<Select name="abnormalSign" />);
     queryMoreArray.push(<Currency name="taxAmount" />);
     queryMoreArray.push(<Currency name="validTaxAmount" />);
+    queryMoreArray.push(<Currency name="amount" />);
     return (
       <div style={{ marginBottom: '0.1rem' }}>
         <Row>

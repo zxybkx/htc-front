@@ -31,17 +31,6 @@ const validTaxAmountValidator = (value, name, record) => {
   return undefined;
 };
 
-const currentPeriodStart = record => {
-  const currentPeriod = record.get('currentPeriod');
-  console.log('currentPeriod', currentPeriod);
-  const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
-  const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
-  return {
-    rzrqq: dateFrom,
-    rzrqz: dateTo,
-  };
-};
-
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
@@ -416,7 +405,6 @@ export default (): DataSetProps => {
           name: 'invoiceDateFrom',
           label: intl.get('hivp.bill.view.invoiceDateFrom').d('开票日期从'),
           type: FieldType.date,
-          // max: 'invoiceDateTo',
           bind: 'invoiceDate.invoiceDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
@@ -425,7 +413,6 @@ export default (): DataSetProps => {
           label: intl.get('hivp.bill.view.invoiceDateTo').d('开票日期至'),
           type: FieldType.date,
           bind: 'invoiceDate.invoiceDateTo',
-          // min: 'invoiceDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
@@ -435,19 +422,86 @@ export default (): DataSetProps => {
           lookupCode: 'HIVP.CHECK_STATE',
         },
         {
+          name: 'systemCodeObj',
+          label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
+          type: FieldType.object,
+          lovCode: 'HTC.SOURCE_SYSTEM',
+          lovPara: { enabledFlag: 1 },
+          multiple: ',',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'sourceSystem',
+          type: FieldType.string,
+          bind: 'systemCodeObj.systemCode',
+        },
+        {
+          name: 'sysTypeHeaderId',
+          type: FieldType.string,
+          bind: 'systemCodeObj.docTypeHeaderId',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentTypeCodeObj',
+          label: intl.get('hivp.checkRule.view.documentTypeMeaning').d('单据类型'),
+          type: FieldType.object,
+          lovCode: 'HTC.DOCUMENT_TYPE_LOV',
+          computedProps: {
+            lovPara: ({ record }) => {
+              return { enabledFlag: 1, docTypeHeaderId: record.get('sysTypeHeaderId').join(',') };
+            },
+            disabled: ({ record }) => {
+              return !record.get('sysTypeHeaderId').length;
+            },
+          },
+          multiple: ',',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'docType',
+          type: FieldType.string,
+          bind: 'documentTypeCodeObj.documentTypeCode',
+        },
+        {
+          name: 'docTypeHeaderId',
+          type: FieldType.string,
+          bind: 'documentTypeCodeObj.docTypeHeaderId',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentNumberObj',
+          label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
+          type: FieldType.object,
+          lovCode: 'HTC.DOCUMENT_CODE',
+          multiple: ',',
+          computedProps: {
+            lovPara: ({ record }) => {
+              return { enabledFlag: 1, docTypeHeaderId: record.get('docTypeHeaderId').join(',') };
+            },
+            disabled: ({ record }) => {
+              return !record.get('docTypeHeaderId').length;
+            },
+          },
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentNumber',
+          type: FieldType.string,
+          bind: 'documentNumberObj.documentNumber',
+        },
+        {
           name: 'entryAccountState',
           label: intl.get('hivp.bill.view.entryAccountState').d('入账状态'),
           type: FieldType.string,
           lookupCode: 'HIVP.ACCOUNT_STATE',
+          defaultValue: '1',
+          multiple: ',',
         },
         {
           name: 'entryAccountDate',
           label: intl.get(`htc.common.view.entryAccountDate`).d('入账日期'),
           type: FieldType.date,
           range: ['rzrqq', 'rzrqz'],
-          computedProps: {
-            defaultValue: ({ record }) => currentPeriodStart(record),
-          },
           ignore: FieldIgnore.always,
         },
         {
@@ -465,6 +519,17 @@ export default (): DataSetProps => {
           bind: 'entryAccountDate.rzrqz',
           // min: 'invoiceDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'salerName',
+          label: intl.get('htc.common.view.salerName').d('销方名称'),
+          type: FieldType.string,
+        },
+        {
+          name: 'abnormalSign',
+          label: intl.get(`${modelCode}.view.abnormalSign`).d('异常标记'),
+          type: FieldType.string,
+          lookupCode: 'HIVP.ABNORMAL_SIGN',
         },
         {
           name: 'managementState',
@@ -487,7 +552,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'number',
-          label: intl.get(`${modelCode}.view.CheckThisTime`).d('本次勾选'),
+          label: intl.get(`${modelCode}.view.CheckThisTime`).d('本次勾选份数'),
           type: FieldType.number,
           ignore: FieldIgnore.always,
           readOnly: true,
@@ -528,6 +593,7 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.enteredThePool`).d('是否已入池'),
           type: FieldType.string,
           lookupCode: 'HTC.HIVP.ISPOOL_FLAG',
+          defaultValue: 'Y',
         },
       ],
     }),
