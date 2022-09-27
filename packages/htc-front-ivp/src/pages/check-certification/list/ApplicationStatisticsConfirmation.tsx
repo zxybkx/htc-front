@@ -16,10 +16,9 @@ import {
   Lov,
   Menu,
   Modal as ModalPro,
-  Password,
   Table,
   TextField,
-  CheckBox,
+  Select,
 } from 'choerodon-ui/pro';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
@@ -44,7 +43,6 @@ import { Col, Icon, Row, Tag } from 'choerodon-ui';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
 import formatterCollections from 'utils/intl/formatterCollections';
-import { ShowHelp } from 'choerodon-ui/pro/lib/field/enum';
 import StatisticalConfirmDS, {
   TimeRange,
   AutomaticStatistics,
@@ -243,6 +241,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   ];
 
   const BatchBtn = observer((btnProps: any) => {
+    const { inChannelCode } = empInfo;
     const isDisabled = btnProps.dataSet!.selected.length === 0;
     return (
       <Button
@@ -250,6 +249,9 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         onClick={btnProps.onClick}
         disabled={isDisabled}
         funcType={FuncType.flat}
+        style={{
+          display: ['ZK_IN_CHANNEL_DIGITAL'].includes(inChannelCode) ? 'none' : 'inline',
+        }}
       >
         {btnProps.title}
       </Button>
@@ -600,84 +602,21 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   // 当期已勾选发票统计确签:查询条件
   const renderQueryBar = propsDS => {
     const { dataSet, queryDataSet, buttons } = propsDS;
+    const queryMoreArray: JSX.Element[] = [];
+    queryMoreArray.push(<Lov name="authenticationDateObj" />);
+    queryMoreArray.push(<Select name="qqlx" colSpan={2} />);
     return (
       <div style={{ marginBottom: '0.1rem' }}>
         <Row>
-          <Col span={20}>
-            {showMore ? (
-              <div>
-                <div
-                  style={{
-                    background: 'rgb(0,0,0,0.02)',
-                    padding: '10px 10px 0px',
-                  }}
-                >
-                  <h3>
-                    <b>{intl.get('hivp.checkCertification.view.queryConditions').d('查询条件')}</b>
-                  </h3>
-                  <Form dataSet={queryDataSet} columns={3}>
-                    <Lov name="authenticationDateObj" />
-                    <TextField name="currentCertState" />
-                  </Form>
-                </div>
-                <div
-                  style={{
-                    background: 'rgb(0,0,0,0.02)',
-                    padding: '10px 10px 0px',
-                    margin: '10px 0 10px 0',
-                  }}
-                >
-                  <h3>
-                    <b>
-                      {intl.get('hivp.checkCertification.view.automaticRules').d('自动规则设置')}
-                    </b>
-                  </h3>
-                  <Form dataSet={automaticStatisticsDS} columns={3}>
-                    <CheckBox
-                      name="autoSignatureSign"
-                      onBlur={() => automaticStatisticsDS.submit()}
-                    />
-                    <TextField name="mailbox" onBlur={() => automaticStatisticsDS.submit()} />
-                    <TextField
-                      name="autoStatisticsTime"
-                      onBlur={() => automaticStatisticsDS.submit()}
-                      showHelp={ShowHelp.tooltip}
-                      help={intl
-                        .get(`${modelCode}.view.autoStatisticsInfo`)
-                        .d(
-                          '填入15日之前获取的所属期为当月的前一月所属期，填写天数若大于当月最大天数，则默认为当月最后一天'
-                        )}
-                    />
-                    <CheckBox
-                      name="autoStatisticsSign"
-                      onBlur={() => automaticStatisticsDS.submit()}
-                    />
-                    <Password
-                      name="confirmPassword"
-                      reveal={false}
-                      onBlur={() => automaticStatisticsDS.submit()}
-                    />
-                    <TextField
-                      name="autoSignatureTime"
-                      onBlur={() => automaticStatisticsDS.submit()}
-                      showHelp={ShowHelp.tooltip}
-                      help={intl
-                        .get(`${modelCode}.view.autoConfirmInfo`)
-                        .d(
-                          '自动统计日期在1-15时，自动确签日期须大于等于统计日期。填写天数若大于当月最大天数，则默认为当月最后一天'
-                        )}
-                    />
-                  </Form>
-                </div>
-              </div>
-            ) : (
-              <Form dataSet={queryDataSet} columns={3}>
-                <Lov name="authenticationDateObj" />
-                <TextField name="currentCertState" />
-              </Form>
-            )}
+          <Col span={18}>
+            <Form dataSet={queryDataSet} columns={3}>
+              <TextField name="currentPeriod" />
+              <Select name="currentCertState" />
+              <DatePicker name="currentOperationalDeadline" />
+              {showMore && queryMoreArray}
+            </Form>
           </Col>
-          <Col span={4} style={{ textAlign: 'end', marginBottom: '4px' }}>
+          <Col span={6} style={{ textAlign: 'end', marginBottom: '4px' }}>
             <Button funcType={FuncType.link} onClick={() => setShowMore(!showMore)}>
               {showMore ? (
                 <span>

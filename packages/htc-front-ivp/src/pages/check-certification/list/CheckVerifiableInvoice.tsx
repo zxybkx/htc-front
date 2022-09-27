@@ -222,15 +222,19 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     },
     { name: 'invoiceState' },
     { name: 'isPoolFlag' },
+    { name: 'entryAccountState' },
+    { name: 'rzrq' },
+    { name: 'receiptsState', width: 130 },
+    { name: 'systemCodeObj' },
+    { name: 'documentTypeCodeObj' },
+    { name: 'documentNumberObj' },
     { name: 'checkDate', width: 130 },
     { name: 'authenticationState' },
     { name: 'authenticationType' },
     { name: 'infoSource' },
     { name: 'taxBureauManageState', width: 120 },
     { name: 'isEntryNotConform', width: 150 },
-    // { name: 'purpose' },
-    { name: 'entryAccountState' },
-    { name: 'receiptsState' },
+    { name: 'yt' },
     { name: 'abnormalSign', width: 150 },
     { name: 'annotation', width: 200 },
     { name: 'batchNumber' },
@@ -710,7 +714,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     queryMoreArray.push(<TextField name="invoiceCode" />);
     queryMoreArray.push(<TextField name="invoiceNumber" />);
     queryMoreArray.push(<DatePicker name="invoiceDate" />);
-    queryMoreArray.push(<Select name="gxzt" />);
+    queryMoreArray.push(<Select name="checkState" />);
     queryMoreArray.push(<Lov name="systemCodeObj" />);
     queryMoreArray.push(<Lov name="documentTypeCodeObj" />);
     queryMoreArray.push(<Lov name="documentNumberObj" />);

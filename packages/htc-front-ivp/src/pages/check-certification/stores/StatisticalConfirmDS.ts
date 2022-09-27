@@ -14,6 +14,7 @@ import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import { EMAIL } from 'utils/regExp';
+import moment from 'moment';
 
 const modelCode = 'hivp.checkCertification';
 const API_PREFIX = commonConfig.IVP_API || '';
@@ -90,19 +91,54 @@ export default (): DataSetProps => {
           type: FieldType.number,
         },
         {
+          name: 'currentPeriod',
+          label: intl.get('hivp.taxRefund.view.tjyf').d('当前所属期'),
+          type: FieldType.string,
+          readOnly: true,
+          required: true,
+        },
+        {
+          name: 'currentOperationalDeadline',
+          label: intl.get(`${modelCode}.view.currentOperationalDeadline`).d('当前可操作截止时间'),
+          labelWidth: '130',
+          type: FieldType.string,
+          transformRequest: value => moment(value).format('YYYY-MM-DD'),
+          readOnly: true,
+        },
+        {
+          name: 'currentCertState',
+          label: intl.get('hivp.taxRefund.view.currentCertState').d('当前认证状态'),
+          type: FieldType.string,
+          lookupCode: 'HIVP.CHECK_CONFIRM_STATE',
+          readOnly: true,
+        },
+        {
+          name: 'qqlx',
+          label: intl.get('hivp.taxRefund.view.qqlx').d('请求类型'),
+          type: FieldType.string,
+          lookupCode: 'HIVP.CERT_REQUEST_TYPE',
+          multiple: ',',
+          defaultValue: [
+            'APPLY_FOR_STATISTICS',
+            'CANCEL_FOR_STATISTICS',
+            'APPLY_FOR_CONFIRM',
+            'CANCEL_FOR_CONFIRM',
+          ],
+        },
+        {
           name: 'authenticationDateObj',
           label: intl.get(`${modelCode}.view.authenticationDateObj`).d('认证所属期'),
           type: FieldType.object,
           lovCode: 'HIVP.BUSINESS_TIME_INFO',
           cascadeMap: { companyId: 'companyId' },
           ignore: FieldIgnore.always,
+          multiple: ',',
           required: true,
         },
         {
           name: 'statisticalPeriod',
           type: FieldType.string,
           bind: 'authenticationDateObj.currentPeriod',
-          // ignore: FieldIgnore.always,
         },
         {
           name: 'currentCertState',
