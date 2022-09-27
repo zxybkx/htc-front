@@ -96,7 +96,7 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
 
       if (!fileName) {
         const fileUrl = this.queryDS.current && this.queryDS.current.get('fileUrl');
-        const res = getResponse(await fileStream({ tenantId, fileUrl, fileType: recordType }));
+        const res = getResponse(await fileStream({ tenantId, fileUrl }));
         if (res && res.status === '1000') {
           const { baseFile, fileDownLoadUrl } = res.data;
           curImgUrl = baseFile;
