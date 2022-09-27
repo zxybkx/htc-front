@@ -30,13 +30,13 @@ import {
   confirmSignature,
   judgeButton,
   refreshAllState,
-  refreshState,
+  // refreshState,
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import { getResponse } from 'utils/utils';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
-import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
+import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
+import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import queryString from 'query-string';
 import { observer } from 'mobx-react-lite';
 import moment from 'moment';
@@ -124,30 +124,30 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   useEffect(() => setCompanyObjFromProps(), [empInfo, currentPeriodData]);
 
   // 当期已勾选发票统计确签:行刷新
-  const statisticalConfirmLineRefresh = async record => {
-    const recordData = record.toData();
-    const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
-    const { invoiceOperationId, detailInfoHeaderId, requestType, batchNo } = recordData;
-    const params = {
-      tenantId,
-      companyId,
-      companyCode,
-      employeeId,
-      employeeNumber,
-      invoiceOperationId,
-      detailInfoHeaderId,
-      requestType,
-      batchNo,
-    };
-    const res = getResponse(await refreshState(params));
-    if (res) {
-      notification.success({
-        description: '',
-        message: intl.get('hzero.common.notification.success').d('操作成功'),
-      });
-      if (statisticalConfirmDS) statisticalConfirmDS.query();
-    }
-  };
+  // const statisticalConfirmLineRefresh = async record => {
+  //   const recordData = record.toData();
+  //   const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
+  //   const { invoiceOperationId, detailInfoHeaderId, requestType, batchNo } = recordData;
+  //   const params = {
+  //     tenantId,
+  //     companyId,
+  //     companyCode,
+  //     employeeId,
+  //     employeeNumber,
+  //     invoiceOperationId,
+  //     detailInfoHeaderId,
+  //     requestType,
+  //     batchNo,
+  //   };
+  //   const res = getResponse(await refreshState(params));
+  //   if (res) {
+  //     notification.success({
+  //       description: '',
+  //       message: intl.get('hzero.common.notification.success').d('操作成功'),
+  //     });
+  //     if (statisticalConfirmDS) statisticalConfirmDS.query();
+  //   }
+  // };
 
   const statisticalConfirmColumns: Array<ColumnProps> = [
     { name: 'currentPeriod' },
@@ -219,27 +219,27 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     { name: 'completeTime', width: 160 },
     { name: 'checkConfirmState', width: 150 },
     { name: 'employeeNumber' },
-    {
-      name: 'operation',
-      header: intl.get('hzero.common.action').d('操作'),
-      width: 150,
-      command: ({ record }): Commands[] => {
-        const records = record.toData();
-        const isDisabled = records.requestState !== 'RUNNING';
-        return [
-          <Button
-            key="refresh"
-            onClick={() => statisticalConfirmLineRefresh(record)}
-            disabled={isDisabled}
-            funcType={FuncType.link}
-          >
-            {intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态')}
-          </Button>,
-        ];
-      },
-      lock: ColumnLock.right,
-      align: ColumnAlign.center,
-    },
+    // {
+    //   name: 'operation',
+    //   header: intl.get('hzero.common.action').d('操作'),
+    //   width: 150,
+    //   command: ({ record }): Commands[] => {
+    //     const records = record.toData();
+    //     const isDisabled = records.requestState !== 'RUNNING';
+    //     return [
+    //       <Button
+    //         key="refresh"
+    //         onClick={() => statisticalConfirmLineRefresh(record)}
+    //         disabled={isDisabled}
+    //         funcType={FuncType.link}
+    //       >
+    //         {intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态')}
+    //       </Button>,
+    //     ];
+    //   },
+    //   lock: ColumnLock.right,
+    //   align: ColumnAlign.center,
+    // },
   ];
 
   const BatchBtn = observer((btnProps: any) => {

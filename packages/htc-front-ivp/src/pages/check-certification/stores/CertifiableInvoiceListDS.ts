@@ -31,6 +31,17 @@ const validTaxAmountValidator = (value, name, record) => {
   return undefined;
 };
 
+const currentPeriodStart = record => {
+  const currentPeriod = record.get('currentPeriod');
+  console.log('currentPeriod', currentPeriod);
+  const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
+  const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
+  return {
+    rzrqq: dateFrom,
+    rzrqz: dateTo,
+  };
+};
+
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
@@ -376,7 +387,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'invoiceCategory',
-          label: intl.get('htc.common.view.invoiceType').d('发票类别'),
+          label: intl.get(`${modelCode}.view.invoiceType`).d('发票类别'),
           type: FieldType.string,
           defaultValue: '01',
           lookupCode: 'HIVC.INVOICE_CATEGORY',
@@ -394,17 +405,65 @@ export default (): DataSetProps => {
           type: FieldType.string,
         },
         {
+          name: 'invoiceDate',
+          label: intl.get(`htc.common.view.invoiceDate`).d('开票日期'),
+          type: FieldType.date,
+          required: true,
+          range: ['invoiceDateFrom', 'invoiceDateTo'],
+          ignore: FieldIgnore.always,
+        },
+        {
           name: 'invoiceDateFrom',
           label: intl.get('hivp.bill.view.invoiceDateFrom').d('开票日期从'),
           type: FieldType.date,
-          max: 'invoiceDateTo',
+          // max: 'invoiceDateTo',
+          bind: 'invoiceDate.invoiceDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'invoiceDateTo',
           label: intl.get('hivp.bill.view.invoiceDateTo').d('开票日期至'),
           type: FieldType.date,
-          min: 'invoiceDateFrom',
+          bind: 'invoiceDate.invoiceDateTo',
+          // min: 'invoiceDateFrom',
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'gxzt',
+          label: intl.get(`${modelCode}.view.gxzt`).d('勾选状态'),
+          type: FieldType.string,
+          lookupCode: 'HIVP.CHECK_STATE',
+        },
+        {
+          name: 'entryAccountState',
+          label: intl.get('hivp.bill.view.entryAccountState').d('入账状态'),
+          type: FieldType.string,
+          lookupCode: 'HIVP.ACCOUNT_STATE',
+        },
+        {
+          name: 'entryAccountDate',
+          label: intl.get(`htc.common.view.entryAccountDate`).d('入账日期'),
+          type: FieldType.date,
+          range: ['rzrqq', 'rzrqz'],
+          computedProps: {
+            defaultValue: ({ record }) => currentPeriodStart(record),
+          },
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'rzrqq',
+          label: intl.get('hivp.bill.view.rzrqq').d('入账日期从'),
+          type: FieldType.date,
+          // max: 'invoiceDateTo',
+          bind: 'entryAccountDate.rzrqq',
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'rzrqz',
+          label: intl.get('hivp.bill.view.rzrqz').d('入账日期至'),
+          type: FieldType.date,
+          bind: 'entryAccountDate.rzrqz',
+          // min: 'invoiceDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {

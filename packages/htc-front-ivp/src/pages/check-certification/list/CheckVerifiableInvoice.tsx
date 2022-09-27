@@ -130,19 +130,22 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   const setCurrentPeriodFromProps = () => {
     if (certifiableInvoiceListDS) {
       const { queryDataSet } = certifiableInvoiceListDS;
-      const {
-        currentPeriod,
-        currentOperationalDeadline,
-        checkableTimeRange,
-        currentCertState,
-      } = currentPeriodData;
       if (queryDataSet && queryDataSet.current) {
-        queryDataSet.current!.set({
-          currentPeriod,
-          currentOperationalDeadline,
-          checkableTimeRange,
-          currentCertState,
-        });
+        const curCurrentPeriod = queryDataSet.current!.get('currentPeriod');
+        if (!curCurrentPeriod) {
+          const {
+            currentPeriod,
+            currentOperationalDeadline,
+            checkableTimeRange,
+            currentCertState,
+          } = currentPeriodData;
+          queryDataSet.current!.set({
+            currentPeriod,
+            currentOperationalDeadline,
+            checkableTimeRange,
+            currentCertState,
+          });
+        }
       }
     }
   };
@@ -263,7 +266,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     { name: 'infoSource' },
     { name: 'taxBureauManageState', width: 120 },
     { name: 'isEntryNotConform', width: 150 },
-    { name: 'purpose' },
+    // { name: 'purpose' },
     { name: 'entryAccountState' },
     { name: 'receiptsState' },
     { name: 'abnormalSign', width: 150 },
@@ -309,8 +312,9 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     }
     if (certifiableInvoiceListDS) {
       const { queryDataSet } = certifiableInvoiceListDS;
-      const { currentPeriod } = currentPeriodData;
+      // const { currentPeriod } = currentPeriodData;
       const invoiceCategory = queryDataSet?.current?.get('invoiceCategory');
+      const currentPeriod = queryDataSet?.current?.get('currentPeriod');
       if (invoiceCategory === '01') {
         // 增值税
         const data = selectedList?.map((record: any) => {
@@ -373,32 +377,50 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
 
   // 提交勾选请求
   const handleSubmitTickRequest = () => {
-    const selectedList = certifiableInvoiceListDS?.selected.map(rec => rec.toData());
-    if (selectedList?.some(item => item.invoiceState !== '0' || item.checkState !== '0')) {
-      notification.warning({
-        message: intl
-          .get(`${modelCode}.view.tickInvalid`)
-          .d('存在发票状态为非“正常”或勾选状态为非“未勾选”的数据，不允许提交'),
-        description: '',
-      });
-      return;
+    if (certifiableInvoiceListDS) {
+      const { queryDataSet } = certifiableInvoiceListDS;
+      const currentCertState = queryDataSet && queryDataSet.current?.get('currentCertState');
+      const selectedList = certifiableInvoiceListDS?.selected.map(rec => rec.toData());
+      if (
+        !['0', '1'].includes(currentCertState) ||
+        selectedList?.some(item => item.invoiceState !== '0' || item.checkState !== '0')
+      ) {
+        notification.warning({
+          message: intl
+            .get(`${modelCode}.view.tickInvalid`)
+            .d(
+              '当前认证状态为“未勾选认证/勾选阶段"、 发票状态为“正常”、勾选状态为“未勾选”的数据，才允许提交'
+            ),
+          description: '',
+        });
+        return;
+      }
+      checkRequest(1);
     }
-    checkRequest(1);
   };
 
   // 提交取消勾选请求
   const handleSubmitCancelTickRequest = () => {
-    const selectedList = certifiableInvoiceListDS?.selected.map(rec => rec.toData());
-    if (selectedList?.some(item => item.invoiceState !== '0' || item.checkState !== '1')) {
-      notification.warning({
-        message: intl
-          .get(`${modelCode}.view.tickInvalid1`)
-          .d('存在发票状态为非“正常”或勾选状态为非“已勾选”的数据，不允许提交'),
-        description: '',
-      });
-      return;
+    if (certifiableInvoiceListDS) {
+      const { queryDataSet } = certifiableInvoiceListDS;
+      const currentCertState = queryDataSet && queryDataSet.current?.get('currentCertState');
+      const selectedList = certifiableInvoiceListDS?.selected.map(rec => rec.toData());
+      if (
+        !['0', '1'].includes(currentCertState) ||
+        selectedList?.some(item => item.invoiceState !== '0' || item.checkState !== '1')
+      ) {
+        notification.warning({
+          message: intl
+            .get(`${modelCode}.view.tickInvalid1`)
+            .d(
+              '当前认证状态为“未勾选认证/勾选阶段"、 发票状态为“正常”、勾选状态为“已勾选”的数据，才允许提交'
+            ),
+          description: '',
+        });
+        return;
+      }
+      checkRequest(0);
     }
-    checkRequest(0);
   };
 
   /**
@@ -437,8 +459,10 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         invoiceNumber,
         invoiceDateFrom,
         invoiceDateTo,
+        currentPeriod,
+        checkableTimeRange,
       } = certifiableQueryData;
-      const { currentPeriod, checkableTimeRange } = currentPeriodData;
+      // const { currentPeriod, checkableTimeRange } = currentPeriodData;
       const findParams = {
         tenantId,
         companyId,
@@ -505,7 +529,9 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     }
     if (queryDataSet) {
       const companyDesc = `${companyCode}-${companyName}`;
-      const { currentPeriod, currentCertState } = currentPeriodData;
+      const currentPeriod = queryDataSet.current!.get('currentPeriod');
+      const currentCertState = queryDataSet.current!.get('currentCertState');
+      // const { currentPeriod, currentCertState } = currentPeriodData;
       history.push({
         pathname,
         search: queryString.stringify({
@@ -531,9 +557,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     const selectedList = certifiableInvoiceListDS?.selected.map(rec => rec.toData());
     if (selectedList?.some(item => item.checkState !== 'R')) {
       notification.warning({
-        message: intl
-          .get(`${modelCode}.view.tickInvalid2`)
-          .d('存在勾选状态为非“请求中”的数据，不允许刷新'),
+        message: intl.get(`${modelCode}.view.tickInvalid2`).d('状态为“请求中”的数据，才允许刷新'),
         description: '',
       });
       return;
@@ -616,8 +640,10 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     </Menu>
   );
 
-  const VerifiableButton = btnProps => {
-    const { currentPeriod } = currentPeriodData;
+  const VerifiableButton = observer((btnProps: any) => {
+    // const { currentPeriod } = currentPeriodData;
+    const { queryDataSet } = btnProps.dataSet;
+    const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
     const isDisabled = !currentPeriod || checkInvoiceCount !== 0;
     return (
       <Button
@@ -629,10 +655,12 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         {btnProps.title}
       </Button>
     );
-  };
+  });
 
-  const CertifiedDetail = btnProps => {
-    const { currentPeriod } = currentPeriodData;
+  const CertifiedDetail = observer((btnProps: any) => {
+    // const { currentPeriod } = currentPeriodData;
+    const { queryDataSet } = btnProps.dataSet;
+    const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
     const isDisabled = !currentPeriod;
     return (
       <Button
@@ -644,7 +672,28 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         {btnProps.title}
       </Button>
     );
-  };
+  });
+
+  const FreshButton = observer((btnProps: any) => {
+    const { inChannelCode } = empInfo;
+    const isDisabled = btnProps.dataSet!.selected.length === 0;
+    const { condition } = btnProps;
+    return (
+      <Button
+        key={btnProps.key}
+        onClick={btnProps.onClick}
+        disabled={isDisabled}
+        funcType={condition === 'refresh' ? FuncType.flat : FuncType.link}
+        style={{
+          display: ['AISINO_IN_CHANNEL', 'AISINO_IN_CHANNEL_PLUG'].includes(inChannelCode)
+            ? 'inline'
+            : 'none',
+        }}
+      >
+        {btnProps.title}
+      </Button>
+    );
+  });
 
   const tableButtons: Buttons[] = [
     <Dropdown overlay={btnMenu}>
@@ -666,7 +715,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       onClick={() => handleGoToDetail()}
       title={intl.get(`${modelCode}.button.certifiedDetails`).d('已认证详情')}
     />,
-    <TickButton
+    <FreshButton
       key="refresh"
       onClick={() => verifiableRefresh()}
       dataSet={certifiableInvoiceListDS}
@@ -726,12 +775,17 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       });
     }
     const queryMoreArray: JSX.Element[] = [];
-    queryMoreArray.push(<TextField name="checkableTimeRange" />);
     queryMoreArray.push(<Select name="currentCertState" />);
+    queryMoreArray.push(
+      <Select name="invoiceCategory" onChange={value => setInvoiceCategory(value)} />
+    );
     queryMoreArray.push(<TextField name="invoiceCode" />);
     queryMoreArray.push(<TextField name="invoiceNumber" />);
-    queryMoreArray.push(<DatePicker name="invoiceDateFrom" />);
-    queryMoreArray.push(<DatePicker name="invoiceDateTo" />);
+    queryMoreArray.push(<DatePicker name="invoiceDate" />);
+    queryMoreArray.push(<Select name="gxzt" />);
+    queryMoreArray.push(<Select name="isPoolFlag" />);
+    queryMoreArray.push(<Select name="entryAccountState" />);
+    queryMoreArray.push(<DatePicker name="entryAccountDate" />);
     queryMoreArray.push(<Select name="managementState" />);
     queryMoreArray.push(<Select name="invoiceState" />);
     queryMoreArray.push(
@@ -757,14 +811,13 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     queryMoreArray.push(<Currency name="amount" />);
     queryMoreArray.push(<Currency name="taxAmount" />);
     queryMoreArray.push(<Currency name="validTaxAmount" />);
-    queryMoreArray.push(<Select name="isPoolFlag" />);
     return (
       <div style={{ marginBottom: '0.1rem' }}>
         <Row>
           <Col span={18}>
             <Form dataSet={queryDataSet} columns={3}>
               <TextField name="currentPeriod" />
-              <Select name="invoiceCategory" onChange={value => setInvoiceCategory(value)} />
+              <TextField name="checkableTimeRange" />
               <DatePicker name="currentOperationalDeadline" />
               {verfiableMoreDisplay && queryMoreArray}
             </Form>
