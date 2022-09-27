@@ -79,43 +79,43 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
   const [showMore, setShowMore] = useState<boolean>(false);
 
-  const setInitialValue = () => {
+  const setCompanyObjFromProps = () => {
     if (batchInvoiceHeaderDS) {
       const { queryDataSet } = batchInvoiceHeaderDS;
       const tjyf = queryDataSet?.current?.get('tjyf');
       const { companyId } = empInfo;
-      if (queryDataSet) {
+      if (queryDataSet && queryDataSet.current) {
+        queryDataSet.current!.set({
+          companyObj: empInfo,
+          authorityCode: empInfo.authorityCode,
+        });
+      }
+      if (tjyf && companyId) batchInvoiceHeaderDS.query();
+    }
+  };
+
+  const setCurrentPeriodFromProps = () => {
+    if (batchInvoiceHeaderDS) {
+      const { queryDataSet } = batchInvoiceHeaderDS;
+      if (queryDataSet && queryDataSet.current) {
         const {
           currentPeriod,
           currentOperationalDeadline,
           checkableTimeRange,
           currentCertState,
         } = currentPeriodData;
-        if (queryDataSet.current) {
-          queryDataSet.current!.set({
-            companyObj: empInfo,
-            authorityCode: empInfo.authorityCode,
-            tjyf: currentPeriod,
-            currentOperationalDeadline,
-            checkableTimeRange,
-            currentCertState,
-          });
-        } else {
-          queryDataSet.create({
-            companyObj: empInfo,
-            authorityCode: empInfo.authorityCode,
-            tjyf: currentPeriod,
-            currentOperationalDeadline,
-            checkableTimeRange,
-            currentCertState,
-          });
-        }
+        queryDataSet.current!.set({
+          tjyf: currentPeriod,
+          currentOperationalDeadline,
+          checkableTimeRange,
+          currentCertState,
+        });
       }
-      if (tjyf && companyId) batchInvoiceHeaderDS.query();
     }
   };
 
-  useEffect(() => setInitialValue(), [empInfo, currentPeriodData]);
+  useEffect(() => setCompanyObjFromProps(), [empInfo]);
+  useEffect(() => setCurrentPeriodFromProps(), [currentPeriodData]);
 
   const handleUploadSuccess = response => {
     if (batchInvoiceHeaderDS) {
