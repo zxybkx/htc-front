@@ -42,7 +42,6 @@ export default (): DataSetProps => {
     },
     paging: false,
     selection: false,
-    primaryKey: 'rulesHeaderId',
     events: {
       update: ({ record, name }) => {
         if (name === 'systemCodeObj') {
@@ -78,7 +77,7 @@ export default (): DataSetProps => {
           return value ? 1 : 0;
         },
         transformResponse(value) {
-          return value !== 0;
+          return value === 1;
         },
       },
       {
@@ -91,7 +90,7 @@ export default (): DataSetProps => {
         },
       },
       {
-        name: 'autoStatisticsDate',
+        name: 'autoStatisticsTime',
         label: intl.get('hivp.checkRule').d('自动统计日期'),
         lookupCode: 'HIVP.AUTO_STATISTICS_TIME',
         type: FieldType.string,
@@ -108,7 +107,7 @@ export default (): DataSetProps => {
           return value ? 1 : 0;
         },
         transformResponse(value) {
-          return value !== 0;
+          return value === 1;
         },
       },
       {
@@ -127,8 +126,7 @@ export default (): DataSetProps => {
           required: ({ record }) => record.get('autoSignatureSign'),
         },
         validator: (value, _, record: any) => {
-          console.log(value, record?.get('autoStatisticsDate'));
-          if (value > record?.get('autoStatisticsDate')) {
+          if (value > record?.get('autoStatisticsTime')) {
             return intl.get('hivp.invoices').d('自动确签日期必须小于等于自动统计日期');
           }
         },
@@ -204,6 +202,14 @@ export default (): DataSetProps => {
         type: FieldType.string,
         multiple: ',',
         lookupCode: 'HIVP.ACCOUNT_STATE',
+      },
+      {
+        name: 'employeeId',
+        type: FieldType.string,
+      },
+      {
+        name: 'employeeNum',
+        type: FieldType.string,
       },
     ],
     queryDataSet: new DataSet({

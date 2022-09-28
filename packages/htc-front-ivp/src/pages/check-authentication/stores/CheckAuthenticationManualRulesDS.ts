@@ -223,6 +223,14 @@ export default (): DataSetProps => {
         type: FieldType.number,
       },
       {
+        name: 'companyCode',
+        type: FieldType.string,
+      },
+      {
+        name: 'employeeNumber',
+        type: FieldType.string,
+      },
+      {
         name: 'certifiedQueryMonthObj',
         label: intl.get('hivp.checkRule').d('已认证查询月份'),
         type: FieldType.object,

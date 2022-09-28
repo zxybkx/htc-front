@@ -104,7 +104,7 @@ const InvoiceRuleHeaderForm: FunctionComponent<Props> = (props: Props) => {
           <CheckBox name="autoStatisticsSign" />
           <TextField name="mailbox" />
           <Select
-            name="autoStatisticsDate"
+            name="autoStatisticsTime"
             help={intl
               .get('hivp.checkRule')
               .d(
