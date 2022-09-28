@@ -1,9 +1,9 @@
-/*
- * @Description:当期勾选(取消)可认证发票
+/**
+ * @Description:不抵扣勾选
  * @version: 1.0
- * @Author: shan.zhang@hand-china.com
- * @Date: 2020-09-29 10:24:22
- * @LastEditTime: 2022-09-02 11:03:24
+ * @Author: xinyan.zhou@hand-china.com
+ * @Date: 2022-09-28 15:01
+ * @LastEditTime:
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -203,6 +203,11 @@ export default (): DataSetProps => {
         type: FieldType.currency,
         validator: (value, name, record) =>
           Promise.resolve(validTaxAmountValidator(value, name, record)),
+      },
+      {
+        name: 'bdkyy',
+        label: intl.get('hivp.bill.view.bdkyy').d('不抵扣原因'),
+        type: FieldType.string,
       },
       {
         name: 'invoiceState',
@@ -650,6 +655,11 @@ export default (): DataSetProps => {
           type: FieldType.string,
           lookupCode: 'HTC.HIVP.ISPOOL_FLAG',
           defaultValue: 'Y',
+        },
+        {
+          name: 'bdkyy',
+          label: intl.get('hivp.bill.view.bdkyy').d('不抵扣原因'),
+          type: FieldType.string,
         },
       ],
     }),

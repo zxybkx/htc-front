@@ -157,6 +157,7 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.tjyf`).d('当前所属期'),
           type: FieldType.string,
           readOnly: true,
+          required: true,
           ignore: FieldIgnore.always,
         },
         {

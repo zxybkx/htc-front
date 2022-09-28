@@ -50,6 +50,7 @@ import CompanyAndPasswordDS from '../stores/CompanyAndPasswordDS';
 import CheckVerifiableInvoiceTable from './CheckVerifiableInvoice';
 import ApplicationStatisticsConfirmationTable from './ApplicationStatisticsConfirmation';
 import BatchCheckVerifiableInvoicesTable from './BatchCheckVerifiableInvoices';
+import NotDeductCheck from './NotDeductCheck';
 import { CategoryProvider } from './CommonStore';
 import styles from '../checkcertification.less';
 
@@ -488,6 +489,17 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
                   key="batchInvoice"
                 >
                   <BatchCheckVerifiableInvoicesTable
+                    companyAndPassword={companyAndPassword}
+                    empInfo={empInfo}
+                    currentPeriodData={currentPeriod}
+                    history={history}
+                  />
+                </TabPane>
+                <TabPane
+                  tab={intl.get(`${modelCode}.tabPane.noDeductCheck`).d('不抵扣勾选')}
+                  key="noDeductCheck"
+                >
+                  <NotDeductCheck
                     companyAndPassword={companyAndPassword}
                     empInfo={empInfo}
                     currentPeriodData={currentPeriod}
