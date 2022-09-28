@@ -3,14 +3,14 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-06-15 16:48
- * @LastEditTime:
+ * @LastEditTime: 2022-09-28
  * @Copyright: Copyright (c) 2022, Hand
  */
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { Content, Header } from 'components/Page';
-import { DataSet, Table } from 'choerodon-ui/pro';
+import { DataSet, Table, Button } from 'choerodon-ui/pro';
 import { Tag } from 'choerodon-ui';
 import { Bind } from 'lodash-decorators';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
@@ -146,6 +146,7 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
         editor: record => record?.get('checkState') === '0',
         width: 150,
       },
+      { name: 'bdkyy', editor: true, width: 150 },
       { name: 'isMatch' },
       { name: 'invoiceState' },
       {
@@ -159,14 +160,37 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
       { name: 'taxBureauManageState', width: 120 },
       { name: 'purpose' },
       { name: 'entryAccountState' },
-      { name: 'receiptsState' },
+      { name: 'receiptsState', width: 120 },
       { name: 'abnormalSign', width: 150 },
       { name: 'annotation', width: 200 },
     ];
   }
 
+  @Bind()
+  setReasons() {}
+
   get buttons(): Buttons[] {
-    return [TableButtonType.save, TableButtonType.delete];
+    const { search } = this.props.location;
+    const batchInvoiceInfoStr = new URLSearchParams(search).get('batchInvoiceInfo');
+    let inChannelCode;
+    if (batchInvoiceInfoStr) {
+      const batchInvoiceInfo = JSON.parse(decodeURIComponent(batchInvoiceInfoStr));
+      ({ inChannelCode } = batchInvoiceInfo);
+    }
+    return [
+      <Button
+        style={{
+          display: ['ZK_IN_CHANNEL_DIGITAL', 'ZK_IN_CHANNEL'].includes(inChannelCode)
+            ? 'inline'
+            : 'none',
+        }}
+        onClick={() => this.setReasons()}
+      >
+        {intl.get(`${modelCode}.button.batchReasons`).d('批量设置不抵扣原因')}
+      </Button>,
+      TableButtonType.save,
+      TableButtonType.delete,
+    ];
   }
 
   render() {

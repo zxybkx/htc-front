@@ -505,7 +505,7 @@ export default (): DataSetProps => {
           lovCode: 'HTC.DOCUMENT_TYPE_LOV',
           computedProps: {
             lovPara: ({ record }) => {
-              return { enabledFlag: 1, docTypeHeaderId: record.get('sysTypeHeaderId').join(',') };
+              return { docTypeHeaderId: record.get('sysTypeHeaderId').join(',') };
             },
             disabled: ({ record }) => {
               return !record.get('sysTypeHeaderId').length;
@@ -529,11 +529,11 @@ export default (): DataSetProps => {
           name: 'documentNumberObj',
           label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
           type: FieldType.object,
-          lovCode: 'HTC.DOCUMENT_CODE',
+          lovCode: 'HTC.DOCUMENT_CODE_LOV',
           multiple: ',',
           computedProps: {
             lovPara: ({ record }) => {
-              return { enabledFlag: 1, docTypeHeaderId: record.get('docTypeHeaderId').join(',') };
+              return { docTypeHeaderId: record.get('docTypeHeaderId').join(',') };
             },
             disabled: ({ record }) => {
               return !record.get('docTypeHeaderId').length;

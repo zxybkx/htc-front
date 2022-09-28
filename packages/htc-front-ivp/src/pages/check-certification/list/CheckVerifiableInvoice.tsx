@@ -346,7 +346,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     if (certifiableInvoiceListDS) {
       const { queryDataSet } = certifiableInvoiceListDS;
       const currentCertState = queryDataSet && queryDataSet.current?.get('currentCertState');
-      const selectedList = certifiableInvoiceListDS?.selected.map(rec => rec.toData());
+      const selectedList = certifiableInvoiceListDS.selected.map(rec => rec.toData());
       if (
         !['0', '1'].includes(currentCertState) ||
         selectedList?.some(item => item.invoiceState !== '0' || item.checkState !== '0')
@@ -643,13 +643,12 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   const FreshButton = observer((btnProps: any) => {
     const { inChannelCode } = empInfo;
     const isDisabled = btnProps.dataSet!.selected.length === 0;
-    const { condition } = btnProps;
     return (
       <Button
         key={btnProps.key}
         onClick={btnProps.onClick}
         disabled={isDisabled}
-        funcType={condition === 'refresh' ? FuncType.flat : FuncType.link}
+        funcType={FuncType.flat}
         style={{
           display: ['AISINO_IN_CHANNEL', 'AISINO_IN_CHANNEL_PLUG'].includes(inChannelCode)
             ? 'inline'
@@ -686,7 +685,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       onClick={() => verifiableRefresh()}
       dataSet={certifiableInvoiceListDS}
       title={intl.get('hiop.invoiceWorkbench.button.refresh').d('刷新状态')}
-      condition="refresh"
     />,
   ];
 

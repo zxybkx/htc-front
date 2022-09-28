@@ -127,6 +127,11 @@ export default (dsParams): DataSetProps => {
         type: FieldType.currency,
       },
       {
+        name: 'bdkyy',
+        label: intl.get('hivp.bill.view.bdkyy').d('不抵扣原因'),
+        type: FieldType.string,
+      },
+      {
         name: 'isMatch',
         label: intl.get('hivp.checkCertification.view.isMatch').d('发票匹配'),
         type: FieldType.string,
@@ -240,6 +245,11 @@ export default (dsParams): DataSetProps => {
         label: intl.get(`${modelCode}.view.checkState`).d('勾选状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.CHECK_STATE',
+      },
+      {
+        name: 'bdkyy',
+        label: intl.get('hivp.bill.view.bdkyy').d('不抵扣原因'),
+        type: FieldType.string,
       },
       {
         name: 'failedDetail',

@@ -491,7 +491,6 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
                     companyAndPassword={companyAndPassword}
                     empInfo={empInfo}
                     currentPeriodData={currentPeriod}
-                    checkInvoiceCount={invoiceCount}
                     history={history}
                   />
                 </TabPane>
