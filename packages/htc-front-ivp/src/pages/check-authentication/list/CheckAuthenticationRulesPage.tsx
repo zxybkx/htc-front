@@ -38,7 +38,7 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
   };
 
   checkRuleDS = new DataSet({
-    autoQuery: true,
+    autoQuery: false,
     autoCreate: true,
     ...CheckAuthenticationRulesDS(),
   });
@@ -52,6 +52,23 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
   @Bind()
   async handleChangeCompanyCallBack(empInfo) {
     const { companyCode, companyId, employeeId, employeeNum: employeeNumber } = empInfo;
+    const { queryDataSet, current: checkRuleCurrent } = this.checkRuleDS;
+    const { current } = this.checkRuleManualDS;
+    if (current) {
+      current.set({
+        companyId: empInfo.companyId,
+        companyCode: empInfo.companyCode,
+        employeeNumber: empInfo.employeeNum,
+      });
+    }
+    if (checkRuleCurrent) {
+      checkRuleCurrent.set({
+        companyId: empInfo.companyId,
+        companyName: empInfo.companyName,
+        employeeId: empInfo.employeeId,
+        employeeNum: empInfo.employeeNum,
+      });
+    }
     const timeRes = await getBusinessTime({
       tenantId,
       companyCode,
@@ -59,8 +76,7 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
       employeeId,
       employeeNumber,
     });
-    const { queryDataSet } = this.checkRuleDS;
-    const { current } = this.checkRuleManualDS;
+
     if (queryDataSet && queryDataSet.current) {
       queryDataSet.current.set({ companyObj: empInfo });
       if (timeRes) {
@@ -70,7 +86,6 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
           checkableTimeRange: timeRes.checkableTimeRange,
         });
       }
-      current!.set('companyId', empInfo.companyId);
       this.loadData(empInfo);
       this.setState({ curCompanyId: empInfo.companyId });
     }
@@ -87,12 +102,23 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
 
   @Bind()
   loadData(empInfo) {
-    this.checkRuleDS.query().then(() => {
-      if (this.checkRuleDS.length === 0) {
+    this.checkRuleDS.query().then(res => {
+      const { current: checkRuleCurrent } = this.checkRuleDS;
+      if (checkRuleCurrent) {
+        checkRuleCurrent.set({
+          companyId: empInfo.companyId,
+          companyName: empInfo.companyName,
+          employeeId: empInfo.employeeId,
+          employeeNum: empInfo.employeeNum,
+        });
+      }
+      if (!res) {
         this.checkRuleDS.create(
           {
             companyId: empInfo.companyId,
             companyName: empInfo.companyName,
+            employeeId: empInfo.employeeId,
+            employeeNum: empInfo.employeeNum,
           },
           0
         );
