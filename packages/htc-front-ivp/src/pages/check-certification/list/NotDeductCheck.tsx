@@ -6,7 +6,7 @@
  * @LastEditTime:
  * @Copyright: Copyright (c) 2020, Hand
  */
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Button,
   Currency,
@@ -35,6 +35,7 @@ import { observer } from 'mobx-react-lite';
 import { Col, Icon, Row, Tag } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import NoDeductCheckDS from '../stores/NotDeductCheckDS';
+import InvoiceCategoryContext from './CommonStore';
 
 const { Item: MenuItem } = Menu;
 
@@ -53,6 +54,7 @@ interface CheckCertificationPageProps {
 const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
   const { noDeductCheckDS, companyAndPassword, empInfo, currentPeriodData } = props;
   const [verfiableMoreDisplay, setVerfiableMoreDisplay] = useState<boolean>(false);
+  const { immediatePeriod } = useContext(InvoiceCategoryContext);
 
   const setCompanyObjFromProps = () => {
     if (noDeductCheckDS) {
@@ -70,25 +72,26 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     if (noDeductCheckDS) {
       const { queryDataSet } = noDeductCheckDS;
       if (queryDataSet && queryDataSet.current) {
-        const curCurrentPeriod = queryDataSet.current!.get('currentPeriod');
-        if (!curCurrentPeriod) {
-          const {
-            currentPeriod,
-            currentOperationalDeadline,
-            checkableTimeRange,
-            currentCertState,
-          } = currentPeriodData;
-          const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
-          const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
-          queryDataSet.current!.set({
-            currentPeriod,
-            currentOperationalDeadline,
-            checkableTimeRange,
-            currentCertState,
-            rzrqq: dateFrom,
-            rzrqz: dateTo,
-          });
-        }
+        // const curCurrentPeriod = queryDataSet.current!.get('currentPeriod');
+        // if (!curCurrentPeriod) {
+        const period = immediatePeriod || currentPeriodData;
+        const {
+          currentPeriod,
+          currentOperationalDeadline,
+          checkableTimeRange,
+          currentCertState,
+        } = period;
+        const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
+        const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
+        queryDataSet.current!.set({
+          currentPeriod,
+          currentOperationalDeadline,
+          checkableTimeRange,
+          currentCertState,
+          rzrqq: dateFrom,
+          rzrqz: dateTo,
+        });
+        // }
       }
     }
   };

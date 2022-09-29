@@ -83,7 +83,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     currentPeriodData,
   } = props;
   const [showMore, setShowMore] = useState<boolean>(false);
-  const { invoiceCategory } = useContext(InvoiceCategoryContext);
+  const { invoiceCategory, immediatePeriod } = useContext(InvoiceCategoryContext);
 
   const setCompanyObjFromProps = () => {
     const { companyId, employeeId, employeeNum } = empInfo;
@@ -107,18 +107,19 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   };
 
   const setCurrentPeriodFromProps = () => {
-    const { currentPeriod, currentCertState, currentOperationalDeadline } = currentPeriodData;
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
       if (queryDataSet && queryDataSet.current) {
-        const curCurrentPeriod = queryDataSet.current!.get('currentPeriod');
-        if (!curCurrentPeriod) {
-          queryDataSet.current!.set({
-            currentPeriod,
-            currentOperationalDeadline,
-            currentCertState,
-          });
-        }
+        // const curCurrentPeriod = queryDataSet.current!.get('currentPeriod');
+        const period = immediatePeriod || currentPeriodData;
+        const { currentPeriod, currentCertState, currentOperationalDeadline } = period;
+        // if (!curCurrentPeriod) {
+        queryDataSet.current!.set({
+          currentPeriod,
+          currentOperationalDeadline,
+          currentCertState,
+        });
+        // }
       }
     }
   };
@@ -277,14 +278,16 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
           description: '',
           message: intl
             .get(`${modelCode}.view.tickInvalid6`)
-            .d('存在勾选、取消勾选、运行中的请求或当期认证状态为“已确签”的数据，不允许申请/取消统计'),
+            .d(
+              '存在勾选、取消勾选、运行中的请求或当期认证状态为“已确签”的数据，不允许申请/取消统计'
+            ),
         });
         return;
       }
       const employeeDesc = `${companyCode}-${employeeNumber}-${employeeName}-${mobile}`;
       const companyDesc = `${companyCode}-${companyName}`;
       const statisticalPeriod = statisticalConfirmDS.queryDataSet?.current!.get(
-        'statisticalPeriod',
+        'statisticalPeriod'
       );
       let statisticalFlag;
       if (['0', '1'].includes(currentCertState)) statisticalFlag = 1;
@@ -488,7 +491,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
               invoiceDateToStr,
               companyName,
               authorityCode: empInfo.authorityCode,
-            }),
+            })
           ),
         }),
       });
@@ -544,7 +547,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
             .d('当前认证状态不在统计阶段'),
         });
         // return;
-      } else if(currentCertState === '3' && type === 0) {
+      } else if (currentCertState === '3' && type === 0) {
         notification.warning({
           description: '',
           message: intl
@@ -745,6 +748,6 @@ export default formatterCollections({
         statisticalDetailDS,
       };
     },
-    { cacheState: true },
-  )(ApplicationStatisticsConfirmation),
+    { cacheState: true }
+  )(ApplicationStatisticsConfirmation)
 );

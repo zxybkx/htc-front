@@ -6,7 +6,7 @@
  * @LastEditTime: 2022-09-20 13:49
  * @Copyright: Copyright (c) 2020, Hand
  */
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Button,
   DataSet,
@@ -49,6 +49,7 @@ import formatterCollections from 'utils/intl/formatterCollections';
 import { ValueChangeAction } from 'choerodon-ui/pro/lib/text-field/enum';
 import BatchInvoiceHeaderDS from '../stores/BatchInvoiceHeaderDS';
 import ScanGunModalDS from '../stores/ScanGunModalDS';
+import InvoiceCategoryContext from './CommonStore';
 import styles from '../checkcertification.less';
 
 const { Item: MenuItem } = Menu;
@@ -69,6 +70,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   const { batchInvoiceHeaderDS, empInfo, currentPeriodData, companyAndPassword, history } = props;
   const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
   const [showMore, setShowMore] = useState<boolean>(false);
+  const { immediatePeriod } = useContext(InvoiceCategoryContext);
 
   const setCompanyObjFromProps = () => {
     if (batchInvoiceHeaderDS) {
@@ -89,25 +91,26 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     if (batchInvoiceHeaderDS) {
       const { queryDataSet } = batchInvoiceHeaderDS;
       if (queryDataSet && queryDataSet.current) {
-        const curCurrentPeriod = queryDataSet.current!.get('currentPeriod');
-        if (!curCurrentPeriod) {
-          const {
-            currentPeriod,
-            currentOperationalDeadline,
-            checkableTimeRange,
-            currentCertState,
-          } = currentPeriodData;
-          const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
-          const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
-          queryDataSet.current!.set({
-            currentPeriod,
-            currentOperationalDeadline,
-            checkableTimeRange,
-            currentCertState,
-            rzrqq: dateFrom,
-            rzrqz: dateTo,
-          });
-        }
+        // const curCurrentPeriod = queryDataSet.current!.get('currentPeriod');
+        const period = immediatePeriod || currentPeriodData;
+        // if (!curCurrentPeriod) {
+        const {
+          currentPeriod,
+          currentOperationalDeadline,
+          checkableTimeRange,
+          currentCertState,
+        } = period;
+        const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
+        const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
+        queryDataSet.current!.set({
+          currentPeriod,
+          currentOperationalDeadline,
+          checkableTimeRange,
+          currentCertState,
+          rzrqq: dateFrom,
+          rzrqz: dateTo,
+        });
+        // }
       }
     }
   };

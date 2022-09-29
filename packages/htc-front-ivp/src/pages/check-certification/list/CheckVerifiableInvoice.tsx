@@ -74,7 +74,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   const [progressValue, setProgressValue] = useState<number>(0);
   const [visible, setVisible] = useState<boolean>(false);
   const [verfiableMoreDisplay, setVerfiableMoreDisplay] = useState<boolean>(false);
-  const { setInvoiceCategory } = useContext(InvoiceCategoryContext);
+  const { setInvoiceCategory, immediatePeriod } = useContext(InvoiceCategoryContext);
 
   const setCompanyObjFromProps = () => {
     if (certifiableInvoiceListDS) {
@@ -92,25 +92,26 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     if (certifiableInvoiceListDS) {
       const { queryDataSet } = certifiableInvoiceListDS;
       if (queryDataSet && queryDataSet.current) {
-        const curCurrentPeriod = queryDataSet.current!.get('currentPeriod');
-        if (!curCurrentPeriod) {
-          const {
-            currentPeriod,
-            currentOperationalDeadline,
-            checkableTimeRange,
-            currentCertState,
-          } = currentPeriodData;
-          const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
-          const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
-          queryDataSet.current!.set({
-            currentPeriod,
-            currentOperationalDeadline,
-            checkableTimeRange,
-            currentCertState,
-            rzrqq: dateFrom,
-            rzrqz: dateTo,
-          });
-        }
+        // const curCurrentPeriod = queryDataSet.current!.get('currentPeriod');
+        // if (!curCurrentPeriod) {
+        const period = immediatePeriod || currentPeriodData;
+        const {
+          currentPeriod,
+          currentOperationalDeadline,
+          checkableTimeRange,
+          currentCertState,
+        } = period;
+        const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
+        const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
+        queryDataSet.current!.set({
+          currentPeriod,
+          currentOperationalDeadline,
+          checkableTimeRange,
+          currentCertState,
+          rzrqq: dateFrom,
+          rzrqz: dateTo,
+        });
+        // }
       }
     }
   };
