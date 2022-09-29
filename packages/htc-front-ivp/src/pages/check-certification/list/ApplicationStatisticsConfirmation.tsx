@@ -126,7 +126,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
 
   useEffect(() => setCompanyObjFromProps(), [empInfo]);
 
-  useEffect(() => setCurrentPeriodFromProps(), [currentPeriodData]);
+  useEffect(() => setCurrentPeriodFromProps(), [currentPeriodData, immediatePeriod]);
 
   const statisticalConfirmColumns: Array<ColumnProps> = [
     { name: 'currentPeriod' },

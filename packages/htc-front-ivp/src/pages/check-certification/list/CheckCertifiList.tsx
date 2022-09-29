@@ -391,19 +391,7 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
   };
 
   const handleTabChange = newActiveKey => {
-    // const { queryDataSet } = checkCertificationListDS;
     setActiveKey(newActiveKey);
-    // if (queryDataSet) {
-    //   if (['batchInvoice', 'certifiableInvoice'].includes(newActiveKey)) {
-    //     const res = await checkInvoiceCount({ tenantId });
-    //     if (res === 0 && newActiveKey === 'batchInvoice') {
-    //       const checkInvoiceButton = document.getElementById('checkInvoice');
-    //       if (checkInvoiceButton) {
-    //         checkInvoiceButton.click();
-    //       }
-    //     }
-    //   }
-    // }
   };
 
   return (

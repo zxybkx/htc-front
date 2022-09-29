@@ -121,7 +121,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   }, [empInfo]);
   useEffect(() => {
     setCurrentPeriodFromProps();
-  }, [currentPeriodData]);
+  }, [currentPeriodData, immediatePeriod]);
 
   const commonRendererFn = (value, record) => {
     const checkState = record?.get('checkState');
