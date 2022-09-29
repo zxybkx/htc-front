@@ -110,16 +110,13 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
       if (queryDataSet && queryDataSet.current) {
-        // const curCurrentPeriod = queryDataSet.current!.get('currentPeriod');
         const period = immediatePeriod || currentPeriodData;
         const { currentPeriod, currentCertState, currentOperationalDeadline } = period;
-        // if (!curCurrentPeriod) {
         queryDataSet.current!.set({
           currentPeriod,
           currentOperationalDeadline,
           currentCertState,
         });
-        // }
       }
     }
   };

@@ -72,8 +72,6 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     if (noDeductCheckDS) {
       const { queryDataSet } = noDeductCheckDS;
       if (queryDataSet && queryDataSet.current) {
-        // const curCurrentPeriod = queryDataSet.current!.get('currentPeriod');
-        // if (!curCurrentPeriod) {
         const period = immediatePeriod || currentPeriodData;
         const {
           currentPeriod,
@@ -91,7 +89,6 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
           rzrqq: dateFrom,
           rzrqz: dateTo,
         });
-        // }
       }
     }
   };

@@ -92,8 +92,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     if (certifiableInvoiceListDS) {
       const { queryDataSet } = certifiableInvoiceListDS;
       if (queryDataSet && queryDataSet.current) {
-        // const curCurrentPeriod = queryDataSet.current!.get('currentPeriod');
-        // if (!curCurrentPeriod) {
         const period = immediatePeriod || currentPeriodData;
         const {
           currentPeriod,
@@ -111,7 +109,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
           rzrqq: dateFrom,
           rzrqz: dateTo,
         });
-        // }
       }
     }
   };

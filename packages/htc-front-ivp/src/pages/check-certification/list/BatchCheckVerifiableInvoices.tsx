@@ -94,9 +94,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     if (batchInvoiceHeaderDS) {
       const { queryDataSet } = batchInvoiceHeaderDS;
       if (queryDataSet && queryDataSet.current) {
-        // const curCurrentPeriod = queryDataSet.current!.get('currentPeriod');
         const period = immediatePeriod || currentPeriodData;
-        // if (!curCurrentPeriod) {
         const {
           currentPeriod,
           currentOperationalDeadline,
@@ -113,7 +111,6 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
           entryAccountDateFrom: dateFrom,
           entryAccountDateTo: dateTo,
         });
-        // }
       }
     }
   };
