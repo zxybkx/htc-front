@@ -263,6 +263,17 @@ export async function getTaskPassword(params) {
 }
 
 /**
+ * 查询所属期
+ */
+export async function getCurPeriod(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/invoice-operation/business-time-companyId-cur`, {
+    method: 'GET',
+    query: otherParams,
+  });
+}
+
+/**
  * 勾选认证-下载申报抵扣统计表
  */
 export async function deductionReportDownload(params) {

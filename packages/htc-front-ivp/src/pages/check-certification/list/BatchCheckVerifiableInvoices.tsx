@@ -33,6 +33,7 @@ import {
   creatBatchNumber,
   batchScanGunInvoices,
   unCertifiedInvoiceQuery,
+  getCurPeriod,
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import { getAccessToken, getResponse } from 'utils/utils';
@@ -72,7 +73,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   const { batchInvoiceHeaderDS, empInfo, currentPeriodData, companyAndPassword, history } = props;
   const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
   const [showMore, setShowMore] = useState<boolean>(false);
-  const { immediatePeriod } = useContext(InvoiceCategoryContext);
+  const { immediatePeriod, setImmediatePeriod } = useContext(InvoiceCategoryContext);
 
   const setCompanyObjFromProps = () => {
     if (batchInvoiceHeaderDS) {
@@ -118,7 +119,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   };
 
   useEffect(() => setCompanyObjFromProps(), [empInfo]);
-  useEffect(() => setCurrentPeriodFromProps(), [currentPeriodData]);
+  useEffect(() => setCurrentPeriodFromProps(), [currentPeriodData, immediatePeriod]);
 
   const handleUploadSuccess = response => {
     if (batchInvoiceHeaderDS) {
@@ -296,6 +297,9 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
           });
           batchInvoiceHeaderDS.query();
         }
+        // 更新所属期
+        const periodRes = getResponse(await getCurPeriod({ tenantId, companyId }));
+        if (periodRes) setImmediatePeriod(periodRes);
       }
     }
   };
