@@ -32,6 +32,7 @@ import {
   refreshStatus,
   creatBatchNumber,
   batchScanGunInvoices,
+  unCertifiedInvoiceQuery,
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import { getAccessToken, getResponse } from 'utils/utils';
@@ -44,6 +45,7 @@ import { downLoadFiles } from '@htccommon/utils/utils';
 import { API_HOST } from 'utils/config';
 import { observer } from 'mobx-react-lite';
 import moment from 'moment';
+import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import { Col, Icon, message, Row, Tag } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { ValueChangeAction } from 'choerodon-ui/pro/lib/text-field/enum';
@@ -107,8 +109,8 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
           currentOperationalDeadline,
           checkableTimeRange,
           currentCertState,
-          rzrqq: dateFrom,
-          rzrqz: dateTo,
+          entryAccountDateFrom: dateFrom,
+          entryAccountDateTo: dateTo,
         });
         // }
       }
@@ -611,7 +613,56 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     }, 300);
   };
 
-  const summarizeByCondition = () => {};
+  const summarizeByCondition = async () => {
+    if (batchInvoiceHeaderDS) {
+      const { queryDataSet } = batchInvoiceHeaderDS;
+      const checkableTimeRange = queryDataSet?.current!.get('checkableTimeRange');
+      const invoiceDateFrom = queryDataSet?.current!.get('invoiceDateFrom');
+      const invoiceDateEnd = queryDataSet?.current!.get('invoiceDateEnd');
+      const xfsbh = queryDataSet?.current!.get('xfsbh');
+      const qt = queryDataSet?.current!.get('tjyf');
+      const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
+      if (!taxDiskPassword) {
+        return notification.warning({
+          description: '',
+          message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+        });
+      }
+      const params = {
+        tenantId,
+        companyId,
+        companyCode,
+        employeeId,
+        employeeNumber,
+        list: {
+          spmm: taxDiskPassword,
+          gxzt: '0',
+          checkableTimeRange,
+          invoiceDateFrom: invoiceDateFrom && invoiceDateFrom.format(DEFAULT_DATE_FORMAT),
+          invoiceDateEnd: invoiceDateEnd && invoiceDateEnd.format(DEFAULT_DATE_FORMAT),
+          xfsbh,
+          qt,
+        },
+      };
+      const res = getResponse(await unCertifiedInvoiceQuery(params));
+      if (res) {
+        const { completeTime } = res;
+        let checkState;
+        if (completeTime) {
+          checkState = '1';
+        } else {
+          checkState = '0';
+        }
+        const data = [
+          {
+            ...res,
+            checkState,
+          },
+        ];
+        batchInvoiceHeaderDS.loadData(data);
+      }
+    }
+  };
 
   const batchButtons: Buttons[] = [
     <UploadButton />,
