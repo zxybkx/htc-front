@@ -244,14 +244,14 @@ export default (): DataSetProps => {
         },
         {
           name: 'entryAccountDateFrom',
-          label: intl.get('hivp.bill.view.rzrqq').d('入账日期从'),
+          label: intl.get('hivp.bill.view.entryAccountDateFrom').d('入账日期从'),
           type: FieldType.date,
           bind: 'entryAccountDate.entryAccountDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'entryAccountDateTo',
-          label: intl.get('hivp.bill.view.rzrqz').d('入账日期至'),
+          label: intl.get('hivp.bill.view.entryAccountDateFrom').d('入账日期至'),
           type: FieldType.date,
           bind: 'entryAccountDate.entryAccountDateTo',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
