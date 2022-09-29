@@ -180,7 +180,7 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
         });
         return;
       }
-      this.batchCheckDetailDS.selected.map(record =>
+      this.batchCheckDetailDS.selected.forEach(record =>
         record.set('reasonsForNonDeduction', reasonsForNonDeduction)
       );
     }
