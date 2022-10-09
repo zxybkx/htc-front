@@ -4,7 +4,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-01-21 15:23:14
- * @LastEditTime: 2022-09-23 16:56:42
+ * @LastEditTime: 2022-10-09 14:54:03
  * @Copyright: Copyright (c) 2020, Hand
  */
 import request from 'utils/request';
@@ -18,6 +18,16 @@ const HIVP_API = commonConfig.IVP_API || '';
 export async function getBusinessTime(params) {
   const { tenantId, ...otherParam } = params;
   return request(`${HIVP_API}/v1/${tenantId}/invoice-operation-new/business-time-query`, {
+    method: 'GET',
+    query: otherParam,
+  });
+}
+/**
+ * 认证结果通知书下载
+ */
+export async function downLoadReport(params) {
+  const { tenantId, ...otherParam } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/deduction-report/certified_report_download`, {
     method: 'GET',
     query: otherParam,
   });
