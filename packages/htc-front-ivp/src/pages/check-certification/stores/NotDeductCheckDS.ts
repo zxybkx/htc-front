@@ -21,7 +21,7 @@ const modelCode = 'hivp.checkCertification';
 const validTaxAmountValidator = (value, name, record) => {
   if (value && name && record) {
     // 发票税额
-    const taxAmount = record.getField('taxAmount')?.getValue() || 0;
+    const taxAmount = Number(record.get('taxAmount')) || 0;
     if (value < 0 || value > taxAmount) {
       return intl
         .get(`${modelCode}.notice.taxAmountMessageNotice`)
