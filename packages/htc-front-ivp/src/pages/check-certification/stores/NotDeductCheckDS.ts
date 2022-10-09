@@ -31,6 +31,36 @@ const validTaxAmountValidator = (value, name, record) => {
   return undefined;
 };
 
+// 行勾选设置头数据 type 0-取消勾选/1-勾选
+const calculateSelectedData = (dataSet, record, type) => {
+  const invoiceAmount = Number(record.get('invoiceAmount')) || 0;
+  const _taxAmount = Number(record.get('taxAmount')) || 0;
+  const _validTaxAmount = Number(record.get('validTaxAmount')) || 0;
+  const number = dataSet.selected.length;
+  const { queryDataSet } = dataSet;
+  if (queryDataSet) {
+    const amount = queryDataSet.current!.get('amount');
+    const taxAmount = queryDataSet.current!.get('taxAmount');
+    const validTaxAmount = queryDataSet.current!.get('validTaxAmount');
+    let curAmount;
+    let curTaxAmount;
+    let curValidTaxAmount;
+    if (type === 0) {
+      curAmount = amount - invoiceAmount;
+      curTaxAmount = taxAmount - _taxAmount;
+      curValidTaxAmount = validTaxAmount - _validTaxAmount;
+    } else {
+      curAmount = amount + invoiceAmount;
+      curTaxAmount = taxAmount + _taxAmount;
+      curValidTaxAmount = validTaxAmount + _validTaxAmount;
+    }
+    queryDataSet.current!.set({ amount: curAmount });
+    queryDataSet.current!.set({ taxAmount: curTaxAmount });
+    queryDataSet.current!.set({ validTaxAmount: curValidTaxAmount });
+    queryDataSet.current!.set({ number });
+  }
+};
+
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
@@ -71,36 +101,20 @@ export default (): DataSetProps => {
     primaryKey: 'invoicePoolHeaderId',
     events: {
       select: ({ dataSet, record }) => {
-        const invoiceAmount = record.getField('invoiceAmount')?.getValue() || 0;
-        const _taxAmount = record.getField('taxAmount')?.getValue() || 0;
-        const _validTaxAmount = record.getField('validTaxAmount')?.getValue() || 0;
-        const number = dataSet.selected.length;
-        const { queryDataSet } = dataSet;
-        const amount = queryDataSet && queryDataSet.current!.get('amount');
-        const taxAmount = queryDataSet && queryDataSet.current!.get('taxAmount');
-        const validTaxAmount = queryDataSet && queryDataSet.current!.get('validTaxAmount');
-        const curAmount = amount + invoiceAmount;
-        const curTaxAmount = taxAmount + _taxAmount;
-        const curValidTaxAmount = validTaxAmount + _validTaxAmount;
-        if (queryDataSet) {
-          queryDataSet.current!.set({ amount: curAmount });
-          queryDataSet.current!.set({ taxAmount: curTaxAmount });
-          queryDataSet.current!.set({ validTaxAmount: curValidTaxAmount });
-          queryDataSet.current!.set({ number });
-        }
+        calculateSelectedData(dataSet, record, 1);
       },
       selectAll: ({ dataSet }) => {
         let amount = 0;
         let taxAmount = 0;
         let validTaxAmount = 0;
         dataSet.forEach(record => {
-          amount += record.getField('invoiceAmount')?.getValue() || 0;
+          amount += Number(record.get('invoiceAmount')) || 0;
         });
         dataSet.forEach(record => {
-          taxAmount += record.getField('taxAmount')?.getValue() || 0;
+          taxAmount += Number(record.get('taxAmount')) || 0;
         });
         dataSet.forEach(record => {
-          validTaxAmount += record.getField('validTaxAmount')?.getValue() || 0;
+          validTaxAmount += Number(record.get('validTaxAmount')) || 0;
         });
         const { queryDataSet } = dataSet;
         if (queryDataSet) {
@@ -111,23 +125,7 @@ export default (): DataSetProps => {
         }
       },
       unSelect: ({ dataSet, record }) => {
-        const invoiceAmount = record.getField('invoiceAmount')?.getValue() || 0;
-        const _taxAmount = record.getField('taxAmount')?.getValue() || 0;
-        const _validTaxAmount = record.getField('validTaxAmount')?.getValue() || 0;
-        const number = dataSet.selected.length;
-        const { queryDataSet } = dataSet;
-        const amount = queryDataSet && queryDataSet.current!.get('amount');
-        const taxAmount = queryDataSet && queryDataSet.current!.get('taxAmount');
-        const validTaxAmount = queryDataSet && queryDataSet.current!.get('validTaxAmount');
-        const curAmount = amount - invoiceAmount;
-        const curTaxAmount = taxAmount - _taxAmount;
-        const curValidTaxAmount = validTaxAmount - _validTaxAmount;
-        if (queryDataSet) {
-          queryDataSet.current!.set({ amount: curAmount });
-          queryDataSet.current!.set({ taxAmount: curTaxAmount });
-          queryDataSet.current!.set({ validTaxAmount: curValidTaxAmount });
-          queryDataSet.current!.set({ number });
-        }
+        calculateSelectedData(dataSet, record, 0);
       },
       unSelectAll: ({ dataSet }) => {
         const { queryDataSet } = dataSet;
