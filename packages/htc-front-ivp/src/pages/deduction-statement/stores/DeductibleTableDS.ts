@@ -21,12 +21,14 @@ export default (): DataSetProps => {
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const url = `${API_PREFIX}/v1/${tenantId}/document-relation/select-relation-document`;
+        const { dataSet } = config;
+        const url = `${API_PREFIX}/v1/${tenantId}/deduction-report/query-deduction-report`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
           url,
           params: {
             ...config.params,
+            ...dataSet?.myState,
             tenantId,
           },
           method: 'GET',
@@ -36,7 +38,6 @@ export default (): DataSetProps => {
     },
     paging: false,
     selection: false,
-    primaryKey: 'rulesHeaderId',
     events: {
       // update: ({ record, name }) => {
       //     if (name === 'systemCodeObj') {
@@ -52,7 +53,7 @@ export default (): DataSetProps => {
         label: intl.get('hivp.checkRule').d('发票类型'),
         type: FieldType.string,
         multiple: ',',
-        lookupCode: 'HIVP.CHECK_INVOICE_TYPE',
+        lookupCode: 'HIVP.INVOICE_TYPE',
       },
       {
         name: 'deductibleCopies',
@@ -136,13 +137,13 @@ export default (): DataSetProps => {
         {
           name: 'entryAccountDateFrom',
           type: FieldType.date,
-          bind: 'entryAccountDate.invoiceTickDateStart',
+          bind: 'entryAccountDate.entryAccountDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'entryAccountDateTo',
           type: FieldType.date,
-          bind: 'entryAccountDate.invoiceTickDateEnd',
+          bind: 'entryAccountDate.entryAccountDateTo',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
@@ -155,13 +156,13 @@ export default (): DataSetProps => {
         {
           name: 'docuAssociatedDateFrom',
           type: FieldType.date,
-          bind: 'docuAssociatedDate.invoiceTickDateStart',
+          bind: 'docuAssociatedDate.docuAssociatedDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'docuAssociatedDateTo',
           type: FieldType.date,
-          bind: 'docuAssociatedDate.invoiceTickDateEnd',
+          bind: 'docuAssociatedDate.docuAssociatedDateTo',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {

@@ -21,12 +21,14 @@ export default (): DataSetProps => {
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const url = `${API_PREFIX}/v1/${tenantId}/document-relation/select-relation-document`;
+        const { dataSet } = config;
+        const url = `${API_PREFIX}/v1/${tenantId}/deduction-report/query-certified-report`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
           url,
           params: {
             ...config.params,
+            ...dataSet?.myState,
             tenantId,
           },
           method: 'GET',
@@ -36,7 +38,6 @@ export default (): DataSetProps => {
     },
     paging: false,
     selection: false,
-    primaryKey: 'rulesHeaderId',
     events: {
       // update: ({ record, name }) => {
       //     if (name === 'systemCodeObj') {
@@ -52,66 +53,21 @@ export default (): DataSetProps => {
         label: intl.get('hivp.checkRule').d('发票类型'),
         type: FieldType.string,
         multiple: ',',
-        lookupCode: 'HIVP.CHECK_INVOICE_TYPE',
+        lookupCode: 'HIVP.INVOICE_TYPE',
       },
       {
-        name: 'deductibleCopies',
-        label: intl.get('hivp.checkRule').d('可抵扣份数'),
+        name: 'certifiedQuantity',
+        label: intl.get('hivp.checkRule').d('已认证份数'),
         type: FieldType.string,
       },
       {
-        name: 'totalDeductibleInvoiceAmount',
-        label: intl.get('hivp.checkRule').d('可抵扣发票金额总计'),
+        name: 'certifiedTotalAmount',
+        label: intl.get('hivp.checkRule').d('已认证发票金额总计'),
         type: FieldType.string,
       },
       {
-        name: 'totalValidTaxAmountDeductible',
-        label: intl.get('hivp.checkRule').d('可抵扣发票有效税额总计'),
-        type: FieldType.string,
-      },
-      {
-        name: 'deductibleShare',
-        label: intl.get('hivp.checkRule').d('应抵扣份数'),
-        type: FieldType.string,
-      },
-      {
-        name: 'totalInvoiceAmountDeducted',
-        label: intl.get('hivp.checkRule').d('应抵扣发票金额总计'),
-        type: FieldType.string,
-      },
-      {
-        name: 'totalValidTaxAmountDeducted',
-        label: intl.get('hivp.checkRule').d('应抵扣发票有效税额总计'),
-        type: FieldType.string,
-      },
-      {
-        name: 'numberOfCopiesChecked',
-        label: intl.get('hivp.checkRule').d('已勾选份数'),
-        type: FieldType.string,
-      },
-      {
-        name: 'totalInvoiceAmountChecked',
-        label: intl.get('hivp.checkRule').d('已勾选发票金额总计'),
-        type: FieldType.string,
-      },
-      {
-        name: 'totalValidTaxAmountChecked',
-        label: intl.get('hivp.checkRule').d('已勾选发票有效税额总计'),
-        type: FieldType.string,
-      },
-      {
-        name: 'numberDeductButNot',
-        label: intl.get('hivp.checkRule').d('应抵未抵发票份数'),
-        type: FieldType.string,
-      },
-      {
-        name: 'totalAmountDeductButNot',
-        label: intl.get('hivp.checkRule').d('应抵未抵发票金额总计'),
-        type: FieldType.string,
-      },
-      {
-        name: 'totalTaxAmountDeductButNot',
-        label: intl.get('hivp.checkRule').d('应抵未抵发票有效税额总计'),
+        name: 'certifiedTotalValidTaxAmount',
+        label: intl.get('hivp.checkRule').d('已认证发票有效税额总计'),
         type: FieldType.string,
       },
     ],
@@ -127,42 +83,29 @@ export default (): DataSetProps => {
       },
       fields: [
         {
-          name: 'entryAccountDate',
-          label: intl.get('htc.common.v').d('入账日期'),
-          range: ['entryAccountDateFrom', 'entryAccountDateTo'],
+          name: 'checkDate',
+          label: intl.get('htc.common.v').d('勾选日期'),
+          range: ['checkDateFrom', 'checkDateTo'],
           type: FieldType.date,
           ignore: FieldIgnore.always,
         },
         {
-          name: 'entryAccountDateFrom',
+          name: 'checkDateFrom',
           type: FieldType.date,
-          bind: 'entryAccountDate.invoiceTickDateStart',
+          bind: 'checkDate.checkDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
-          name: 'entryAccountDateTo',
+          name: 'checkDateTo',
           type: FieldType.date,
-          bind: 'entryAccountDate.invoiceTickDateEnd',
+          bind: 'checkDate.checkDateTo',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
-          name: 'docuAssociatedDate',
-          label: intl.get('htc.common.v').d('单据关联日期'),
-          range: ['docuAssociatedDateFrom', 'docuAssociatedDateTo'],
-          type: FieldType.date,
-          ignore: FieldIgnore.always,
-        },
-        {
-          name: 'docuAssociatedDateFrom',
-          type: FieldType.date,
-          bind: 'docuAssociatedDate.invoiceTickDateStart',
-          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
-        },
-        {
-          name: 'docuAssociatedDateTo',
-          type: FieldType.date,
-          bind: 'docuAssociatedDate.invoiceTickDateEnd',
-          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+          name: 'authenticationDate',
+          label: intl.get('hivp.checkRule').d('认证所属期'),
+          type: FieldType.string,
+          lookupCode: '',
         },
         {
           name: 'entryAccountStates',

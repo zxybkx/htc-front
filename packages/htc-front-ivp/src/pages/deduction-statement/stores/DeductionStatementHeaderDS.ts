@@ -16,7 +16,6 @@ export default (): DataSetProps => {
   return {
     paging: false,
     selection: false,
-    primaryKey: 'rulesHeaderId',
     events: {
       update: ({ record, name }) => {
         if (name === 'systemCodeObj') {

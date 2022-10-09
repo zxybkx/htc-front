@@ -21,12 +21,14 @@ export default (): DataSetProps => {
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const url = `${API_PREFIX}/v1/${tenantId}/document-relation/select-relation-document`;
+        const { dataSet } = config;
+        const url = `${API_PREFIX}/v1/${tenantId}/deduction-report/undeduction-all`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
           url,
           params: {
             ...config.params,
+            ...dataSet?.myState,
             tenantId,
           },
           method: 'GET',
@@ -36,7 +38,6 @@ export default (): DataSetProps => {
     },
     paging: false,
     selection: false,
-    primaryKey: 'rulesHeaderId',
     events: {
       // update: ({ record, name }) => {
       //     if (name === 'systemCodeObj') {
@@ -52,7 +53,7 @@ export default (): DataSetProps => {
         label: intl.get('hivp.checkRule').d('发票类型'),
         type: FieldType.string,
         multiple: ',',
-        lookupCode: 'HIVP.CHECK_INVOICE_TYPE',
+        lookupCode: 'HIVP.INVOICE_TYPE',
       },
       {
         name: 'checkedInvoiceNumber',

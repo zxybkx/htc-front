@@ -329,6 +329,10 @@ const deductionStatement = [
         path: '/htc-front-ivp/deduction-statement/list',
         component: '@/pages/deduction-statement/list/DeductionStatementListPage',
       },
+      {
+        path: '/htc-front-ivp/deduction-statement/detail',
+        component: '@/pages/deduction-statement/detail/InvoiceDetailPage',
+      },
     ],
   },
 ]

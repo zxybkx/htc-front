@@ -1,5 +1,5 @@
 /**
- * @Description:抵扣报表明细
+ * @Description:发票明细查看
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-08-03 10:19:48
  * @LastEditTime: 2021-08-26 11:13:27
@@ -7,13 +7,14 @@
  */
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import commonConfig from '@htccommon/config/commonConfig';
-import { DataSet } from 'choerodon-ui/pro';
 import { AxiosRequestConfig } from 'axios';
+import { DataSet } from 'choerodon-ui/pro';
 import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import { DEFAULT_DATE_FORMAT } from 'hzero-front/lib/utils/constants';
 import intl from 'utils/intl';
 import moment from 'moment';
+import { ActiveKey } from '../list/DeductionStatementListPage';
 
 export default (): DataSetProps => {
   const tenantId = getCurrentOrganizationId();
@@ -21,14 +22,16 @@ export default (): DataSetProps => {
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const { dataSet } = config;
-        const url = `${API_PREFIX}/v1/${tenantId}/deduction-report/deduction-detail`;
+        const activeKey = config.data;
+        const url =
+          activeKey === ActiveKey.notDeductibleTable
+            ? `${API_PREFIX}/v1/${tenantId}/deduction-report/query-invoice-master-info`
+            : `${API_PREFIX}/v1/${tenantId}/deduction-report/undeduction-detail`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
           url,
           params: {
             ...config.params,
-            ...dataSet?.myState,
             tenantId,
           },
           method: 'GET',
@@ -38,15 +41,6 @@ export default (): DataSetProps => {
     },
     paging: true,
     selection: false,
-    events: {
-      // update: ({ record, name }) => {
-      //     if (name === 'systemCodeObj') {
-      //         record.set({
-      //             documentTypeCodeObj: '',
-      //         });
-      //     }
-      // },
-    },
     fields: [
       {
         name: 'invoiceType',
@@ -160,7 +154,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'checkDate',
-        label: intl.get('hivp.checkRule').d('勾选状态'),
+        label: intl.get('hivp.checkRule').d('勾选时间'),
         type: FieldType.string,
         lookupCode: 'HIVP.CHECK_STATE',
       },
@@ -187,6 +181,7 @@ export default (): DataSetProps => {
       },
     ],
     queryDataSet: new DataSet({
+      autoCreate: true,
       events: {
         // update: ({ record, name, value }) => {
         //     if (value && name === 'companyObj') {
@@ -198,47 +193,8 @@ export default (): DataSetProps => {
       },
       fields: [
         {
-          name: 'invoiceDate',
-          label: intl.get('htc.common.v').d('开票日期'),
-          range: ['invoiceDateFrom', 'invoiceDateTo'],
-          type: FieldType.date,
-          ignore: FieldIgnore.always,
-        },
-        {
-          name: 'invoiceDateFrom',
-          type: FieldType.date,
-          bind: 'invoiceDate.invoiceDateFrom',
-          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
-        },
-        {
-          name: 'invoiceDateTo',
-          type: FieldType.date,
-          bind: 'invoiceDate.invoiceDateTo',
-          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
-        },
-        {
-          name: 'invoiceTypes',
-          label: intl.get('hivp.checkRule').d('发票类型'),
+          name: 'taxpayerNumber',
           type: FieldType.string,
-          multiple: ',',
-          lookupCode: 'HIVP.CHECK_INVOICE_TYPE',
-        },
-        {
-          name: 'invoiceCode',
-          label: intl.get('hivp.checkRule').d('发票代码'),
-          type: FieldType.string,
-        },
-        {
-          name: 'invoiceNo',
-          label: intl.get('hivp.checkRule').d('发票号码'),
-          type: FieldType.string,
-        },
-        {
-          name: 'checkStates',
-          label: intl.get('hivp.checkRule').d('勾选状态'),
-          type: FieldType.string,
-          multiple: ',',
-          lookupCode: 'HIVP.CHECK_STATE',
         },
         {
           name: 'checkDate',
@@ -251,22 +207,69 @@ export default (): DataSetProps => {
           name: 'checkDateFrom',
           type: FieldType.date,
           bind: 'checkDate.checkDateFrom',
-          max: 'checkDateTo',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'checkDateTo',
           type: FieldType.date,
           bind: 'checkDate.checkDateTo',
-          min: 'checkDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
-          name: 'authenticationStates',
-          label: intl.get('htc.common.v').d('认证状态'),
+          name: 'authenticationDate',
+          label: intl.get('hivp.checkRule').d('认证所属期'),
+          type: FieldType.string,
+          lookupCode: '',
+        },
+        {
+          name: 'entryAccountDate',
+          label: intl.get('htc.common.v').d('入账日期'),
+          range: ['entryAccountDateFrom', 'entryAccountDateTo'],
+          type: FieldType.date,
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'entryAccountDateFrom',
+          type: FieldType.date,
+          bind: 'entryAccountDate.invoiceTickDateStart',
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'entryAccountDateTo',
+          type: FieldType.date,
+          bind: 'entryAccountDate.invoiceTickDateEnd',
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'docuAssociatedDate',
+          label: intl.get('htc.common.v').d('单据关联日期'),
+          range: ['docuAssociatedDateFrom', 'docuAssociatedDateTo'],
+          type: FieldType.date,
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'docuAssociatedDateFrom',
+          type: FieldType.date,
+          bind: 'docuAssociatedDate.invoiceTickDateStart',
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'docuAssociatedDateTo',
+          type: FieldType.date,
+          bind: 'docuAssociatedDate.invoiceTickDateEnd',
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'entryAccountStates',
+          label: intl.get('hivp.checkRule').d('入账状态'),
           type: FieldType.string,
           multiple: ',',
-          lookupCode: 'HIVP.CERTIFICATION_STATE',
+          lookupCode: 'HIVP.ACCOUNT_STATE',
+        },
+        {
+          name: 'salerName',
+          label: intl.get('hivp.checkRule').d('销方纳税人名称'),
+          type: FieldType.string,
         },
         {
           name: 'systemCodeObj',
@@ -278,7 +281,7 @@ export default (): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
-          name: 'systemCodes',
+          name: 'systemCode',
           type: FieldType.string,
           multiple: ',',
           bind: 'systemCodeObj.systemCode',
@@ -294,6 +297,7 @@ export default (): DataSetProps => {
           label: intl.get('hivp.checkRule.view.documentTypeMeaning').d('单据类型'),
           type: FieldType.object,
           lovCode: 'HTC.DOCUMENT_TYPE_LOV',
+          disabled: true,
           // cascadeMap: { docTypeHeaderId: 'sysTypeHeaderId' },
           computedProps: {
             lovPara: ({ record }) => {
@@ -311,7 +315,7 @@ export default (): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
-          name: 'documentTypeCodes',
+          name: 'documentTypeCode',
           type: FieldType.string,
           multiple: ',',
           bind: 'documentTypeCodeObj.documentTypeCode',
@@ -323,39 +327,25 @@ export default (): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
-          name: 'documentNumbers',
-          label: intl.get('htc.common.v').d('单据编号'),
+          name: 'invoiceType',
+          label: intl.get('hivp.checkRule').d('发票类型'),
+          type: FieldType.string,
+          multiple: ',',
+          lookupCode: 'HIVP.CHECK_INVOICE_TYPE',
+        },
+        {
+          name: 'checkState',
+          label: intl.get('hivp.checkRule').d('勾选状态'),
+          type: FieldType.string,
+          multiple: ',',
+          lookupCode: 'HIVP.CHECK_STATE',
+        },
+        {
+          name: 'authenticationType',
+          label: intl.get('hivp.checkRule').d('认证类型'),
           type: FieldType.string,
           multiple: ',',
           lookupCode: 'HIVP.CERTIFICATION_TYPE',
-        },
-        {
-          name: 'authenticationTypes',
-          label: intl.get('htc.common.v').d('勾选类型'),
-          type: FieldType.string,
-          multiple: ',',
-          lookupCode: 'HIVP.CERTIFICATION_TYPE',
-        },
-        {
-          name: 'isInPool',
-          label: intl.get('htc.common.v').d('是否在池'),
-          type: FieldType.string,
-          multiple: ',',
-          lookupCode: 'HTC.HIVP.ISPOOL_FLAG',
-        },
-        {
-          name: 'entryAccountStates',
-          label: intl.get('hivp.checkRule').d('入账状态'),
-          type: FieldType.string,
-          multiple: ',',
-          lookupCode: 'HIVP.ACCOUNT_STATE',
-        },
-        {
-          name: 'receiptsStates',
-          label: intl.get('hivp.checkRule').d('单据关联状态'),
-          type: FieldType.string,
-          multiple: ',',
-          lookupCode: 'HIVP.INTERFACE_DOCS_STATE',
         },
       ],
     }),
