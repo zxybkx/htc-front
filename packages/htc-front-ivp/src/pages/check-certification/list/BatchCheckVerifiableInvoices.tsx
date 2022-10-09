@@ -244,10 +244,9 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     );
   });
 
-  // 批量发票勾选（取消）可认证发票: 行
-  const batchOperation = async () => {
+  // 勾选请求接口
+  const checkCall = async () => {
     if (batchInvoiceHeaderDS) {
-      const { queryDataSet } = batchInvoiceHeaderDS;
       const {
         companyId,
         companyCode,
@@ -257,6 +256,35 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
         authorityCode,
       } = empInfo;
       const selectedList = batchInvoiceHeaderDS.selected.map(rec => rec.toData());
+      const params = {
+        tenantId,
+        companyId,
+        companyCode,
+        employeeId,
+        employeeNumber: employeeNum,
+        taxpayerNumber,
+        taxDiskPassword,
+        authorityCode,
+        invoiceCheckCollects: selectedList,
+      };
+      const res = getResponse(await batchCheck(params));
+      if (res) {
+        notification.success({
+          description: '',
+          message: res.message,
+        });
+        batchInvoiceHeaderDS.query();
+      }
+      // 更新所属期
+      const periodRes = getResponse(await getCurPeriod({ tenantId, companyId }));
+      if (periodRes) setImmediatePeriod(periodRes);
+    }
+  };
+
+  // 批量发票勾选（取消）可认证发票: 行
+  const batchOperation = () => {
+    if (batchInvoiceHeaderDS) {
+      const { queryDataSet } = batchInvoiceHeaderDS;
       if (queryDataSet) {
         const currentCertState = queryDataSet.current!.get('currentCertState');
         if (!taxDiskPassword) {
@@ -275,28 +303,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
             description: '',
           });
         }
-        const params = {
-          tenantId,
-          companyId,
-          companyCode,
-          employeeId,
-          employeeNumber: employeeNum,
-          taxpayerNumber,
-          taxDiskPassword,
-          authorityCode,
-          invoiceCheckCollects: selectedList,
-        };
-        const res = getResponse(await batchCheck(params));
-        if (res) {
-          notification.success({
-            description: '',
-            message: res.message,
-          });
-          batchInvoiceHeaderDS.query();
-        }
-        // 更新所属期
-        const periodRes = getResponse(await getCurPeriod({ tenantId, companyId }));
-        if (periodRes) setImmediatePeriod(periodRes);
+        checkCall();
       }
     }
   };
@@ -328,17 +335,26 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       const selectedList = batchInvoiceHeaderDS.selected.map(rec => rec.toData());
       if (queryDataSet) {
         const currentCertState = queryDataSet.current!.get('currentCertState');
+        if (!taxDiskPassword) {
+          return notification.warning({
+            description: '',
+            message: intl
+              .get('hivp.checkCertification.notice.taxDiskPassword')
+              .d('请输入税盘密码！'),
+          });
+        }
         if (
           !['0', '1'].includes(currentCertState) ||
           selectedList?.some(item => item.checkState === 'R')
         ) {
-          notification.warning({
+          return notification.warning({
             message: intl
               .get(`${modelCode}.validate.deductCheck`)
               .d('当前认证状态为“已统计/已确签"、或存在勾选状态为“请求中”的数据，不允许抵扣勾选'),
             description: '',
           });
         }
+        checkCall();
       }
     }
   };
