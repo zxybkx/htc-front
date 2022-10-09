@@ -37,7 +37,7 @@ const modelCode = 'hivp.invoicesArchiveUpload';
 const { Panel } = Collapse;
 const tenantId = getCurrentOrganizationId();
 const HIVP_API = commonConfig.IVP_API;
-const acceptType = ['.pdf', '.jpg', '.png', '.ofd'];
+const acceptType = ['.pdf', 'image/*', '.ofd'];
 @formatterCollections({
   code: [modelCode, 'hivp.invoicesArchiveUpload', 'htc.common', 'hivp.batchCheck'],
 })
