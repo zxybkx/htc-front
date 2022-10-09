@@ -67,7 +67,7 @@ export default (): DataSetProps => {
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const url = `${API_PREFIX}/v1/${tenantId}/invoice-operation/certifiable-invoice-query`;
+        const url = `${API_PREFIX}/v1/${tenantId}/non-deduction-check/query`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
           url,
@@ -81,15 +81,7 @@ export default (): DataSetProps => {
       },
       submit: ({ data, params }) => {
         return {
-          url: `${API_PREFIX}/v1/${tenantId}/invoice-pool-header-infos/batch-save`,
-          data,
-          params,
-          method: 'POST',
-        };
-      },
-      update: ({ data, params }) => {
-        return {
-          url: `${API_PREFIX}/v1/${tenantId}/invoice-operation/update-valid-tax-amount`,
+          url: `${API_PREFIX}/v1/${tenantId}/non-deduction-check/save-noDeductReason`,
           data,
           params,
           method: 'POST',
@@ -203,8 +195,8 @@ export default (): DataSetProps => {
           Promise.resolve(validTaxAmountValidator(value, name, record)),
       },
       {
-        name: 'bdkyy',
-        label: intl.get('hivp.bill.view.bdkyy').d('不抵扣原因'),
+        name: 'reasonsForNonDeduction',
+        label: intl.get('hivp.bill.view.reasonsForNonDeduction').d('不抵扣原因'),
         type: FieldType.string,
       },
       {
@@ -278,51 +270,19 @@ export default (): DataSetProps => {
         lookupCode: 'HIVP.INTERFACE_DOCS_STATE',
       },
       {
-        name: 'systemCodeObj',
-        label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
-        type: FieldType.object,
-        lovCode: 'HTC.SOURCE_SYSTEM',
-        multiple: ',',
-      },
-      {
         name: 'sourceSystem',
+        label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
         type: FieldType.string,
-        bind: 'systemCodeObj.systemCode',
       },
       {
-        name: 'sysTypeHeaderId',
-        type: FieldType.string,
-        bind: 'systemCodeObj.docTypeHeaderId',
-      },
-      {
-        name: 'documentTypeCodeObj',
+        name: 'documentTypeMeaning',
         label: intl.get('hivp.checkRule.view.documentTypeMeaning').d('单据类型'),
-        type: FieldType.object,
-        lovCode: 'HTC.DOCUMENT_TYPE_LOV',
-        multiple: ',',
-      },
-      {
-        name: 'docType',
         type: FieldType.string,
-        bind: 'documentTypeCodeObj.documentTypeCode',
       },
       {
-        name: 'docTypeHeaderId',
-        type: FieldType.string,
-        bind: 'documentTypeCodeObj.docTypeHeaderId',
-        ignore: FieldIgnore.always,
-      },
-      {
-        name: 'documentNumberObj',
+        name: 'documentRemark',
         label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
-        type: FieldType.object,
-        lovCode: 'HTC.DOCUMENT_CODE',
-        multiple: ',',
-      },
-      {
-        name: 'documentNumber',
         type: FieldType.string,
-        bind: 'documentNumberObj.documentNumber',
       },
       {
         name: 'abnormalSign',
@@ -332,8 +292,8 @@ export default (): DataSetProps => {
         multiple: ',',
       },
       {
-        name: 'yt',
-        label: intl.get(`${modelCode}.view.yt`).d('用途'),
+        name: 'purpose',
+        label: intl.get(`${modelCode}.view.purpose`).d('用途'),
         type: FieldType.string,
         lookupCode: 'HIVP.INVOICE_CHECK_FO',
       },
@@ -407,8 +367,8 @@ export default (): DataSetProps => {
           required: true,
         },
         {
-          name: 'currentOperationalDeadline',
-          label: intl.get(`${modelCode}.view.currentOperationalDeadline`).d('当前可操作截止时间'),
+          name: 'expiredDate',
+          label: intl.get(`${modelCode}.view.expiredDate`).d('当前可操作截止时间'),
           labelWidth: '130',
           type: FieldType.string,
           transformRequest: value => moment(value).format('YYYY-MM-DD'),
@@ -519,7 +479,7 @@ export default (): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
-          name: 'docType',
+          name: 'documentTypeCode',
           type: FieldType.string,
           bind: 'documentTypeCodeObj.documentTypeCode',
         },
@@ -562,21 +522,21 @@ export default (): DataSetProps => {
           name: 'entryAccountDate',
           label: intl.get(`htc.common.view.entryAccountDate`).d('入账日期'),
           type: FieldType.date,
-          range: ['rzrqq', 'rzrqz'],
+          range: ['entryAccountDateFrom', 'entryAccountDateTo'],
           ignore: FieldIgnore.always,
         },
         {
-          name: 'rzrqq',
-          label: intl.get('hivp.bill.view.rzrqq').d('入账日期从'),
+          name: 'entryAccountDateFrom',
+          label: intl.get('hivp.bill.view.entryAccountDateFrom').d('入账日期从'),
           type: FieldType.date,
-          bind: 'entryAccountDate.rzrqq',
+          bind: 'entryAccountDate.entryAccountDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
-          name: 'rzrqz',
-          label: intl.get('hivp.bill.view.rzrqz').d('入账日期至'),
+          name: 'entryAccountDateTo',
+          label: intl.get('hivp.bill.view.entryAccountDateTo').d('入账日期至'),
           type: FieldType.date,
-          bind: 'entryAccountDate.rzrqz',
+          bind: 'entryAccountDate.entryAccountDateTo',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
@@ -655,8 +615,8 @@ export default (): DataSetProps => {
           defaultValue: 'Y',
         },
         {
-          name: 'bdkyy',
-          label: intl.get('hivp.bill.view.bdkyy').d('不抵扣原因'),
+          name: 'reasonsForNonDeduction',
+          label: intl.get('hivp.bill.view.reasonsForNonDeduction').d('不抵扣原因'),
           type: FieldType.string,
         },
       ],

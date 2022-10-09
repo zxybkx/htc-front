@@ -333,3 +333,19 @@ export async function batchScanGunInvoices(params) {
     body: list,
   });
 }
+
+/**
+ * 不抵扣勾选-勾选请求
+ * @async
+ * @function partialCheck
+ * @param {object} params - 查询条件
+ * @returns {object} fetch Promise
+ */
+export async function partialCheck(params) {
+  const { tenantId, selectedList, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/non-deduction-check/partial-Check`, {
+    method: 'POST',
+    query: otherParams,
+    body: selectedList,
+  });
+}

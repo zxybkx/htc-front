@@ -26,7 +26,7 @@ import notification from 'utils/notification';
 import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
 import {
   applyStatistics,
-  confirmSignature,
+  // confirmSignature,
   judgeButton,
   refreshAllState,
   // refreshState,
@@ -335,82 +335,82 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   );
 
   // 当期已勾选发票统计确签: 确认签名
-  const statisticalConfirmSign = async () => {
-    if (statisticalConfirmDS) {
-      const { queryDataSet } = statisticalConfirmDS;
-      const list = statisticalConfirmDS?.map(record => record.toData());
-      const currentCertState = queryDataSet && queryDataSet.current?.get('currentCertState');
-      // const { currentCertState } = currentPeriodData;
-      if (list.some(record => record.requestState === 'RUNNING' || currentCertState === '3')) {
-        notification.warning({
-          message: intl
-            .get(`${modelCode}.view.tickInvalid4`)
-            .d('存在当前认证状态为“已确签”或请求状态为“运行中”的数据，不允许确认签名'),
-          description: '',
-        });
-        return;
-      }
-      const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-      if (!taxDiskPassword) {
-        return notification.warning({
-          description: '',
-          message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-        });
-      }
-      const {
-        companyId,
-        companyCode,
-        employeeNum: employeeNumber,
-        employeeId,
-        companyName,
-        employeeName,
-        mobile,
-        taxpayerNumber,
-      } = empInfo;
-      const judgeRes = await judgeButton({ tenantId, companyId });
-      if (judgeRes) {
-        notification.warning({
-          description: '',
-          message: '当前存在勾选或取消勾选运行中的请求不允许确认签名',
-        });
-        return;
-      }
-      const curInfo = queryDataSet?.current!.toData();
-      const employeeDesc = `${companyCode}-${employeeNumber}-${employeeName}-${mobile}`;
-      const companyDesc = `${companyCode}-${companyName}`;
-      const { statisticalPeriod } = curInfo;
-      const confirmPassword = automaticStatisticsDS.current!.get('confirmPassword');
-      const params = {
-        tenantId,
-        companyId,
-        companyCode,
-        companyDesc,
-        employeeId,
-        employeeNumber,
-        employeeDesc,
-        taxDiskPassword,
-        taxpayerNumber,
-        currentPeriod: statisticalPeriod,
-        confirmFlag: 1,
-        confirmPassword,
-      };
-      if (!confirmPassword) {
-        notification.info({
-          description: '',
-          message: intl.get(`${modelCode}.view.validate.confirmPassword`).d('请输入确认密码'),
-        });
-        return;
-      }
-      const res = getResponse(await confirmSignature(params));
-      if (res) {
-        notification.success({
-          description: '',
-          message: res.message,
-        });
-        statisticalConfirmDS.query();
-      }
-    }
-  };
+  // const statisticalConfirmSign = async () => {
+  //   if (statisticalConfirmDS) {
+  //     const { queryDataSet } = statisticalConfirmDS;
+  //     const list = statisticalConfirmDS?.map(record => record.toData());
+  //     const currentCertState = queryDataSet && queryDataSet.current?.get('currentCertState');
+  //     // const { currentCertState } = currentPeriodData;
+  //     if (list.some(record => record.requestState === 'RUNNING' || currentCertState === '3')) {
+  //       notification.warning({
+  //         message: intl
+  //           .get(`${modelCode}.view.tickInvalid4`)
+  //           .d('存在当前认证状态为“已确签”或请求状态为“运行中”的数据，不允许确认签名'),
+  //         description: '',
+  //       });
+  //       return;
+  //     }
+  //     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
+  //     if (!taxDiskPassword) {
+  //       return notification.warning({
+  //         description: '',
+  //         message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+  //       });
+  //     }
+  //     const {
+  //       companyId,
+  //       companyCode,
+  //       employeeNum: employeeNumber,
+  //       employeeId,
+  //       companyName,
+  //       employeeName,
+  //       mobile,
+  //       taxpayerNumber,
+  //     } = empInfo;
+  //     const judgeRes = await judgeButton({ tenantId, companyId });
+  //     if (judgeRes) {
+  //       notification.warning({
+  //         description: '',
+  //         message: '当前存在勾选或取消勾选运行中的请求不允许确认签名',
+  //       });
+  //       return;
+  //     }
+  //     const curInfo = queryDataSet?.current!.toData();
+  //     const employeeDesc = `${companyCode}-${employeeNumber}-${employeeName}-${mobile}`;
+  //     const companyDesc = `${companyCode}-${companyName}`;
+  //     const { statisticalPeriod } = curInfo;
+  //     const confirmPassword = automaticStatisticsDS.current!.get('confirmPassword');
+  //     const params = {
+  //       tenantId,
+  //       companyId,
+  //       companyCode,
+  //       companyDesc,
+  //       employeeId,
+  //       employeeNumber,
+  //       employeeDesc,
+  //       taxDiskPassword,
+  //       taxpayerNumber,
+  //       currentPeriod: statisticalPeriod,
+  //       confirmFlag: 1,
+  //       confirmPassword,
+  //     };
+  //     if (!confirmPassword) {
+  //       notification.info({
+  //         description: '',
+  //         message: intl.get(`${modelCode}.view.validate.confirmPassword`).d('请输入确认密码'),
+  //       });
+  //       return;
+  //     }
+  //     const res = getResponse(await confirmSignature(params));
+  //     if (res) {
+  //       notification.success({
+  //         description: '',
+  //         message: res.message,
+  //       });
+  //       statisticalConfirmDS.query();
+  //     }
+  //   }
+  // };
 
   // 当期已勾选发票统计确签: 刷新状态
   const statisticalConfirmRefresh = async () => {
@@ -591,13 +591,13 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         <Icon type="arrow_drop_down" />
       </Button>
     </Dropdown>,
-    <Button
-      key="confirmSignature"
-      color={ButtonColor.default}
-      onClick={() => statisticalConfirmSign()}
-    >
-      {intl.get(`${modelCode}.button.confirmSignature`).d('确认签名')}
-    </Button>,
+    // <Button
+    //   key="confirmSignature"
+    //   color={ButtonColor.default}
+    //   onClick={() => statisticalConfirmSign()}
+    // >
+    //   {intl.get(`${modelCode}.button.confirmSignature`).d('确认签名')}
+    // </Button>,
     <BatchBtn
       key="refreshAll"
       onClick={() => statisticalConfirmRefresh()}

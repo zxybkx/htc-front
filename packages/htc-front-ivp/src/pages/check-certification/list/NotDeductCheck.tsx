@@ -24,7 +24,7 @@ import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
 import notification from 'utils/notification';
 import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
-import { handlecheckRequest } from '@src/services/checkCertificationService';
+import { partialCheck } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import moment from 'moment';
 import { getResponse } from 'utils/utils';
@@ -83,7 +83,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
         const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
         queryDataSet.current!.set({
           currentPeriod,
-          currentOperationalDeadline,
+          expiredDate: currentOperationalDeadline,
           checkableTimeRange,
           currentCertState,
           rzrqq: dateFrom,
@@ -198,22 +198,22 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
       width: 150,
       align: ColumnAlign.right,
     },
-    { name: 'bdkyy' },
+    { name: 'reasonsForNonDeduction' },
     { name: 'invoiceState' },
     { name: 'isPoolFlag' },
     { name: 'entryAccountState' },
     { name: 'rzrq' },
     { name: 'receiptsState', width: 130 },
-    { name: 'systemCodeObj' },
-    { name: 'documentTypeCodeObj' },
-    { name: 'documentNumberObj' },
+    { name: 'sourceSystem' },
+    { name: 'documentTypeMeaning' },
+    { name: 'documentRemark' },
     { name: 'checkDate', width: 130 },
     { name: 'authenticationState' },
     { name: 'authenticationType' },
     { name: 'infoSource' },
     { name: 'taxBureauManageState', width: 120 },
     { name: 'isEntryNotConform', width: 150 },
-    { name: 'yt' },
+    { name: 'purpose' },
     { name: 'abnormalSign', width: 150 },
     { name: 'annotation', width: 200 },
     { name: 'batchNumber' },
@@ -232,22 +232,17 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
   ];
 
   // 发票勾选
-  const checkRequest = async isTick => {
+  const checkRequest = async () => {
     const {
       companyId,
       companyCode,
-      companyName,
       employeeNum: employeeNumber,
       employeeId,
       taxpayerNumber,
-      employeeName,
-      mobile,
+      authorityCode,
     } = empInfo;
-    const employeeDesc = `${companyCode}-${employeeNumber}-${employeeName}-${mobile}`;
-    const companyDesc = `${companyCode}-${companyName}`;
     const selectedList = noDeductCheckDS?.selected.map(rec => rec.toData());
-    const contentRows = selectedList?.length;
-    let invoiceRequestParamDto = {};
+    // let invoiceRequestParamDto = {};
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
     if (!taxDiskPassword) {
       return notification.warning({
@@ -257,59 +252,25 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     }
     if (noDeductCheckDS) {
       const { queryDataSet } = noDeductCheckDS;
-      // const { currentPeriod } = currentPeriodData;
-      const invoiceCategory = queryDataSet?.current?.get('invoiceCategory');
       const currentPeriod = queryDataSet?.current?.get('currentPeriod');
-      if (invoiceCategory === '01') {
-        // 增值税
-        const data = selectedList?.map((record: any) => {
-          const {
-            invoiceCode: fpdm,
-            invoiceNo: fphm,
-            invoiceDate: kprq,
-            validTaxAmount: yxse,
-            invoicePoolHeaderId: id,
-            invoiceCheckCollectId,
-          } = record;
-          return { fpdm, fphm, kprq, yxse, id, gxzt: isTick, invoiceCheckCollectId };
-        });
-        invoiceRequestParamDto = {
-          data,
-          contentRows,
-          spmm: taxDiskPassword,
-        };
-      } else {
-        const paymentCustomerData = selectedList?.map((record: any) => {
-          const {
-            invoiceNo: jkshm,
-            taxAmount: se,
-            invoiceDate: tfrq,
-            validTaxAmount: yxse,
-            invoicePoolHeaderId: id,
-            invoiceCheckCollectId,
-          } = record;
-          return { fply: '1', jkshm, se, tfrq, yxse, id, zt: isTick, invoiceCheckCollectId };
-        });
-        invoiceRequestParamDto = {
-          paymentCustomerData,
-          contentRows,
-          spmm: taxDiskPassword,
-        };
-      }
+      // if (invoiceCategory === '01') {
+      //   invoiceRequestParamDto = { selectedList, taxDiskPassword };
+      // } else {
+      //   invoiceRequestParamDto = { selectedList, taxDiskPassword };
+      // }
       const params = {
         tenantId,
+        authorityCode,
         companyId,
         companyCode,
-        companyDesc,
         employeeId,
         employeeNumber,
-        employeeDesc,
         currentPeriod,
-        invoiceCategory,
         taxpayerNumber,
-        invoiceRequestParamDto,
+        taxDiskPassword,
+        selectedList,
       };
-      const res = getResponse(await handlecheckRequest(params));
+      const res = getResponse(await partialCheck(params));
       if (res) {
         notification.success({
           description: '',
@@ -340,7 +301,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
         });
         return;
       }
-      checkRequest(1);
+      checkRequest();
     }
   };
 
@@ -364,7 +325,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
         });
         return;
       }
-      checkRequest(0);
+      checkRequest();
     }
   };
 
@@ -404,7 +365,35 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     </Menu>
   );
 
-  const setReasons = () => {};
+  const setReasons = () => {
+    if (noDeductCheckDS) {
+      const { queryDataSet } = noDeductCheckDS;
+      const reasonsForNonDeduction =
+        queryDataSet && queryDataSet.current?.get('reasonsForNonDeduction');
+      noDeductCheckDS.selected.map(record =>
+        record.set('reasonsForNonDeduction', reasonsForNonDeduction)
+      );
+      noDeductCheckDS.submit();
+    }
+  };
+
+  const ReasonButton = observer((btnProps: any) => {
+    const { queryDataSet } = btnProps.dataSet;
+    const reasonsForNonDeduction =
+      queryDataSet && queryDataSet.current?.get('reasonsForNonDeduction');
+    const isDisabled = btnProps.dataSet!.selected.length === 0 || !reasonsForNonDeduction;
+    return (
+      <Button
+        key={btnProps.key}
+        onClick={btnProps.onClick}
+        disabled={isDisabled}
+        funcType={FuncType.raised}
+        color={ButtonColor.primary}
+      >
+        {btnProps.title}
+      </Button>
+    );
+  });
 
   const tableButtons: Buttons[] = [
     <Dropdown overlay={btnMenu}>
@@ -413,9 +402,12 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
         <Icon type="arrow_drop_down" />
       </Button>
     </Dropdown>,
-    <Button color={ButtonColor.primary} funcType={FuncType.raised} onClick={() => setReasons()}>
-      {intl.get(`${modelCode}.button.batchReasons`).d('批量设置不抵扣原因')}
-    </Button>,
+    <ReasonButton
+      key="reason"
+      onClick={() => setReasons()}
+      dataSet={noDeductCheckDS}
+      title={intl.get(`${modelCode}.button.batchReasons`).d('批量设置不抵扣原因')}
+    />,
   ];
 
   const handleVerifiableQuery = () => {
@@ -460,7 +452,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     queryMoreArray.push(<Currency name="taxAmount" />);
     queryMoreArray.push(<Currency name="validTaxAmount" />);
     queryMoreArray.push(<Currency name="amount" />);
-    queryMoreArray.push(<Currency name="bdkyy" />);
+    queryMoreArray.push(<Currency name="reasonsForNonDeduction" />);
     return (
       <div style={{ marginBottom: '0.1rem' }}>
         <Row>
@@ -468,7 +460,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
             <Form dataSet={queryDataSet} columns={3}>
               <TextField name="currentPeriod" />
               <TextField name="checkableTimeRange" />
-              <DatePicker name="currentOperationalDeadline" />
+              <DatePicker name="expiredDate" />
               {verfiableMoreDisplay && queryMoreArray}
             </Form>
           </Col>
