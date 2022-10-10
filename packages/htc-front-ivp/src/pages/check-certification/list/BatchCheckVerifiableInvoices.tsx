@@ -46,7 +46,6 @@ import { downLoadFiles } from '@htccommon/utils/utils';
 import { API_HOST } from 'utils/config';
 import { observer } from 'mobx-react-lite';
 import moment from 'moment';
-import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import { Col, Icon, message, Row, Tag } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { ValueChangeAction } from 'choerodon-ui/pro/lib/text-field/enum';
@@ -633,12 +632,18 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   const summarizeByCondition = async () => {
     if (batchInvoiceHeaderDS) {
       const { queryDataSet } = batchInvoiceHeaderDS;
-      const checkableTimeRange = queryDataSet?.current!.get('checkableTimeRange');
-      const invoiceDateFrom = queryDataSet?.current!.get('invoiceDateFrom');
-      const invoiceDateEnd = queryDataSet?.current!.get('invoiceDateEnd');
-      const xfsbh = queryDataSet?.current!.get('xfsbh');
-      const qt = queryDataSet?.current!.get('tjyf');
-      const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
+      const queryData = queryDataSet?.current?.toData();
+      const {
+        invoiceDateFrom,
+        invoiceDateEnd,
+        entryAccountState,
+        entryAccountDateFrom,
+        entryAccountDateTo,
+        sourceSystem,
+        documentTypeCode,
+        documentNumber,
+        salerName,
+      } = queryData;
       if (!taxDiskPassword) {
         return notification.warning({
           description: '',
@@ -647,17 +652,15 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       }
       const params = {
         tenantId,
-        companyId,
-        companyCode,
-        employeeId,
-        employeeNumber,
-        spmm: taxDiskPassword,
-        gxzt: '0',
-        checkableTimeRange,
-        invoiceDateFrom: invoiceDateFrom && invoiceDateFrom.format(DEFAULT_DATE_FORMAT),
-        invoiceDateEnd: invoiceDateEnd && invoiceDateEnd.format(DEFAULT_DATE_FORMAT),
-        xfsbh,
-        qt,
+        entryAccountState,
+        invoiceDateFrom,
+        invoiceDateEnd,
+        entryAccountDateFrom,
+        entryAccountDateTo,
+        sourceSystem,
+        documentTypeCode,
+        documentNumber,
+        salerName,
       };
       const res = getResponse(await unCertifiedInvoiceQuery(params));
       if (res) {
