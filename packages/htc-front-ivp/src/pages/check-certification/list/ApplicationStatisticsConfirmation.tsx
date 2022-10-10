@@ -19,6 +19,7 @@ import {
   Table,
   TextField,
   Select,
+  Password,
 } from 'choerodon-ui/pro';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
@@ -26,10 +27,9 @@ import notification from 'utils/notification';
 import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
 import {
   applyStatistics,
-  // confirmSignature,
+  confirmSignature,
   judgeButton,
   refreshAllState,
-  // refreshState,
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import { getResponse } from 'utils/utils';
@@ -45,7 +45,7 @@ import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/
 import formatterCollections from 'utils/intl/formatterCollections';
 import StatisticalConfirmDS, {
   TimeRange,
-  AutomaticStatistics,
+  // AutomaticStatistics,
 } from '../stores/StatisticalConfirmDS';
 import StatisticalDetailDS from '../stores/StatisticalDetailDS';
 import InvoiceCategoryContext from './CommonStore';
@@ -69,10 +69,6 @@ const timeRangeDS = new DataSet({
   ...TimeRange(),
 });
 
-const automaticStatisticsDS = new DataSet({
-  ...AutomaticStatistics(),
-});
-
 const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmationProps> = props => {
   const {
     statisticalConfirmDS,
@@ -86,22 +82,13 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   const { invoiceCategory, immediatePeriod } = useContext(InvoiceCategoryContext);
 
   const setCompanyObjFromProps = () => {
-    const { companyId, employeeId, employeeNum } = empInfo;
+    const { companyId } = empInfo;
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
       if (queryDataSet && queryDataSet.current) {
         queryDataSet.current!.set({
           companyId,
         });
-        if (companyId) {
-          automaticStatisticsDS.setQueryParameter('companyId', companyId);
-          automaticStatisticsDS.query().then(res => {
-            const { companyId: autoCompanyId } = res;
-            if (!autoCompanyId) {
-              automaticStatisticsDS.create({ companyId, employeeId, employeeNum });
-            }
-          });
-        }
       }
     }
   };
@@ -217,14 +204,12 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
 
   const StatisticsBtn = observer((btnProps: any) => {
     const { queryDataSet } = btnProps.dataSet;
-    const authenticationDateObj =
-      queryDataSet && queryDataSet.current?.get('authenticationDateObj');
-    const isDisabled = !authenticationDateObj;
+    const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
     return (
       <Button
         key={btnProps.key}
         onClick={btnProps.onClick}
-        disabled={isDisabled}
+        disabled={!currentPeriod}
         funcType={FuncType.flat}
       >
         {btnProps.title}
@@ -234,12 +219,12 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
 
   const MenuButton = observer((btnProps: any) => {
     const { queryDataSet } = btnProps.dataSet;
-    const isDisabled = queryDataSet?.current?.get('statisticalPeriod');
+    const isDisabled = queryDataSet && queryDataSet.current?.get('currentPeriod');
     return (
       <Button
         key={btnProps.key}
         onClick={btnProps.onClick}
-        disabled={isDisabled}
+        disabled={!isDisabled}
         funcType={FuncType.link}
       >
         {btnProps.title}
@@ -283,9 +268,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
       }
       const employeeDesc = `${companyCode}-${employeeNumber}-${employeeName}-${mobile}`;
       const companyDesc = `${companyCode}-${companyName}`;
-      const statisticalPeriod = statisticalConfirmDS.queryDataSet?.current!.get(
-        'statisticalPeriod'
-      );
+      const currentPeriod = queryDataSet && queryDataSet.current!.get('currentPeriod');
       let statisticalFlag;
       if (['0', '1'].includes(currentCertState)) statisticalFlag = 1;
       if (['2', '3'].includes(currentCertState)) statisticalFlag = 0;
@@ -299,7 +282,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         employeeDesc,
         taxDiskPassword,
         taxpayerNumber,
-        statisticalPeriod,
+        statisticalPeriod: currentPeriod,
         statisticalFlag,
       };
       const res = getResponse(await applyStatistics(params));
@@ -412,7 +395,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   //   }
   // };
 
-  // 当期已勾选发票统计确签: 刷新状态
+  // 申请统计及确签: 刷新状态
   const statisticalConfirmRefresh = async () => {
     if (statisticalConfirmDS) {
       const list = statisticalConfirmDS?.selected.map(record => record.toData());
@@ -464,7 +447,6 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         : '/htc-front-ivp/check-certification/certificationResults';
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
-      const statisticalPeriod = queryDataSet?.current?.get('statisticalPeriod');
       const currentCertState = queryDataSet?.current?.get('currentCertState');
       const currentPeriod = queryDataSet?.current?.get('currentPeriod');
       const invoiceDateFromStr = invoiceDateFrom.format(DEFAULT_DATE_FORMAT);
@@ -474,7 +456,6 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         search: queryString.stringify({
           statisticalConfirmInfo: encodeURIComponent(
             JSON.stringify({
-              statisticalPeriod,
               currentPeriod,
               currentCertState,
               companyId,
@@ -498,9 +479,9 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   const statisticsModal = type => {
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
-      const statisticalPeriod = queryDataSet?.current?.get('statisticalPeriod');
-      const invoiceDateFrom = moment(statisticalPeriod).startOf('month');
-      const invoiceDateTo = moment(statisticalPeriod).endOf('month');
+      const currentPeriod = queryDataSet?.current?.get('currentPeriod');
+      const invoiceDateFrom = moment(currentPeriod).startOf('month');
+      const invoiceDateTo = moment(currentPeriod).endOf('month');
       const record = timeRangeDS.create({ invoiceDateFrom, invoiceDateTo }, 0);
       const modal = ModalPro.open({
         title: intl.get(`${modelCode}.view.invoiceDateRange`).d('选择时间范围'),
@@ -525,17 +506,18 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     }
   };
 
-  const handleConfirm = type => {
+  // 申请统计及确签: 认证
+  const handleConfirm = async type => {
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
       const currentCertState = queryDataSet && queryDataSet.current?.get('currentCertState');
-      // const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-      // if (!taxDiskPassword) {
-      //   return notification.warning({
-      //     description: '',
-      //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-      //   });
-      // }
+      const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
+      if (!taxDiskPassword) {
+        return notification.warning({
+          description: '',
+          message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+        });
+      }
       if (['0', '1'].includes(currentCertState)) {
         notification.warning({
           description: '',
@@ -543,14 +525,58 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
             .get('hivp.checkCertification.validate.batchConfirm')
             .d('当前认证状态不在统计阶段'),
         });
-        // return;
-      } else if (currentCertState === '3' && type === 0) {
+        return;
+      } else if (currentCertState === '3' && type === 1) {
         notification.warning({
           description: '',
           message: intl
-            .get('hivp.checkCertification.validate.batchConfirm')
+            .get('hivp.checkCertification.validate.confirmCertification')
             .d('当前已认证，只能取消认证'),
         });
+        return;
+      }
+      const {
+        companyId,
+        companyCode,
+        employeeId,
+        employeeNum,
+        taxpayerNumber,
+        companyName,
+        employeeName,
+        mobile,
+      } = empInfo;
+      const employeeDesc = `${companyCode}-${employeeNum}-${employeeName}-${mobile}`;
+      const companyDesc = `${companyCode}-${companyName}`;
+      const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
+      const confirmPassword = queryDataSet && queryDataSet.current?.get('confirmPassword');
+      if (!confirmPassword) {
+        notification.info({
+          description: '',
+          message: intl.get(`${modelCode}.view.validate.confirmPassword`).d('请输入确认密码'),
+        });
+        return;
+      }
+      const params = {
+        tenantId,
+        companyId,
+        companyCode,
+        companyDesc,
+        employeeId,
+        employeeNumber: employeeNum,
+        employeeDesc,
+        taxDiskPassword,
+        taxpayerNumber,
+        currentPeriod,
+        confirmFlag: type,
+        confirmPassword,
+      };
+      const res = getResponse(await confirmSignature(params));
+      if (res) {
+        notification.success({
+          description: '',
+          message: res.message,
+        });
+        statisticalConfirmDS.query();
       }
     }
   };
@@ -558,22 +584,20 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   const confirmMenu = (
     <Menu>
       <MenuItem>
-        <Button
+        <MenuButton
           key="confirmCertification"
-          onClick={() => handleConfirm(0)}
-          dataSet={statisticalConfirmDS}
-        >
-          {intl.get(`${modelCode}.button.confirmCertification`).d('确认认证')}
-        </Button>
-      </MenuItem>
-      <MenuItem>
-        <Button
-          key="cancelCertification"
           onClick={() => handleConfirm(1)}
           dataSet={statisticalConfirmDS}
-        >
-          {intl.get(`${modelCode}.button.cancelCertification`).d('取消认证')}
-        </Button>
+          title={intl.get(`${modelCode}.button.confirmCertification`).d('确认认证')}
+        />
+      </MenuItem>
+      <MenuItem>
+        <MenuButton
+          key="cancelCertification"
+          onClick={() => handleConfirm(0)}
+          dataSet={statisticalConfirmDS}
+          title={intl.get(`${modelCode}.button.cancelCertification`).d('取消认证')}
+        />
       </MenuItem>
     </Menu>
   );
@@ -622,8 +646,10 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   const renderQueryBar = propsDS => {
     const { dataSet, queryDataSet, buttons } = propsDS;
     const queryMoreArray: JSX.Element[] = [];
-    queryMoreArray.push(<Lov name="authenticationDateObj" />);
-    queryMoreArray.push(<Select name="qqlx" colSpan={2} />);
+    queryMoreArray.push(<Lov name="authenticationDateObjFrom" />);
+    queryMoreArray.push(<Lov name="authenticationDateObjTo" />);
+    queryMoreArray.push(<Password name="confirmPassword" reveal={false} />);
+    queryMoreArray.push(<Select name="requestType" colSpan={2} />);
     return (
       <div style={{ marginBottom: '0.1rem' }}>
         <Row>
@@ -719,11 +745,9 @@ export default formatterCollections({
   code: [
     modelCode,
     'hiop.invoiceWorkbench',
-    'hiop.invoiceRule',
     'hivp.taxRefund',
     'hiop.redInvoiceInfo',
     'htc.common',
-    'hcan.invoiceDetail',
     'hivp.bill',
   ],
 })(

@@ -981,13 +981,12 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
 export default formatterCollections({
   code: [
     modelCode,
-    'hiop.invoiceWorkbench',
-    'hiop.invoiceRule',
     'hivp.taxRefund',
     'hiop.redInvoiceInfo',
     'htc.common',
     'hcan.invoiceDetail',
     'hivp.bill',
+    'hivp.invoicesArchiveUpload',
   ],
 })(
   withProps(

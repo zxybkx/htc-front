@@ -98,12 +98,13 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
         invoiceDateFromStr,
         invoiceDateToStr,
         authorityCode,
+        currentPeriod,
       } = statisticalConfirmInfo;
       const date = moment().format(DEFAULT_DATETIME_FORMAT);
       this.headerDS.current!.set({
         tenantName: getCurrentTenant().tenantName,
         currentCertState,
-        currentPeriod: statisticalPeriod,
+        currentPeriod,
         queryTime: date,
       });
       this.summaryDS.setQueryParameter('companyId', companyId);

@@ -72,7 +72,6 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
     if (statisticalConfirmInfoStr) {
       const statisticalConfirmInfo = JSON.parse(decodeURIComponent(statisticalConfirmInfoStr));
       const {
-        statisticalPeriod,
         currentPeriod,
         currentCertState,
         companyId,
@@ -89,7 +88,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
       this.headerDS.current!.set({
         tenantName: getCurrentTenant().tenantName,
         currentCertState,
-        currentPeriod: statisticalPeriod,
+        currentPeriod,
       });
       this.summaryDS.setQueryParameter('companyId', companyId);
       this.summaryDS.setQueryParameter('companyCode', companyCode);
@@ -97,7 +96,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
       this.summaryDS.setQueryParameter('employeeId', employeeId);
       this.summaryDS.setQueryParameter('employeeNumber', employeeNum);
       this.summaryDS.setQueryParameter('nsrsbh', taxpayerNumber);
-      this.summaryDS.setQueryParameter('tjyf', statisticalPeriod);
+      this.summaryDS.setQueryParameter('tjyf', currentPeriod);
       this.summaryDS.setQueryParameter('ssq', currentPeriod);
       this.summaryDS.setQueryParameter('spmm', taxDiskPassword);
       this.summaryDS.setQueryParameter('rqq', invoiceDateFromStr);
