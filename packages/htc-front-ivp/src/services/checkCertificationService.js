@@ -263,6 +263,17 @@ export async function getTaskPassword(params) {
 }
 
 /**
+ * 查询所属期
+ */
+export async function getCurPeriod(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/invoice-operation/business-time-companyId-cur`, {
+    method: 'GET',
+    query: otherParams,
+  });
+}
+
+/**
  * 勾选认证-下载申报抵扣统计表
  */
 export async function deductionReportDownload(params) {
@@ -320,5 +331,21 @@ export async function batchScanGunInvoices(params) {
     method: 'POST',
     query: otherParams,
     body: list,
+  });
+}
+
+/**
+ * 不抵扣勾选-勾选请求
+ * @async
+ * @function partialCheck
+ * @param {object} params - 查询条件
+ * @returns {object} fetch Promise
+ */
+export async function partialCheck(params) {
+  const { tenantId, selectedList, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/non-deduction-check/partial-Check`, {
+    method: 'POST',
+    query: otherParams,
+    body: selectedList,
   });
 }

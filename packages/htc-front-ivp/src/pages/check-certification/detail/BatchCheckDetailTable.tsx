@@ -3,16 +3,18 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-06-15 16:48
- * @LastEditTime:
+ * @LastEditTime: 2022-09-28
  * @Copyright: Copyright (c) 2022, Hand
  */
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { Content, Header } from 'components/Page';
-import { DataSet, Table } from 'choerodon-ui/pro';
+import { DataSet, Table, Button, notification } from 'choerodon-ui/pro';
 import { Tag } from 'choerodon-ui';
 import { Bind } from 'lodash-decorators';
+import { observer } from 'mobx-react-lite';
+import { FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
@@ -146,6 +148,7 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
         editor: record => record?.get('checkState') === '0',
         width: 150,
       },
+      { name: 'reasonsForNonDeduction', editor: true, width: 150 },
       { name: 'isMatch' },
       { name: 'invoiceState' },
       {
@@ -159,14 +162,66 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
       { name: 'taxBureauManageState', width: 120 },
       { name: 'purpose' },
       { name: 'entryAccountState' },
-      { name: 'receiptsState' },
+      { name: 'receiptsState', width: 120 },
       { name: 'abnormalSign', width: 150 },
       { name: 'annotation', width: 200 },
     ];
   }
 
+  @Bind()
+  setReasons() {
+    const { queryDataSet } = this.batchCheckDetailDS;
+    if (queryDataSet) {
+      const reasonsForNonDeduction = queryDataSet.current!.get('reasonsForNonDeduction');
+      if (!reasonsForNonDeduction) {
+        notification.warning({
+          description: '',
+          message: intl.get('hivp.checkCertification.notice.reasons').d('请输入不抵扣原因！'),
+        });
+        return;
+      }
+      this.batchCheckDetailDS.selected.forEach(record =>
+        record.set('reasonsForNonDeduction', reasonsForNonDeduction)
+      );
+    }
+  }
+
   get buttons(): Buttons[] {
-    return [TableButtonType.save, TableButtonType.delete];
+    const { search } = this.props.location;
+    const batchInvoiceInfoStr = new URLSearchParams(search).get('batchInvoiceInfo');
+    let inChannelCode;
+    if (batchInvoiceInfoStr) {
+      const batchInvoiceInfo = JSON.parse(decodeURIComponent(batchInvoiceInfoStr));
+      ({ inChannelCode } = batchInvoiceInfo);
+    }
+    const HeaderButtons = observer((btnProps: any) => {
+      const isDisabled = btnProps.dataSet!.selected.length === 0;
+      return (
+        <Button
+          key={btnProps.key}
+          onClick={btnProps.onClick}
+          disabled={isDisabled}
+          funcType={FuncType.flat}
+          style={{
+            display: ['ZK_IN_CHANNEL_DIGITAL', 'ZK_IN_CHANNEL'].includes(inChannelCode)
+              ? 'inline'
+              : 'none',
+          }}
+        >
+          {btnProps.title}
+        </Button>
+      );
+    });
+    return [
+      <HeaderButtons
+        key="batchReasons"
+        onClick={() => this.setReasons()}
+        dataSet={this.batchCheckDetailDS}
+        title={intl.get(`${modelCode}.button.batchReasons`).d('批量设置不抵扣原因')}
+      />,
+      TableButtonType.save,
+      TableButtonType.delete,
+    ];
   }
 
   render() {

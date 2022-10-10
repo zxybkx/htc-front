@@ -1,12 +1,12 @@
 /**
- * @Description:勾选认证-当期勾选可认证发票
+ * @Description:勾选认证-不抵扣勾选
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
- * @Date: 2020-09-23 14:26:15
- * @LastEditTime: 2022-09-19 09:51
+ * @Date: 2022-09-28 15:01
+ * @LastEditTime:
  * @Copyright: Copyright (c) 2020, Hand
  */
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Button,
   Currency,
@@ -15,7 +15,6 @@ import {
   Dropdown,
   Form,
   Menu,
-  Progress,
   Select,
   Table,
   TextField,
@@ -25,26 +24,18 @@ import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
 import notification from 'utils/notification';
 import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
-import {
-  certifiableInvoiceRefresh,
-  findVerifiableInvoice,
-  handlecheckRequest,
-} from '@src/services/checkCertificationService';
+import { partialCheck } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import moment from 'moment';
 import { getResponse } from 'utils/utils';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
-import queryString from 'query-string';
-import { ProgressStatus } from 'choerodon-ui/lib/progress/enum';
 import { observer } from 'mobx-react-lite';
-import { set, uniqBy } from 'lodash';
-import { Col, Icon, Modal, Row, Tag, Tooltip } from 'choerodon-ui';
+import { Col, Icon, Row, Tag } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
-import CertifiableInvoiceListDS from '../stores/CertifiableInvoiceListDS';
+import NoDeductCheckDS from '../stores/NotDeductCheckDS';
 import InvoiceCategoryContext from './CommonStore';
-import styles from '../checkcertification.less';
 
 const { Item: MenuItem } = Menu;
 
@@ -57,28 +48,17 @@ interface CheckCertificationPageProps {
   currentPeriodData: any;
   checkInvoiceCount: number;
   history: any;
-  certifiableInvoiceListDS?: DataSet;
+  noDeductCheckDS?: DataSet;
 }
 
-const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
-  const {
-    certifiableInvoiceListDS,
-    companyAndPassword,
-    empInfo,
-    history,
-    checkInvoiceCount,
-    currentPeriodData,
-  } = props;
-  const [progressStatus, setProgressStatus] = useState<any>(ProgressStatus.active);
-  const [count, setCount] = useState<number>(0);
-  const [progressValue, setProgressValue] = useState<number>(0);
-  const [visible, setVisible] = useState<boolean>(false);
+const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
+  const { noDeductCheckDS, companyAndPassword, empInfo, currentPeriodData } = props;
   const [verfiableMoreDisplay, setVerfiableMoreDisplay] = useState<boolean>(false);
-  const { setInvoiceCategory, immediatePeriod } = useContext(InvoiceCategoryContext);
+  const { immediatePeriod } = useContext(InvoiceCategoryContext);
 
   const setCompanyObjFromProps = () => {
-    if (certifiableInvoiceListDS) {
-      const { queryDataSet } = certifiableInvoiceListDS;
+    if (noDeductCheckDS) {
+      const { queryDataSet } = noDeductCheckDS;
       if (queryDataSet && queryDataSet.current) {
         queryDataSet.current!.set({
           companyObj: empInfo,
@@ -89,8 +69,8 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   };
 
   const setCurrentPeriodFromProps = () => {
-    if (certifiableInvoiceListDS) {
-      const { queryDataSet } = certifiableInvoiceListDS;
+    if (noDeductCheckDS) {
+      const { queryDataSet } = noDeductCheckDS;
       if (queryDataSet && queryDataSet.current) {
         const period = immediatePeriod || currentPeriodData;
         const {
@@ -103,7 +83,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
         queryDataSet.current!.set({
           currentPeriod,
-          currentOperationalDeadline,
+          expiredDate: currentOperationalDeadline,
           checkableTimeRange,
           currentCertState,
           rzrqq: dateFrom,
@@ -153,9 +133,9 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   };
 
   const handleCancel = record => {
-    if (certifiableInvoiceListDS) {
+    if (noDeductCheckDS) {
       if (record.status === 'add') {
-        certifiableInvoiceListDS.remove(record);
+        noDeductCheckDS.remove(record);
       } else {
         record.reset();
         record.setState('editing', false);
@@ -164,7 +144,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   };
 
   const handleSave = async record => {
-    const res = await certifiableInvoiceListDS?.submit();
+    const res = await noDeductCheckDS?.submit();
     if (res && res.content) record.setState('editing', false);
   };
 
@@ -218,6 +198,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       width: 150,
       align: ColumnAlign.right,
     },
+    { name: 'reasonsForNonDeduction' },
     { name: 'invoiceState' },
     { name: 'isPoolFlag' },
     { name: 'entryAccountState' },
@@ -251,22 +232,17 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   ];
 
   // 发票勾选
-  const checkRequest = async isTick => {
+  const checkRequest = async () => {
     const {
       companyId,
       companyCode,
-      companyName,
       employeeNum: employeeNumber,
       employeeId,
       taxpayerNumber,
-      employeeName,
-      mobile,
+      authorityCode,
     } = empInfo;
-    const employeeDesc = `${companyCode}-${employeeNumber}-${employeeName}-${mobile}`;
-    const companyDesc = `${companyCode}-${companyName}`;
-    const selectedList = certifiableInvoiceListDS?.selected.map(rec => rec.toData());
-    const contentRows = selectedList?.length;
-    let invoiceRequestParamDto = {};
+    const selectedList = noDeductCheckDS?.selected.map(rec => rec.toData());
+    // let invoiceRequestParamDto = {};
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
     if (!taxDiskPassword) {
       return notification.warning({
@@ -274,77 +250,43 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
       });
     }
-    if (certifiableInvoiceListDS) {
-      const { queryDataSet } = certifiableInvoiceListDS;
-      // const { currentPeriod } = currentPeriodData;
-      const invoiceCategory = queryDataSet?.current?.get('invoiceCategory');
+    if (noDeductCheckDS) {
+      const { queryDataSet } = noDeductCheckDS;
       const currentPeriod = queryDataSet?.current?.get('currentPeriod');
-      if (invoiceCategory === '01') {
-        // 增值税
-        const data = selectedList?.map((record: any) => {
-          const {
-            invoiceCode: fpdm,
-            invoiceNo: fphm,
-            invoiceDate: kprq,
-            validTaxAmount: yxse,
-            invoicePoolHeaderId: id,
-            invoiceCheckCollectId,
-          } = record;
-          return { fpdm, fphm, kprq, yxse, id, gxzt: isTick, invoiceCheckCollectId };
-        });
-        invoiceRequestParamDto = {
-          data,
-          contentRows,
-          spmm: taxDiskPassword,
-        };
-      } else {
-        const paymentCustomerData = selectedList?.map((record: any) => {
-          const {
-            invoiceNo: jkshm,
-            taxAmount: se,
-            invoiceDate: tfrq,
-            validTaxAmount: yxse,
-            invoicePoolHeaderId: id,
-            invoiceCheckCollectId,
-          } = record;
-          return { fply: '1', jkshm, se, tfrq, yxse, id, zt: isTick, invoiceCheckCollectId };
-        });
-        invoiceRequestParamDto = {
-          paymentCustomerData,
-          contentRows,
-          spmm: taxDiskPassword,
-        };
-      }
+      // if (invoiceCategory === '01') {
+      //   invoiceRequestParamDto = { selectedList, taxDiskPassword };
+      // } else {
+      //   invoiceRequestParamDto = { selectedList, taxDiskPassword };
+      // }
       const params = {
         tenantId,
+        authorityCode,
         companyId,
         companyCode,
-        companyDesc,
         employeeId,
         employeeNumber,
-        employeeDesc,
         currentPeriod,
-        invoiceCategory,
         taxpayerNumber,
-        invoiceRequestParamDto,
+        taxDiskPassword,
+        selectedList,
       };
-      const res = getResponse(await handlecheckRequest(params));
+      const res = getResponse(await partialCheck(params));
       if (res) {
         notification.success({
           description: '',
           message: res.message,
         });
-        certifiableInvoiceListDS.query();
+        noDeductCheckDS.query();
       }
     }
   };
 
   // 提交勾选请求
   const handleSubmitTickRequest = () => {
-    if (certifiableInvoiceListDS) {
-      const { queryDataSet } = certifiableInvoiceListDS;
+    if (noDeductCheckDS) {
+      const { queryDataSet } = noDeductCheckDS;
       const currentCertState = queryDataSet && queryDataSet.current?.get('currentCertState');
-      const selectedList = certifiableInvoiceListDS.selected.map(rec => rec.toData());
+      const selectedList = noDeductCheckDS.selected.map(rec => rec.toData());
       if (
         !['0', '1'].includes(currentCertState) ||
         selectedList?.some(item => item.invoiceState !== '0' || item.checkState !== '0')
@@ -359,16 +301,16 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         });
         return;
       }
-      checkRequest(1);
+      checkRequest();
     }
   };
 
   // 提交取消勾选请求
   const handleSubmitCancelTickRequest = () => {
-    if (certifiableInvoiceListDS) {
-      const { queryDataSet } = certifiableInvoiceListDS;
+    if (noDeductCheckDS) {
+      const { queryDataSet } = noDeductCheckDS;
       const currentCertState = queryDataSet && queryDataSet.current?.get('currentCertState');
-      const selectedList = certifiableInvoiceListDS?.selected.map(rec => rec.toData());
+      const selectedList = noDeductCheckDS.selected.map(rec => rec.toData());
       if (
         !['0', '1'].includes(currentCertState) ||
         selectedList?.some(item => item.invoiceState !== '0' || item.checkState !== '1')
@@ -383,172 +325,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         });
         return;
       }
-      checkRequest(0);
-    }
-  };
-
-  /**
-   * 循环查找可认证发票
-   */
-  const loopRequest = async (totalRequest, startRow, contentRows, findParams, counts) => {
-    const { startRow: startrow, contentRows: contentrows } = await findVerifiableInvoice({
-      ...findParams,
-      startRow,
-      contentRows,
-    });
-    const _progressValue = progressValue + 100 / (totalRequest + 2);
-    setCount(count + 1);
-    setProgressValue(_progressValue);
-    if (counts < totalRequest - 2) {
-      await loopRequest(totalRequest, startrow, contentrows, findParams, count);
-    }
-    setCount(0);
-  };
-
-  // 实时查找可认证发票
-  const handleFindVerifiableInvoice = async () => {
-    const { queryDataSet } = certifiableInvoiceListDS!;
-    const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
-    const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-    if (!taxDiskPassword) {
-      return notification.warning({
-        description: '',
-        message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-      });
-    }
-    if (queryDataSet) {
-      const certifiableQueryData = queryDataSet.current!.toData();
-      const {
-        invoiceCategory,
-        invoiceNumber,
-        invoiceDateFrom,
-        invoiceDateTo,
-        currentPeriod,
-        checkableTimeRange,
-      } = certifiableQueryData;
-      // const { currentPeriod, checkableTimeRange } = currentPeriodData;
-      const findParams = {
-        tenantId,
-        companyId,
-        companyCode,
-        employeeId,
-        employeeNumber,
-        spmm: taxDiskPassword,
-        checkableTimeRange,
-        authorityCode: empInfo.authorityCode,
-        invoiceCategory,
-        qt: 'dq',
-        tjyf: currentPeriod,
-        fply: '1',
-        jkshm: invoiceNumber,
-        kprqq: invoiceDateFrom,
-        kprqz: invoiceDateTo,
-      };
-      if (invoiceCategory === '01') {
-        set(findParams, 'gxzt', '0');
-      } else {
-        set(findParams, 'rzzt', '0');
-      }
-      const res = getResponse(await findVerifiableInvoice(findParams));
-      if (res) {
-        notification.error({
-          description: '',
-          message: res.message,
-        });
-        return;
-      }
-      setProgressStatus(ProgressStatus.active);
-      setProgressValue(0);
-      setVisible(true);
-      let i = 2;
-      if (res && res.totalRequest > 1) {
-        i += res.totalRequest;
-        await loopRequest(res.totalRequest, res.startRow, res.contentRows, findParams, count);
-      }
-      setProgressValue(progressValue + 100 / i);
-      setProgressStatus(ProgressStatus.success);
-      setProgressValue(100);
-      setVisible(false);
-      await certifiableInvoiceListDS?.query();
-    }
-  };
-
-  // 已认证详情
-  const handleGoToDetail = () => {
-    const pathname = '/htc-front-ivp/check-certification/certifiableInvoice/detail';
-    const { queryDataSet } = certifiableInvoiceListDS!;
-    const {
-      companyId,
-      companyCode,
-      companyName,
-      employeeNum: employeeNumber,
-      employeeId,
-    } = empInfo;
-    const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-    if (!taxDiskPassword) {
-      return notification.warning({
-        description: '',
-        message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-      });
-    }
-    if (queryDataSet) {
-      const companyDesc = `${companyCode}-${companyName}`;
-      const currentPeriod = queryDataSet.current!.get('currentPeriod');
-      const currentCertState = queryDataSet.current!.get('currentCertState');
-      // const { currentPeriod, currentCertState } = currentPeriodData;
-      history.push({
-        pathname,
-        search: queryString.stringify({
-          certifiableInfo: encodeURIComponent(
-            JSON.stringify({
-              companyId,
-              companyCode,
-              companyDesc,
-              employeeId,
-              employeeNumber,
-              spmm: taxDiskPassword,
-              currentPeriod,
-              currentCertState,
-            })
-          ),
-        }),
-      });
-    }
-  };
-
-  // 当期勾选(取消)可认证发票: 刷新状态
-  const verifiableRefresh = async () => {
-    const selectedList = certifiableInvoiceListDS?.selected.map(rec => rec.toData());
-    if (selectedList?.some(item => item.checkState !== 'R')) {
-      notification.warning({
-        message: intl.get(`${modelCode}.view.tickInvalid2`).d('状态为“请求中”的数据，才允许刷新'),
-        description: '',
-      });
-      return;
-    }
-    const batchNoList = uniqBy(selectedList, 'batchNumber');
-    const data = batchNoList.map(item => {
-      return {
-        batchNumber: item.batchNumber,
-        requestSource: item.requestSource,
-      };
-    });
-    const { companyId, employeeId, companyCode, employeeNum: employeeNumber } = empInfo;
-    const params = {
-      tenantId,
-      companyId,
-      employeeId,
-      companyCode,
-      employeeNumber,
-      data,
-    };
-    const res = getResponse(await certifiableInvoiceRefresh(params));
-    if (res) {
-      notification.success({
-        description: '',
-        message: intl.get('hzero.common.notification.success').d('操作成功'),
-      });
-      if (certifiableInvoiceListDS) certifiableInvoiceListDS.query();
+      checkRequest();
     }
   };
 
@@ -567,29 +344,13 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     );
   });
 
-  const Tooltips = () => {
-    const title =
-      checkInvoiceCount === 0
-        ? ''
-        : '当前系统中存在请求中的发票，可在当期勾选可认证发票查看，请请求完成后再重新获取';
-    return (
-      <Tooltip title={title} placement="top">
-        <Icon
-          type="help_outline"
-          className={styles.icon}
-          style={{ display: checkInvoiceCount === 0 ? 'none' : 'inline' }}
-        />
-      </Tooltip>
-    );
-  };
-
   const btnMenu = (
     <Menu>
       <MenuItem>
         <TickButton
           key="submitTickRequest"
           onClick={() => handleSubmitTickRequest()}
-          dataSet={certifiableInvoiceListDS}
+          dataSet={noDeductCheckDS}
           title={intl.get(`${modelCode}.button.submitTickRequest`).d('提交勾选')}
         />
       </MenuItem>
@@ -597,61 +358,41 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         <TickButton
           key="submitCancelTickRequest"
           onClick={() => handleSubmitCancelTickRequest()}
-          dataSet={certifiableInvoiceListDS}
+          dataSet={noDeductCheckDS}
           title={intl.get(`${modelCode}.button.submitCancelTickRequest`).d('取消勾选')}
         />
       </MenuItem>
     </Menu>
   );
 
-  const VerifiableButton = observer((btnProps: any) => {
-    // const { currentPeriod } = currentPeriodData;
-    const { queryDataSet } = btnProps.dataSet;
-    const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
-    const isDisabled = !currentPeriod || checkInvoiceCount !== 0;
-    return (
-      <Button
-        key={btnProps.key}
-        onClick={btnProps.onClick}
-        disabled={isDisabled}
-        funcType={FuncType.flat}
-      >
-        {btnProps.title}
-      </Button>
-    );
-  });
+  const setReasons = () => {
+    if (noDeductCheckDS) {
+      const { queryDataSet } = noDeductCheckDS;
+      const reasonsForNonDeduction =
+        queryDataSet && queryDataSet.current?.get('reasonsForNonDeduction');
+      if (!reasonsForNonDeduction) {
+        notification.warning({
+          description: '',
+          message: intl.get('hivp.checkCertification.notice.reasons').d('请输入不抵扣原因！'),
+        });
+        return;
+      }
+      noDeductCheckDS.selected.forEach(record =>
+        record.set('reasonsForNonDeduction', reasonsForNonDeduction)
+      );
+      noDeductCheckDS.submit();
+    }
+  };
 
-  const CertifiedDetail = observer((btnProps: any) => {
-    // const { currentPeriod } = currentPeriodData;
-    const { queryDataSet } = btnProps.dataSet;
-    const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
-    const isDisabled = !currentPeriod;
-    return (
-      <Button
-        key={btnProps.key}
-        onClick={btnProps.onClick}
-        disabled={isDisabled}
-        funcType={FuncType.flat}
-      >
-        {btnProps.title}
-      </Button>
-    );
-  });
-
-  const FreshButton = observer((btnProps: any) => {
-    const { inChannelCode } = empInfo;
+  const ReasonButton = observer((btnProps: any) => {
     const isDisabled = btnProps.dataSet!.selected.length === 0;
     return (
       <Button
         key={btnProps.key}
         onClick={btnProps.onClick}
         disabled={isDisabled}
-        funcType={FuncType.flat}
-        style={{
-          display: ['AISINO_IN_CHANNEL', 'AISINO_IN_CHANNEL_PLUG'].includes(inChannelCode)
-            ? 'inline'
-            : 'none',
-        }}
+        funcType={FuncType.raised}
+        color={ButtonColor.primary}
       >
         {btnProps.title}
       </Button>
@@ -665,31 +406,18 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         <Icon type="arrow_drop_down" />
       </Button>
     </Dropdown>,
-    <VerifiableButton
-      key="verifiableInvoices"
-      dataSet={certifiableInvoiceListDS}
-      onClick={() => handleFindVerifiableInvoice()}
-      title={intl.get(`${modelCode}.button.verifiableInvoices`).d('实时查找可认证发票')}
-    />,
-    <Tooltips />,
-    <CertifiedDetail
-      key="certifiedDetails"
-      dataSet={certifiableInvoiceListDS}
-      onClick={() => handleGoToDetail()}
-      title={intl.get(`${modelCode}.button.certifiedDetails`).d('已认证详情')}
-    />,
-    <FreshButton
-      key="refresh"
-      onClick={() => verifiableRefresh()}
-      dataSet={certifiableInvoiceListDS}
-      title={intl.get('hiop.invoiceWorkbench.button.refresh').d('刷新状态')}
+    <ReasonButton
+      key="reason"
+      onClick={() => setReasons()}
+      dataSet={noDeductCheckDS}
+      title={intl.get(`${modelCode}.button.batchReasons`).d('批量设置不抵扣原因')}
     />,
   ];
 
   const handleVerifiableQuery = () => {
-    if (certifiableInvoiceListDS) {
-      const { queryDataSet } = certifiableInvoiceListDS;
-      certifiableInvoiceListDS.query();
+    if (noDeductCheckDS) {
+      const { queryDataSet } = noDeductCheckDS;
+      noDeductCheckDS.query();
       if (queryDataSet) {
         queryDataSet.current!.set({ number: 0 });
         queryDataSet.current!.set({ amount: 0 });
@@ -704,9 +432,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     const { queryDataSet, buttons } = propsDS;
     const queryMoreArray: JSX.Element[] = [];
     queryMoreArray.push(<Select name="currentCertState" />);
-    queryMoreArray.push(
-      <Select name="invoiceCategory" onChange={value => setInvoiceCategory(value)} />
-    );
+    queryMoreArray.push(<Select name="invoiceCategory" />);
     queryMoreArray.push(<TextField name="invoiceCode" />);
     queryMoreArray.push(<TextField name="invoiceNumber" />);
     queryMoreArray.push(<DatePicker name="invoiceDate" />);
@@ -730,6 +456,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     queryMoreArray.push(<Currency name="taxAmount" />);
     queryMoreArray.push(<Currency name="validTaxAmount" />);
     queryMoreArray.push(<Currency name="amount" />);
+    queryMoreArray.push(<Currency name="reasonsForNonDeduction" />);
     return (
       <div style={{ marginBottom: '0.1rem' }}>
         <Row>
@@ -737,7 +464,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
             <Form dataSet={queryDataSet} columns={3}>
               <TextField name="currentPeriod" />
               <TextField name="checkableTimeRange" />
-              <DatePicker name="currentOperationalDeadline" />
+              <DatePicker name="expiredDate" />
               {verfiableMoreDisplay && queryMoreArray}
             </Form>
           </Col>
@@ -778,18 +505,15 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
 
   return (
     <>
-      {certifiableInvoiceListDS && (
+      {noDeductCheckDS && (
         <>
           <Table
-            dataSet={certifiableInvoiceListDS}
+            dataSet={noDeductCheckDS}
             columns={columns}
             buttons={tableButtons}
             queryBar={renderQueryBar}
             style={{ height: 320 }}
           />
-          <Modal title="" visible={visible} closable={false} footer={null}>
-            <Progress percent={progressValue} status={progressStatus} />
-          </Modal>
         </>
       )}
     </>
@@ -800,23 +524,24 @@ export default formatterCollections({
   code: [
     modelCode,
     'hiop.invoiceWorkbench',
+    'hiop.invoiceRule',
     'hivp.taxRefund',
     'hiop.redInvoiceInfo',
     'htc.common',
+    'hcan.invoiceDetail',
     'hivp.bill',
-    'hivp.invoicesArchiveUpload',
   ],
 })(
   withProps(
     () => {
-      const certifiableInvoiceListDS = new DataSet({
+      const noDeductCheckDS = new DataSet({
         autoQuery: false,
-        ...CertifiableInvoiceListDS(),
+        ...NoDeductCheckDS(),
       });
       return {
-        certifiableInvoiceListDS,
+        noDeductCheckDS,
       };
     },
     { cacheState: true }
-  )(CheckVerifiableInvoice)
+  )(NotDeductCheck)
 );

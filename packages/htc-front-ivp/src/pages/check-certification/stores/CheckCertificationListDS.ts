@@ -157,6 +157,7 @@ export default (): DataSetProps => {
       },
     ],
     queryDataSet: new DataSet({
+      autoCreate: true,
       events: {
         update: ({ record, name, value }) => {
           if (value && name === 'companyObj') {

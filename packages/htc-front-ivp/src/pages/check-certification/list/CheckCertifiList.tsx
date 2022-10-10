@@ -50,6 +50,7 @@ import CompanyAndPasswordDS from '../stores/CompanyAndPasswordDS';
 import CheckVerifiableInvoiceTable from './CheckVerifiableInvoice';
 import ApplicationStatisticsConfirmationTable from './ApplicationStatisticsConfirmation';
 import BatchCheckVerifiableInvoicesTable from './BatchCheckVerifiableInvoices';
+import NotDeductCheck from './NotDeductCheck';
 import { CategoryProvider } from './CommonStore';
 import styles from '../checkcertification.less';
 
@@ -126,14 +127,16 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
   // 获取基础数据（主管架构代码、员工信息、通道编码、税盘密码）
   const getEmpInfoAndAuthorityCode = async curEmpInfo => {
     const { queryDataSet } = checkCertificationListDS;
-    const apiCondition = process.env.EMPLOYEE_API;
-    let inChannelCode: string;
-    if (apiCondition === 'OP') {
-      inChannelCode = 'UNAISINO_IN_CHANNEL';
-    } else {
-      const resCop = await getTenantAgreementCompany({ companyId: curEmpInfo.companyId, tenantId });
-      ({ inChannelCode } = resCop);
-    }
+    // const apiCondition = process.env.EMPLOYEE_API;
+    // let inChannelCode: string;
+    // if (apiCondition === 'OP') {
+    //   inChannelCode = 'UNAISINO_IN_CHANNEL';
+    // } else {
+    //   const resCop = await getTenantAgreementCompany({ companyId: curEmpInfo.companyId, tenantId });
+    //   ({ inChannelCode } = resCop);
+    // }
+    const resCop = await getTenantAgreementCompany({ companyId: curEmpInfo.companyId, tenantId });
+    const { inChannelCode } = resCop;
     companyAndPassword.current!.set({ inChannelCode });
     if (inChannelCode === 'AISINO_IN_CHANNEL') {
       companyAndPassword.current!.set({ taxDiskPassword: '88888888' });
@@ -149,7 +152,7 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
     }
     checkCertificationListDS.setQueryParameter('companyId', curEmpInfo.companyId);
     checkCertificationListDS.query();
-    setEmpInfo({ authorityCode: competentTaxAuthorities, ...curEmpInfo });
+    setEmpInfo({ authorityCode: competentTaxAuthorities, inChannelCode, ...curEmpInfo });
   };
 
   // 改变所属公司
@@ -387,20 +390,8 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
     }
   };
 
-  const handleTabChange = async newActiveKey => {
-    const { queryDataSet } = checkCertificationListDS;
+  const handleTabChange = newActiveKey => {
     setActiveKey(newActiveKey);
-    if (queryDataSet) {
-      if (['batchInvoice', 'certifiableInvoice'].includes(newActiveKey)) {
-        const res = await checkInvoiceCount({ tenantId });
-        if (res === 0 && newActiveKey === 'batchInvoice') {
-          const checkInvoiceButton = document.getElementById('checkInvoice');
-          if (checkInvoiceButton) {
-            checkInvoiceButton.click();
-          }
-        }
-      }
-    }
   };
 
   return (
@@ -489,7 +480,17 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
                     companyAndPassword={companyAndPassword}
                     empInfo={empInfo}
                     currentPeriodData={currentPeriod}
-                    checkInvoiceCount={invoiceCount}
+                    history={history}
+                  />
+                </TabPane>
+                <TabPane
+                  tab={intl.get(`${modelCode}.tabPane.noDeductCheck`).d('不抵扣勾选')}
+                  key="noDeductCheck"
+                >
+                  <NotDeductCheck
+                    companyAndPassword={companyAndPassword}
+                    empInfo={empInfo}
+                    currentPeriodData={currentPeriod}
                     history={history}
                   />
                 </TabPane>

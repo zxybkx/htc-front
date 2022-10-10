@@ -16,10 +16,10 @@ import {
   Lov,
   Menu,
   Modal as ModalPro,
-  Password,
   Table,
   TextField,
-  CheckBox,
+  Select,
+  Password,
 } from 'choerodon-ui/pro';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
@@ -30,13 +30,12 @@ import {
   confirmSignature,
   judgeButton,
   refreshAllState,
-  refreshState,
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import { getResponse } from 'utils/utils';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
-import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
+import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
+import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import queryString from 'query-string';
 import { observer } from 'mobx-react-lite';
 import moment from 'moment';
@@ -44,10 +43,9 @@ import { Col, Icon, Row, Tag } from 'choerodon-ui';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
 import formatterCollections from 'utils/intl/formatterCollections';
-import { ShowHelp } from 'choerodon-ui/pro/lib/field/enum';
 import StatisticalConfirmDS, {
   TimeRange,
-  AutomaticStatistics,
+  // AutomaticStatistics,
 } from '../stores/StatisticalConfirmDS';
 import StatisticalDetailDS from '../stores/StatisticalDetailDS';
 import InvoiceCategoryContext from './CommonStore';
@@ -71,10 +69,6 @@ const timeRangeDS = new DataSet({
   ...TimeRange(),
 });
 
-const automaticStatisticsDS = new DataSet({
-  ...AutomaticStatistics(),
-});
-
 const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmationProps> = props => {
   const {
     statisticalConfirmDS,
@@ -85,69 +79,38 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     currentPeriodData,
   } = props;
   const [showMore, setShowMore] = useState<boolean>(false);
-  const { invoiceCategory } = useContext(InvoiceCategoryContext);
+  const { invoiceCategory, immediatePeriod } = useContext(InvoiceCategoryContext);
 
   const setCompanyObjFromProps = () => {
-    const { companyId, employeeId, employeeNum } = empInfo;
-    const { currentPeriod, currentCertState } = currentPeriodData;
+    const { companyId } = empInfo;
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
-      if (queryDataSet) {
-        if (queryDataSet.current) {
-          queryDataSet.current!.set({
-            companyId,
-            // authenticationDateObj: { currentPeriod },
-            // statisticalPeriod: currentPeriod,
-            currentCertState,
-          });
-        } else {
-          queryDataSet.create({
-            companyId,
-            authenticationDateObj: { currentPeriod },
-            statisticalPeriod: currentPeriod,
-            currentCertState,
-          });
-        }
-        if (companyId) {
-          automaticStatisticsDS.setQueryParameter('companyId', companyId);
-          automaticStatisticsDS.query().then(res => {
-            const { companyId: autoCompanyId } = res;
-            if (!autoCompanyId) {
-              automaticStatisticsDS.create({ companyId, employeeId, employeeNum });
-            }
-          });
-        }
+      if (queryDataSet && queryDataSet.current) {
+        queryDataSet.current!.set({
+          companyId,
+        });
       }
     }
   };
 
-  useEffect(() => setCompanyObjFromProps(), [empInfo, currentPeriodData]);
-
-  // 当期已勾选发票统计确签:行刷新
-  const statisticalConfirmLineRefresh = async record => {
-    const recordData = record.toData();
-    const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
-    const { invoiceOperationId, detailInfoHeaderId, requestType, batchNo } = recordData;
-    const params = {
-      tenantId,
-      companyId,
-      companyCode,
-      employeeId,
-      employeeNumber,
-      invoiceOperationId,
-      detailInfoHeaderId,
-      requestType,
-      batchNo,
-    };
-    const res = getResponse(await refreshState(params));
-    if (res) {
-      notification.success({
-        description: '',
-        message: intl.get('hzero.common.notification.success').d('操作成功'),
-      });
-      if (statisticalConfirmDS) statisticalConfirmDS.query();
+  const setCurrentPeriodFromProps = () => {
+    if (statisticalConfirmDS) {
+      const { queryDataSet } = statisticalConfirmDS;
+      if (queryDataSet && queryDataSet.current) {
+        const period = immediatePeriod || currentPeriodData;
+        const { currentPeriod, currentCertState, currentOperationalDeadline } = period;
+        queryDataSet.current!.set({
+          currentPeriod,
+          currentOperationalDeadline,
+          currentCertState,
+        });
+      }
     }
   };
+
+  useEffect(() => setCompanyObjFromProps(), [empInfo]);
+
+  useEffect(() => setCurrentPeriodFromProps(), [currentPeriodData, immediatePeriod]);
 
   const statisticalConfirmColumns: Array<ColumnProps> = [
     { name: 'currentPeriod' },
@@ -219,30 +182,10 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     { name: 'completeTime', width: 160 },
     { name: 'checkConfirmState', width: 150 },
     { name: 'employeeNumber' },
-    {
-      name: 'operation',
-      header: intl.get('hzero.common.action').d('操作'),
-      width: 150,
-      command: ({ record }): Commands[] => {
-        const records = record.toData();
-        const isDisabled = records.requestState !== 'RUNNING';
-        return [
-          <Button
-            key="refresh"
-            onClick={() => statisticalConfirmLineRefresh(record)}
-            disabled={isDisabled}
-            funcType={FuncType.link}
-          >
-            {intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态')}
-          </Button>,
-        ];
-      },
-      lock: ColumnLock.right,
-      align: ColumnAlign.center,
-    },
   ];
 
   const BatchBtn = observer((btnProps: any) => {
+    const { inChannelCode } = empInfo;
     const isDisabled = btnProps.dataSet!.selected.length === 0;
     return (
       <Button
@@ -250,6 +193,9 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         onClick={btnProps.onClick}
         disabled={isDisabled}
         funcType={FuncType.flat}
+        style={{
+          display: ['ZK_IN_CHANNEL_DIGITAL'].includes(inChannelCode) ? 'none' : 'inline',
+        }}
       >
         {btnProps.title}
       </Button>
@@ -258,14 +204,12 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
 
   const StatisticsBtn = observer((btnProps: any) => {
     const { queryDataSet } = btnProps.dataSet;
-    const authenticationDateObj =
-      queryDataSet && queryDataSet.current?.get('authenticationDateObj');
-    const isDisabled = !authenticationDateObj;
+    const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
     return (
       <Button
         key={btnProps.key}
         onClick={btnProps.onClick}
-        disabled={isDisabled}
+        disabled={!currentPeriod}
         funcType={FuncType.flat}
       >
         {btnProps.title}
@@ -275,12 +219,12 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
 
   const MenuButton = observer((btnProps: any) => {
     const { queryDataSet } = btnProps.dataSet;
-    const isDisabled = queryDataSet?.current?.get('statisticalPeriod');
+    const isDisabled = queryDataSet && queryDataSet.current?.get('currentPeriod');
     return (
       <Button
         key={btnProps.key}
         onClick={btnProps.onClick}
-        disabled={isDisabled}
+        disabled={!isDisabled}
         funcType={FuncType.link}
       >
         {btnProps.title}
@@ -291,7 +235,8 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   // 当期已勾选发票统计确签: 申请/取消统计
   const handleStatistics = async () => {
     if (statisticalConfirmDS) {
-      // const { queryDataSet } = statisticalConfirmDS;
+      const { queryDataSet } = statisticalConfirmDS;
+      const currentCertState = queryDataSet && queryDataSet.current?.get('currentCertState');
       const {
         companyId,
         companyCode,
@@ -302,8 +247,6 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         employeeName,
         mobile,
       } = empInfo;
-      const { currentCertState } = currentPeriodData;
-      // const currentCertState = queryDataSet?.current?.get('currentCertState');
       const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
       if (!taxDiskPassword) {
         return notification.warning({
@@ -312,20 +255,20 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         });
       }
       const judgeRes = await judgeButton({ tenantId, companyId });
-      if (judgeRes) {
+      if (judgeRes || currentCertState === '3') {
         notification.warning({
           description: '',
           message: intl
             .get(`${modelCode}.view.tickInvalid6`)
-            .d('当前存在勾选或取消勾选运行中的请求不允许申请/取消统计'),
+            .d(
+              '存在勾选、取消勾选、运行中的请求或当期认证状态为“已确签”的数据，不允许申请/取消统计'
+            ),
         });
         return;
       }
       const employeeDesc = `${companyCode}-${employeeNumber}-${employeeName}-${mobile}`;
       const companyDesc = `${companyCode}-${companyName}`;
-      const statisticalPeriod = statisticalConfirmDS.queryDataSet?.current!.get(
-        'statisticalPeriod'
-      );
+      const currentPeriod = queryDataSet && queryDataSet.current!.get('currentPeriod');
       let statisticalFlag;
       if (['0', '1'].includes(currentCertState)) statisticalFlag = 1;
       if (['2', '3'].includes(currentCertState)) statisticalFlag = 0;
@@ -339,7 +282,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         employeeDesc,
         taxDiskPassword,
         taxpayerNumber,
-        statisticalPeriod,
+        statisticalPeriod: currentPeriod,
         statisticalFlag,
       };
       const res = getResponse(await applyStatistics(params));
@@ -375,84 +318,84 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   );
 
   // 当期已勾选发票统计确签: 确认签名
-  const statisticalConfirmSign = async () => {
-    if (statisticalConfirmDS) {
-      const list = statisticalConfirmDS?.map(record => record.toData());
-      // const currentCertState = statisticalConfirmDS?.queryDataSet?.current!.get('currentCertState');
-      const { currentCertState } = currentPeriodData;
-      if (list.some(record => record.requestState === 'RUNNING' || currentCertState === '3')) {
-        notification.warning({
-          message: intl
-            .get(`${modelCode}.view.tickInvalid4`)
-            .d('存在当前认证状态为“已确签”或请求状态为“运行中”的数据，不允许确认签名'),
-          description: '',
-        });
-        return;
-      }
-      const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-      if (!taxDiskPassword) {
-        return notification.warning({
-          description: '',
-          message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-        });
-      }
-      const {
-        companyId,
-        companyCode,
-        employeeNum: employeeNumber,
-        employeeId,
-        companyName,
-        employeeName,
-        mobile,
-        taxpayerNumber,
-      } = empInfo;
-      const judgeRes = await judgeButton({ tenantId, companyId });
-      if (judgeRes) {
-        notification.warning({
-          description: '',
-          message: '当前存在勾选或取消勾选运行中的请求不允许确认签名',
-        });
-        return;
-      }
-      const { queryDataSet } = statisticalConfirmDS;
-      const curInfo = queryDataSet?.current!.toData();
-      const employeeDesc = `${companyCode}-${employeeNumber}-${employeeName}-${mobile}`;
-      const companyDesc = `${companyCode}-${companyName}`;
-      const { statisticalPeriod } = curInfo;
-      const confirmPassword = automaticStatisticsDS.current!.get('confirmPassword');
-      const params = {
-        tenantId,
-        companyId,
-        companyCode,
-        companyDesc,
-        employeeId,
-        employeeNumber,
-        employeeDesc,
-        taxDiskPassword,
-        taxpayerNumber,
-        currentPeriod: statisticalPeriod,
-        confirmFlag: 1,
-        confirmPassword,
-      };
-      if (!confirmPassword) {
-        notification.info({
-          description: '',
-          message: intl.get(`${modelCode}.view.validate.confirmPassword`).d('请输入确认密码'),
-        });
-        return;
-      }
-      const res = getResponse(await confirmSignature(params));
-      if (res) {
-        notification.success({
-          description: '',
-          message: res.message,
-        });
-        statisticalConfirmDS.query();
-      }
-    }
-  };
+  // const statisticalConfirmSign = async () => {
+  //   if (statisticalConfirmDS) {
+  //     const { queryDataSet } = statisticalConfirmDS;
+  //     const list = statisticalConfirmDS?.map(record => record.toData());
+  //     const currentCertState = queryDataSet && queryDataSet.current?.get('currentCertState');
+  //     // const { currentCertState } = currentPeriodData;
+  //     if (list.some(record => record.requestState === 'RUNNING' || currentCertState === '3')) {
+  //       notification.warning({
+  //         message: intl
+  //           .get(`${modelCode}.view.tickInvalid4`)
+  //           .d('存在当前认证状态为“已确签”或请求状态为“运行中”的数据，不允许确认签名'),
+  //         description: '',
+  //       });
+  //       return;
+  //     }
+  //     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
+  //     if (!taxDiskPassword) {
+  //       return notification.warning({
+  //         description: '',
+  //         message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+  //       });
+  //     }
+  //     const {
+  //       companyId,
+  //       companyCode,
+  //       employeeNum: employeeNumber,
+  //       employeeId,
+  //       companyName,
+  //       employeeName,
+  //       mobile,
+  //       taxpayerNumber,
+  //     } = empInfo;
+  //     const judgeRes = await judgeButton({ tenantId, companyId });
+  //     if (judgeRes) {
+  //       notification.warning({
+  //         description: '',
+  //         message: '当前存在勾选或取消勾选运行中的请求不允许确认签名',
+  //       });
+  //       return;
+  //     }
+  //     const curInfo = queryDataSet?.current!.toData();
+  //     const employeeDesc = `${companyCode}-${employeeNumber}-${employeeName}-${mobile}`;
+  //     const companyDesc = `${companyCode}-${companyName}`;
+  //     const { statisticalPeriod } = curInfo;
+  //     const confirmPassword = automaticStatisticsDS.current!.get('confirmPassword');
+  //     const params = {
+  //       tenantId,
+  //       companyId,
+  //       companyCode,
+  //       companyDesc,
+  //       employeeId,
+  //       employeeNumber,
+  //       employeeDesc,
+  //       taxDiskPassword,
+  //       taxpayerNumber,
+  //       currentPeriod: statisticalPeriod,
+  //       confirmFlag: 1,
+  //       confirmPassword,
+  //     };
+  //     if (!confirmPassword) {
+  //       notification.info({
+  //         description: '',
+  //         message: intl.get(`${modelCode}.view.validate.confirmPassword`).d('请输入确认密码'),
+  //       });
+  //       return;
+  //     }
+  //     const res = getResponse(await confirmSignature(params));
+  //     if (res) {
+  //       notification.success({
+  //         description: '',
+  //         message: res.message,
+  //       });
+  //       statisticalConfirmDS.query();
+  //     }
+  //   }
+  // };
 
-  // 当期已勾选发票统计确签: 刷新状态
+  // 申请统计及确签: 刷新状态
   const statisticalConfirmRefresh = async () => {
     if (statisticalConfirmDS) {
       const list = statisticalConfirmDS?.selected.map(record => record.toData());
@@ -504,7 +447,8 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         : '/htc-front-ivp/check-certification/certificationResults';
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
-      const statisticalPeriod = queryDataSet?.current?.get('statisticalPeriod');
+      const currentCertState = queryDataSet?.current?.get('currentCertState');
+      const currentPeriod = queryDataSet?.current?.get('currentPeriod');
       const invoiceDateFromStr = invoiceDateFrom.format(DEFAULT_DATE_FORMAT);
       const invoiceDateToStr = invoiceDateTo.format(DEFAULT_DATE_FORMAT);
       history.push({
@@ -512,9 +456,8 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         search: queryString.stringify({
           statisticalConfirmInfo: encodeURIComponent(
             JSON.stringify({
-              statisticalPeriod,
-              currentPeriod: currentPeriodData.currentPeriod,
-              currentCertState: currentPeriodData.currentCertState,
+              currentPeriod,
+              currentCertState,
               companyId,
               companyCode,
               employeeId,
@@ -536,9 +479,9 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   const statisticsModal = type => {
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
-      const statisticalPeriod = queryDataSet?.current?.get('statisticalPeriod');
-      const invoiceDateFrom = moment(statisticalPeriod).startOf('month');
-      const invoiceDateTo = moment(statisticalPeriod).endOf('month');
+      const currentPeriod = queryDataSet?.current?.get('currentPeriod');
+      const invoiceDateFrom = moment(currentPeriod).startOf('month');
+      const invoiceDateTo = moment(currentPeriod).endOf('month');
       const record = timeRangeDS.create({ invoiceDateFrom, invoiceDateTo }, 0);
       const modal = ModalPro.open({
         title: intl.get(`${modelCode}.view.invoiceDateRange`).d('选择时间范围'),
@@ -563,6 +506,102 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     }
   };
 
+  // 申请统计及确签: 认证
+  const handleConfirm = async type => {
+    if (statisticalConfirmDS) {
+      const { queryDataSet } = statisticalConfirmDS;
+      const currentCertState = queryDataSet && queryDataSet.current?.get('currentCertState');
+      const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
+      if (!taxDiskPassword) {
+        return notification.warning({
+          description: '',
+          message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+        });
+      }
+      if (['0', '1'].includes(currentCertState)) {
+        notification.warning({
+          description: '',
+          message: intl
+            .get('hivp.checkCertification.validate.batchConfirm')
+            .d('当前认证状态不在统计阶段'),
+        });
+        return;
+      } else if (currentCertState === '3' && type === 1) {
+        notification.warning({
+          description: '',
+          message: intl
+            .get('hivp.checkCertification.validate.confirmCertification')
+            .d('当前已认证，只能取消认证'),
+        });
+        return;
+      }
+      const {
+        companyId,
+        companyCode,
+        employeeId,
+        employeeNum,
+        taxpayerNumber,
+        companyName,
+        employeeName,
+        mobile,
+      } = empInfo;
+      const employeeDesc = `${companyCode}-${employeeNum}-${employeeName}-${mobile}`;
+      const companyDesc = `${companyCode}-${companyName}`;
+      const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
+      const confirmPassword = queryDataSet && queryDataSet.current?.get('confirmPassword');
+      if (!confirmPassword) {
+        notification.info({
+          description: '',
+          message: intl.get(`${modelCode}.view.validate.confirmPassword`).d('请输入确认密码'),
+        });
+        return;
+      }
+      const params = {
+        tenantId,
+        companyId,
+        companyCode,
+        companyDesc,
+        employeeId,
+        employeeNumber: employeeNum,
+        employeeDesc,
+        taxDiskPassword,
+        taxpayerNumber,
+        currentPeriod,
+        confirmFlag: type,
+        confirmPassword,
+      };
+      const res = getResponse(await confirmSignature(params));
+      if (res) {
+        notification.success({
+          description: '',
+          message: res.message,
+        });
+        statisticalConfirmDS.query();
+      }
+    }
+  };
+
+  const confirmMenu = (
+    <Menu>
+      <MenuItem>
+        <MenuButton
+          key="confirmCertification"
+          onClick={() => handleConfirm(1)}
+          dataSet={statisticalConfirmDS}
+          title={intl.get(`${modelCode}.button.confirmCertification`).d('确认认证')}
+        />
+      </MenuItem>
+      <MenuItem>
+        <MenuButton
+          key="cancelCertification"
+          onClick={() => handleConfirm(0)}
+          dataSet={statisticalConfirmDS}
+          title={intl.get(`${modelCode}.button.cancelCertification`).d('取消认证')}
+        />
+      </MenuItem>
+    </Menu>
+  );
+
   const statisticalButtons: Buttons[] = [
     <Dropdown overlay={btnMenu}>
       <Button color={ButtonColor.primary}>
@@ -570,13 +609,19 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         <Icon type="arrow_drop_down" />
       </Button>
     </Dropdown>,
-    <Button
-      key="confirmSignature"
-      color={ButtonColor.default}
-      onClick={() => statisticalConfirmSign()}
-    >
-      {intl.get(`${modelCode}.button.confirmSignature`).d('确认签名')}
-    </Button>,
+    <Dropdown overlay={confirmMenu}>
+      <Button color={ButtonColor.primary}>
+        {intl.get('hivp.checkCertification.button.batchConfirmed').d('确签')}
+        <Icon type="arrow_drop_down" />
+      </Button>
+    </Dropdown>,
+    // <Button
+    //   key="confirmSignature"
+    //   color={ButtonColor.default}
+    //   onClick={() => statisticalConfirmSign()}
+    // >
+    //   {intl.get(`${modelCode}.button.confirmSignature`).d('确认签名')}
+    // </Button>,
     <BatchBtn
       key="refreshAll"
       onClick={() => statisticalConfirmRefresh()}
@@ -600,84 +645,23 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   // 当期已勾选发票统计确签:查询条件
   const renderQueryBar = propsDS => {
     const { dataSet, queryDataSet, buttons } = propsDS;
+    const queryMoreArray: JSX.Element[] = [];
+    queryMoreArray.push(<Lov name="authenticationDateObjFrom" />);
+    queryMoreArray.push(<Lov name="authenticationDateObjTo" />);
+    queryMoreArray.push(<Password name="confirmPassword" reveal={false} />);
+    queryMoreArray.push(<Select name="requestType" colSpan={2} />);
     return (
       <div style={{ marginBottom: '0.1rem' }}>
         <Row>
-          <Col span={20}>
-            {showMore ? (
-              <div>
-                <div
-                  style={{
-                    background: 'rgb(0,0,0,0.02)',
-                    padding: '10px 10px 0px',
-                  }}
-                >
-                  <h3>
-                    <b>{intl.get('hivp.checkCertification.view.queryConditions').d('查询条件')}</b>
-                  </h3>
-                  <Form dataSet={queryDataSet} columns={3}>
-                    <Lov name="authenticationDateObj" />
-                    <TextField name="currentCertState" />
-                  </Form>
-                </div>
-                <div
-                  style={{
-                    background: 'rgb(0,0,0,0.02)',
-                    padding: '10px 10px 0px',
-                    margin: '10px 0 10px 0',
-                  }}
-                >
-                  <h3>
-                    <b>
-                      {intl.get('hivp.checkCertification.view.automaticRules').d('自动规则设置')}
-                    </b>
-                  </h3>
-                  <Form dataSet={automaticStatisticsDS} columns={3}>
-                    <CheckBox
-                      name="autoSignatureSign"
-                      onBlur={() => automaticStatisticsDS.submit()}
-                    />
-                    <TextField name="mailbox" onBlur={() => automaticStatisticsDS.submit()} />
-                    <TextField
-                      name="autoStatisticsTime"
-                      onBlur={() => automaticStatisticsDS.submit()}
-                      showHelp={ShowHelp.tooltip}
-                      help={intl
-                        .get(`${modelCode}.view.autoStatisticsInfo`)
-                        .d(
-                          '填入15日之前获取的所属期为当月的前一月所属期，填写天数若大于当月最大天数，则默认为当月最后一天'
-                        )}
-                    />
-                    <CheckBox
-                      name="autoStatisticsSign"
-                      onBlur={() => automaticStatisticsDS.submit()}
-                    />
-                    <Password
-                      name="confirmPassword"
-                      reveal={false}
-                      onBlur={() => automaticStatisticsDS.submit()}
-                    />
-                    <TextField
-                      name="autoSignatureTime"
-                      onBlur={() => automaticStatisticsDS.submit()}
-                      showHelp={ShowHelp.tooltip}
-                      help={intl
-                        .get(`${modelCode}.view.autoConfirmInfo`)
-                        .d(
-                          '自动统计日期在1-15时，自动确签日期须大于等于统计日期。填写天数若大于当月最大天数，则默认为当月最后一天'
-                        )}
-                    />
-                  </Form>
-                </div>
-              </div>
-            ) : (
-              <Form dataSet={queryDataSet} columns={3}>
-                <Lov name="authenticationDateObj" />
-                <TextField name="currentCertState" />
-              </Form>
-            )}
+          <Col span={18}>
+            <Form dataSet={queryDataSet} columns={3}>
+              <TextField name="currentPeriod" />
+              <Select name="currentCertState" />
+              <DatePicker name="currentOperationalDeadline" />
+              {showMore && queryMoreArray}
+            </Form>
           </Col>
-          <Col span={4} style={{ textAlign: 'end', marginBottom: '4px' }}>
+          <Col span={6} style={{ textAlign: 'end', marginBottom: '4px' }}>
             <Button funcType={FuncType.link} onClick={() => setShowMore(!showMore)}>
               {showMore ? (
                 <span>
@@ -761,11 +745,9 @@ export default formatterCollections({
   code: [
     modelCode,
     'hiop.invoiceWorkbench',
-    'hiop.invoiceRule',
     'hivp.taxRefund',
     'hiop.redInvoiceInfo',
     'htc.common',
-    'hcan.invoiceDetail',
     'hivp.bill',
   ],
 })(

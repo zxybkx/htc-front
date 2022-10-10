@@ -44,17 +44,10 @@ export default (dsParams): DataSetProps => {
         return axiosConfig;
       },
       submit: ({ data, params }) => {
-        const { validTaxAmount, companyId, invoiceCode, invoiceNo } = data[0];
         return {
-          url: `${API_PREFIX}/v1/${tenantId}/batch-check/modified-effective-tax`,
+          url: `${API_PREFIX}/v1/${tenantId}/batch-check/save-noDeductReason`,
           data,
-          params: {
-            ...params,
-            validTaxAmount,
-            companyId,
-            invoiceCode,
-            invoiceNo,
-          },
+          params,
           method: 'POST',
         };
       },
@@ -125,6 +118,11 @@ export default (dsParams): DataSetProps => {
         name: 'validTaxAmount',
         label: intl.get('hivp.bill.view.EffectiveTax').d('有效税额'),
         type: FieldType.currency,
+      },
+      {
+        name: 'reasonsForNonDeduction',
+        label: intl.get('hivp.checkCertification.view.reasonsForNonDeduction').d('不抵扣原因'),
+        type: FieldType.string,
       },
       {
         name: 'isMatch',
@@ -240,6 +238,11 @@ export default (dsParams): DataSetProps => {
         label: intl.get(`${modelCode}.view.checkState`).d('勾选状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.CHECK_STATE',
+      },
+      {
+        name: 'reasonsForNonDeduction',
+        label: intl.get('hivp.checkCertification.view.reasonsForNonDeduction').d('不抵扣原因'),
+        type: FieldType.string,
       },
       {
         name: 'failedDetail',
