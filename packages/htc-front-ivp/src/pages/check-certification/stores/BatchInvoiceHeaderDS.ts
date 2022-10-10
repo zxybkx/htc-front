@@ -92,12 +92,12 @@ export default (): DataSetProps => {
       },
       {
         name: 'taxStatistics',
-        label: intl.get(`hivp.checkCertification.view.taxselectedAmount`).d('本次勾选税额'),
+        label: intl.get('hivp.checkCertification.view.taxselectedAmount').d('本次勾选税额'),
         type: FieldType.currency,
       },
       {
         name: 'failReason',
-        label: intl.get(`hivp.checkCertification.view.failReason`).d('失败原因'),
+        label: intl.get('hivp.checkCertification.view.failReason').d('失败原因'),
         type: FieldType.string,
       },
       {
@@ -237,21 +237,19 @@ export default (): DataSetProps => {
         },
         {
           name: 'entryAccountDate',
-          label: intl.get(`htc.common.view.entryAccountDate`).d('入账日期'),
+          label: intl.get('htc.common.view.entryAccountDate').d('入账日期'),
           type: FieldType.date,
           range: ['entryAccountDateFrom', 'entryAccountDateTo'],
           ignore: FieldIgnore.always,
         },
         {
           name: 'entryAccountDateFrom',
-          label: intl.get('hivp.bill.view.entryAccountDateFrom').d('入账日期从'),
           type: FieldType.date,
           bind: 'entryAccountDate.entryAccountDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'entryAccountDateTo',
-          label: intl.get('hivp.bill.view.entryAccountDateFrom').d('入账日期至'),
           type: FieldType.date,
           bind: 'entryAccountDate.entryAccountDateTo',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
@@ -278,7 +276,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'documentTypeCodeObj',
-          label: intl.get('hivp.checkRule.view.documentTypeMeaning').d('单据类型'),
+          label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
           type: FieldType.object,
           lovCode: 'HTC.DOCUMENT_TYPE_LOV',
           computedProps: {

@@ -262,8 +262,8 @@ export default (): DataSetProps => {
         lookupCode: 'HIVP.ACCOUNT_STATE',
       },
       {
-        name: 'rzrq',
-        label: intl.get('hivp.bill.view.rzrq').d('入账日期'),
+        name: 'entryAccountDate',
+        label: intl.get('hivp.bill.view.entryAccountDate').d('入账日期'),
         type: FieldType.string,
       },
       {
@@ -273,51 +273,19 @@ export default (): DataSetProps => {
         lookupCode: 'HIVP.INTERFACE_DOCS_STATE',
       },
       {
-        name: 'systemCodeObj',
-        label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
-        type: FieldType.object,
-        lovCode: 'HTC.SOURCE_SYSTEM',
-        multiple: ',',
-      },
-      {
         name: 'sourceSystem',
+        label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
         type: FieldType.string,
-        bind: 'systemCodeObj.systemCode',
       },
       {
-        name: 'sysTypeHeaderId',
+        name: 'documentTypeMeaning',
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
         type: FieldType.string,
-        bind: 'systemCodeObj.docTypeHeaderId',
       },
       {
-        name: 'documentTypeCodeObj',
-        label: intl.get('hivp.checkRule.view.documentTypeMeaning').d('单据类型'),
-        type: FieldType.object,
-        lovCode: 'HTC.DOCUMENT_TYPE_LOV',
-        multiple: ',',
-      },
-      {
-        name: 'docType',
-        type: FieldType.string,
-        bind: 'documentTypeCodeObj.documentTypeCode',
-      },
-      {
-        name: 'docTypeHeaderId',
-        type: FieldType.string,
-        bind: 'documentTypeCodeObj.docTypeHeaderId',
-        ignore: FieldIgnore.always,
-      },
-      {
-        name: 'documentNumberObj',
+        name: 'documentRemark',
         label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
-        type: FieldType.object,
-        lovCode: 'HTC.DOCUMENT_CODE',
-        multiple: ',',
-      },
-      {
-        name: 'documentNumber',
         type: FieldType.string,
-        bind: 'documentNumberObj.documentNumber',
       },
       {
         name: 'abnormalSign',
@@ -327,8 +295,8 @@ export default (): DataSetProps => {
         multiple: ',',
       },
       {
-        name: 'yt',
-        label: intl.get(`${modelCode}.view.yt`).d('用途'),
+        name: 'purpose',
+        label: intl.get(`${modelCode}.view.purpose`).d('用途'),
         type: FieldType.string,
         lookupCode: 'HIVP.INVOICE_CHECK_FO',
       },
@@ -499,7 +467,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'documentTypeCodeObj',
-          label: intl.get('hivp.checkRule.view.documentTypeMeaning').d('单据类型'),
+          label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
           type: FieldType.object,
           lovCode: 'HTC.DOCUMENT_TYPE_LOV',
           computedProps: {
@@ -514,7 +482,7 @@ export default (): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
-          name: 'docType',
+          name: 'documentTypeCode',
           type: FieldType.string,
           bind: 'documentTypeCodeObj.documentTypeCode',
         },
@@ -555,23 +523,21 @@ export default (): DataSetProps => {
         },
         {
           name: 'entryAccountDate',
-          label: intl.get(`htc.common.view.entryAccountDate`).d('入账日期'),
+          label: intl.get('hivp.bill.view.entryAccountDate').d('入账日期'),
           type: FieldType.date,
-          range: ['rzrqq', 'rzrqz'],
+          range: ['entryAccountDateFrom', 'entryAccountDateTo'],
           ignore: FieldIgnore.always,
         },
         {
-          name: 'rzrqq',
-          label: intl.get('hivp.bill.view.rzrqq').d('入账日期从'),
+          name: 'entryAccountDateFrom',
           type: FieldType.date,
-          bind: 'entryAccountDate.rzrqq',
+          bind: 'entryAccountDate.entryAccountDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
-          name: 'rzrqz',
-          label: intl.get('hivp.bill.view.rzrqz').d('入账日期至'),
+          name: 'entryAccountDateTo',
           type: FieldType.date,
-          bind: 'entryAccountDate.rzrqz',
+          bind: 'entryAccountDate.entryAccountDateTo',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
