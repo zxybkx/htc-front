@@ -198,7 +198,10 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
       width: 150,
       align: ColumnAlign.right,
     },
-    { name: 'reasonsForNonDeduction' },
+    {
+      name: 'reasonsForNonDeduction',
+      editor: record => record.getState('editing') && record.get('checkState') === '0',
+    },
     { name: 'invoiceState' },
     { name: 'isPoolFlag' },
     { name: 'entryAccountState' },
