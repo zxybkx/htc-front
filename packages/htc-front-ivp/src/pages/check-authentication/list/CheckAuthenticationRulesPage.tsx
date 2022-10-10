@@ -1,9 +1,8 @@
-/**
+/*
  * @Description: 进项发票规则维护
- * @version: 1.0
- * @Author: yang.wang04@hand-china.com
- * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2021-08-26 11:07:59
+ * @Author: xinyan.zhou@hand-china.com
+ * @Date: 2022-10-09 14:51:37
+ * @LastEditTime: 2022-10-10 11:24:03
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -134,7 +133,7 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
       if (res === undefined) {
         notification.warning({
           description: '',
-          message: intl.get(`hivp.notice.editData`).d('请先修改数据'),
+          message: intl.get('htc.common.notification.noChange').d('请先修改数据'),
         });
       }
     }
