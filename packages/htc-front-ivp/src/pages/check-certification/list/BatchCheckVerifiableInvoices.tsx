@@ -651,15 +651,13 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
         companyCode,
         employeeId,
         employeeNumber,
-        list: {
-          spmm: taxDiskPassword,
-          gxzt: '0',
-          checkableTimeRange,
-          invoiceDateFrom: invoiceDateFrom && invoiceDateFrom.format(DEFAULT_DATE_FORMAT),
-          invoiceDateEnd: invoiceDateEnd && invoiceDateEnd.format(DEFAULT_DATE_FORMAT),
-          xfsbh,
-          qt,
-        },
+        spmm: taxDiskPassword,
+        gxzt: '0',
+        checkableTimeRange,
+        invoiceDateFrom: invoiceDateFrom && invoiceDateFrom.format(DEFAULT_DATE_FORMAT),
+        invoiceDateEnd: invoiceDateEnd && invoiceDateEnd.format(DEFAULT_DATE_FORMAT),
+        xfsbh,
+        qt,
       };
       const res = getResponse(await unCertifiedInvoiceQuery(params));
       if (res) {
