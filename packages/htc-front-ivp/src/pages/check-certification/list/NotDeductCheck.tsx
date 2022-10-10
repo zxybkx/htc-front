@@ -202,7 +202,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     { name: 'invoiceState' },
     { name: 'isPoolFlag' },
     { name: 'entryAccountState' },
-    { name: 'rzrq' },
+    { name: 'entryAccountDate' },
     { name: 'receiptsState', width: 130 },
     { name: 'sourceSystem' },
     { name: 'documentTypeMeaning' },
@@ -370,7 +370,14 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
       const { queryDataSet } = noDeductCheckDS;
       const reasonsForNonDeduction =
         queryDataSet && queryDataSet.current?.get('reasonsForNonDeduction');
-      noDeductCheckDS.selected.map(record =>
+      if (!reasonsForNonDeduction) {
+        notification.warning({
+          description: '',
+          message: intl.get('hivp.checkCertification.notice.reasons').d('请输入不抵扣原因！'),
+        });
+        return;
+      }
+      noDeductCheckDS.selected.forEach(record =>
         record.set('reasonsForNonDeduction', reasonsForNonDeduction)
       );
       noDeductCheckDS.submit();
@@ -378,10 +385,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
   };
 
   const ReasonButton = observer((btnProps: any) => {
-    const { queryDataSet } = btnProps.dataSet;
-    const reasonsForNonDeduction =
-      queryDataSet && queryDataSet.current?.get('reasonsForNonDeduction');
-    const isDisabled = btnProps.dataSet!.selected.length === 0 || !reasonsForNonDeduction;
+    const isDisabled = btnProps.dataSet!.selected.length === 0;
     return (
       <Button
         key={btnProps.key}

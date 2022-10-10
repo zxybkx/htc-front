@@ -196,7 +196,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'reasonsForNonDeduction',
-        label: intl.get('hivp.bill.view.reasonsForNonDeduction').d('不抵扣原因'),
+        label: intl.get('hivp.checkCertification.view.reasonsForNonDeduction').d('不抵扣原因'),
         type: FieldType.string,
       },
       {
@@ -259,8 +259,8 @@ export default (): DataSetProps => {
         lookupCode: 'HIVP.ACCOUNT_STATE',
       },
       {
-        name: 'rzrq',
-        label: intl.get('hivp.bill.view.rzrq').d('入账日期'),
+        name: 'entryAccountDate',
+        label: intl.get('hivp.bill.view.entryAccountDate').d('入账日期'),
         type: FieldType.string,
       },
       {
@@ -276,7 +276,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'documentTypeMeaning',
-        label: intl.get('hivp.checkRule.view.documentTypeMeaning').d('单据类型'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
         type: FieldType.string,
       },
       {
