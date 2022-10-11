@@ -321,6 +321,7 @@ const invoiceCheck = [
     ],
   },
 ];
+
 const checkRules = [
   {
     path: '/htc-front-ivp/check-authentication',
@@ -329,6 +330,20 @@ const checkRules = [
         path: '/htc-front-ivp/check-authentication/list',
         component: '@/pages/check-authentication/list/CheckAuthenticationRulesPage',
       }
+    ]
+  }]
+const deductionStatement = [
+  {
+    path: '/htc-front-ivp/deduction-statement',
+    routes: [
+      {
+        path: '/htc-front-ivp/deduction-statement/list',
+        component: '@/pages/deduction-statement/list/DeductionStatementListPage',
+      },
+      {
+        path: '/htc-front-ivp/deduction-statement/detail',
+        component: '@/pages/deduction-statement/detail/InvoiceDetailPage',
+      },
     ],
   },
 ]
@@ -348,6 +363,7 @@ export default extendParentConfig({
     ...taxRefund,
     ...invoiceCheck,
     ...checkRules,
+    ...deductionStatement,
   ],
 
   extraBabelPlugins: [       //原/packages/xxx/.babelrc.js--plugins
