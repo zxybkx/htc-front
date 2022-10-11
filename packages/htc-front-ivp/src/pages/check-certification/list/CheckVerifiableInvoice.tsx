@@ -268,12 +268,12 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     const contentRows = selectedList?.length;
     let invoiceRequestParamDto = {};
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-    if (!taxDiskPassword) {
-      return notification.warning({
-        description: '',
-        message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-      });
-    }
+    // if (!taxDiskPassword) {
+    //   return notification.warning({
+    //     description: '',
+    //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+    //   });
+    // }
     if (certifiableInvoiceListDS) {
       const { queryDataSet } = certifiableInvoiceListDS;
       // const { currentPeriod } = currentPeriodData;
@@ -410,12 +410,12 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     const { queryDataSet } = certifiableInvoiceListDS!;
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-    if (!taxDiskPassword) {
-      return notification.warning({
-        description: '',
-        message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-      });
-    }
+    // if (!taxDiskPassword) {
+    //   return notification.warning({
+    //     description: '',
+    //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+    //   });
+    // }
     if (queryDataSet) {
       const certifiableQueryData = queryDataSet.current!.toData();
       const {
@@ -485,12 +485,12 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       employeeId,
     } = empInfo;
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-    if (!taxDiskPassword) {
-      return notification.warning({
-        description: '',
-        message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-      });
-    }
+    // if (!taxDiskPassword) {
+    //   return notification.warning({
+    //     description: '',
+    //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+    //   });
+    // }
     if (queryDataSet) {
       const companyDesc = `${companyCode}-${companyName}`;
       const currentPeriod = queryDataSet.current!.get('currentPeriod');

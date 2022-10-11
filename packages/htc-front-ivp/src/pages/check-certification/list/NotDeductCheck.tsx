@@ -247,12 +247,12 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     const selectedList = noDeductCheckDS?.selected.map(rec => rec.toData());
     // let invoiceRequestParamDto = {};
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-    if (!taxDiskPassword) {
-      return notification.warning({
-        description: '',
-        message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-      });
-    }
+    // if (!taxDiskPassword) {
+    //   return notification.warning({
+    //     description: '',
+    //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+    //   });
+    // }
     if (noDeductCheckDS) {
       const { queryDataSet } = noDeductCheckDS;
       const currentPeriod = queryDataSet?.current?.get('currentPeriod');

@@ -180,12 +180,12 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
   const updateEnterprise = async () => {
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-    if (!taxDiskPassword) {
-      notification.warning({
-        description: '',
-        message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-      });
-    }
+    // if (!taxDiskPassword) {
+    //   notification.warning({
+    //     description: '',
+    //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+    //   });
+    // }
     const res = getResponse(
       await updateEnterpriseFile({
         tenantId,
@@ -368,12 +368,12 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
     const { queryDataSet } = checkCertificationListDS;
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-    if (!taxDiskPassword) {
-      return notification.warning({
-        description: '',
-        message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-      });
-    }
+    // if (!taxDiskPassword) {
+    //   return notification.warning({
+    //     description: '',
+    //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+    //   });
+    // }
     const res = getResponse(
       await businessTimeQuery({
         tenantId,
