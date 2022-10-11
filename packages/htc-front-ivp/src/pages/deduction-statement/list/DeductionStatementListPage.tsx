@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-09 14:49:53
+ * @LastEditTime: 2022-10-11 15:41:27
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -27,6 +27,7 @@ import DeductTableDS from '../stores/DeductTableDS';
 import DeductibleTableDS from '../stores/DeductibleTableDS';
 import NotDeductibleTableDS from '../stores/NotDeductibleTableDS';
 import VerifiedTableDS from '../stores/VerifiedTableDS';
+import CheckAuthenticationRulesDS from '../../check-authentication/stores/CheckAuthenticationRulesDS';
 // import notification from 'utils/notification';
 export enum ActiveKey {
   deductibleTable = 'export-deduction-report',
@@ -68,7 +69,7 @@ enum DetilType {
       ...DeductionStatementHeaderDS(),
     });
     const deductibleTableDS = new DataSet({
-      autoQuery: true,
+      autoQuery: false,
       ...DeductibleTableDS(),
     });
 
@@ -104,6 +105,12 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
     activeKey: ActiveKey.deductibleTable,
   };
 
+  checkRuleDS = new DataSet({
+    autoQuery: false,
+    autoCreate: true,
+    ...CheckAuthenticationRulesDS(),
+  });
+
   @Bind()
   async componentDidMount() {
     const { location } = this.props;
@@ -127,8 +134,8 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
 
   @Bind()
   handleSetCommonRes(dataSet, timeRes, empInfo) {
-    const { companyId, companyCode, employeeNum: employeeNumber } = empInfo;
-    const { currentPeriod, currentOperationalDeadline, checkableTimeRange } = timeRes;
+    const { companyId, companyCode, employeeNum: employeeNumber } = empInfo || {};
+    const { currentPeriod, currentOperationalDeadline, checkableTimeRange } = timeRes || {};
     if (dataSet) {
       /* eslint-disable */
       dataSet.myState = {
@@ -140,6 +147,46 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         employeeNumber,
       };
       /* eslint-enable */
+    }
+  }
+
+  @Bind()
+  handleSetDefaultConfig(timeRes, empInfo) {
+    const { currentPeriod, currentOperationalDeadline, checkableTimeRange } = timeRes;
+    const { queryDataSet: checkRuleDSqueryDataSet } = this.checkRuleDS;
+    if (checkRuleDSqueryDataSet && checkRuleDSqueryDataSet.current) {
+      checkRuleDSqueryDataSet.current.set({ companyObj: empInfo });
+
+      checkRuleDSqueryDataSet.current.set({
+        currentPeriod,
+        currentOperationalDeadline,
+        checkableTimeRange,
+      });
+      this.checkRuleDS.query().then(res => {
+        const { invoiceType, accountStatus, sourceSystem, docType } = res;
+        [this.props.deductibleTableDS, this.props.verifiedTableDS].forEach(item => {
+          const { queryDataSet } = item;
+          if (queryDataSet && queryDataSet.current) {
+            queryDataSet.current.set({
+              entryAccountState: accountStatus,
+              invoiceType,
+              systemCode: sourceSystem,
+              documentTypeCode: docType,
+            });
+          }
+        });
+        [this.props.notDeductibleTableDS, this.props.deductTableDS].forEach(item => {
+          const { queryDataSet } = item;
+          if (queryDataSet && queryDataSet.current) {
+            queryDataSet.current.set({
+              entryAccountStates: accountStatus,
+              invoiceTypes: invoiceType,
+              systemCodes: sourceSystem,
+              documentTypeCodes: docType,
+            });
+          }
+        });
+      });
     }
   }
 
@@ -169,7 +216,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         checkableTimeRange: timeRes.checkableTimeRange,
       });
     }
-    if (timeRes && empInfo) {
+    if (timeRes || empInfo) {
       [
         this.props.deductibleTableDS,
         this.props.verifiedTableDS,
@@ -178,6 +225,9 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
       ].forEach(item => {
         this.handleSetCommonRes(item, timeRes, empInfo);
       });
+    }
+    if (timeRes && empInfo) {
+      this.handleSetDefaultConfig(timeRes, empInfo);
     }
   }
 
@@ -249,23 +299,44 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         ...queryData,
         ...otheInfo,
         ...otherParms,
-        invoiceType: record.get('invoiceType'),
-        invoiceTypes: record.get('invoiceType'),
+        invoiceType: record ? record.get('invoiceType') : null,
+        invoiceTypes: record ? record.get('invoiceType') : null,
         activeKey: this.state.activeKey,
       },
     });
+  }
+
+  // 渲染列脚
+  @Bind()
+  renderColumnFooter(dataSet, name) {
+    let total;
+    dataSet.forEach(record => {
+      const _total = Number(total) || 0;
+      const _amount = Number(record.get(name)) || 0;
+      total = ((_total * 100 + _amount * 100) / 100).toFixed(2);
+    });
+    total =
+      total &&
+      total.toString().replace(/\d+/, n => {
+        return n.replace(/(\d)(?=(\d{3})+$)/g, i => {
+          return `${i},`;
+        });
+      });
+    return `${total || 0}`;
   }
 
   get deductibleTableColumns(): ColumnProps[] {
     return [
       {
         name: 'invoiceType',
+        width: 200,
+        footer: () => `${intl.get('hivp.invoices.view.total').d('合计')}：`,
       },
       {
         name: 'deductibleCopies',
         width: 120,
         help: intl
-          .get('hivp.checkRule.title.invoiceRule')
+          .get('hivp.deductionStatement.title.invoiceRule')
           .d('截止更新时间在开票时间范围内获取的税局全量可抵扣发票份数'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
@@ -276,14 +347,27 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
             </a>
           );
         },
+        footer: (dataSet, name) => (
+          <a onClick={() => this.handleGotoDetailTablePage(null, DetilType.deductibleCopies)}>
+            {this.renderColumnFooter(dataSet, name).replace('.00', '')}
+          </a>
+        ),
       },
-      { name: 'totalDeductibleInvoiceAmount', width: 140 },
-      { name: 'totalValidTaxAmountDeductible', width: 180 },
+      {
+        name: 'totalDeductibleInvoiceAmount',
+        width: 140,
+        footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
+      },
+      {
+        name: 'totalValidTaxAmountDeductible',
+        width: 180,
+        footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
+      },
       {
         name: 'deductibleShare',
         width: 120,
         help: intl
-          .get('hivp.checkRule.title.invoiceRule')
+          .get('hivp.deductionStatement.title.invoiceRule')
           .d('截止更新时间满足除开票时间条件外的在池应抵扣发票份数，包含已勾选和未勾选的发票'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
@@ -294,14 +378,27 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
             </a>
           );
         },
+        footer: (dataSet, name) => (
+          <a onClick={() => this.handleGotoDetailTablePage(null, DetilType.deductibleShare)}>
+            {this.renderColumnFooter(dataSet, name).replace('.00', '')}
+          </a>
+        ),
       },
-      { name: 'totalInvoiceAmountDeducted', width: 140 },
-      { name: 'totalValidTaxAmountDeducted', width: 180 },
+      {
+        name: 'totalInvoiceAmountDeducted',
+        width: 140,
+        footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
+      },
+      {
+        name: 'totalValidTaxAmountDeducted',
+        width: 180,
+        footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
+      },
       {
         name: 'numberOfCopiesChecked',
         width: 120,
         help: intl
-          .get('hivp.checkRule.title.invoiceRule')
+          .get('hivp.deductionStatement.title.invoiceRule')
           .d('截止更新时间满足除开票时间条件外的已抵扣勾选发票份数，不包括不抵扣勾选发票'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
@@ -316,14 +413,27 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
             </a>
           );
         },
+        footer: (dataSet, name) => (
+          <a onClick={() => this.handleGotoDetailTablePage(null, DetilType.numberOfCopiesChecked)}>
+            {this.renderColumnFooter(dataSet, name).replace('.00', '')}
+          </a>
+        ),
       },
-      { name: 'totalInvoiceAmountChecked', width: 140 },
-      { name: 'totalValidTaxAmountChecked', width: 180 },
+      {
+        name: 'totalInvoiceAmountChecked',
+        width: 140,
+        footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
+      },
+      {
+        name: 'totalValidTaxAmountChecked',
+        width: 180,
+        footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
+      },
       {
         name: 'numberDeductButNot',
         width: 160,
         help: intl
-          .get('hivp.checkRule.title.invoiceRule')
+          .get('hivp.deductionStatement.title.invoiceRule')
           .d('截止更新时间满足除开票时间条件外应抵未抵的发票份数'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
@@ -334,25 +444,35 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
             </a>
           );
         },
+        footer: (dataSet, name) => (
+          <a onClick={() => this.handleGotoDetailTablePage(null, DetilType.numberDeductButNot)}>
+            {this.renderColumnFooter(dataSet, name).replace('.00', '')}
+          </a>
+        ),
       },
       {
         name: 'totalAmountDeductButNot',
         width: 160,
+        footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'totalTaxAmountDeductButNot',
         width: 180,
+        footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
     ];
   }
 
   get verifiedTableColumns(): ColumnProps[] {
     return [
-      { name: 'invoiceType' },
+      {
+        name: 'invoiceType',
+        footer: () => `${intl.get('hivp.invoices.view.total').d('合计')}：`,
+      },
       {
         name: 'certifiedQuantity',
         help: intl
-          .get('hivp.checkRule.title.invoiceRule')
+          .get('hivp.deductionStatement.title.invoiceRule')
           .d('截止更新时间条件内获取的税局全量已认证发票份数'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
@@ -363,19 +483,33 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
             </a>
           );
         },
+        footer: (dataSet, name) => (
+          <a onClick={() => this.handleGotoDetailTablePage(null, DetilType.certifiedQuantity)}>
+            {this.renderColumnFooter(dataSet, name).replace('.00', '')}
+          </a>
+        ),
       },
-      { name: 'certifiedTotalAmount' },
-      { name: 'certifiedTotalValidTaxAmount' },
+      {
+        name: 'certifiedTotalAmount',
+        footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
+      },
+      {
+        name: 'certifiedTotalValidTaxAmount',
+        footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
+      },
     ];
   }
 
   get notDeductibleTableColumns(): ColumnProps[] {
     return [
-      { name: 'invoiceType' },
+      {
+        name: 'invoiceType',
+        footer: () => `${intl.get('hivp.invoices.view.total').d('合计')}：`,
+      },
       {
         name: 'checkedInvoiceNumber',
         help: intl
-          .get('hivp.checkRule.title.invoiceRule')
+          .get('hivp.deductionStatement.title.invoiceRule')
           .d('截止更新时间满足开票时间和勾选时间范围内获取的税局全量不抵扣发票份数'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
@@ -388,13 +522,24 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
             </a>
           );
         },
+        footer: (dataSet, name) => (
+          <a onClick={() => this.handleGotoDetailTablePage(null, DetilType.checkedInvoiceNumber)}>
+            {this.renderColumnFooter(dataSet, name).replace('.00', '')}
+          </a>
+        ),
       },
-      { name: 'checkedInvoiceTotalAmount' },
-      { name: 'checkedInvoiceTotalTaxAmount' },
+      {
+        name: 'checkedInvoiceTotalAmount',
+        footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
+      },
+      {
+        name: 'checkedInvoiceTotalTaxAmount',
+        footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
+      },
       {
         name: 'checkedInvoiceNumberInPool',
         help: intl
-          .get('hivp.checkRule.title.invoiceRule')
+          .get('hivp.deductionStatement.title.invoiceRule')
           .d('截止更新时间条件内发票池内不抵扣已勾选的发票'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
@@ -409,9 +554,24 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
             </a>
           );
         },
+        footer: (dataSet, name) => (
+          <a
+            onClick={() =>
+              this.handleGotoDetailTablePage(null, DetilType.checkedInvoiceNumberInPool)
+            }
+          >
+            {this.renderColumnFooter(dataSet, name).replace('.00', '')}
+          </a>
+        ),
       },
-      { name: 'checkedInvoiceTotalAmountInPool' },
-      { name: 'checkedInvoiceTotalTaxAmountInPool' },
+      {
+        name: 'checkedInvoiceTotalAmountInPool',
+        footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
+      },
+      {
+        name: 'checkedInvoiceTotalTaxAmountInPool',
+        footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
+      },
     ];
   }
 
@@ -497,7 +657,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
     const { deductibleTable, verifiedTable, notDeductibleTable, deductTable } = ActiveKey;
     return (
       <>
-        <Header title={intl.get('hivp.checkRule.title.invoiceRule').d('抵扣统计报表')}>
+        <Header title={intl.get('hivp.deductionStatement.title.invoiceRule').d('抵扣统计报表')}>
           <ExcelExport
             requestUrl={`${API_PREFIX}/v1/${tenantId}/deduction-report/${activeKey}`}
             queryParams={() => this.exportParams()}

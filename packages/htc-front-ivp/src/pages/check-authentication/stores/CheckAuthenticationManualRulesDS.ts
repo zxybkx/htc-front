@@ -48,7 +48,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'invoiceDate',
-        label: intl.get('htc.common.v').d('手动获取发票开票日期范围'),
+        label: intl.get('hivp.checkRule.manual.invoiceDate').d('手动获取发票开票日期范围'),
         range: ['invoiceDateStart', 'invoiceDateEnd'],
         defaultValue: { invoiceDateStart: moment().subtract(1, 'day'), invoiceDateEnd: new Date() },
         type: FieldType.date,

@@ -262,13 +262,6 @@ export default (): DataSetProps => {
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
-          name: 'authenticationStates',
-          label: intl.get('htc.common.v').d('认证状态'),
-          type: FieldType.string,
-          multiple: ',',
-          lookupCode: 'HIVP.CERTIFICATION_STATE',
-        },
-        {
           name: 'systemCodeObj',
           label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
           type: FieldType.object,
@@ -323,11 +316,35 @@ export default (): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
-          name: 'documentNumbers',
+          name: 'documentNumberObj',
           label: intl.get('htc.common.v').d('单据编号'),
+          type: FieldType.object,
+          lovCode: 'HTC.DOCUMENT_CODE_LOV',
+          computedProps: {
+            lovPara: ({ record }) => {
+              return { enabledFlag: 1, docTypeHeaderId: record.get('sysTypeHeaderId').join(',') };
+            },
+            disabled: ({ record }) => {
+              if (!record.get('documentTypeCodes').length) {
+                return true;
+              } else {
+                return false;
+              }
+            },
+          },
+        },
+        {
+          name: 'documentNumbers',
           type: FieldType.string,
           multiple: ',',
-          lookupCode: 'HIVP.CERTIFICATION_TYPE',
+          bind: 'documentNumberObj.documentNumber',
+        },
+        {
+          name: 'authenticationStates',
+          label: intl.get('htc.common.v').d('认证状态'),
+          type: FieldType.string,
+          multiple: ',',
+          lookupCode: 'HIVP.CERTIFICATION_STATE',
         },
         {
           name: 'authenticationTypes',
