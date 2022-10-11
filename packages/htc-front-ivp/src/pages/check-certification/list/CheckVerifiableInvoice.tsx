@@ -709,14 +709,14 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     );
     queryMoreArray.push(<TextField name="invoiceCode" />);
     queryMoreArray.push(<TextField name="invoiceNumber" />);
-    queryMoreArray.push(<DatePicker name="invoiceDate" />);
+    queryMoreArray.push(<DatePicker name="invoiceDate" colSpan={2} />);
     queryMoreArray.push(<Select name="checkState" />);
+    queryMoreArray.push(<DatePicker name="entryAccountDate" colSpan={2} />);
     queryMoreArray.push(<Lov name="systemCodeObj" />);
     queryMoreArray.push(<Lov name="documentTypeCodeObj" />);
     queryMoreArray.push(<Lov name="documentNumberObj" />);
     queryMoreArray.push(<Select name="isPoolFlag" />);
     queryMoreArray.push(<Select name="entryAccountState" />);
-    queryMoreArray.push(<DatePicker name="entryAccountDate" />);
     queryMoreArray.push(<TextField name="salerName" />);
     queryMoreArray.push(
       <TextField
