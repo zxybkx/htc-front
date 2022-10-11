@@ -437,7 +437,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     queryMoreArray.push(<Select name="currentCertState" />);
     queryMoreArray.push(<Select name="invoiceCategory" />);
     queryMoreArray.push(<TextField name="invoiceCode" />);
-    queryMoreArray.push(<TextField name="invoiceNumber" />);
+    queryMoreArray.push(<TextField name="invoiceNo" />);
     queryMoreArray.push(<DatePicker name="invoiceDate" />);
     queryMoreArray.push(<Select name="checkState" />);
     queryMoreArray.push(<Lov name="systemCodeObj" />);

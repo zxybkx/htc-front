@@ -410,7 +410,7 @@ export default (): DataSetProps => {
           type: FieldType.string,
         },
         {
-          name: 'invoiceNumber',
+          name: 'invoiceNo',
           label: intl.get(`${modelCode}.view.invoiceNumber`).d('发票/缴款书号码'),
           labelWidth: '120',
           type: FieldType.string,
