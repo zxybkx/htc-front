@@ -178,6 +178,13 @@ export default (): DataSetProps => {
           type: FieldType.string,
         },
         {
+          name: 'entryAccountStates',
+          label: intl.get('hivp.checkRule').d('入账状态'),
+          type: FieldType.string,
+          multiple: ',',
+          lookupCode: 'HIVP.ACCOUNT_STATE',
+        },
+        {
           name: 'systemCodeObj',
           label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
           type: FieldType.object,
@@ -239,13 +246,6 @@ export default (): DataSetProps => {
           // defaultValue: ['01'],
           multiple: ',',
           lookupCode: 'HIVP.CHECK_INVOICE_TYPE',
-        },
-        {
-          name: 'entryAccountStates',
-          label: intl.get('hivp.checkRule').d('入账状态'),
-          type: FieldType.string,
-          multiple: ',',
-          lookupCode: 'HIVP.ACCOUNT_STATE',
         },
       ],
     }),

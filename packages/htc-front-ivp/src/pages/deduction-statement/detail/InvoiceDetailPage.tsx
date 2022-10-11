@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-09 14:13:22
+ * @LastEditTime: 2022-10-11 15:36:18
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -78,7 +78,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
 
   get invoiceDetailTableColumns(): ColumnProps[] {
     return [
-      { name: 'invoiceType' },
+      { name: 'invoiceType', width: 200 },
       { name: 'invoiceCode' },
       { name: 'invoiceNo' },
       { name: 'invoiceDate' },

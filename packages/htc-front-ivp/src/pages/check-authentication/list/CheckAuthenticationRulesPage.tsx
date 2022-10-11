@@ -2,7 +2,7 @@
  * @Description: 进项发票规则维护
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-10-09 14:51:37
- * @LastEditTime: 2022-10-10 11:24:03
+ * @LastEditTime: 2022-10-11 13:46:29
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';

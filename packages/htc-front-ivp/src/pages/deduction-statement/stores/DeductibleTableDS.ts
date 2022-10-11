@@ -165,7 +165,7 @@ export default (): DataSetProps => {
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
-          name: 'entryAccountStates',
+          name: 'entryAccountState',
           label: intl.get('hivp.checkRule').d('入账状态'),
           type: FieldType.string,
           multiple: ',',

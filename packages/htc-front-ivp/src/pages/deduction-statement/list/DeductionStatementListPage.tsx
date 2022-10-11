@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-11 11:00:04
+ * @LastEditTime: 2022-10-11 15:41:27
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -27,6 +27,7 @@ import DeductTableDS from '../stores/DeductTableDS';
 import DeductibleTableDS from '../stores/DeductibleTableDS';
 import NotDeductibleTableDS from '../stores/NotDeductibleTableDS';
 import VerifiedTableDS from '../stores/VerifiedTableDS';
+import CheckAuthenticationRulesDS from '../../check-authentication/stores/CheckAuthenticationRulesDS';
 // import notification from 'utils/notification';
 export enum ActiveKey {
   deductibleTable = 'export-deduction-report',
@@ -104,6 +105,12 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
     activeKey: ActiveKey.deductibleTable,
   };
 
+  checkRuleDS = new DataSet({
+    autoQuery: false,
+    autoCreate: true,
+    ...CheckAuthenticationRulesDS(),
+  });
+
   @Bind()
   async componentDidMount() {
     const { location } = this.props;
@@ -144,20 +151,42 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
   }
 
   @Bind()
-  handleSetDefaultConfig(dataSet, timeRes, empInfo) {
-    const { companyId, companyCode, employeeNum: employeeNumber } = empInfo;
+  handleSetDefaultConfig(timeRes, empInfo) {
     const { currentPeriod, currentOperationalDeadline, checkableTimeRange } = timeRes;
-    if (dataSet) {
-      /* eslint-disable */
-      dataSet.myState = {
+    const { queryDataSet: checkRuleDSqueryDataSet } = this.checkRuleDS;
+    if (checkRuleDSqueryDataSet && checkRuleDSqueryDataSet.current) {
+      checkRuleDSqueryDataSet.current.set({ companyObj: empInfo });
+
+      checkRuleDSqueryDataSet.current.set({
         currentPeriod,
         currentOperationalDeadline,
         checkableTimeRange,
-        companyId,
-        companyCode,
-        employeeNumber,
-      };
-      /* eslint-enable */
+      });
+      this.checkRuleDS.query().then(res => {
+        const { invoiceType, accountStatus, sourceSystem, docType } = res;
+        [this.props.deductibleTableDS, this.props.verifiedTableDS].forEach(item => {
+          const { queryDataSet } = item;
+          if (queryDataSet && queryDataSet.current) {
+            queryDataSet.current.set({
+              entryAccountState: accountStatus,
+              invoiceType,
+              systemCode: sourceSystem,
+              documentTypeCode: docType,
+            });
+          }
+        });
+        [this.props.notDeductibleTableDS, this.props.deductTableDS].forEach(item => {
+          const { queryDataSet } = item;
+          if (queryDataSet && queryDataSet.current) {
+            queryDataSet.current.set({
+              entryAccountStates: accountStatus,
+              invoiceTypes: invoiceType,
+              systemCodes: sourceSystem,
+              documentTypeCodes: docType,
+            });
+          }
+        });
+      });
     }
   }
 
@@ -198,14 +227,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
       });
     }
     if (timeRes && empInfo) {
-      [
-        this.props.deductibleTableDS,
-        this.props.verifiedTableDS,
-        this.props.notDeductibleTableDS,
-        this.props.deductTableDS,
-      ].forEach(item => {
-        this.handleSetDefaultConfig(item, timeRes, empInfo);
-      });
+      this.handleSetDefaultConfig(timeRes, empInfo);
     }
   }
 

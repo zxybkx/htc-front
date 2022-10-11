@@ -107,7 +107,7 @@ export default (): DataSetProps => {
           lookupCode: '',
         },
         {
-          name: 'entryAccountStates',
+          name: 'entryAccountState',
           label: intl.get('hivp.checkRule').d('入账状态'),
           type: FieldType.string,
           multiple: ',',
