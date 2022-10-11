@@ -286,14 +286,14 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       const { queryDataSet } = batchInvoiceHeaderDS;
       if (queryDataSet) {
         const currentCertState = queryDataSet.current!.get('currentCertState');
-        if (!taxDiskPassword) {
-          return notification.warning({
-            description: '',
-            message: intl
-              .get('hivp.checkCertification.notice.taxDiskPassword')
-              .d('请输入税盘密码！'),
-          });
-        }
+        // if (!taxDiskPassword) {
+        //   return notification.warning({
+        //     description: '',
+        //     message: intl
+        //       .get('hivp.checkCertification.notice.taxDiskPassword')
+        //       .d('请输入税盘密码！'),
+        //   });
+        // }
         if (!['0', '1'].includes(currentCertState)) {
           notification.warning({
             message: intl
@@ -328,20 +328,21 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     </Menu>
   );
 
+  // 不抵扣勾选
   const deductCheck = () => {
     if (batchInvoiceHeaderDS) {
       const { queryDataSet } = batchInvoiceHeaderDS;
       const selectedList = batchInvoiceHeaderDS.selected.map(rec => rec.toData());
       if (queryDataSet) {
         const currentCertState = queryDataSet.current!.get('currentCertState');
-        if (!taxDiskPassword) {
-          return notification.warning({
-            description: '',
-            message: intl
-              .get('hivp.checkCertification.notice.taxDiskPassword')
-              .d('请输入税盘密码！'),
-          });
-        }
+        // if (!taxDiskPassword) {
+        //   return notification.warning({
+        //     description: '',
+        //     message: intl
+        //       .get('hivp.checkCertification.notice.taxDiskPassword')
+        //       .d('请输入税盘密码！'),
+        //   });
+        // }
         if (
           !['0', '1'].includes(currentCertState) ||
           selectedList?.some(item => item.checkState === 'R')
@@ -644,12 +645,12 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
         documentNumber,
         salerName,
       } = queryData;
-      if (!taxDiskPassword) {
-        return notification.warning({
-          description: '',
-          message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-        });
-      }
+      // if (!taxDiskPassword) {
+      //   return notification.warning({
+      //     description: '',
+      //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+      //   });
+      // }
       const params = {
         tenantId,
         entryAccountState,

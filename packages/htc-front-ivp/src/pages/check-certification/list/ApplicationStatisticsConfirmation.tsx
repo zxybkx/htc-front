@@ -248,12 +248,12 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         mobile,
       } = empInfo;
       const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-      if (!taxDiskPassword) {
-        return notification.warning({
-          description: '',
-          message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-        });
-      }
+      // if (!taxDiskPassword) {
+      //   return notification.warning({
+      //     description: '',
+      //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+      //   });
+      // }
       const judgeRes = await judgeButton({ tenantId, companyId });
       if (judgeRes || currentCertState === '3') {
         notification.warning({
@@ -512,12 +512,12 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
       const { queryDataSet } = statisticalConfirmDS;
       const currentCertState = queryDataSet && queryDataSet.current?.get('currentCertState');
       const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-      if (!taxDiskPassword) {
-        return notification.warning({
-          description: '',
-          message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-        });
-      }
+      // if (!taxDiskPassword) {
+      //   return notification.warning({
+      //     description: '',
+      //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+      //   });
+      // }
       if (['0', '1'].includes(currentCertState)) {
         notification.warning({
           description: '',
