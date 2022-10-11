@@ -22,11 +22,11 @@ export default (): DataSetProps => {
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const activeKey = config.data;
+        const { activeKey } = config.data;
         const url =
           activeKey === ActiveKey.notDeductibleTable
-            ? `${API_PREFIX}/v1/${tenantId}/deduction-report/query-invoice-master-info`
-            : `${API_PREFIX}/v1/${tenantId}/deduction-report/undeduction-detail`;
+            ? `${API_PREFIX}/v1/${tenantId}/deduction-report/undeduction-detail`
+            : `${API_PREFIX}/v1/${tenantId}/deduction-report/query-invoice-master-info`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
           url,
