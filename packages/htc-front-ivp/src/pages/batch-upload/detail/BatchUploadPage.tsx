@@ -203,7 +203,11 @@ export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
     const selectedList = this.multipleDS.selected.map(rec => rec.toData());
     if (
       selectedList.some(
-        sl => !(sl.identifyState === 'RECOGNITION_FINISHED' && sl.dataCheckState === 'PASSED')
+        sl =>
+          !(
+            sl.identifyState === 'RECOGNITION_FINISHED' &&
+            ['PASSED', 'NON_INVOICE_SOURCE_FILE'].includes(sl.dataCheckState)
+          )
       )
     ) {
       notification.warning({
@@ -251,7 +255,7 @@ export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
         width: 240,
         renderer: ({ text, record }) => {
           const identifyState = record?.get('identifyState');
-          const identifyStateMeaning = record?.get('identifyStateMeaning');
+          const identifyStateMeaning = record?.getField('identifyState')?.getText(identifyState);
           const invoicePoolHeaderId = record?.get('invoicePoolHeaderId');
           let color = '';
           let textColor = '';
