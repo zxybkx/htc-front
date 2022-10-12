@@ -215,13 +215,15 @@ export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
       return;
     }
     if (selectedList.some(sl => sl.dataCheckState === 'NON_INVOICE_SOURCE_FILE')) {
-      Modal.open({
+      Modal.confirm({
+        key: Modal.key,
         title: intl
           .get(`${modelCode}.validate.confirmArchive`)
           .d('当前发票档案文件非发票原文件，是否继续上传？'),
-        onOk: () => {
+      }).then(button => {
+        if (button === 'ok') {
           this.confirmInterface(selectedList);
-        },
+        }
       });
     } else {
       this.confirmInterface(selectedList);
