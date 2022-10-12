@@ -787,9 +787,9 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
       {
         name: 'invoiceType',
         width: 230,
-        renderer: ({ text, record }) => {
+        renderer: ({ text, record, dataSet }) => {
           const invoiceState = record?.get('invoiceState');
-          const invoiceStateTxt = record?.getField('invoiceState')?.getText(invoiceState);
+          const invoiceStateTxt = dataSet?.current?.getField('invoiceState')?.getText(invoiceState);
           let color = '';
           let textColor = '';
           switch (invoiceState) {
