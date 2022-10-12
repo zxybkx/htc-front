@@ -518,7 +518,7 @@ export default (): DataSetProps => {
           label: intl.get('hivp.bill.view.entryAccountState').d('入账状态'),
           type: FieldType.string,
           lookupCode: 'HIVP.ACCOUNT_STATE',
-          defaultValue: '1',
+          // defaultValue: '1',
           multiple: ',',
         },
         {
@@ -613,7 +613,7 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.enteredThePool`).d('是否已入池'),
           type: FieldType.string,
           lookupCode: 'HTC.HIVP.ISPOOL_FLAG',
-          defaultValue: 'Y',
+          // defaultValue: 'Y',
         },
       ],
     }),
