@@ -332,6 +332,7 @@ export default (): DataSetProps => {
               }
             },
           },
+          ignore: FieldIgnore.always,
         },
         {
           name: 'documentNumbers',

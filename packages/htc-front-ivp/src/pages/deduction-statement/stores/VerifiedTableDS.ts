@@ -100,11 +100,30 @@ export default (): DataSetProps => {
           bind: 'checkDate.checkDateTo',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
+        // {
+        //   name: 'authenticationDate',
+        //   label: intl.get('hivp.checkRule').d('认证所属期'),
+        //   type: FieldType.string,
+        //   lookupCode: '',
+        // },
+        {
+          name: 'certifiedQueryMonthObj',
+          label: intl.get('hivp.checkRule').d('认证所属期'),
+          type: FieldType.object,
+          lovCode: 'HIVP.BUSINESS_TIME_INFO',
+          multiple: ',',
+          computedProps: {
+            lovPara: () => {
+              return { companyId: localStorage.getItem('certifiedCompanyId') };
+            },
+          },
+          ignore: FieldIgnore.always,
+        },
         {
           name: 'authenticationDate',
-          label: intl.get('hivp.checkRule').d('认证所属期'),
           type: FieldType.string,
-          lookupCode: '',
+          multiple: ',',
+          bind: 'certifiedQueryMonthObj.currentPeriod',
         },
         {
           name: 'entryAccountState',

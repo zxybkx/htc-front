@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-11 15:41:27
+ * @LastEditTime: 2022-10-12 13:59:10
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -155,12 +155,11 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
     const { currentPeriod, currentOperationalDeadline, checkableTimeRange } = timeRes;
     const { queryDataSet: checkRuleDSqueryDataSet } = this.checkRuleDS;
     if (checkRuleDSqueryDataSet && checkRuleDSqueryDataSet.current) {
-      checkRuleDSqueryDataSet.current.set({ companyObj: empInfo });
-
       checkRuleDSqueryDataSet.current.set({
         currentPeriod,
         currentOperationalDeadline,
         checkableTimeRange,
+        companyObj: empInfo,
       });
       this.checkRuleDS.query().then(res => {
         const { invoiceType, accountStatus, sourceSystem, docType } = res;
@@ -193,10 +192,8 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
   @Bind()
   async handleChangeCompanyCallBack(empInfo) {
     const { companyCode, companyId, employeeId, employeeNum: employeeNumber } = empInfo;
-    const { queryDataSet, current } = this.props.deductionStatementHeaderDS;
-    if (current) {
-      current.set('companyId', empInfo.companyId);
-    }
+    const { queryDataSet } = this.props.deductionStatementHeaderDS;
+    localStorage.setItem('certifiedCompanyId', companyId);
     if (queryDataSet && queryDataSet.current) {
       queryDataSet.current.set({ companyObj: empInfo });
     }
@@ -337,7 +334,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         width: 120,
         help: intl
           .get('hivp.deductionStatement.title.invoiceRule')
-          .d('截止更新时间在开票时间范围内获取的税局全量可抵扣发票份数'),
+          .d('截止更新时间从税局获取的可抵扣发票份数，更新时间为手动获取或定时自动获取的最新时间'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
           const deductibleCopies = record && record.get('deductibleCopies');
@@ -368,7 +365,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         width: 120,
         help: intl
           .get('hivp.deductionStatement.title.invoiceRule')
-          .d('截止更新时间满足除开票时间条件外的在池应抵扣发票份数，包含已勾选和未勾选的发票'),
+          .d('截止更新时间在发票池满足条件的应抵扣发票份数，包含已勾选和未勾选的发票'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
           const deductibleShare = record && record.get('deductibleShare');
@@ -399,7 +396,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         width: 120,
         help: intl
           .get('hivp.deductionStatement.title.invoiceRule')
-          .d('截止更新时间满足除开票时间条件外的已抵扣勾选发票份数，不包括不抵扣勾选发票'),
+          .d('截止更新时间满足条件的已抵扣勾选发票份数，不包括不抵扣勾选发票'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
           const numberOfCopiesChecked = record && record.get('numberOfCopiesChecked');
@@ -434,7 +431,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         width: 160,
         help: intl
           .get('hivp.deductionStatement.title.invoiceRule')
-          .d('截止更新时间满足除开票时间条件外应抵未抵的发票份数'),
+          .d('截止更新时间满足条件的应抵未抵的发票份数'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
           const numberDeductButNot = record && record.get('numberDeductButNot');

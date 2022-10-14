@@ -54,9 +54,9 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'autoDayGetAccounts',
-        label: intl.get('hivp.checkRule').d('每日自动获取勾选底账'),
+        label: intl.get('hivp.checkRule').d('每日自动获取可勾选发票'),
         type: FieldType.boolean,
-        labelWidth: '140',
+        labelWidth: '150',
       },
       {
         name: 'autoDayGetTime',
@@ -72,7 +72,7 @@ export default (): DataSetProps => {
         name: 'autoStatisticsSign',
         label: intl.get('hivp.checkRule').d('每月自动统计'),
         type: FieldType.boolean,
-        labelWidth: '140',
+        labelWidth: '150',
         transformRequest: value => {
           return value ? 1 : 0;
         },
@@ -102,7 +102,7 @@ export default (): DataSetProps => {
         name: 'autoSignatureSign',
         label: intl.get('hivp.checkRule').d('每月自动确签'),
         type: FieldType.boolean,
-        labelWidth: '140',
+        labelWidth: '150',
         transformRequest: value => {
           return value ? 1 : 0;
         },

@@ -195,7 +195,6 @@ export default (): DataSetProps => {
         name: 'redTicketFlag',
         label: intl.get('hivp.checkRule').d('红票标识'),
         type: FieldType.string,
-        multiple: ',',
         lookupCode: 'HIVP.RED_FLAG',
       },
       {
@@ -235,7 +234,7 @@ export default (): DataSetProps => {
         label: intl.get('hivp.checkRule').d('已认证查询月份'),
         type: FieldType.object,
         lovCode: 'HIVP.BUSINESS_TIME_INFO',
-        // cascadeMap: { companyId: 'companyId' },
+        cascadeMap: { companyId: 'companyId' },
         computedProps: {
           required: ({ record }) => {
             if (record.get('certificationStatus')) {
