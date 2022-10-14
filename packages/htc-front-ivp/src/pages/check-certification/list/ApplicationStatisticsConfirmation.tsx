@@ -30,6 +30,7 @@ import {
   confirmSignature,
   judgeButton,
   refreshAllState,
+  getCurPeriod,
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import { getResponse } from 'utils/utils';
@@ -79,7 +80,9 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     currentPeriodData,
   } = props;
   const [showMore, setShowMore] = useState<boolean>(false);
-  const { invoiceCategory, immediatePeriod } = useContext(InvoiceCategoryContext);
+  const { invoiceCategory, immediatePeriod, setImmediatePeriod } = useContext(
+    InvoiceCategoryContext
+  );
 
   const setCompanyObjFromProps = () => {
     const { companyId } = empInfo;
@@ -293,6 +296,9 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         });
         statisticalConfirmDS.query();
       }
+      // 更新所属期
+      const periodRes = getResponse(await getCurPeriod({ tenantId, companyId, currentPeriod }));
+      if (periodRes) setImmediatePeriod(periodRes);
     }
   };
 
@@ -578,6 +584,9 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         });
         statisticalConfirmDS.query();
       }
+      // 更新所属期
+      const periodRes = getResponse(await getCurPeriod({ tenantId, companyId, currentPeriod }));
+      if (periodRes) setImmediatePeriod(periodRes);
     }
   };
 
