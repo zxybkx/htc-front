@@ -24,7 +24,7 @@ import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
 import notification from 'utils/notification';
 import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
-import { partialCheck } from '@src/services/checkCertificationService';
+import { partialCheck, getCurPeriod } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import moment from 'moment';
 import { getResponse } from 'utils/utils';
@@ -54,7 +54,7 @@ interface CheckCertificationPageProps {
 const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
   const { noDeductCheckDS, companyAndPassword, empInfo, currentPeriodData } = props;
   const [verfiableMoreDisplay, setVerfiableMoreDisplay] = useState<boolean>(false);
-  const { immediatePeriod } = useContext(InvoiceCategoryContext);
+  const { immediatePeriod, setImmediatePeriod } = useContext(InvoiceCategoryContext);
 
   const setCompanyObjFromProps = () => {
     if (noDeductCheckDS) {
@@ -281,6 +281,9 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
         });
         noDeductCheckDS.query();
       }
+      // 更新所属期
+      const periodRes = getResponse(await getCurPeriod({ tenantId, companyId, currentPeriod }));
+      if (periodRes) setImmediatePeriod(periodRes);
     }
   };
 

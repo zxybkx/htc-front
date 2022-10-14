@@ -275,7 +275,9 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
         batchInvoiceHeaderDS.query();
       }
       // 更新所属期
-      const periodRes = getResponse(await getCurPeriod({ tenantId, companyId }));
+      const { queryDataSet } = batchInvoiceHeaderDS;
+      const currentPeriod = queryDataSet?.current?.get('currentPeriod');
+      const periodRes = getResponse(await getCurPeriod({ tenantId, companyId, currentPeriod }));
       if (periodRes) setImmediatePeriod(periodRes);
     }
   };

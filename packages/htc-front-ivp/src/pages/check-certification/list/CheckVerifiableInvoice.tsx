@@ -29,6 +29,7 @@ import {
   certifiableInvoiceRefresh,
   findVerifiableInvoice,
   handlecheckRequest,
+  getCurPeriod,
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import moment from 'moment';
@@ -74,7 +75,9 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   const [progressValue, setProgressValue] = useState<number>(0);
   const [visible, setVisible] = useState<boolean>(false);
   const [verfiableMoreDisplay, setVerfiableMoreDisplay] = useState<boolean>(false);
-  const { setInvoiceCategory, immediatePeriod } = useContext(InvoiceCategoryContext);
+  const { setInvoiceCategory, immediatePeriod, setImmediatePeriod } = useContext(
+    InvoiceCategoryContext
+  );
 
   const setCompanyObjFromProps = () => {
     if (certifiableInvoiceListDS) {
@@ -336,6 +339,9 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         });
         certifiableInvoiceListDS.query();
       }
+      // 更新所属期
+      const periodRes = getResponse(await getCurPeriod({ tenantId, companyId, currentPeriod }));
+      if (periodRes) setImmediatePeriod(periodRes);
     }
   };
 
