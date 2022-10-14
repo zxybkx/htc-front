@@ -2,7 +2,7 @@
  * @Description: 进项发票规则维护
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-10-09 14:51:37
- * @LastEditTime: 2022-10-10 15:07:42
+ * @LastEditTime: 2022-10-11 16:22:16
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { FunctionComponent } from 'react';
@@ -143,8 +143,8 @@ const InvoiceRuleHeaderForm: FunctionComponent<Props> = (props: Props) => {
         <Form dataSet={dataSet} columns={3} labelTooltip={Tooltip.overflow}>
           <Lov name="systemCodeObj" />
           <Lov name="documentTypeCodeObj" />
-          <Select name="invoiceType" />
           <Select name="accountStatus" />
+          <Select name="invoiceType" />
         </Form>
       </Card>
     </>

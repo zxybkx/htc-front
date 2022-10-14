@@ -153,37 +153,31 @@ export default (): DataSetProps => {
           bind: 'entryAccountDate.invoiceTickDateEnd',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
-        {
-          name: 'docuAssociatedDate',
-          label: intl.get('htc.common.v').d('单据关联日期'),
-          range: ['documentRelationDateFrom', 'documentRelationDateTo'],
-          type: FieldType.date,
-          ignore: FieldIgnore.always,
-        },
-        {
-          name: 'docuAssociatedDateFrom',
-          type: FieldType.date,
-          bind: 'docuAssociatedDate.documentRelationDateFrom',
-          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
-        },
-        {
-          name: 'documentRelationDateTo',
-          type: FieldType.date,
-          bind: 'docuAssociatedDate.documentRelationDateTo',
-          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
-        },
+        // {
+        //   name: 'docuAssociatedDate',
+        //   label: intl.get('htc.common.v').d('单据关联日期'),
+        //   range: ['documentRelationDateFrom', 'documentRelationDateTo'],
+        //   type: FieldType.date,
+        //   ignore: FieldIgnore.always,
+        // },
+        // {
+        //   name: 'docuAssociatedDateFrom',
+        //   type: FieldType.date,
+        //   bind: 'docuAssociatedDate.documentRelationDateFrom',
+        //   transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        // },
+        // {
+        //   name: 'documentRelationDateTo',
+        //   type: FieldType.date,
+        //   bind: 'docuAssociatedDate.documentRelationDateTo',
+        //   transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        // },
         {
           name: 'salerName',
           label: intl.get('hivp.checkRule').d('销方纳税人名称'),
           type: FieldType.string,
         },
-        {
-          name: 'entryAccountStates',
-          label: intl.get('hivp.checkRule').d('入账状态'),
-          type: FieldType.string,
-          multiple: ',',
-          lookupCode: 'HIVP.ACCOUNT_STATE',
-        },
+
         {
           name: 'systemCodeObj',
           label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
@@ -238,6 +232,13 @@ export default (): DataSetProps => {
           type: FieldType.string,
           bind: 'documentTypeCodeObj.docTypeHeaderId',
           ignore: FieldIgnore.always,
+        },
+        {
+          name: 'entryAccountStates',
+          label: intl.get('hivp.checkRule').d('入账状态'),
+          type: FieldType.string,
+          multiple: ',',
+          lookupCode: 'HIVP.ACCOUNT_STATE',
         },
         {
           name: 'invoiceTypes',

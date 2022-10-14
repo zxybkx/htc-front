@@ -22,9 +22,6 @@ import {
   Lov,
   Output,
   TextField,
-  Menu,
-  Icon,
-  Dropdown,
 } from 'choerodon-ui/pro';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
@@ -37,7 +34,6 @@ import { addToInvoicePool, handleInvoiceCheckApi } from '@src/services/invoiceCh
 import InvoiceCheckQueryDS from '../stores/InvoiceCheckQueryDS';
 import style from '../invoiceCheck.module.less';
 
-const { Item: MenuItem } = Menu;
 const modelCode = 'hcan.invoiceCheck';
 interface InvoiceCheckQueryPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
@@ -186,42 +182,30 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
     const ObserverButtons = observer((props: any) => {
       if (props.dataSet.current && props.dataSet.current.get('checkStatus') === '0001') {
         return (
-          <a key={props.key} onClick={props.onClick}>
+          <Button key={props.key} onClick={props.onClick}>
             {props.title}
-          </a>
+          </Button>
         );
       }
       return <></>;
     });
-    const menu = (
-      <Menu>
-        <MenuItem>
-          <ObserverButtons
-            key="viewDetail"
-            onClick={this.handleGotoDetailPage}
-            dataSet={this.props.queryDS}
-            title={intl.get('hcan.invoiceDetail.title.detail').d('查看全票面信息')}
-          />
-        </MenuItem>
-        <MenuItem>
-          <ObserverButtons
-            key="addPool"
-            onClick={this.handleAddToInvoicePool}
-            dataSet={this.props.queryDS}
-            title={intl.get(`${modelCode}.button.addPool`).d('添加至发票池')}
-          />
-        </MenuItem>
-      </Menu>
-    );
     const MenuContainer = observer((props: any) => {
       if (props.dataSet.current && props.dataSet.current.get('checkStatus') === '0001') {
         return (
-          <Dropdown overlay={menu}>
-            <Button color={ButtonColor.primary}>
-              {intl.get(`${modelCode}.button.assetChange`).d('添加/查看')}
-              <Icon type="arrow_drop_down" />
-            </Button>
-          </Dropdown>
+          <span style={{ marginLeft: 10 }}>
+            <ObserverButtons
+              key="viewDetail"
+              onClick={this.handleGotoDetailPage}
+              dataSet={this.props.queryDS}
+              title={intl.get(`${modelCode}.button.viewDetail`).d('查看全票面信息')}
+            />
+            <ObserverButtons
+              key="addPool"
+              onClick={this.handleAddToInvoicePool}
+              dataSet={this.props.queryDS}
+              title={intl.get(`${modelCode}.button.addPool`).d('添加至发票池')}
+            />
+          </span>
         );
       }
       return <></>;
