@@ -281,6 +281,13 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   // 批量发票勾选（取消）可认证发票: 行
   const batchOperation = () => {
     if (batchInvoiceHeaderDS) {
+      if (batchInvoiceHeaderDS.selected.length > 1) {
+        notification.warning({
+          message: intl.get(`${modelCode}.validate.checkLength`).d('一次只能操作一条数据'),
+          description: '',
+        });
+        return;
+      }
       const { queryDataSet } = batchInvoiceHeaderDS;
       if (queryDataSet) {
         const currentCertState = queryDataSet.current!.get('currentCertState');
@@ -329,6 +336,13 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   // 不抵扣勾选
   const deductCheck = () => {
     if (batchInvoiceHeaderDS) {
+      if (batchInvoiceHeaderDS.selected.length > 1) {
+        notification.warning({
+          message: intl.get(`${modelCode}.validate.checkLength`).d('一次只能操作一条数据'),
+          description: '',
+        });
+        return;
+      }
       const { queryDataSet } = batchInvoiceHeaderDS;
       const selectedList = batchInvoiceHeaderDS.selected.map(rec => rec.toData());
       if (queryDataSet) {
