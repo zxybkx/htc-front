@@ -100,15 +100,11 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
           checkableTimeRange,
           currentCertState,
         } = period;
-        const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
-        const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
         queryDataSet.current!.set({
           currentPeriod,
           currentOperationalDeadline,
           checkableTimeRange,
           currentCertState,
-          entryAccountDateFrom: dateFrom,
-          entryAccountDateTo: dateTo,
         });
       }
     }
@@ -917,9 +913,24 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
                     <DatePicker name="invoiceDate" />
                     <Select name="entryAccountState" />
                     <DatePicker name="entryAccountDate" />
-                    <Lov name="systemCodeObj" />
-                    <Lov name="documentTypeCodeObj" />
-                    <Lov name="documentNumberObj" />
+                    <Lov
+                      name="systemCodeObj"
+                      maxTagCount={1}
+                      maxTagTextLength={1}
+                      maxTagPlaceholder={restValues => `+${restValues.length}...`}
+                    />
+                    <Lov
+                      name="documentTypeCodeObj"
+                      maxTagCount={1}
+                      maxTagTextLength={1}
+                      maxTagPlaceholder={restValues => `+${restValues.length}...`}
+                    />
+                    <Lov
+                      name="documentNumberObj"
+                      maxTagCount={1}
+                      maxTagTextLength={1}
+                      maxTagPlaceholder={restValues => `+${restValues.length}...`}
+                    />
                     <TextField name="salerName" />
                   </Form>
                 </div>

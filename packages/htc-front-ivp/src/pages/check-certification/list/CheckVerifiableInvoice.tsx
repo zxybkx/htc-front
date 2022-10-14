@@ -109,8 +109,8 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
           currentOperationalDeadline,
           checkableTimeRange,
           currentCertState,
-          rzrqq: dateFrom,
-          rzrqz: dateTo,
+          invoiceDateFrom: dateFrom,
+          invoiceDateTo: dateTo,
         });
       }
     }
@@ -718,9 +718,30 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     queryMoreArray.push(<DatePicker name="invoiceDate" colSpan={2} />);
     queryMoreArray.push(<Select name="checkState" />);
     queryMoreArray.push(<DatePicker name="entryAccountDate" colSpan={2} />);
-    queryMoreArray.push(<Lov name="systemCodeObj" />);
-    queryMoreArray.push(<Lov name="documentTypeCodeObj" />);
-    queryMoreArray.push(<Lov name="documentNumberObj" />);
+    queryMoreArray.push(
+      <Lov
+        name="systemCodeObj"
+        maxTagCount={1}
+        maxTagTextLength={1}
+        maxTagPlaceholder={restValues => `+${restValues.length}...`}
+      />
+    );
+    queryMoreArray.push(
+      <Lov
+        name="documentTypeCodeObj"
+        maxTagCount={1}
+        maxTagTextLength={1}
+        maxTagPlaceholder={restValues => `+${restValues.length}...`}
+      />
+    );
+    queryMoreArray.push(
+      <Lov
+        name="documentNumberObj"
+        maxTagCount={1}
+        maxTagTextLength={1}
+        maxTagPlaceholder={restValues => `+${restValues.length}...`}
+      />
+    );
     queryMoreArray.push(<Select name="isPoolFlag" />);
     queryMoreArray.push(<Select name="entryAccountState" />);
     queryMoreArray.push(<TextField name="salerName" />);
