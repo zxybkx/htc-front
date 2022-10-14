@@ -745,7 +745,31 @@ export default class BatchCheckPage extends Component<BatchCheckPageProps> {
   }
 
   @Bind()
-  addInvoiceFn(res) {
+  addInvoiceFn(res, type, params) {
+    if (res && res.data === 'N') {
+      Modal.confirm({
+        key: Modal.key,
+        title: intl
+          .get('hivp.invoicesArchiveUpload.validate.confirmArchive')
+          .d('当前发票档案文件非发票原文件，是否继续上传？'),
+      }).then(async button => {
+        if (button === 'ok') {
+          const _params = {
+            ...params,
+            uploadFlag: '2',
+          };
+          const result = type === 0 ? await addInvoicePool(_params) : await addMyInvoice(_params);
+          this.addInvoiceFn(result, type, params);
+        } else {
+          const _params = {
+            ...params,
+            uploadFlag: '1',
+          };
+          const result = type === 0 ? await addInvoicePool(_params) : await addMyInvoice(_params);
+          this.addInvoiceFn(result, type, params);
+        }
+      });
+    }
     if (res && res.status === 'H1024') {
       if (res.data && res.data.length > 0) {
         Modal.info({
@@ -794,6 +818,7 @@ export default class BatchCheckPage extends Component<BatchCheckPageProps> {
       employeeNum,
       tenantId,
       invoiceIds: invoiceIds.join(','),
+      uploadFlag: '0',
     };
     if (recogStatus) {
       notification.warning({
@@ -828,7 +853,7 @@ export default class BatchCheckPage extends Component<BatchCheckPageProps> {
       }
     }
     const res = type === 0 ? await addInvoicePool(params) : await addMyInvoice(params);
-    this.addInvoiceFn(res);
+    this.addInvoiceFn(res, type, params);
   }
 
   // 添加至我的发票/发票/票据池
