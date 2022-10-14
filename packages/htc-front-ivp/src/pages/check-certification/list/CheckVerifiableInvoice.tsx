@@ -292,8 +292,9 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
             validTaxAmount: yxse,
             invoicePoolHeaderId: id,
             invoiceCheckCollectId,
+            invoiceAmount,
           } = record;
-          return { fpdm, fphm, kprq, yxse, id, gxzt: isTick, invoiceCheckCollectId };
+          return { fpdm, fphm, kprq, yxse, id, gxzt: isTick, invoiceCheckCollectId, invoiceAmount };
         });
         invoiceRequestParamDto = {
           data,
