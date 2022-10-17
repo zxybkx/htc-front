@@ -348,19 +348,3 @@ export async function partialCheck(params) {
     body: selectedList,
   });
 }
-
-/**
- * 批量勾选可认证发票-文件上传
- * @async
- * @function uploadCertifiedFile
- * @returns {object} fetch Promise
- */
-export async function uploadCertifiedFile(params) {
-  const { tenantId, formData, headers, ...otherParams } = params;
-  return request(`${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file`, {
-    headers,
-    method: 'POST',
-    query: otherParams,
-    body: formData,
-  });
-}

@@ -35,9 +35,10 @@ import {
   batchScanGunInvoices,
   unCertifiedInvoiceQuery,
   getCurPeriod,
-  uploadCertifiedFile,
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
+import { API_HOST } from 'utils/config';
+import commonConfig from '@htccommon/config/commonConfig';
 import { getAccessToken, getResponse } from 'utils/utils';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
@@ -58,6 +59,7 @@ const { Item: MenuItem } = Menu;
 
 const modelCode = 'hivp.checkCertification';
 const tenantId = getCurrentOrganizationId();
+const HIVP_API = commonConfig.IVP_API || '';
 
 interface BatchCheckVerifiableInvoicesProps {
   companyAndPassword: DataSet;
@@ -67,12 +69,22 @@ interface BatchCheckVerifiableInvoicesProps {
   batchInvoiceHeaderDS?: DataSet;
 }
 
+const acceptType = [
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-excel',
+];
+
 const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> = props => {
   const { batchInvoiceHeaderDS, empInfo, currentPeriodData, companyAndPassword, history } = props;
   const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
   const [showMore, setShowMore] = useState<boolean>(false);
-  const [fileList, setFileList] = useState([]);
   const { immediatePeriod, setImmediatePeriod } = useContext(InvoiceCategoryContext);
+
+  let singleUpload;
+
+  const saveUpload = node => {
+    singleUpload = node;
+  };
 
   const setCompanyObjFromProps = () => {
     if (batchInvoiceHeaderDS) {
@@ -141,29 +153,33 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     });
   };
 
-  const onFileChange = files => {
-    console.log('files', files);
-    setFileList(files);
-  };
-
   const uploadProps = {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      Authorization: `bearer ${getAccessToken()}`,
+    },
     showUploadBtn: false,
     uploadImmediately: false,
-    onFileChange,
     onUploadSuccess: handleUploadSuccess,
     onUploadError: handleUploadError,
   };
 
   const UploadButton = observer(() => {
-    const { companyId } = empInfo;
+    const {
+      companyId,
+      companyCode,
+      employeeId,
+      employeeNum,
+      taxpayerNumber,
+      authorityCode,
+    } = empInfo;
     return (
       <Upload
+        ref={saveUpload}
         {...uploadProps}
         disabled={!companyId}
-        accept={[
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'application/vnd.ms-excel',
-        ]}
+        accept={acceptType}
+        action={`${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`}
       />
     );
   });
@@ -688,46 +704,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   };
 
   const handleUpload = async () => {
-    if (fileList.length === 0) {
-      notification.warning({
-        description: '',
-        message: intl.get('htc.common.notification.valid.error').d('请选择文件'),
-      });
-      return;
-    }
-    const {
-      companyId,
-      companyCode,
-      employeeId,
-      employeeNum,
-      taxpayerNumber,
-      authorityCode,
-    } = empInfo;
-    const formData = new FormData();
-    formData.append('file', fileList[0]);
-    const params = {
-      tenantId,
-      companyId,
-      companyCode,
-      employeeId,
-      employeeNumber: employeeNum,
-      taxpayerNumber,
-      taxDiskPassword,
-      authorityCode,
-      formData,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        Authorization: `bearer ${getAccessToken()}`,
-      },
-    };
-    const uploadRes = getResponse(await uploadCertifiedFile(params));
-    if (uploadRes) {
-      notification.success({
-        description: '',
-        message: intl.get('hzero.c7nProUI.Upload.upload_success').d('上传成功'),
-      });
-      if (batchInvoiceHeaderDS) batchInvoiceHeaderDS.query();
-    }
+    singleUpload.startUpload();
   };
 
   const handleImportAndUpload = () => {
