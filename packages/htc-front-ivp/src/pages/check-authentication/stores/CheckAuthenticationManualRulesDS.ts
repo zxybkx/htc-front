@@ -179,7 +179,6 @@ export default (): DataSetProps => {
         name: 'invoiceStyle',
         label: intl.get('hivp.checkRule').d('发票类型'),
         type: FieldType.string,
-        defaultValue: ['01'],
         multiple: ',',
         lookupCode: 'HIVP.CHECK_INVOICE_TYPE',
       },

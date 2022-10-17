@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-01-21 15:23:14
- * @LastEditTime: 2022-10-11 11:06:22
+ * @LastEditTime: 2022-10-17 18:18:34
  * @Copyright: Copyright (c) 2020, Hand
  */
 import request from 'utils/request';
@@ -16,7 +16,7 @@ const HIVP_API = commonConfig.IVP_API || '';
  */
 export async function getBusinessTime(params) {
   const { tenantId, ...otherParam } = params;
-  return request(`${HIVP_API}/v1/${tenantId}/invoice-operation-new/business-time-query`, {
+  return request(`${HIVP_API}/v1/${tenantId}/invoice-operation/business-time-query`, {
     method: 'GET',
     query: otherParam,
   });
