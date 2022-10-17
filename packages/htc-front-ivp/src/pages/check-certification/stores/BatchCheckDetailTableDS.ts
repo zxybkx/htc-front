@@ -123,6 +123,7 @@ export default (dsParams): DataSetProps => {
         name: 'reasonsForNonDeduction',
         label: intl.get('hivp.checkCertification.view.reasonsForNonDeduction').d('不抵扣原因'),
         type: FieldType.string,
+        lookupCode: 'NO_DEDUCT_REASON',
       },
       {
         name: 'isMatch',
@@ -243,6 +244,7 @@ export default (dsParams): DataSetProps => {
         name: 'reasonsForNonDeduction',
         label: intl.get('hivp.checkCertification.view.reasonsForNonDeduction').d('不抵扣原因'),
         type: FieldType.string,
+        lookupCode: 'NO_DEDUCT_REASON',
       },
       {
         name: 'failedDetail',

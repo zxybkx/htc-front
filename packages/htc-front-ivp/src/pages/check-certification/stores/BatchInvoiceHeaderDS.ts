@@ -118,6 +118,17 @@ export default (): DataSetProps => {
     ],
     queryDataSet: new DataSet({
       autoCreate: true,
+      events: {
+        update: ({ record, name }) => {
+          if (name === 'systemCodeObj') {
+            record.set('documentTypeCodeObj', null);
+            record.set('documentNumberObj', null);
+          }
+          if (name === 'documentTypeCodeObj') {
+            record.set('documentNumberObj', null);
+          }
+        },
+      },
       fields: [
         {
           name: 'companyObj',

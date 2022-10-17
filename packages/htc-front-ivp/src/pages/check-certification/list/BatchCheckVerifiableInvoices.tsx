@@ -35,6 +35,7 @@ import {
   batchScanGunInvoices,
   unCertifiedInvoiceQuery,
   getCurPeriod,
+  downloadTemplate,
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import { API_HOST } from 'utils/config';
@@ -707,6 +708,27 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     singleUpload.startUpload();
   };
 
+  const downloadTemp = async () => {
+    const { companyId, companyCode, employeeId, employeeNum } = empInfo;
+    const params = {
+      tenantId,
+      companyId,
+      companyCode,
+      employeeId,
+      employeeNumber: employeeNum,
+    };
+    const res = await downloadTemplate(params);
+    if (res) {
+      const files = [
+        {
+          data: res,
+          fileName: '发票抵扣勾选导入模版.xlsx',
+        },
+      ];
+      downLoadFiles(files, 1);
+    }
+  };
+
   const handleImportAndUpload = () => {
     Modal.open({
       title: intl.get(`${modelCode}.modal.title.batchCheckImport`).d('批量勾选导入'),
@@ -716,7 +738,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
           <Alert
             message={
               <span>
-                请先下载《<a>批量导入勾选发票模板</a>
+                请先下载《<a onClick={downloadTemp}>批量导入勾选发票模板</a>
                 》，按照模板要求填写后上传，一次性上传不要超过1000条
               </span>
             }
