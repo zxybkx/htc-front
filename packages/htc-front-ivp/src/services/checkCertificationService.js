@@ -348,3 +348,18 @@ export async function partialCheck(params) {
     body: selectedList,
   });
 }
+
+/**
+ * 批量勾选可认证发票-下载模板
+ * @async
+ * @function batchDownload
+ * @returns {object} fetch Promise
+ */
+export async function downloadTemplate(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/batch-check/download-file`, {
+    method: 'POST',
+    query: otherParams,
+    responseType: 'blob',
+  });
+}

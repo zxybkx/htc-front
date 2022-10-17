@@ -483,7 +483,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     queryMoreArray.push(<Currency name="taxAmount" />);
     queryMoreArray.push(<Currency name="validTaxAmount" />);
     queryMoreArray.push(<Currency name="amount" />);
-    queryMoreArray.push(<Currency name="reasonsForNonDeduction" />);
+    queryMoreArray.push(<Select name="reasonsForNonDeduction" />);
     return (
       <div style={{ marginBottom: '0.1rem' }}>
         <Row>

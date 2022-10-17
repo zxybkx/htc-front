@@ -198,6 +198,7 @@ export default (): DataSetProps => {
         name: 'reasonsForNonDeduction',
         label: intl.get('hivp.checkCertification.view.reasonsForNonDeduction').d('不抵扣原因'),
         type: FieldType.string,
+        lookupCode: 'NO_DEDUCT_REASON',
       },
       {
         name: 'invoiceState',
@@ -330,6 +331,17 @@ export default (): DataSetProps => {
     ],
     queryDataSet: new DataSet({
       autoCreate: true,
+      events: {
+        update: ({ record, name }) => {
+          if (name === 'systemCodeObj') {
+            record.set('documentTypeCodeObj', null);
+            record.set('documentNumberObj', null);
+          }
+          if (name === 'documentTypeCodeObj') {
+            record.set('documentNumberObj', null);
+          }
+        },
+      },
       fields: [
         {
           name: 'companyObj',
@@ -618,6 +630,7 @@ export default (): DataSetProps => {
           name: 'reasonsForNonDeduction',
           label: intl.get('hivp.bill.view.reasonsForNonDeduction').d('不抵扣原因'),
           type: FieldType.string,
+          lookupCode: 'NO_DEDUCT_REASON',
         },
       ],
     }),

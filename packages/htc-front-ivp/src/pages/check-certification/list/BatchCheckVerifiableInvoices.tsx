@@ -21,6 +21,7 @@ import {
   Table,
   TextField,
   Upload,
+  Modal,
 } from 'choerodon-ui/pro';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
@@ -34,19 +35,20 @@ import {
   batchScanGunInvoices,
   unCertifiedInvoiceQuery,
   getCurPeriod,
+  downloadTemplate,
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
+import { API_HOST } from 'utils/config';
+import commonConfig from '@htccommon/config/commonConfig';
 import { getAccessToken, getResponse } from 'utils/utils';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnAlign, ColumnLock, TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
 import queryString from 'query-string';
-import commonConfig from '@htccommon/config/commonConfig';
 import { downLoadFiles } from '@htccommon/utils/utils';
-import { API_HOST } from 'utils/config';
 import { observer } from 'mobx-react-lite';
 import moment from 'moment';
-import { Col, Icon, message, Row, Tag } from 'choerodon-ui';
+import { Col, Icon, message, Row, Tag, Alert } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { ValueChangeAction } from 'choerodon-ui/pro/lib/text-field/enum';
 import BatchInvoiceHeaderDS from '../stores/BatchInvoiceHeaderDS';
@@ -68,11 +70,22 @@ interface BatchCheckVerifiableInvoicesProps {
   batchInvoiceHeaderDS?: DataSet;
 }
 
+const acceptType = [
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-excel',
+];
+
 const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> = props => {
   const { batchInvoiceHeaderDS, empInfo, currentPeriodData, companyAndPassword, history } = props;
   const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
   const [showMore, setShowMore] = useState<boolean>(false);
   const { immediatePeriod, setImmediatePeriod } = useContext(InvoiceCategoryContext);
+
+  let singleUpload;
+
+  const saveUpload = node => {
+    singleUpload = node;
+  };
 
   const setCompanyObjFromProps = () => {
     if (batchInvoiceHeaderDS) {
@@ -146,10 +159,8 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       'Access-Control-Allow-Origin': '*',
       Authorization: `bearer ${getAccessToken()}`,
     },
-    multiple: false,
     showUploadBtn: false,
-    showPreviewImage: false,
-    showUploadList: false,
+    uploadImmediately: false,
     onUploadSuccess: handleUploadSuccess,
     onUploadError: handleUploadError,
   };
@@ -165,12 +176,10 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     } = empInfo;
     return (
       <Upload
+        ref={saveUpload}
         {...uploadProps}
         disabled={!companyId}
-        accept={[
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'application/vnd.ms-excel',
-        ]}
+        accept={acceptType}
         action={`${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`}
       />
     );
@@ -431,13 +440,13 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       const res = getResponse(await downloadFile(params));
       if (res) {
         const date = moment().format('YYYY-MM-DD HH:mm:ss');
-        const fileList = [
+        const files = [
           {
             data: res,
             fileName: `${taxpayerNumber}_${date}.xls`,
           },
         ];
-        downLoadFiles(fileList, 1);
+        downLoadFiles(files, 1);
       }
     }
   };
@@ -695,8 +704,68 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     }
   };
 
+  const handleUpload = async () => {
+    singleUpload.startUpload();
+  };
+
+  const downloadTemp = async () => {
+    const { companyId, companyCode, employeeId, employeeNum } = empInfo;
+    const params = {
+      tenantId,
+      companyId,
+      companyCode,
+      employeeId,
+      employeeNumber: employeeNum,
+    };
+    const res = await downloadTemplate(params);
+    if (res) {
+      const files = [
+        {
+          data: res,
+          fileName: '发票抵扣勾选导入模版.xlsx',
+        },
+      ];
+      downLoadFiles(files, 1);
+    }
+  };
+
+  const handleImportAndUpload = () => {
+    Modal.open({
+      title: intl.get(`${modelCode}.modal.title.batchCheckImport`).d('批量勾选导入'),
+      drawer: true,
+      children: (
+        <div>
+          <Alert
+            message={
+              <span>
+                请先下载《<a onClick={downloadTemp}>批量导入勾选发票模板</a>
+                》，按照模板要求填写后上传，一次性上传不要超过1000条
+              </span>
+            }
+            type="info"
+            showIcon
+            style={{ marginBottom: 10 }}
+          />
+          <p>
+            {intl.get(`${modelCode}.modal.upload.message`).d('请上传excel文件，文件大小不超过50M')}
+          </p>
+          <UploadButton />
+        </div>
+      ),
+      onOk: () => {
+        handleUpload();
+      },
+    });
+  };
+
   const batchButtons: Buttons[] = [
-    <UploadButton />,
+    <Button
+      color={ButtonColor.primary}
+      funcType={FuncType.flat}
+      onClick={() => handleImportAndUpload()}
+    >
+      {intl.get(`${modelCode}.button.batchImportAndUpload`).d('批量导入上传')}
+    </Button>,
     <HeaderButtons
       key="downloadFile"
       onClick={() => downLoad()}
