@@ -121,7 +121,7 @@ export default (): DataSetProps => {
         type: FieldType.object,
         lovCode: 'HPFM.TENANT',
         ignore: FieldIgnore.always,
-        required: true,
+        // required: true,
       },
       {
         name: 'tenantId',
