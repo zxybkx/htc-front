@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-12 13:59:10
+ * @LastEditTime: 2022-10-18 10:58:49
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -162,13 +162,17 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         companyObj: empInfo,
       });
       this.checkRuleDS.query().then(res => {
-        const { invoiceType, accountStatus, sourceSystem, docType } = res;
+        const { invoiceType, accountStatus, sourceSystem, docType } = res || {};
         [this.props.deductibleTableDS, this.props.verifiedTableDS].forEach(item => {
           const { queryDataSet } = item;
           if (queryDataSet && queryDataSet.current) {
+            console.log('sourceSystem', sourceSystem, docType);
+
             queryDataSet.current.set({
               entryAccountState: accountStatus,
               invoiceType,
+              systemCodeObj: null,
+              documentTypeCodeObj: null,
               systemCode: sourceSystem,
               documentTypeCode: docType,
             });
@@ -180,6 +184,8 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
             queryDataSet.current.set({
               entryAccountStates: accountStatus,
               invoiceTypes: invoiceType,
+              systemCodeObj: null,
+              documentTypeCodeObj: null,
               systemCodes: sourceSystem,
               documentTypeCodes: docType,
             });
@@ -273,12 +279,12 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
       default:
         break;
     }
-    let queryData = {};
+    let queryData: any = {};
     switch (this.state.activeKey) {
-      case ActiveKey.deductTable:
+      case ActiveKey.deductibleTable:
         queryData = this.props.deductibleTableDS.queryDataSet?.current?.toData();
         break;
-      case ActiveKey.deductibleTable:
+      case ActiveKey.verifiedTable:
         queryData = this.props.verifiedTableDS.queryDataSet?.current?.toData();
         break;
       case ActiveKey.notDeductibleTable:
@@ -290,10 +296,11 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
     const { history, deductionStatementHeaderDS } = this.props;
     const headerInfo = deductionStatementHeaderDS.queryDataSet?.current?.toData();
     const { companyObj, ...otheInfo } = headerInfo;
+    const { systemCodeObj, documentTypeCodeObj, ...otherQueryData } = queryData;
     history.push({
       pathname: '/htc-front-ivp/deduction-statement/detail',
       state: {
-        ...queryData,
+        ...otherQueryData,
         ...otheInfo,
         ...otherParms,
         invoiceType: record ? record.get('invoiceType') : null,
@@ -637,7 +644,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
       { name: 'checkDate' },
       { name: 'authenticationDate' },
       { name: 'recordState' },
-      { name: 'fileUrl' },
+      // { name: 'fileUrl' },
     ];
   }
 

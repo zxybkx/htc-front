@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-01-21 15:23:14
- * @LastEditTime: 2022-10-11 15:44:47
+ * @LastEditTime: 2022-10-18 11:04:10
  * @Copyright: Copyright (c) 2020, Hand
  */
 import request from 'utils/request';
@@ -16,9 +16,12 @@ const HIVP_API = commonConfig.IVP_API || '';
  */
 export async function getBusinessTime(params) {
   const { tenantId, ...otherParam } = params;
-  return request(`${HIVP_API}/v1/${tenantId}/invoice-operation-new/business-time-query`, {
+  return request(`${HIVP_API}/v1/${tenantId}/invoice-operation/business-time-query`, {
     method: 'GET',
-    query: otherParam,
+    query: {
+      ...otherParam,
+      taxDiskPassword: '88888888',
+    },
   });
 }
 /**

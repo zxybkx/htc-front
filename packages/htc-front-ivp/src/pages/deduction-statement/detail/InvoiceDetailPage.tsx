@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-11 15:44:16
+ * @LastEditTime: 2022-10-18 11:03:57
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -101,7 +101,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
       { name: 'checkDate' },
       { name: 'authenticationDate' },
       { name: 'recordState' },
-      { name: 'fileUrl' },
+      // { name: 'fileUrl' },
     ];
   }
 
