@@ -121,7 +121,7 @@ export default (): DataSetProps => {
         type: FieldType.object,
         lovCode: 'HPFM.TENANT',
         ignore: FieldIgnore.always,
-        required: true,
+        // required: true,
       },
       {
         name: 'tenantId',
@@ -170,6 +170,12 @@ export default (): DataSetProps => {
         name: 'responseJson',
         label: intl.get(`${modelCode}.view.responseJson`).d('响应报文'),
         type: FieldType.string,
+      },
+      {
+        name: 'successFlag',
+        label: intl.get(`${modelCode}.view.successFlag`).d('是否成功'),
+        type: FieldType.string,
+        lookupCode: 'HIOT.SUCCESS_FLAG',
       },
     ],
   };
