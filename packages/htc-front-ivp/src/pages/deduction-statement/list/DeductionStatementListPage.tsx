@@ -3,14 +3,14 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-18 10:58:49
+ * @LastEditTime: 2022-10-18 17:21:12
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
 import { Bind } from 'lodash-decorators';
 import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
-import { DataSet, Form, Lov, TextField, Table, Tabs } from 'choerodon-ui/pro';
+import { DataSet, Form, Lov, TextField, Table, Tabs, Spin } from 'choerodon-ui/pro';
 import { Content, Header } from 'components/Page';
 import { Col, Row } from 'choerodon-ui';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
@@ -103,6 +103,7 @@ enum DetilType {
 export default class CheckRuleListPage extends Component<DeductionStatementListPageProps> {
   state = {
     activeKey: ActiveKey.deductibleTable,
+    initLoading: false,
   };
 
   checkRuleDS = new DataSet({
@@ -119,7 +120,10 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         activeKey: location.query.activeKey,
       });
     } else {
-      const res = await getCurrentEmployeeInfoOut({ tenantId });
+      this.setState({
+        initLoading: true,
+      });
+      const res = getResponse(await getCurrentEmployeeInfoOut({ tenantId }));
       if (res && res.content) {
         const empInfo = res.content[0];
         this.handleChangeCompanyCallBack(empInfo);
@@ -129,6 +133,9 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
 
   @Bind()
   async handleCompanyChange(value) {
+    this.setState({
+      initLoading: true,
+    });
     this.handleChangeCompanyCallBack(value);
   }
 
@@ -151,14 +158,10 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
   }
 
   @Bind()
-  handleSetDefaultConfig(timeRes, empInfo) {
-    const { currentPeriod, currentOperationalDeadline, checkableTimeRange } = timeRes;
+  handleSetDefaultConfig(empInfo) {
     const { queryDataSet: checkRuleDSqueryDataSet } = this.checkRuleDS;
     if (checkRuleDSqueryDataSet && checkRuleDSqueryDataSet.current) {
       checkRuleDSqueryDataSet.current.set({
-        currentPeriod,
-        currentOperationalDeadline,
-        checkableTimeRange,
         companyObj: empInfo,
       });
       this.checkRuleDS.query().then(res => {
@@ -166,8 +169,6 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         [this.props.deductibleTableDS, this.props.verifiedTableDS].forEach(item => {
           const { queryDataSet } = item;
           if (queryDataSet && queryDataSet.current) {
-            console.log('sourceSystem', sourceSystem, docType);
-
             queryDataSet.current.set({
               entryAccountState: accountStatus,
               invoiceType,
@@ -191,6 +192,9 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
             });
           }
         });
+        this.setState({
+          initLoading: false,
+        });
       });
     }
   }
@@ -202,6 +206,9 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
     localStorage.setItem('certifiedCompanyId', companyId);
     if (queryDataSet && queryDataSet.current) {
       queryDataSet.current.set({ companyObj: empInfo });
+    }
+    if (empInfo) {
+      this.handleSetDefaultConfig(empInfo);
     }
     const timeRes = getResponse(
       await getBusinessTime({
@@ -228,9 +235,6 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
       ].forEach(item => {
         this.handleSetCommonRes(item, timeRes, empInfo);
       });
-    }
-    if (timeRes && empInfo) {
-      this.handleSetDefaultConfig(timeRes, empInfo);
     }
   }
 
@@ -649,7 +653,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
   }
 
   render() {
-    const { activeKey } = this.state;
+    const { activeKey, initLoading } = this.state;
     const {
       deductionStatementHeaderDS,
       deductibleTableDS,
@@ -667,63 +671,69 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
             queryParams={() => this.exportParams()}
           />
         </Header>
-        <Content style={{ paddingBottom: '60px' }}>
-          <Row type="flex">
-            <Col span={20}>
-              <Form dataSet={queryDataSet} columns={3}>
-                <Lov dataSet={queryDataSet} name="companyObj" onChange={this.handleCompanyChange} />
-                <TextField name="employeeDesc" />
-                <TextField name="currentPeriod" />
-                <TextField name="currentOperationalDeadline" />
-                <TextField name="checkableTimeRange" />
-                {/* <TextField name="taxpayerNumber" /> */}
-              </Form>
-            </Col>
-          </Row>
+        <Spin spinning={initLoading}>
+          <Content style={{ paddingBottom: '60px' }}>
+            <Row type="flex">
+              <Col span={20}>
+                <Form dataSet={queryDataSet} columns={3}>
+                  <Lov
+                    dataSet={queryDataSet}
+                    name="companyObj"
+                    onChange={this.handleCompanyChange}
+                  />
+                  <TextField name="employeeDesc" />
+                  <TextField name="currentPeriod" />
+                  <TextField name="currentOperationalDeadline" />
+                  <TextField name="checkableTimeRange" />
+                  {/* <TextField name="taxpayerNumber" /> */}
+                </Form>
+              </Col>
+            </Row>
 
-          <Tabs activeKey={activeKey} onChange={this.handleTabChange}>
-            <TabPane
-              tab={intl.get(`${modelCode}.tabPane.certifiableInvoiceTitle`).d('可抵扣发票统计')}
-              key={deductibleTable}
-            >
-              <Table
-                dataSet={deductibleTableDS}
-                columns={this.deductibleTableColumns}
-                style={{ height: 320 }}
-              />
-            </TabPane>
-            <TabPane
-              tab={intl.get(`${modelCode}.tabPane.certifiableInvoiceTitle`).d('已认证发票统计')}
-              key={verifiedTable}
-            >
-              <Table
-                dataSet={verifiedTableDS}
-                columns={this.verifiedTableColumns}
-                style={{ height: 320 }}
-              />
-            </TabPane>
-            <TabPane
-              tab={intl.get(`${modelCode}.tabPane.certifiableInvoiceTitle`).d('不抵扣发票统计')}
-              key={notDeductibleTable}
-            >
-              <Table
-                dataSet={notDeductibleTableDS}
-                columns={this.notDeductibleTableColumns}
-                style={{ height: 320 }}
-              />
-            </TabPane>
-            <TabPane
-              tab={intl.get(`${modelCode}.tabPane.certifiableInvoiceTitle`).d('抵扣报表明细')}
-              key={deductTable}
-            >
-              <Table
-                dataSet={deductTableDS}
-                columns={this.deductTableColumns}
-                style={{ height: 450 }}
-              />
-            </TabPane>
-          </Tabs>
-        </Content>
+            <Tabs activeKey={activeKey} onChange={this.handleTabChange}>
+              <TabPane
+                tab={intl.get(`${modelCode}.tabPane.certifiableInvoiceTitle`).d('可抵扣发票统计')}
+                key={deductibleTable}
+              >
+                <Table
+                  dataSet={deductibleTableDS}
+                  columns={this.deductibleTableColumns}
+                  style={{ height: 320 }}
+                />
+              </TabPane>
+              <TabPane
+                tab={intl.get(`${modelCode}.tabPane.certifiableInvoiceTitle`).d('已认证发票统计')}
+                key={verifiedTable}
+              >
+                <Table
+                  dataSet={verifiedTableDS}
+                  columns={this.verifiedTableColumns}
+                  style={{ height: 320 }}
+                />
+              </TabPane>
+              <TabPane
+                tab={intl.get(`${modelCode}.tabPane.certifiableInvoiceTitle`).d('不抵扣发票统计')}
+                key={notDeductibleTable}
+              >
+                <Table
+                  dataSet={notDeductibleTableDS}
+                  columns={this.notDeductibleTableColumns}
+                  style={{ height: 320 }}
+                />
+              </TabPane>
+              <TabPane
+                tab={intl.get(`${modelCode}.tabPane.certifiableInvoiceTitle`).d('抵扣报表明细')}
+                key={deductTable}
+              >
+                <Table
+                  dataSet={deductTableDS}
+                  columns={this.deductTableColumns}
+                  style={{ height: 450 }}
+                />
+              </TabPane>
+            </Tabs>
+          </Content>
+        </Spin>
       </>
     );
   }
