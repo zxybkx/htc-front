@@ -735,7 +735,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
           columns={statisticalConfirmColumns}
           buttons={statisticalButtons}
           queryBar={renderQueryBar}
-          style={{ height: 300 }}
+          style={{ height: 280 }}
         />
       )}
       {statisticalDetailDS && (
