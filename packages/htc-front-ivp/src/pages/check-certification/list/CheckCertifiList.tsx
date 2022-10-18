@@ -473,7 +473,7 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
                   />
                 </TabPane>
                 <TabPane
-                  tab={intl.get(`${modelCode}.tabPane.batchInvoice`).d('批量勾选可认证发票')}
+                  tab={intl.get(`${modelCode}.tabPane.batchInvoice`).d('批量勾选发票')}
                   key="batchInvoice"
                 >
                   <BatchCheckVerifiableInvoicesTable
