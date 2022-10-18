@@ -2,7 +2,7 @@
  * @Description: 进项发票规则维护
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-10-09 14:51:37
- * @LastEditTime: 2022-10-11 13:46:29
+ * @LastEditTime: 2022-10-18 17:15:58
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -14,7 +14,7 @@ import { Button, DataSet, Form, Lov, Spin, TextField } from 'choerodon-ui/pro';
 import { Content, Header } from 'components/Page';
 import { Col, Row } from 'choerodon-ui';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
-import { getCurrentOrganizationId } from 'utils/utils';
+import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { getCurrentEmployeeInfoOut } from '@htccommon/services/commonService';
 import { getBusinessTime } from '@src/services/checkAuthenticationService';
 import notification from 'utils/notification';
@@ -68,13 +68,16 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
         employeeNum: empInfo.employeeNum,
       });
     }
-    const timeRes = await getBusinessTime({
-      tenantId,
-      companyCode,
-      companyId,
-      employeeId,
-      employeeNumber,
-    });
+    this.loadData(empInfo);
+    const timeRes = getResponse(
+      await getBusinessTime({
+        tenantId,
+        companyCode,
+        companyId,
+        employeeId,
+        employeeNumber,
+      })
+    );
 
     if (queryDataSet && queryDataSet.current) {
       queryDataSet.current.set({ companyObj: empInfo });
@@ -85,14 +88,13 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
           checkableTimeRange: timeRes.checkableTimeRange,
         });
       }
-      this.loadData(empInfo);
       this.setState({ curCompanyId: empInfo.companyId });
     }
   }
 
   @Bind()
   async componentDidMount() {
-    const res = await getCurrentEmployeeInfoOut({ tenantId });
+    const res = getResponse(await getCurrentEmployeeInfoOut({ tenantId }));
     if (res && res.content) {
       const empInfo = res.content[0];
       this.handleChangeCompanyCallBack(empInfo);
