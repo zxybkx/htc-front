@@ -171,6 +171,12 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.responseJson`).d('响应报文'),
         type: FieldType.string,
       },
+      {
+        name: 'successFlag',
+        label: intl.get(`${modelCode}.view.successFlag`).d('是否成功'),
+        type: FieldType.string,
+        lookupCode: 'HIOT.SUCCESS_FLAG',
+      },
     ],
   };
 };
