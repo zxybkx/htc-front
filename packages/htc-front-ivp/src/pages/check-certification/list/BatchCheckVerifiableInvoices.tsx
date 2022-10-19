@@ -722,7 +722,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       const files = [
         {
           data: res,
-          fileName: '发票抵扣勾选导入模版.xlsx',
+          fileName: '发票抵扣勾选导入模版.xls',
         },
       ];
       downLoadFiles(files, 1);
