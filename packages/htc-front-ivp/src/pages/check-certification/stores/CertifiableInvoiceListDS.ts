@@ -493,9 +493,9 @@ export default (): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
-          name: 'documentTypeCode',
+          name: 'docTypeLineId',
           type: FieldType.string,
-          bind: 'documentTypeCodeObj.documentTypeCode',
+          bind: 'documentTypeCodeObj.docTypeLineId',
         },
         {
           name: 'docTypeHeaderId',
@@ -511,7 +511,10 @@ export default (): DataSetProps => {
           multiple: ',',
           computedProps: {
             lovPara: ({ record }) => {
-              return { docTypeHeaderId: record.get('docTypeHeaderId').join(',') };
+              return {
+                docTypeHeaderId: record.get('docTypeHeaderId').join(','),
+                docTypeLineId: record.get('docTypeLineId').join(','),
+              };
             },
             disabled: ({ record }) => {
               return !record.get('docTypeHeaderId').length;
