@@ -79,7 +79,7 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
-        name: 'employeeNumber',
+        name: 'employeeName',
         label: intl.get('hiop.redInvoiceInfo.modal.employeeName').d('请求员工'),
         type: FieldType.string,
       },

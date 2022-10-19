@@ -183,6 +183,7 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
       this.batchCheckDetailDS.selected.forEach(record =>
         record.set('reasonsForNonDeduction', reasonsForNonDeduction)
       );
+      this.batchCheckDetailDS.submit();
     }
   }
 
