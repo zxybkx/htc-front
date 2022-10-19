@@ -149,11 +149,17 @@ export default (): DataSetProps => {
         bind: 'systemCodeObj.systemCode',
       },
       {
-        name: 'sysTypeHeaderId',
+        name: 'docTypeHeaderId',
         type: FieldType.string,
         bind: 'systemCodeObj.docTypeHeaderId',
         multiple: ',',
         // ignore: FieldIgnore.always,
+      },
+      {
+        name: 'systemName',
+        type: FieldType.string,
+        bind: 'systemCodeObj.systemName',
+        multiple: ',',
       },
       {
         name: 'documentTypeCodeObj',
@@ -164,10 +170,10 @@ export default (): DataSetProps => {
         // cascadeMap: { docTypeHeaderId: 'sysTypeHeaderId' },
         computedProps: {
           lovPara: ({ record }) => {
-            return { enabledFlag: 1, docTypeHeaderId: record.get('sysTypeHeaderId').join(',') };
+            return { enabledFlag: 1, docTypeHeaderId: record.get('docTypeHeaderId').join(',') };
           },
           disabled: ({ record }) => {
-            if (!record.get('sysTypeHeaderId').length) {
+            if (record.get('docTypeHeaderId')) {
               return true;
             } else {
               return false;
@@ -189,6 +195,12 @@ export default (): DataSetProps => {
         bind: 'documentTypeCodeObj.docTypeLineId',
         multiple: ',',
         // ignore: FieldIgnore.always,
+      },
+      {
+        name: 'documentTypeMeaning',
+        type: FieldType.string,
+        bind: 'documentTypeCodeObj.documentTypeMeaning',
+        multiple: ',',
       },
       {
         name: 'invoiceType',
