@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-18 17:21:12
+ * @LastEditTime: 2022-10-19 10:36:58
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -133,6 +133,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
 
   @Bind()
   async handleCompanyChange(value) {
+    if (!value) return;
     this.setState({
       initLoading: true,
     });
@@ -261,7 +262,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
       case DetilType.numberOfCopiesChecked:
         otherParms = {
           checkState: '1',
-          authenticationType: '1',
+          // authenticationType: '1',
         };
         break;
       case DetilType.certifiedQuantity:
@@ -679,6 +680,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
                   <Lov
                     dataSet={queryDataSet}
                     name="companyObj"
+                    clearButton={false}
                     onChange={this.handleCompanyChange}
                   />
                   <TextField name="employeeDesc" />

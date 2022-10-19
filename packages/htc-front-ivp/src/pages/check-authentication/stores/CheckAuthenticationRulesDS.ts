@@ -152,7 +152,8 @@ export default (): DataSetProps => {
         name: 'sysTypeHeaderId',
         type: FieldType.string,
         bind: 'systemCodeObj.docTypeHeaderId',
-        ignore: FieldIgnore.always,
+        multiple: ',',
+        // ignore: FieldIgnore.always,
       },
       {
         name: 'documentTypeCodeObj',
@@ -183,10 +184,11 @@ export default (): DataSetProps => {
         bind: 'documentTypeCodeObj.documentTypeCode',
       },
       {
-        name: 'docTypeHeaderId',
+        name: 'docTypeLineId',
         type: FieldType.string,
-        bind: 'documentTypeCodeObj.docTypeHeaderId',
-        ignore: FieldIgnore.always,
+        bind: 'documentTypeCodeObj.docTypeLineId',
+        multiple: ',',
+        // ignore: FieldIgnore.always,
       },
       {
         name: 'invoiceType',
