@@ -184,7 +184,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     },
     { name: 'completeTime', width: 160 },
     { name: 'checkConfirmState', width: 150 },
-    { name: 'employeeNumber' },
+    { name: 'employeeName' },
   ];
 
   const BatchBtn = observer((btnProps: any) => {
