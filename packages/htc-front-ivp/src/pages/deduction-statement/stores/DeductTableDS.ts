@@ -188,13 +188,14 @@ export default (): DataSetProps => {
     ],
     queryDataSet: new DataSet({
       events: {
-        // update: ({ record, name, value }) => {
-        //     if (value && name === 'companyObj') {
-        //         const { companyCode, employeeNum, employeeName, mobile } = value;
-        //         const employeeDesc = `${companyCode}-${employeeNum}-${employeeName}-${mobile}`;
-        //         record.set('employeeDesc', employeeDesc);
-        //     }
-        // },
+        update: ({ record, name }) => {
+          if (name === 'systemCodeObj') {
+            record.set({
+              documentTypeCodeObj: '',
+              documentNumberObj: '',
+            });
+          }
+        },
       },
       fields: [
         {
@@ -310,9 +311,10 @@ export default (): DataSetProps => {
           bind: 'documentTypeCodeObj.documentTypeCode',
         },
         {
-          name: 'docTypeHeaderId',
+          name: 'docTypeLineId',
           type: FieldType.string,
-          bind: 'documentTypeCodeObj.docTypeHeaderId',
+          bind: 'documentTypeCodeObj.docTypeLineId',
+          multiple: ',',
           ignore: FieldIgnore.always,
         },
         {
@@ -320,12 +322,17 @@ export default (): DataSetProps => {
           label: intl.get('htc.common.v').d('单据编号'),
           type: FieldType.object,
           lovCode: 'HTC.DOCUMENT_CODE_LOV',
+          multiple: ',',
           computedProps: {
             lovPara: ({ record }) => {
-              return { enabledFlag: 1, docTypeHeaderId: record.get('sysTypeHeaderId').join(',') };
+              return {
+                enabledFlag: 1,
+                docTypeHeaderId: record.get('sysTypeHeaderId').join(','),
+                docTypeLineId: record.get('docTypeLineId').join(','),
+              };
             },
             disabled: ({ record }) => {
-              if (!record.get('documentTypeCodes').length) {
+              if (!record.get('docTypeLineId').length) {
                 return true;
               } else {
                 return false;

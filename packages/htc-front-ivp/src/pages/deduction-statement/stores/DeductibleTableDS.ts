@@ -117,13 +117,13 @@ export default (): DataSetProps => {
     ],
     queryDataSet: new DataSet({
       events: {
-        // update: ({ record, name, value }) => {
-        //     if (value && name === 'companyObj') {
-        //         const { companyCode, employeeNum, employeeName, mobile } = value;
-        //         const employeeDesc = `${companyCode}-${employeeNum}-${employeeName}-${mobile}`;
-        //         record.set('employeeDesc', employeeDesc);
-        //     }
-        // },
+        update: ({ record, name }) => {
+          if (name === 'systemCodeObj') {
+            record.set({
+              documentTypeCodeObj: '',
+            });
+          }
+        },
       },
       fields: [
         {
@@ -209,7 +209,7 @@ export default (): DataSetProps => {
               return { enabledFlag: 1, docTypeHeaderId: record.get('sysTypeHeaderId').join(',') };
             },
             disabled: ({ record }) => {
-              if (!record.get('sysTypeHeaderId').length) {
+              if (!record.get('systemCode').length) {
                 return true;
               } else {
                 return false;

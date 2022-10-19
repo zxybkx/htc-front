@@ -2,7 +2,7 @@
  * @Description: 进项发票规则维护
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-10-09 14:51:37
- * @LastEditTime: 2022-10-18 17:15:58
+ * @LastEditTime: 2022-10-19 11:18:37
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -51,22 +51,17 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
   @Bind()
   async handleChangeCompanyCallBack(empInfo) {
     const { companyCode, companyId, employeeId, employeeNum: employeeNumber } = empInfo;
-    const { queryDataSet, current: checkRuleCurrent } = this.checkRuleDS;
+    const { queryDataSet } = this.checkRuleDS;
     const { current } = this.checkRuleManualDS;
     if (current) {
       current.set({
-        companyId: empInfo.companyId,
-        companyCode: empInfo.companyCode,
-        employeeNumber: empInfo.employeeNum,
+        companyId,
+        companyCode,
+        employeeNumber,
       });
     }
-    if (checkRuleCurrent) {
-      checkRuleCurrent.set({
-        companyId: empInfo.companyId,
-        companyName: empInfo.companyName,
-        employeeId: empInfo.employeeId,
-        employeeNum: empInfo.employeeNum,
-      });
+    if (queryDataSet && queryDataSet.current) {
+      queryDataSet.current.set({ companyObj: empInfo });
     }
     this.loadData(empInfo);
     const timeRes = getResponse(
@@ -79,16 +74,13 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
       })
     );
 
-    if (queryDataSet && queryDataSet.current) {
-      queryDataSet.current.set({ companyObj: empInfo });
-      if (timeRes) {
-        queryDataSet.current.set({
-          currentPeriod: timeRes.currentPeriod,
-          currentOperationalDeadline: timeRes.currentOperationalDeadline,
-          checkableTimeRange: timeRes.checkableTimeRange,
-        });
-      }
-      this.setState({ curCompanyId: empInfo.companyId });
+    if (queryDataSet && queryDataSet.current && timeRes) {
+      queryDataSet.current.set({
+        currentPeriod: timeRes.currentPeriod,
+        currentOperationalDeadline: timeRes.currentOperationalDeadline,
+        checkableTimeRange: timeRes.checkableTimeRange,
+      });
+      this.setState({ curCompanyId: companyId });
     }
   }
 
@@ -104,15 +96,6 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
   @Bind()
   loadData(empInfo) {
     this.checkRuleDS.query().then(res => {
-      const { current: checkRuleCurrent } = this.checkRuleDS;
-      if (checkRuleCurrent) {
-        checkRuleCurrent.set({
-          companyId: empInfo.companyId,
-          companyName: empInfo.companyName,
-          employeeId: empInfo.employeeId,
-          employeeNum: empInfo.employeeNum,
-        });
-      }
       if (!res) {
         this.checkRuleDS.create(
           {
@@ -183,6 +166,7 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
                 <Lov
                   dataSet={this.checkRuleDS.queryDataSet}
                   name="companyObj"
+                  clearButton={false}
                   onChange={this.handleCompanyChange}
                 />
                 <TextField name="employeeDesc" />
