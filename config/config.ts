@@ -47,7 +47,7 @@ export default {
             MULTIPLE_SKIN_ENABLE: 'true', // UED配置是否启用，true / false
         },
     },
-  hzeroUed: {},
+    hzeroUed: {},
     manifest: {
         basePath: '/',
     },
@@ -55,7 +55,7 @@ export default {
         '@hzerojs/preset-hzero',
     ],
     plugins: [
-      'hzero-front',
+        'hzero-front',
     ],
     alias: {
         'components': 'hzero-front/lib/components',
@@ -139,9 +139,9 @@ export default {
             {
                 'name': 'hzero-front-hwfp',
             },
-          {
-            'name': 'hzero-front-cusz',
-          },
+            {
+                'name': 'hzero-front-cusz',
+            },
             {
                 "name": "htc-front-iop",
             },
