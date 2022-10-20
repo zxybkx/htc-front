@@ -226,7 +226,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     { name: 'entryAccountState' },
     { name: 'entryAccountDate' },
     { name: 'receiptsState', width: 130 },
-    { name: 'sourceSystem' },
+    { name: 'systemName' },
     { name: 'documentTypeMeaning' },
     { name: 'documentRemark' },
     { name: 'checkDate', width: 130 },
