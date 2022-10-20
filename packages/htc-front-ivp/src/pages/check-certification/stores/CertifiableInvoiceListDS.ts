@@ -273,7 +273,7 @@ export default (): DataSetProps => {
         lookupCode: 'HIVP.INTERFACE_DOCS_STATE',
       },
       {
-        name: 'sourceSystem',
+        name: 'systemName',
         label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
         type: FieldType.string,
       },

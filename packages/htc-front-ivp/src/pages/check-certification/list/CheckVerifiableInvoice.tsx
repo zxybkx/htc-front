@@ -226,7 +226,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     { name: 'entryAccountState' },
     { name: 'entryAccountDate' },
     { name: 'receiptsState', width: 130 },
-    { name: 'sourceSystem' },
+    { name: 'systemName' },
     { name: 'documentTypeMeaning' },
     { name: 'documentRemark' },
     { name: 'checkDate', width: 130 },
@@ -403,9 +403,9 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       startRow,
       contentRows,
     });
-    const _progressValue = progressValue + 100 / (totalRequest + 2);
+    const _progressValue = (progressValue + 100 / (totalRequest + 2)).toFixed(2);
     setCount(count + 1);
-    setProgressValue(_progressValue);
+    setProgressValue(Number(_progressValue));
     if (counts < totalRequest - 2) {
       await loopRequest(totalRequest, startrow, contentrows, findParams, count);
     }
@@ -472,7 +472,8 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         i += res.totalRequest;
         await loopRequest(res.totalRequest, res.startRow, res.contentRows, findParams, count);
       }
-      setProgressValue(progressValue + 100 / i);
+      const _progressValue = (progressValue + 100 / i).toFixed(2);
+      setProgressValue(Number(_progressValue));
       setProgressStatus(ProgressStatus.success);
       setProgressValue(100);
       setVisible(false);
