@@ -456,8 +456,8 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       } else {
         set(findParams, 'rzzt', '0');
       }
-      const res = getResponse(await findVerifiableInvoice(findParams));
-      if (res) {
+      const res = await findVerifiableInvoice(findParams);
+      if (res && res.failed) {
         notification.error({
           description: '',
           message: res.message,
