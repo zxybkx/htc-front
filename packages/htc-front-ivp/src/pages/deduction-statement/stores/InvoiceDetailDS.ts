@@ -132,17 +132,17 @@ export default (): DataSetProps => {
         lookupCode: 'HIVP.INTERFACE_DOCS_STATE',
       },
       {
-        name: 'systemCode',
+        name: 'systemName',
         label: intl.get('hivp.checkRule').d('来源系统'),
         type: FieldType.string,
       },
       {
-        name: 'documentTypeCode',
+        name: 'documentTypeMeaning',
         label: intl.get('hivp.checkRule').d('单据类型'),
         type: FieldType.string,
       },
       {
-        name: 'documentNumber',
+        name: 'documentRemark',
         label: intl.get('hivp.checkRule').d('单据编号'),
         type: FieldType.string,
       },

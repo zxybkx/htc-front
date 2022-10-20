@@ -59,7 +59,6 @@ export default (): DataSetProps => {
             }
           },
           disabled: ({ record }) => {
-            console.log(record.get('certificationStatus'));
             if (record.get('checkStatus') === '1' || !!record.get('certificationStatus')) {
               return true;
             } else {

@@ -153,9 +153,17 @@ export default (): DataSetProps => {
           bind: 'systemCodeObj.systemCode',
         },
         {
-          name: 'sysTypeHeaderId',
+          name: 'docTypeHeaderId',
           type: FieldType.string,
           bind: 'systemCodeObj.docTypeHeaderId',
+          multiple: ',',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'systemName',
+          type: FieldType.string,
+          bind: 'systemCodeObj.systemName',
+          multiple: ',',
           ignore: FieldIgnore.always,
         },
         {
@@ -167,13 +175,13 @@ export default (): DataSetProps => {
           // cascadeMap: { docTypeHeaderId: 'sysTypeHeaderId' },
           computedProps: {
             lovPara: ({ record }) => {
-              return { enabledFlag: 1, docTypeHeaderId: record.get('sysTypeHeaderId').join(',') };
+              return { enabledFlag: 1, docTypeHeaderId: record.get('docTypeHeaderId').join(',') };
             },
             disabled: ({ record }) => {
-              if (!record.get('systemCode').length) {
-                return true;
-              } else {
+              if (record.get('docTypeHeaderId').length) {
                 return false;
+              } else {
+                return true;
               }
             },
           },
@@ -187,9 +195,17 @@ export default (): DataSetProps => {
           bind: 'documentTypeCodeObj.documentTypeCode',
         },
         {
-          name: 'docTypeHeaderId',
+          name: 'docTypeLineId',
           type: FieldType.string,
-          bind: 'documentTypeCodeObj.docTypeHeaderId',
+          multiple: ',',
+          bind: 'documentTypeCodeObj.docTypeLineId',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentTypeMeaning',
+          type: FieldType.string,
+          multiple: ',',
+          bind: 'documentTypeCodeObj.documentTypeMeaning',
           ignore: FieldIgnore.always,
         },
         {
