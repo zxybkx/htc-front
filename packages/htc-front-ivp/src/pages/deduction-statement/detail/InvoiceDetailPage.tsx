@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-20 13:45:20
+ * @LastEditTime: 2022-10-20 18:19:35
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -77,32 +77,58 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
   }
 
   get invoiceDetailTableColumns(): ColumnProps[] {
-    return [
-      { name: 'invoiceType', width: 200 },
-      { name: 'invoiceCode' },
-      { name: 'invoiceNo' },
-      { name: 'invoiceDate' },
-      { name: 'salerName' },
-      { name: 'salerTaxNo', width: 140 },
-      { name: 'invoiceAmount' },
-      { name: 'taxAmount' },
-      { name: 'validTaxAmount' },
-      { name: 'invoiceState' },
-      { name: 'checkState' },
-      { name: 'authenticationType' },
-      { name: 'reasonsForNonDeduction' },
-      { name: 'isPoolFlag' },
-      { name: 'entryAccountState' },
-      { name: 'receiptsState', width: 140 },
-      { name: 'systemName' },
-      { name: 'documentTypeMeaning' },
-      { name: 'documentRemark' },
-      { name: 'authenticationState' },
-      { name: 'checkDate' },
-      { name: 'authenticationDate' },
-      { name: 'recordState' },
-      // { name: 'fileUrl' },
-    ];
+    return this.props?.location.state.activeKey === ActiveKey.notDeductibleTable
+      ? [
+          { name: 'invoiceType', width: 200 },
+          { name: 'invoiceCode' },
+          { name: 'invoiceNo' },
+          { name: 'invoiceDate' },
+          { name: 'salerName' },
+          { name: 'salerTaxNo', width: 140 },
+          { name: 'invoiceAmount' },
+          { name: 'taxAmount' },
+          { name: 'validTaxAmount' },
+          { name: 'invoiceState' },
+          { name: 'checkState' },
+          { name: 'authenticationType' },
+          { name: 'reasonsForNonDeduction' },
+          { name: 'isPoolFlag' },
+          { name: 'entryAccountState' },
+          { name: 'receiptsState', width: 140 },
+          { name: 'systemName' },
+          { name: 'documentTypeMeaning' },
+          { name: 'documentNumber' },
+          { name: 'authenticationState' },
+          { name: 'checkDate' },
+          { name: 'authenticationDate' },
+          { name: 'recordState' },
+          // { name: 'fileUrl' },
+        ]
+      : [
+          { name: 'invoiceType', width: 200 },
+          { name: 'invoiceCode' },
+          { name: 'invoiceNo' },
+          { name: 'invoiceDate' },
+          { name: 'salerName' },
+          { name: 'salerTaxNo', width: 140 },
+          { name: 'invoiceAmount' },
+          { name: 'taxAmount' },
+          { name: 'validTaxAmount' },
+          { name: 'invoiceState' },
+          { name: 'checkState' },
+          { name: 'authenticationType' },
+          // { name: 'reasonsForNonDeduction' },
+          { name: 'isPoolFlag' },
+          { name: 'entryAccountState' },
+          { name: 'receiptsState', width: 140 },
+          { name: 'systemName' },
+          { name: 'documentTypeMeaning' },
+          { name: 'documentRemark' },
+          { name: 'authenticationState' },
+          { name: 'checkDate' },
+          { name: 'authenticationDate' },
+          { name: 'recordState' },
+        ];
   }
 
   @Bind()
