@@ -52,7 +52,6 @@ export default (): DataSetProps => {
         name: 'invoiceType',
         label: intl.get('hivp.checkRule').d('发票类型'),
         type: FieldType.string,
-        multiple: ',',
         lookupCode: 'HIVP.INVOICE_TYPE',
       },
       {
@@ -138,17 +137,17 @@ export default (): DataSetProps => {
         lookupCode: 'HIVP.INTERFACE_DOCS_STATE',
       },
       {
-        name: 'systemCode',
+        name: 'systemName',
         label: intl.get('hivp.checkRule').d('来源系统'),
         type: FieldType.string,
       },
       {
-        name: 'documentTypeCode',
+        name: 'documentTypeMeaning',
         label: intl.get('hivp.checkRule').d('单据类型'),
         type: FieldType.string,
       },
       {
-        name: 'documentNumber',
+        name: 'documentRemark',
         label: intl.get('hivp.checkRule').d('单据编号'),
         type: FieldType.string,
       },
@@ -278,9 +277,17 @@ export default (): DataSetProps => {
           bind: 'systemCodeObj.systemCode',
         },
         {
-          name: 'sysTypeHeaderId',
+          name: 'docTypeHeaderId',
           type: FieldType.string,
           bind: 'systemCodeObj.docTypeHeaderId',
+          multiple: ',',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'systemName',
+          type: FieldType.string,
+          bind: 'systemCodeObj.systemName',
+          multiple: ',',
           ignore: FieldIgnore.always,
         },
         {
@@ -291,13 +298,13 @@ export default (): DataSetProps => {
           // cascadeMap: { docTypeHeaderId: 'sysTypeHeaderId' },
           computedProps: {
             lovPara: ({ record }) => {
-              return { enabledFlag: 1, docTypeHeaderId: record.get('sysTypeHeaderId').join(',') };
+              return { enabledFlag: 1, docTypeHeaderId: record.get('docTypeHeaderId').join(',') };
             },
             disabled: ({ record }) => {
-              if (!record.get('sysTypeHeaderId').length) {
-                return true;
-              } else {
+              if (record.get('docTypeHeaderId').length) {
                 return false;
+              } else {
+                return true;
               }
             },
           },
@@ -313,8 +320,15 @@ export default (): DataSetProps => {
         {
           name: 'docTypeLineId',
           type: FieldType.string,
-          bind: 'documentTypeCodeObj.docTypeLineId',
           multiple: ',',
+          bind: 'documentTypeCodeObj.docTypeLineId',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentTypeMeaning',
+          type: FieldType.string,
+          multiple: ',',
+          bind: 'documentTypeCodeObj.documentTypeMeaning',
           ignore: FieldIgnore.always,
         },
         {
@@ -327,15 +341,15 @@ export default (): DataSetProps => {
             lovPara: ({ record }) => {
               return {
                 enabledFlag: 1,
-                docTypeHeaderId: record.get('sysTypeHeaderId').join(','),
+                docTypeHeaderId: record.get('docTypeHeaderId').join(','),
                 docTypeLineId: record.get('docTypeLineId').join(','),
               };
             },
             disabled: ({ record }) => {
-              if (!record.get('docTypeLineId').length) {
-                return true;
-              } else {
+              if (record.get('docTypeLineId').length) {
                 return false;
+              } else {
+                return true;
               }
             },
           },

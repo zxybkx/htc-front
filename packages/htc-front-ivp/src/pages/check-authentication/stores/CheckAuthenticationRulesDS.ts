@@ -173,10 +173,10 @@ export default (): DataSetProps => {
             return { enabledFlag: 1, docTypeHeaderId: record.get('docTypeHeaderId').join(',') };
           },
           disabled: ({ record }) => {
-            if (record.get('docTypeHeaderId')) {
-              return true;
-            } else {
+            if (record.get('docTypeHeaderId').length) {
               return false;
+            } else {
+              return true;
             }
           },
         },

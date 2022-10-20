@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-19 10:36:58
+ * @LastEditTime: 2022-10-20 11:37:39
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -166,17 +166,30 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         companyObj: empInfo,
       });
       this.checkRuleDS.query().then(res => {
-        const { invoiceType, accountStatus, sourceSystem, docType } = res || {};
+        const {
+          invoiceType,
+          accountStatus,
+          sourceSystem,
+          docType,
+          systemName,
+          documentTypeMeaning,
+          docTypeHeaderId,
+          docTypeLineId,
+        } = res || {};
         [this.props.deductibleTableDS, this.props.verifiedTableDS].forEach(item => {
           const { queryDataSet } = item;
           if (queryDataSet && queryDataSet.current) {
             queryDataSet.current.set({
               entryAccountState: accountStatus,
               invoiceType,
-              systemCodeObj: null,
-              documentTypeCodeObj: null,
+              // systemCodeObj: null,
+              // documentTypeCodeObj: null,
               systemCode: sourceSystem,
               documentTypeCode: docType,
+              systemName,
+              documentTypeMeaning,
+              docTypeHeaderId,
+              docTypeLineId,
             });
           }
         });
@@ -186,10 +199,14 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
             queryDataSet.current.set({
               entryAccountStates: accountStatus,
               invoiceTypes: invoiceType,
-              systemCodeObj: null,
-              documentTypeCodeObj: null,
+              // systemCodeObj: null,
+              // documentTypeCodeObj: null,
               systemCodes: sourceSystem,
               documentTypeCodes: docType,
+              systemName,
+              documentTypeMeaning,
+              docTypeHeaderId,
+              docTypeLineId,
             });
           }
         });
@@ -626,7 +643,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
 
   get deductTableColumns(): ColumnProps[] {
     return [
-      { name: 'invoiceType' },
+      { name: 'invoiceType', width: 200 },
       { name: 'invoiceCode' },
       { name: 'invoiceNo' },
       { name: 'invoiceDate' },
@@ -642,9 +659,9 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
       { name: 'isPoolFlag' },
       { name: 'entryAccountState' },
       { name: 'receiptsState', width: 140 },
-      { name: 'systemCode' },
-      { name: 'documentTypeCode' },
-      { name: 'documentNumber' },
+      { name: 'systemName' },
+      { name: 'documentTypeMeaning' },
+      { name: 'documentRemark' },
       { name: 'authenticationState' },
       { name: 'checkDate' },
       { name: 'authenticationDate' },

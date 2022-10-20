@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-18 11:03:57
+ * @LastEditTime: 2022-10-20 13:45:20
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -94,9 +94,9 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
       { name: 'isPoolFlag' },
       { name: 'entryAccountState' },
       { name: 'receiptsState', width: 140 },
-      { name: 'systemCode' },
-      { name: 'documentTypeCode' },
-      { name: 'documentNumber' },
+      { name: 'systemName' },
+      { name: 'documentTypeMeaning' },
+      { name: 'documentRemark' },
       { name: 'authenticationState' },
       { name: 'checkDate' },
       { name: 'authenticationDate' },
