@@ -46,7 +46,6 @@ export default (): DataSetProps => {
         name: 'invoiceType',
         label: intl.get('hivp.checkRule').d('发票类型'),
         type: FieldType.string,
-        multiple: ',',
         lookupCode: 'HIVP.INVOICE_TYPE',
       },
       {
@@ -109,7 +108,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'reasonsForNonDeduction',
-        label: intl.get('hivp.checkRule').d('不抵扣类型'),
+        label: intl.get('hivp.checkRule').d('不抵扣原因'),
         type: FieldType.string,
         lookupCode: 'NO_DEDUCT_REASON',
       },
@@ -147,6 +146,11 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
+        name: 'documentNumber',
+        label: intl.get('hivp.checkRule').d('单据编号'),
+        type: FieldType.string,
+      },
+      {
         name: 'authenticationState',
         label: intl.get('hivp.checkRule').d('认证状态'),
         type: FieldType.string,
@@ -160,7 +164,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'authenticationDate',
-        label: intl.get('hivp.checkRule').d('认证日期'),
+        label: intl.get('hivp.checkRule').d('认证所属期'),
         type: FieldType.string,
       },
       {

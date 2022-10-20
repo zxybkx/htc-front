@@ -81,7 +81,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'checkedInvoiceTotalTaxAmountInPool',
-        label: intl.get('hivp.checkRule').d('在池已勾选发票金额总计'),
+        label: intl.get('hivp.checkRule').d('在池已勾选发票有效税额总计'),
         type: FieldType.string,
       },
     ],
