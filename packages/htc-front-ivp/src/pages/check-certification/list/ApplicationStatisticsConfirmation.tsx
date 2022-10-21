@@ -39,7 +39,7 @@ import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import queryString from 'query-string';
 import { observer } from 'mobx-react-lite';
-import moment from 'moment';
+// import moment from 'moment';
 import { Col, Icon, Row, Tag } from 'choerodon-ui';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
@@ -439,8 +439,9 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     } = empInfo;
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
     const invoiceDateFrom = record.get('invoiceDateFrom');
+    const _currentPeriod = record.get('currentPeriod');
     const invoiceDateTo = record.get('invoiceDateTo');
-    if (!invoiceDateFrom || !invoiceDateTo) {
+    if (!invoiceDateFrom || !invoiceDateTo || !_currentPeriod) {
       return notification.error({
         description: '',
         message: intl.get('hzero.common.notification.invalid').d('数据校验不通过！'),
@@ -454,7 +455,6 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
       const currentCertState = queryDataSet?.current?.get('currentCertState');
-      const currentPeriod = queryDataSet?.current?.get('currentPeriod');
       const invoiceDateFromStr = invoiceDateFrom.format(DEFAULT_DATE_FORMAT);
       const invoiceDateToStr = invoiceDateTo.format(DEFAULT_DATE_FORMAT);
       history.push({
@@ -462,7 +462,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         search: queryString.stringify({
           statisticalConfirmInfo: encodeURIComponent(
             JSON.stringify({
-              currentPeriod,
+              currentPeriod: _currentPeriod,
               currentCertState,
               companyId,
               companyCode,
@@ -485,15 +485,17 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   const statisticsModal = type => {
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
+      const { companyId } = empInfo;
       const currentPeriod = queryDataSet?.current?.get('currentPeriod');
-      const invoiceDateFrom = moment(currentPeriod).startOf('month');
-      const invoiceDateTo = moment(currentPeriod).endOf('month');
-      const record = timeRangeDS.create({ invoiceDateFrom, invoiceDateTo }, 0);
+      // const invoiceDateFrom = moment(currentPeriod).startOf('month');
+      // const invoiceDateTo = moment(currentPeriod).endOf('month');
+      const record = timeRangeDS.create({ companyId, authenticationDateObj: { currentPeriod } }, 0);
       const modal = ModalPro.open({
         title: intl.get(`${modelCode}.view.invoiceDateRange`).d('选择时间范围'),
         closable: true,
         children: (
           <Form record={record}>
+            <Lov name="authenticationDateObj" />
             <DatePicker name="invoiceDateFrom" />
             <DatePicker name="invoiceDateTo" />
           </Form>
