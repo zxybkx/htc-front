@@ -150,7 +150,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
     if (statisticalConfirmInfoStr) {
       const statisticalConfirmInfo = JSON.parse(decodeURIComponent(statisticalConfirmInfoStr));
       const {
-        statisticalPeriod,
+        currentPeriod,
         companyId,
         companyCode,
         companyName,
@@ -169,8 +169,8 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
         employeeId,
         employeeNumber: employeeNum,
         nsrsbh: taxpayerNumber,
-        ssq: statisticalPeriod,
-        tjyf: statisticalPeriod,
+        ssq: currentPeriod,
+        tjyf: currentPeriod,
         spmm: taxDiskPassword,
         rqq: invoiceDateFromStr,
         rqz: invoiceDateToStr,

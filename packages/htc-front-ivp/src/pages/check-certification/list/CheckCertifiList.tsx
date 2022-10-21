@@ -171,6 +171,7 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
         }
       }
     }
+    // setActiveKey('certifiableInvoice');
   };
 
   /**
@@ -397,7 +398,12 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
   return (
     <>
       <Header title={intl.get(`${modelCode}.title.CheckCertification`).d('勾选认证')}>
-        <Button onClick={() => updateEnterprise()}>
+        <Button
+          onClick={() => updateEnterprise()}
+          style={{
+            display: ['ZK_IN_CHANNEL_DIGITAL'].includes(empInfo.inChannelCode) ? 'none' : 'inline',
+          }}
+        >
           {intl.get('hivp.taxRefund.button.updateEnterpriseFile').d('更新企业档案')}
         </Button>
         <Button onClick={() => enterpriseFileInit()}>
@@ -483,17 +489,19 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
                     history={history}
                   />
                 </TabPane>
-                <TabPane
-                  tab={intl.get(`${modelCode}.tabPane.noDeductCheck`).d('不抵扣勾选')}
-                  key="noDeductCheck"
-                >
-                  <NotDeductCheck
-                    companyAndPassword={companyAndPassword}
-                    empInfo={empInfo}
-                    currentPeriodData={currentPeriod}
-                    history={history}
-                  />
-                </TabPane>
+                {['ZK_IN_CHANNEL_DIGITAL', 'ZK_IN_CHANNEL'].includes(empInfo.inChannelCode) && (
+                  <TabPane
+                    tab={intl.get(`${modelCode}.tabPane.noDeductCheck`).d('不抵扣勾选')}
+                    key="noDeductCheck"
+                  >
+                    <NotDeductCheck
+                      companyAndPassword={companyAndPassword}
+                      empInfo={empInfo}
+                      currentPeriodData={currentPeriod}
+                      history={history}
+                    />
+                  </TabPane>
+                )}
               </Tabs>
             </CategoryProvider>
           </Content>
