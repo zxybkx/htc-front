@@ -97,19 +97,19 @@ export default (): DataSetProps => {
         },
         {
           name: 'currentPeriod',
-          label: intl.get('hivp.checkRule').d('当前所属期'),
+          label: intl.get('hivp.taxRefund.view.tjyf').d('当前所属期'),
           type: FieldType.string,
           readOnly: true,
         },
         {
           name: 'currentOperationalDeadline',
-          label: intl.get('hivp.checkRule').d('操作截至日期'),
+          label: intl.get('hivp.checkRule.view.currentOperationalDeadline').d('操作截至日期'),
           type: FieldType.string,
           readOnly: true,
         },
         {
           name: 'checkableTimeRange',
-          label: intl.get('hivp.checkRule').d('可勾选时间范围'),
+          label: intl.get('hivp.checkCertification.view.checkableTimeRange').d('可勾选时间范围'),
           type: FieldType.string,
           readOnly: true,
         },

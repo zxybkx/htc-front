@@ -50,38 +50,48 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'invoiceType',
-        label: intl.get('hivp.checkRule').d('发票类型'),
+        label: intl.get('htc.common.view.invoiceType').d('发票类型'),
         type: FieldType.string,
         lookupCode: 'HIVP.INVOICE_TYPE',
       },
       {
         name: 'checkedInvoiceNumber',
-        label: intl.get('hivp.checkRule').d('已勾选份数'),
+        label: intl.get('hivp.deductionStatement.view.numberOfCopiesChecked').d('已勾选份数'),
         type: FieldType.string,
       },
       {
         name: 'checkedInvoiceTotalAmount',
-        label: intl.get('hivp.checkRule').d('已勾选发票金额总计'),
+        label: intl
+          .get('hivp.deductionStatement.view.totalInvoiceAmountChecked')
+          .d('已勾选发票金额总计'),
         type: FieldType.string,
       },
       {
         name: 'checkedInvoiceTotalTaxAmount',
-        label: intl.get('hivp.checkRule').d('已勾选发票有效税额总计'),
+        label: intl
+          .get('hivp.deductionStatement.view.totalValidTaxAmountChecked')
+          .d('已勾选发票有效税额总计'),
         type: FieldType.string,
       },
       {
         name: 'checkedInvoiceNumberInPool',
-        label: intl.get('hivp.checkRule').d('在池已勾选发票份数'),
+        label: intl
+          .get('hivp.deductionStatement.view.checkedInvoiceNumberInPool')
+          .d('在池已勾选发票份数'),
         type: FieldType.string,
       },
       {
         name: 'checkedInvoiceTotalAmountInPool',
-        label: intl.get('hivp.checkRule').d('在池已勾选发票金额总计'),
+        label: intl
+          .get('hivp.deductionStatement.view.checkedInvoiceTotalAmountInPool')
+          .d('在池已勾选发票金额总计'),
         type: FieldType.string,
       },
       {
         name: 'checkedInvoiceTotalTaxAmountInPool',
-        label: intl.get('hivp.checkRule').d('在池已勾选发票有效税额总计'),
+        label: intl
+          .get('hivp.deductionStatement.view.checkedInvoiceTotalTaxAmountInPool')
+          .d('在池已勾选发票有效税额总计'),
         type: FieldType.string,
       },
     ],
@@ -98,7 +108,7 @@ export default (): DataSetProps => {
       fields: [
         {
           name: 'invoiceDate',
-          label: intl.get('htc.common.v').d('开票日期'),
+          label: intl.get('htc.common.view.invoiceDate').d('开票日期'),
           range: ['invoiceDateFrom', 'invoiceDateTo'],
           type: FieldType.date,
           ignore: FieldIgnore.always,
@@ -117,7 +127,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'checkDate',
-          label: intl.get('htc.common.v').d('勾选日期'),
+          label: intl.get('hivp.checkCertification.view.checkDate').d('勾选日期'),
           range: ['checkDateFrom', 'checkDateTo'],
           type: FieldType.date,
           ignore: FieldIgnore.always,
@@ -136,7 +146,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'entryAccountDate',
-          label: intl.get('htc.common.v').d('入账日期'),
+          label: intl.get('hivp.bill.view.entryAccountDate').d('入账日期'),
           range: ['entryAccountDateFrom', 'entryAccountDateTo'],
           type: FieldType.date,
           ignore: FieldIgnore.always,
@@ -174,7 +184,7 @@ export default (): DataSetProps => {
         // },
         {
           name: 'salerName',
-          label: intl.get('hivp.checkRule').d('销方纳税人名称'),
+          label: intl.get('htc.common.view.salerName').d('销方名称'),
           type: FieldType.string,
         },
 
@@ -209,7 +219,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'documentTypeCodeObj',
-          label: intl.get('hivp.checkRule.view.documentTypeMeaning').d('单据类型'),
+          label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
           type: FieldType.object,
           lovCode: 'HTC.DOCUMENT_TYPE_LOV',
           disabled: true,
@@ -251,14 +261,14 @@ export default (): DataSetProps => {
         },
         {
           name: 'entryAccountStates',
-          label: intl.get('hivp.checkRule').d('入账状态'),
+          label: intl.get('hivp.bill.view.entryAccountState').d('入账状态'),
           type: FieldType.string,
           multiple: ',',
           lookupCode: 'HIVP.ACCOUNT_STATE',
         },
         {
           name: 'invoiceTypes',
-          label: intl.get('hivp.checkRule').d('发票类型'),
+          label: intl.get('htc.common.view.invoiceType').d('发票类型'),
           type: FieldType.string,
           // defaultValue: ['01'],
           multiple: ',',

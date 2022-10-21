@@ -50,23 +50,27 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'invoiceType',
-        label: intl.get('hivp.checkRule').d('发票类型'),
+        label: intl.get('htc.common.view.invoiceType').d('发票类型'),
         type: FieldType.string,
         lookupCode: 'HIVP.INVOICE_TYPE',
       },
       {
         name: 'certifiedQuantity',
-        label: intl.get('hivp.checkRule').d('已认证份数'),
+        label: intl.get('hivp.deductionStatement.view.certifiedQuantity').d('已认证份数'),
         type: FieldType.string,
       },
       {
         name: 'certifiedTotalAmount',
-        label: intl.get('hivp.checkRule').d('已认证发票金额总计'),
+        label: intl
+          .get('hivp.deductionStatement.view.certifiedTotalAmount')
+          .d('已认证发票金额总计'),
         type: FieldType.string,
       },
       {
         name: 'certifiedTotalValidTaxAmount',
-        label: intl.get('hivp.checkRule').d('已认证发票有效税额总计'),
+        label: intl
+          .get('hivp.deductionStatement.view.certifiedTotalValidTaxAmount')
+          .d('已认证发票有效税额总计'),
         type: FieldType.string,
       },
     ],
@@ -83,7 +87,7 @@ export default (): DataSetProps => {
       fields: [
         {
           name: 'checkDate',
-          label: intl.get('htc.common.v').d('勾选日期'),
+          label: intl.get('hivp.checkCertification.view.checkDate').d('勾选日期'),
           range: ['checkDateFrom', 'checkDateTo'],
           type: FieldType.date,
           ignore: FieldIgnore.always,
@@ -108,7 +112,7 @@ export default (): DataSetProps => {
         // },
         {
           name: 'certifiedQueryMonthObj',
-          label: intl.get('hivp.checkRule').d('认证所属期'),
+          label: intl.get('hivp.checkCertification.view.statisticalPeriod').d('认证所属期'),
           type: FieldType.object,
           lovCode: 'HIVP.BUSINESS_TIME_INFO',
           multiple: ',',
@@ -127,14 +131,14 @@ export default (): DataSetProps => {
         },
         {
           name: 'entryAccountState',
-          label: intl.get('hivp.checkRule').d('入账状态'),
+          label: intl.get('hivp.bill.view.entryAccountState').d('入账状态'),
           type: FieldType.string,
           multiple: ',',
           lookupCode: 'HIVP.ACCOUNT_STATE',
         },
         {
           name: 'salerName',
-          label: intl.get('hivp.checkRule').d('销方纳税人名称'),
+          label: intl.get('htc.common.view.salerName').d('销方名称'),
           type: FieldType.string,
         },
         {
@@ -168,7 +172,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'documentTypeCodeObj',
-          label: intl.get('hivp.checkRule.view.documentTypeMeaning').d('单据类型'),
+          label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
           type: FieldType.object,
           lovCode: 'HTC.DOCUMENT_TYPE_LOV',
           disabled: true,
@@ -210,7 +214,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'invoiceType',
-          label: intl.get('hivp.checkRule').d('发票类型'),
+          label: intl.get('htc.common.view.invoiceType').d('发票类型'),
           type: FieldType.string,
           // defaultValue: ['01'],
           multiple: ',',

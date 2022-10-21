@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-20 18:10:30
+ * @LastEditTime: 2022-10-21 17:03:48
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -59,7 +59,17 @@ enum DetilType {
 }
 
 @formatterCollections({
-  code: ['hivp.deductionStatement', 'htc.common'],
+  code: [
+    'hivp.deductionStatement',
+    'htc.common',
+    'hivp.invoices',
+    'hivp.bill',
+    'hivp.invoicesArchiveUpload',
+    'hivp.checkRule',
+    'hivp.taxRefund',
+    'hivp.checkCertification',
+    'hivp.batchCheck',
+  ],
 })
 @withProps(
   () => {
@@ -362,7 +372,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         name: 'deductibleCopies',
         width: 120,
         help: intl
-          .get('hivp.deductionStatement.title.invoiceRule')
+          .get('hivp.deductionStatement.deductibleTable.hint1')
           .d('截止更新时间从税局获取的可抵扣发票份数，更新时间为手动获取或定时自动获取的最新时间'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
@@ -393,7 +403,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         name: 'deductibleShare',
         width: 120,
         help: intl
-          .get('hivp.deductionStatement.title.invoiceRule')
+          .get('hivp.deductionStatement.deductibleTable.hint2')
           .d('截止更新时间在发票池满足条件的应抵扣发票份数，包含已勾选和未勾选的发票'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
@@ -424,7 +434,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         name: 'numberOfCopiesChecked',
         width: 120,
         help: intl
-          .get('hivp.deductionStatement.title.invoiceRule')
+          .get('hivp.deductionStatement.deductibleTable.hint3')
           .d('截止更新时间满足条件的已抵扣勾选发票份数，不包括不抵扣勾选发票'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
@@ -459,7 +469,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         name: 'numberDeductButNot',
         width: 160,
         help: intl
-          .get('hivp.deductionStatement.title.invoiceRule')
+          .get('hivp.deductionStatement.deductibleTable.hint4')
           .d('截止更新时间满足条件的应抵未抵的发票份数'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
@@ -498,7 +508,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
       {
         name: 'certifiedQuantity',
         help: intl
-          .get('hivp.deductionStatement.title.invoiceRule')
+          .get('hivp.deductionStatement.verifiedTable.hint1')
           .d('截止更新时间条件内获取的税局全量已认证发票份数'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
@@ -535,7 +545,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
       {
         name: 'checkedInvoiceNumber',
         help: intl
-          .get('hivp.deductionStatement.title.invoiceRule')
+          .get('hivp.deductionStatement.notDeductibleTable.hint1')
           .d('截止更新时间满足开票时间和勾选时间范围内获取的税局全量不抵扣发票份数'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
@@ -565,7 +575,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
       {
         name: 'checkedInvoiceNumberInPool',
         help: intl
-          .get('hivp.deductionStatement.title.invoiceRule')
+          .get('hivp.deductionStatement.notDeductibleTable.hint2')
           .d('截止更新时间条件内发票池内不抵扣已勾选的发票'),
         showHelp: ShowHelp.label,
         renderer: ({ record }) => {
@@ -654,6 +664,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
       { name: 'validTaxAmount' },
       { name: 'invoiceState' },
       { name: 'checkState' },
+      { name: 'checkDate' },
       { name: 'authenticationType' },
       { name: 'reasonsForNonDeduction' },
       { name: 'isPoolFlag' },
@@ -663,7 +674,6 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
       { name: 'documentTypeMeaning' },
       { name: 'documentNumber' },
       { name: 'authenticationState' },
-      { name: 'checkDate' },
       { name: 'authenticationDate' },
       { name: 'recordState' },
       // { name: 'fileUrl' },
@@ -683,7 +693,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
     const { deductibleTable, verifiedTable, notDeductibleTable, deductTable } = ActiveKey;
     return (
       <>
-        <Header title={intl.get('hivp.deductionStatement.title.invoiceRule').d('抵扣统计报表')}>
+        <Header title={intl.get('hivp.deductionStatement.view.title').d('抵扣统计报表')}>
           <ExcelExport
             requestUrl={`${API_PREFIX}/v1/${tenantId}/deduction-report/${activeKey}`}
             queryParams={() => this.exportParams()}
@@ -711,7 +721,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
 
             <Tabs activeKey={activeKey} onChange={this.handleTabChange}>
               <TabPane
-                tab={intl.get(`${modelCode}.tabPane.certifiableInvoiceTitle`).d('可抵扣发票统计')}
+                tab={intl.get(`${modelCode}.tabPane.deductibleTable`).d('可抵扣发票统计')}
                 key={deductibleTable}
               >
                 <Table
@@ -721,7 +731,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
                 />
               </TabPane>
               <TabPane
-                tab={intl.get(`${modelCode}.tabPane.certifiableInvoiceTitle`).d('已认证发票统计')}
+                tab={intl.get(`${modelCode}.tabPane.verifiedTable`).d('已认证发票统计')}
                 key={verifiedTable}
               >
                 <Table
@@ -731,7 +741,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
                 />
               </TabPane>
               <TabPane
-                tab={intl.get(`${modelCode}.tabPane.certifiableInvoiceTitle`).d('不抵扣发票统计')}
+                tab={intl.get(`${modelCode}.tabPane.notDeductibleTable`).d('不抵扣发票统计')}
                 key={notDeductibleTable}
               >
                 <Table
@@ -741,7 +751,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
                 />
               </TabPane>
               <TabPane
-                tab={intl.get(`${modelCode}.tabPane.certifiableInvoiceTitle`).d('抵扣报表明细')}
+                tab={intl.get(`${modelCode}.tabPane.deductTable`).d('抵扣报表明细')}
                 key={deductTable}
               >
                 <Table
