@@ -175,6 +175,10 @@ const TimeRange = (): DataSetProps => {
     autoCreate: true,
     fields: [
       {
+        name: 'companyId',
+        type: FieldType.number,
+      },
+      {
         name: 'invoiceDateFrom',
         label: intl.get(`${modelCode}.view.checkTimeFrom`).d('勾选日期从'),
         type: FieldType.date,
@@ -187,6 +191,19 @@ const TimeRange = (): DataSetProps => {
         type: FieldType.date,
         required: true,
         min: 'invoiceDateFrom',
+      },
+      {
+        name: 'authenticationDateObj',
+        label: intl.get(`${modelCode}.view.currentPeriod`).d('所属期'),
+        type: FieldType.object,
+        lovCode: 'HIVP.BUSINESS_TIME_INFO',
+        cascadeMap: { companyId: 'companyId' },
+        required: true,
+      },
+      {
+        name: 'currentPeriod',
+        type: FieldType.string,
+        bind: 'authenticationDateObj.currentPeriod',
       },
     ],
   };
