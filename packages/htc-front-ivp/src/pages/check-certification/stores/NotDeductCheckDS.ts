@@ -281,7 +281,7 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
-        name: 'documentRemark',
+        name: 'documentNumber',
         label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
         type: FieldType.string,
       },
