@@ -86,7 +86,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
     if (statisticalConfirmInfoStr) {
       const statisticalConfirmInfo = JSON.parse(decodeURIComponent(statisticalConfirmInfoStr));
       const {
-        statisticalPeriod,
+        currentPeriod,
         currentCertState,
         companyId,
         companyCode,
@@ -98,7 +98,6 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
         invoiceDateFromStr,
         invoiceDateToStr,
         authorityCode,
-        currentPeriod,
       } = statisticalConfirmInfo;
       const date = moment().format(DEFAULT_DATETIME_FORMAT);
       this.headerDS.current!.set({
@@ -112,7 +111,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
       this.summaryDS.setQueryParameter('employeeId', employeeId);
       this.summaryDS.setQueryParameter('employeeNumber', employeeNum);
       this.summaryDS.setQueryParameter('nsrsbh', taxpayerNumber);
-      this.summaryDS.setQueryParameter('ssq', statisticalPeriod);
+      this.summaryDS.setQueryParameter('ssq', currentPeriod);
       this.summaryDS.setQueryParameter('invoiceCategory', invoiceCategory);
       this.summaryDS.setQueryParameter('spmm', taxDiskPassword);
       this.summaryDS.setQueryParameter('rqq', invoiceDateFromStr);
@@ -248,7 +247,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
     if (statisticalConfirmInfoStr) {
       const statisticalConfirmInfo = JSON.parse(decodeURIComponent(statisticalConfirmInfoStr));
       const {
-        statisticalPeriod,
+        currentPeriod,
         companyId,
         companyCode,
         employeeId,
@@ -267,7 +266,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
         employeeId,
         employeeNumber: employeeNum,
         nsrsbh: taxpayerNumber,
-        ssq: statisticalPeriod,
+        ssq: currentPeriod,
         invoiceCategory,
         spmm: taxDiskPassword,
         rqq: invoiceDateFromStr,
