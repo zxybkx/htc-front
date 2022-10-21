@@ -54,13 +54,13 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'autoDayGetAccounts',
-        label: intl.get('hivp.checkRule').d('每日自动获取可勾选发票'),
+        label: intl.get('hivp.checkRule.view.autoDayGetAccounts').d('每日自动获取可勾选发票'),
         type: FieldType.boolean,
         labelWidth: '150',
       },
       {
         name: 'autoDayGetTime',
-        label: intl.get('hivp.checkRule').d('每日自动获取时间'),
+        label: intl.get('hivp.checkRule.view.autoDayGetTime').d('每日自动获取时间'),
         type: FieldType.string,
         multiple: ',',
         lookupCode: 'HIVP.AUTO_GET_TIME',
@@ -70,7 +70,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'autoStatisticsSign',
-        label: intl.get('hivp.checkRule').d('每月自动统计'),
+        label: intl.get('hivp.checkRule.view.autoStatisticsSign').d('每月自动统计'),
         type: FieldType.boolean,
         labelWidth: '150',
         transformRequest: value => {
@@ -82,7 +82,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'mailbox',
-        label: intl.get('hivp.checkRule').d('统计认证结果接收通知邮箱'),
+        label: intl.get('hivp.checkRule.view.mailbox').d('统计认证结果接收通知邮箱'),
         type: FieldType.string,
         computedProps: {
           required: ({ record }) =>
@@ -91,7 +91,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'autoStatisticsTime',
-        label: intl.get('hivp.checkRule').d('自动统计日期'),
+        label: intl.get('hivp.checkRule.view.autoStatisticsTime').d('自动统计日期'),
         lookupCode: 'HIVP.AUTO_STATISTICS_TIME',
         type: FieldType.string,
         computedProps: {
@@ -100,7 +100,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'autoSignatureSign',
-        label: intl.get('hivp.checkRule').d('每月自动确签'),
+        label: intl.get('hivp.checkCertification.modal.autoStatisticsSign').d('每月自动确签'),
         type: FieldType.boolean,
         labelWidth: '150',
         transformRequest: value => {
@@ -112,7 +112,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'confirmPassword',
-        label: intl.get('hivp.checkRule').d('确认密码'),
+        label: intl.get('hivp.checkCertification.view.confirmPassword').d('确认密码'),
         type: FieldType.string,
         computedProps: {
           required: ({ record }) => record.get('autoSignatureSign'),
@@ -120,14 +120,16 @@ export default (): DataSetProps => {
       },
       {
         name: 'autoSignatureTime',
-        label: intl.get('hivp.checkRule').d('自动确签日期'),
+        label: intl.get('hivp.checkCertification.modal.autoSignatureTime').d('自动确签日期'),
         type: FieldType.string,
         computedProps: {
           required: ({ record }) => record.get('autoSignatureSign'),
         },
         validator: (value, _, record: any) => {
           if (value > record?.get('autoStatisticsTime')) {
-            return intl.get('hivp.invoices').d('自动确签日期必须小于等于自动统计日期');
+            return intl
+              .get('hivp.checkRule.view.CompareDate')
+              .d('自动确签日期必须小于等于自动统计日期');
           }
         },
         lookupCode: 'HIVP.AUTO_STATISTICS_TIME',
@@ -163,7 +165,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'documentTypeCodeObj',
-        label: intl.get('hivp.checkRule.view.documentTypeMeaning').d('单据类型'),
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
         type: FieldType.object,
         lovCode: 'HTC.DOCUMENT_TYPE_LOV',
         disabled: true,
@@ -204,7 +206,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceType',
-        label: intl.get('hivp.checkRule').d('发票类型'),
+        label: intl.get('htc.common.view.invoiceType').d('发票类型'),
         type: FieldType.string,
         // defaultValue: ['01'],
         multiple: ',',
@@ -212,7 +214,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'accountStatus',
-        label: intl.get('hivp.checkRule').d('入账状态'),
+        label: intl.get('hivp.bill.view.entryAccountState').d('入账状态'),
         type: FieldType.string,
         multiple: ',',
         lookupCode: 'HIVP.ACCOUNT_STATE',
@@ -298,19 +300,19 @@ export default (): DataSetProps => {
         },
         {
           name: 'currentPeriod',
-          label: intl.get('hivp.checkRule').d('当前所属期'),
+          label: intl.get('hivp.taxRefund.view.tjyf').d('当前所属期'),
           type: FieldType.string,
           readOnly: true,
         },
         {
           name: 'currentOperationalDeadline',
-          label: intl.get('hivp.checkRule').d('操作截至日期'),
+          label: intl.get('hivp.checkRule.view.currentOperationalDeadline').d('操作截至日期'),
           type: FieldType.string,
           readOnly: true,
         },
         {
           name: 'checkableTimeRange',
-          label: intl.get('hivp.checkRule').d('可勾选时间范围'),
+          label: intl.get('hivp.checkCertification.view.checkableTimeRange').d('可勾选时间范围'),
           type: FieldType.string,
           readOnly: true,
         },

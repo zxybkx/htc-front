@@ -2,7 +2,7 @@
  * @Description: 进项发票规则维护
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-10-09 14:51:37
- * @LastEditTime: 2022-10-19 11:18:37
+ * @LastEditTime: 2022-10-21 14:37:02
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -29,7 +29,16 @@ interface CheckRuleListPageProps {
 }
 
 @formatterCollections({
-  code: ['hivp.checkRule', 'htc.common'],
+  code: [
+    'hivp.checkRule',
+    'htc.common',
+    'hivp.batchCheck',
+    'hivp.checkCertification',
+    'hivp.invoices',
+    'hivp.invoicesArchiveUpload',
+    'hivp.bill',
+    'hivp.taxRefund',
+  ],
 })
 export default class CheckRuleListPage extends Component<CheckRuleListPageProps> {
   state = {

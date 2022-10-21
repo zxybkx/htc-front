@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-21 09:57:48
+ * @LastEditTime: 2022-10-21 17:46:17
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -31,7 +31,15 @@ interface DeductionStatementListPageProps {
   };
 }
 @formatterCollections({
-  code: ['hivp.deductionStatement', 'htc.common'],
+  code: [
+    'hivp.deductionStatement',
+    'htc.common',
+    'hivp.checkCertification',
+    'hivp.taxRefund',
+    'hivp.batchCheck',
+    'hivp.invoices',
+    'hivp.invoicesArchiveUpload',
+  ],
 })
 export default class CheckRuleListPage extends Component<DeductionStatementListPageProps> {
   invoiceDetailDS = new DataSet({
@@ -90,6 +98,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
           { name: 'validTaxAmount' },
           { name: 'invoiceState' },
           { name: 'checkState' },
+          { name: 'checkDate' },
           { name: 'authenticationType' },
           { name: 'reasonsForNonDeduction' },
           { name: 'isPoolFlag' },
@@ -99,7 +108,6 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
           { name: 'documentTypeMeaning' },
           { name: 'documentNumber' },
           { name: 'authenticationState' },
-          { name: 'checkDate' },
           { name: 'authenticationDate' },
           { name: 'recordState' },
           // { name: 'fileUrl' },
@@ -116,6 +124,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
           { name: 'validTaxAmount' },
           { name: 'invoiceState' },
           { name: 'checkState' },
+          { name: 'checkDate' },
           { name: 'authenticationType' },
           // { name: 'reasonsForNonDeduction' },
           { name: 'isPoolFlag' },
@@ -125,7 +134,6 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
           { name: 'documentTypeMeaning' },
           { name: 'documentNumber' },
           { name: 'authenticationState' },
-          { name: 'checkDate' },
           { name: 'authenticationDate' },
           { name: 'recordState' },
         ];
@@ -146,7 +154,11 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
       })
     );
     if (res) {
-      notification.success({ message: intl.get(`hivp.checkRule`).d('认证结果通知书下载') });
+      notification.success({
+        message: intl
+          .get('hivp.deductionStatement.notice.downloadCertificationSuccess')
+          .d('认证结果通知书下载成功'),
+      });
     }
   }
 
@@ -154,7 +166,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
     return (
       <>
         <Header
-          title={intl.get('hivp.checkRule.title.invoiceRule').d('发票明细查看')}
+          title={intl.get('hivp.deductionStatement.title.detail').d('发票明细查看')}
           backPath={`/htc-front-ivp/deduction-statement/list?activeKey=${this.props?.location.state.activeKey}`}
         >
           <ExcelExport
@@ -168,7 +180,9 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
               onClick={() => this.handleDown()}
               color={ButtonColor.primary}
             >
-              {intl.get(`hivp.checkRule`).d('认证结果通知书下载')}
+              {intl
+                .get('hivp.deductionStatement.notice.downloadCertification')
+                .d('认证结果通知书下载')}
             </Button>
           )}
         </Header>

@@ -82,7 +82,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceTickDate',
-        label: intl.get('htc.common.v').d('手动获取勾选发票勾选时间范围'),
+        label: intl.get('hivp.checkRule.manual.invoiceTickDate').d('手动获取勾选发票勾选时间范围'),
         range: ['invoiceTickDateStart', 'invoiceTickDateEnd'],
         type: FieldType.date,
         computedProps: {
@@ -115,7 +115,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceInDate',
-        label: intl.get('htc.common.view.i').d('手动获取勾选发票入库时间范围'),
+        label: intl.get('hivp.checkRule.manual.invoiceInDate').d('手动获取勾选发票入库时间范围'),
         range: ['invoiceInDateStart', 'invoiceInDateEnd'],
         type: FieldType.date,
         ignore: FieldIgnore.always,
@@ -134,13 +134,13 @@ export default (): DataSetProps => {
       },
       {
         name: 'deductionType',
-        label: intl.get('hivp.checkRule').d('抵扣类型'),
+        label: intl.get('hivp.checkRule.manual.deductionType').d('抵扣类型'),
         type: FieldType.string,
         lookupCode: 'HIVP.CERTIFICATION_TYPE',
       },
       {
         name: 'checkStatus',
-        label: intl.get('hivp.checkRule').d('勾选状态'),
+        label: intl.get('hivp.checkCertification.view.checkState').d('勾选状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.CHECK_STATE',
         computedProps: {
@@ -153,7 +153,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'certificationStatus',
-        label: intl.get('hivp.checkRule').d('认证状态'),
+        label: intl.get('hivp.checkCertification.view.authenticationState').d('认证状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.CERTIFICATION_STATE',
         computedProps: {
@@ -166,24 +166,24 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceCode',
-        label: intl.get('hivp.checkRule').d('发票代码'),
+        label: intl.get('htc.common.view.invoiceCode').d('发票代码'),
         type: FieldType.string,
       },
       {
         name: 'invoiceNo',
-        label: intl.get('hivp.checkRule').d('发票号码'),
+        label: intl.get('htc.common.view.invoiceNo').d('发票号码'),
         type: FieldType.string,
       },
       {
         name: 'invoiceStyle',
-        label: intl.get('hivp.checkRule').d('发票类型'),
+        label: intl.get('htc.common.view.invoiceType').d('发票类型'),
         type: FieldType.string,
         multiple: ',',
         lookupCode: 'HIVP.CHECK_INVOICE_TYPE',
       },
       {
         name: 'invoiceStatus',
-        label: intl.get('hivp.checkRule').d('发票状态'),
+        label: intl.get('hivp.batchCheck.view.invoiceStatus').d('发票状态'),
         type: FieldType.string,
         multiple: ',',
         defaultValue: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '80'],
@@ -191,18 +191,18 @@ export default (): DataSetProps => {
       },
       {
         name: 'redTicketFlag',
-        label: intl.get('hivp.checkRule').d('红票标识'),
+        label: intl.get('hivp.checkRule.manual.redTicketFlag').d('红票标识'),
         type: FieldType.string,
         lookupCode: 'HIVP.RED_FLAG',
       },
       {
         name: 'sellerTaxpayerNumber',
-        label: intl.get('hivp.checkRule').d('销方纳税人识别号'),
+        label: intl.get('htc.common.view.salerTaxNo').d('销方纳税人识别号'),
         type: FieldType.string,
       },
       {
         name: 'certifiedQueryState',
-        label: intl.get('hivp.checkRule').d('已认证查询状态'),
+        label: intl.get('hivp.checkRule.manual.certifiedQueryState').d('已认证查询状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.QUERY_STATUS',
         computedProps: {
@@ -229,7 +229,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'certifiedQueryMonthObj',
-        label: intl.get('hivp.checkRule').d('已认证查询月份'),
+        label: intl.get('hivp.checkRule.manual.certifiedQueryMonthObj').d('已认证查询月份'),
         type: FieldType.object,
         lovCode: 'HIVP.BUSINESS_TIME_INFO',
         cascadeMap: { companyId: 'companyId' },
