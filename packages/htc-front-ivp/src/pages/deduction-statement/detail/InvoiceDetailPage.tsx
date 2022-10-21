@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-20 18:19:35
+ * @LastEditTime: 2022-10-21 09:57:48
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -123,7 +123,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
           { name: 'receiptsState', width: 140 },
           { name: 'systemName' },
           { name: 'documentTypeMeaning' },
-          { name: 'documentRemark' },
+          { name: 'documentNumber' },
           { name: 'authenticationState' },
           { name: 'checkDate' },
           { name: 'authenticationDate' },
