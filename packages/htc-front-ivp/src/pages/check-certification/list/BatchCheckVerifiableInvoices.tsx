@@ -655,6 +655,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     if (batchInvoiceHeaderDS) {
       const { queryDataSet } = batchInvoiceHeaderDS;
       const queryData = queryDataSet?.current?.toData();
+      const { companyId } = empInfo;
       const {
         invoiceDateFrom,
         invoiceDateEnd,
@@ -683,6 +684,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
         documentTypeCode,
         documentNumber,
         salerName,
+        companyId,
       };
       const res = getResponse(await unCertifiedInvoiceQuery(params));
       if (res) {
