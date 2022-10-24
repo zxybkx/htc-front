@@ -3,25 +3,37 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-21 17:03:48
+ * @LastEditTime: 2022-10-24 16:43:26
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
 import { Bind } from 'lodash-decorators';
 import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
-import { DataSet, Form, Lov, TextField, Table, Tabs, Spin } from 'choerodon-ui/pro';
+import {
+  DataSet,
+  Form,
+  Lov,
+  TextField,
+  Table,
+  Tabs,
+  Spin,
+  Button,
+  DatePicker,
+  Select,
+} from 'choerodon-ui/pro';
 import { Content, Header } from 'components/Page';
-import { Col, Row } from 'choerodon-ui';
+import { Col, Icon, Row } from 'choerodon-ui';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { getCurrentEmployeeInfoOut } from '@htccommon/services/commonService';
 import { getBusinessTime } from '@src/services/checkAuthenticationService';
-import { ShowHelp } from 'choerodon-ui/pro/lib/field/enum';
 import { RouteComponentProps } from 'react-router-dom';
+import { ShowHelp } from 'choerodon-ui/pro/lib/field/enum';
 import withProps from 'utils/withProps';
 import ExcelExport from 'components/ExcelExport';
 import commonConfig from '@htccommon/config/commonConfig';
+import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import DeductionStatementHeaderDS from '../stores/DeductionStatementHeaderDS';
 import DeductTableDS from '../stores/DeductTableDS';
 import DeductibleTableDS from '../stores/DeductibleTableDS';
@@ -114,6 +126,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
   state = {
     activeKey: ActiveKey.deductibleTable,
     initLoading: false,
+    moreDisplay: false,
   };
 
   checkRuleDS = new DataSet({
@@ -613,7 +626,10 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
 
   @Bind()
   async handleTabChange(newActiveKey) {
-    this.setState({ activeKey: newActiveKey });
+    this.setState({
+      activeKey: newActiveKey,
+      moreDisplay: false,
+    });
   }
 
   /**
@@ -680,6 +696,138 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
     ];
   }
 
+  // 搜索条件
+  @Bind()
+  renderDeductibleTableQueryBar() {
+    const JSXElement: JSX.Element[] = [
+      <DatePicker name="entryAccountDate" />,
+      <Select name="entryAccountState" />,
+      <TextField name="salerName" />,
+    ];
+    const otherJSXElement: JSX.Element[] = [
+      <Lov name="systemCodeObj" maxTagCount={2} maxTagTextLength={2} />,
+      <Lov name="documentTypeCodeObj" maxTagCount={2} maxTagTextLength={2} />,
+      <Select name="invoiceType" maxTagCount={2} maxTagTextLength={2} />,
+    ];
+    const { deductibleTableDS } = this.props;
+    return this.renderCommonQueryBar(deductibleTableDS, JSXElement, otherJSXElement);
+  }
+
+  @Bind()
+  renderVerifiedTableQueryBar() {
+    const JSXElement: JSX.Element[] = [
+      <DatePicker name="checkDate" />,
+      <Lov name="certifiedQueryMonthObj" maxTagCount={2} maxTagTextLength={2} />,
+      <Select name="entryAccountState" />,
+    ];
+    const otherJSXElement: JSX.Element[] = [
+      <TextField name="salerName" />,
+      <Lov name="systemCodeObj" maxTagCount={2} maxTagTextLength={2} />,
+      <Lov name="documentTypeCodeObj" maxTagCount={2} maxTagTextLength={2} />,
+      <Select name="invoiceType" maxTagCount={2} maxTagTextLength={2} />,
+    ];
+    const { verifiedTableDS } = this.props;
+    return this.renderCommonQueryBar(verifiedTableDS, JSXElement, otherJSXElement);
+  }
+
+  @Bind()
+  renderNotDeductibleTableQueryBar() {
+    const JSXElement: JSX.Element[] = [
+      <DatePicker name="invoiceDate" />,
+      <DatePicker name="checkDate" />,
+      <DatePicker name="entryAccountDate" />,
+    ];
+    const otherJSXElement: JSX.Element[] = [
+      <TextField name="salerName" />,
+      <Lov name="systemCodeObj" maxTagCount={2} maxTagTextLength={2} />,
+      <Lov name="documentTypeCodeObj" maxTagCount={2} maxTagTextLength={2} />,
+      <Select name="entryAccountStates" />,
+      <Select name="invoiceTypes" maxTagCount={2} maxTagTextLength={2} />,
+    ];
+    const { notDeductibleTableDS } = this.props;
+    return this.renderCommonQueryBar(notDeductibleTableDS, JSXElement, otherJSXElement);
+  }
+
+  @Bind()
+  renderDeductTableQueryBar() {
+    const JSXElement: JSX.Element[] = [
+      <DatePicker name="invoiceDate" />,
+      <TextField name="invoiceCode" />,
+      <TextField name="invoiceNo" />,
+    ];
+    const otherJSXElement: JSX.Element[] = [
+      <Select name="invoiceTypes" maxTagCount={2} maxTagTextLength={2} />,
+      <Select name="checkStates" maxTagCount={2} maxTagTextLength={2} />,
+      <DatePicker name="checkDate" />,
+      <Lov name="systemCodeObj" maxTagCount={2} maxTagTextLength={2} />,
+      <Lov name="documentTypeCodeObj" maxTagCount={2} maxTagTextLength={2} />,
+      <Lov name="documentNumberObj" maxTagCount={2} maxTagTextLength={2} />,
+      <Select name="authenticationStates" />,
+      <Select name="authenticationTypes" />,
+      <Select name="isInPool" />,
+      <Select name="entryAccountStates" />,
+      <Select name="receiptsStates" />,
+    ];
+    const { deductTableDS } = this.props;
+    return this.renderCommonQueryBar(deductTableDS, JSXElement, otherJSXElement);
+  }
+
+  @Bind()
+  renderCommonQueryBar(propsDS, JSXElement, otherJSXElement) {
+    const { queryDataSet, buttons } = propsDS;
+    // 搜索按钮
+    const handleQuery = () => {
+      if (propsDS) {
+        propsDS.query();
+      }
+    };
+    const queryMoreArray: JSX.Element[] = otherJSXElement;
+    return (
+      <div style={{ marginBottom: '0.1rem' }}>
+        <Row>
+          <Col span={18}>
+            <Form dataSet={queryDataSet} columns={3}>
+              {JSXElement}
+              {this.state.moreDisplay && queryMoreArray}
+            </Form>
+          </Col>
+          <Col span={6} style={{ textAlign: 'end' }}>
+            <Button
+              funcType={FuncType.link}
+              onClick={() => {
+                this.setState({ moreDisplay: !this.state.moreDisplay });
+              }}
+            >
+              {!this.state.moreDisplay ? (
+                <span>
+                  {intl.get('hzero.common.button.option').d('更多')}
+                  <Icon type="expand_more" />
+                </span>
+              ) : (
+                <span>
+                  {intl.get('hzero.common.button.option').d('更多')}
+                  <Icon type="expand_less" />
+                </span>
+              )}
+            </Button>
+            <Button
+              onClick={() => {
+                queryDataSet.reset();
+                queryDataSet.create();
+              }}
+            >
+              {intl.get('hzero.common.status.reset').d('重置')}
+            </Button>
+            <Button color={ButtonColor.primary} onClick={() => handleQuery()}>
+              {intl.get('hzero.common.status.search').d('查询')}
+            </Button>
+          </Col>
+        </Row>
+        {buttons}
+      </div>
+    );
+  }
+
   render() {
     const { activeKey, initLoading } = this.state;
     const {
@@ -727,6 +875,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
                 <Table
                   dataSet={deductibleTableDS}
                   columns={this.deductibleTableColumns}
+                  queryBar={this.renderDeductibleTableQueryBar}
                   style={{ height: 320 }}
                 />
               </TabPane>
@@ -737,6 +886,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
                 <Table
                   dataSet={verifiedTableDS}
                   columns={this.verifiedTableColumns}
+                  queryBar={this.renderVerifiedTableQueryBar}
                   style={{ height: 320 }}
                 />
               </TabPane>
@@ -747,6 +897,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
                 <Table
                   dataSet={notDeductibleTableDS}
                   columns={this.notDeductibleTableColumns}
+                  queryBar={this.renderNotDeductibleTableQueryBar}
                   style={{ height: 320 }}
                 />
               </TabPane>
@@ -757,6 +908,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
                 <Table
                   dataSet={deductTableDS}
                   columns={this.deductTableColumns}
+                  queryBar={this.renderDeductTableQueryBar}
                   style={{ height: 450 }}
                 />
               </TabPane>

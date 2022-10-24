@@ -2,7 +2,7 @@
  * @Description: 进项发票规则维护
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-10-09 14:51:37
- * @LastEditTime: 2022-10-11 16:22:16
+ * @LastEditTime: 2022-10-24 11:32:43
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { FunctionComponent } from 'react';
@@ -74,7 +74,7 @@ const InvoiceRuleHeaderForm: FunctionComponent<Props> = (props: Props) => {
           <Lov name="certifiedQueryMonthObj" />
         </Form>
         <Form dataSet={manualDataSet} columns={4} labelTooltip={Tooltip.overflow}>
-          <Select name="invoiceStyle" />
+          <Select name="invoiceStyle" maxTagCount={2} maxTagTextLength={2} />
           <Select name="redTicketFlag" />
           <Select name="invoiceStatus" colSpan={2} />
         </Form>
@@ -141,10 +141,10 @@ const InvoiceRuleHeaderForm: FunctionComponent<Props> = (props: Props) => {
         }
       >
         <Form dataSet={dataSet} columns={3} labelTooltip={Tooltip.overflow}>
-          <Lov name="systemCodeObj" />
-          <Lov name="documentTypeCodeObj" />
+          <Lov name="systemCodeObj" maxTagCount={2} maxTagTextLength={2} />
+          <Lov name="documentTypeCodeObj" maxTagCount={2} maxTagTextLength={2} />
           <Select name="accountStatus" />
-          <Select name="invoiceType" />
+          <Select name="invoiceType" maxTagCount={2} maxTagTextLength={2} />
         </Form>
       </Card>
     </>
