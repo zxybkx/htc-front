@@ -868,9 +868,9 @@ export default (): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
-          name: 'documentTypeCode',
+          name: 'docTypeLineId',
           type: FieldType.string,
-          bind: 'documentTypeCodeObj.documentTypeCode',
+          bind: 'documentTypeCodeObj.docTypeLineId',
         },
         {
           name: 'docTypeHeaderId',
@@ -883,7 +883,7 @@ export default (): DataSetProps => {
           label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
           type: FieldType.object,
           lovCode: 'HTC.DOCUMENT_CODE',
-          cascadeMap: { docTypeHeaderId: 'docTypeHeaderId' },
+          cascadeMap: { docTypeHeaderId: 'docTypeHeaderId', docTypeLineId: 'docTypeLineId' },
           ignore: FieldIgnore.always,
         },
         {
