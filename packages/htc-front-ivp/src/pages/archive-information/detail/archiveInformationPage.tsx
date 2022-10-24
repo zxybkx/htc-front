@@ -137,6 +137,21 @@ export default class ArchiveInformationPage extends Component<ArchiveUploadPageP
               this.setState({ btnFlag: '', loadingFlag: false });
             }
           });
+        } else if (resp.failed && resp.code === 'H1026') {
+          const title = intl
+            .get('hivp.invoicesArchiveUpload.validate.confirmArchive')
+            .d('当前发票档案文件非发票原文件，是否继续上传？');
+          Modal.confirm({
+            key: Modal.key,
+            title,
+          }).then(button => {
+            if (button === 'ok') {
+              this.singleIsCheck = 'N';
+              this.singleUpload.startUpload();
+            } else {
+              this.setState({ btnFlag: '', loadingFlag: false });
+            }
+          });
         } else {
           const res = getResponse(resp);
           if (res) {
