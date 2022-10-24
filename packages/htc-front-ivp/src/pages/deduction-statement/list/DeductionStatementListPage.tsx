@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-24 16:43:26
+ * @LastEditTime: 2022-10-24 17:59:01
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -164,8 +164,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
   }
 
   @Bind()
-  handleSetCommonRes(dataSet, timeRes, empInfo) {
-    const { companyId, companyCode, employeeNum: employeeNumber } = empInfo || {};
+  handleSetCommonRes(dataSet, timeRes) {
     const { currentPeriod, currentOperationalDeadline, checkableTimeRange } = timeRes || {};
     if (dataSet) {
       /* eslint-disable */
@@ -173,9 +172,6 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         currentPeriod,
         currentOperationalDeadline,
         checkableTimeRange,
-        companyId,
-        companyCode,
-        employeeNumber,
       };
       /* eslint-enable */
     }
@@ -213,6 +209,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
               documentTypeMeaning,
               docTypeHeaderId,
               docTypeLineId,
+              companyObj: empInfo,
             });
           }
         });
@@ -230,6 +227,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
               documentTypeMeaning,
               docTypeHeaderId,
               docTypeLineId,
+              companyObj: empInfo,
             });
           }
         });
@@ -244,7 +242,7 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
   async handleChangeCompanyCallBack(empInfo) {
     const { companyCode, companyId, employeeId, employeeNum: employeeNumber } = empInfo;
     const { queryDataSet } = this.props.deductionStatementHeaderDS;
-    localStorage.setItem('certifiedCompanyId', companyId);
+    // localStorage.setItem('certifiedCompanyId', companyId);
     if (queryDataSet && queryDataSet.current) {
       queryDataSet.current.set({ companyObj: empInfo });
     }
@@ -267,14 +265,14 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         checkableTimeRange: timeRes.checkableTimeRange,
       });
     }
-    if (timeRes || empInfo) {
+    if (timeRes) {
       [
         this.props.deductibleTableDS,
         this.props.verifiedTableDS,
         this.props.notDeductibleTableDS,
         this.props.deductTableDS,
       ].forEach(item => {
-        this.handleSetCommonRes(item, timeRes, empInfo);
+        this.handleSetCommonRes(item, timeRes);
       });
     }
   }

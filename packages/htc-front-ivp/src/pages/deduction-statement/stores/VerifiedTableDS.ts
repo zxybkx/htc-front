@@ -104,23 +104,13 @@ export default (): DataSetProps => {
           bind: 'checkDate.checkDateTo',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
-        // {
-        //   name: 'authenticationDate',
-        //   label: intl.get('hivp.checkRule').d('认证所属期'),
-        //   type: FieldType.string,
-        //   lookupCode: '',
-        // },
         {
           name: 'certifiedQueryMonthObj',
           label: intl.get('hivp.checkCertification.view.statisticalPeriod').d('认证所属期'),
           type: FieldType.object,
           lovCode: 'HIVP.BUSINESS_TIME_INFO',
           multiple: ',',
-          computedProps: {
-            lovPara: () => {
-              return { companyId: localStorage.getItem('certifiedCompanyId') };
-            },
-          },
+          cascadeMap: { companyId: 'companyId' },
           ignore: FieldIgnore.always,
         },
         {
@@ -219,6 +209,28 @@ export default (): DataSetProps => {
           // defaultValue: ['01'],
           multiple: ',',
           lookupCode: 'HIVP.CHECK_INVOICE_TYPE',
+        },
+        {
+          name: 'companyObj',
+          type: FieldType.object,
+          lovCode: 'HIOP.CURRENT_EMPLOYEE_OUT',
+          lovPara: { tenantId },
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'companyId',
+          type: FieldType.number,
+          bind: 'companyObj.companyId',
+        },
+        {
+          name: 'companyCode',
+          type: FieldType.string,
+          bind: 'companyObj.companyCode',
+        },
+        {
+          name: 'employeeNumber',
+          type: FieldType.string,
+          bind: 'companyObj.employeeNum',
         },
       ],
     }),
