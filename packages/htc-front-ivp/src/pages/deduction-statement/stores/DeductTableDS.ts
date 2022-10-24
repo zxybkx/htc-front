@@ -401,6 +401,28 @@ export default (): DataSetProps => {
           multiple: ',',
           lookupCode: 'HIVP.INTERFACE_DOCS_STATE',
         },
+        {
+          name: 'companyObj',
+          type: FieldType.object,
+          lovCode: 'HIOP.CURRENT_EMPLOYEE_OUT',
+          lovPara: { tenantId },
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'companyId',
+          type: FieldType.number,
+          bind: 'companyObj.companyId',
+        },
+        {
+          name: 'companyCode',
+          type: FieldType.string,
+          bind: 'companyObj.companyCode',
+        },
+        {
+          name: 'employeeNumber',
+          type: FieldType.string,
+          bind: 'companyObj.employeeNum',
+        },
       ],
     }),
   };
