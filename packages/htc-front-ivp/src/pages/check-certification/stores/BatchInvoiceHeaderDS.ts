@@ -302,9 +302,15 @@ export default (): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
+          name: 'documentTypeCode',
+          type: FieldType.string,
+          bind: 'documentTypeCodeObj.documentTypeCode',
+        },
+        {
           name: 'docTypeLineId',
           type: FieldType.string,
           bind: 'documentTypeCodeObj.docTypeLineId',
+          ignore: FieldIgnore.always,
         },
         {
           name: 'docTypeHeaderId',

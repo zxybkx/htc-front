@@ -479,7 +479,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
         }
       />
     );
-    queryMoreArray.push(<Select name="abnormalSign" />);
+    queryMoreArray.push(<Select name="invoiceState" />);
     queryMoreArray.push(<Currency name="taxAmount" />);
     queryMoreArray.push(<Currency name="validTaxAmount" />);
     queryMoreArray.push(<Currency name="amount" />);

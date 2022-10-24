@@ -491,9 +491,15 @@ export default (): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
+          name: 'documentTypeCode',
+          type: FieldType.string,
+          bind: 'documentTypeCodeObj.documentTypeCode',
+        },
+        {
           name: 'docTypeLineId',
           type: FieldType.string,
           bind: 'documentTypeCodeObj.docTypeLineId',
+          ignore: FieldIgnore.always,
         },
         {
           name: 'docTypeHeaderId',
@@ -575,7 +581,7 @@ export default (): DataSetProps => {
           name: 'invoiceState',
           label: intl.get('hivp.batchCheck.view.invoiceStatus').d('发票状态'),
           type: FieldType.string,
-          defaultValue: '0',
+          // defaultValue: '0',
           lookupCode: 'HMDM.INVOICE_STATE',
         },
         {
