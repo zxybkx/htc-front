@@ -163,6 +163,7 @@
     "build:additional": "cross-env ADDITIONAL=true umi hzero-build",
     "build:additional:ms": "cross-env ADDITIONAL=true umi hzero-build --only-build-micro",
     "build:additional-dep": "cross-env ADDITIONAL_NAME=145_hotfix ADDITIONAL_OUTPUT=145_hotfix umi hzero-build-dep --package-name",
+    "build:additional:ms-all": "cross-env ADDITIONAL=true umi hzero-build --only-build-micro --all-packages",
     "build:hzero": "micro-prepare hzero",
     "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
     "prepare": "husky install && node node_modules/@hzerojs/plugin-micro/postinstall-script",
