@@ -284,16 +284,6 @@ export default (): DataSetProps => {
           readOnly: true,
         },
         {
-          name: 'invoiceCode',
-          label: intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码'),
-          type: FieldType.string,
-        },
-        {
-          name: 'invoiceNo',
-          label: intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码'),
-          type: FieldType.string,
-        },
-        {
           name: 'invoiceDate',
           label: intl.get('hiop.invoiceWorkbench.modal.invoiceDate').d('开票日期'),
           type: FieldType.dateTime,
@@ -316,6 +306,16 @@ export default (): DataSetProps => {
           label: intl.get('hivp.bill.view.invoiceDateTo').d('开票日期至'),
           type: FieldType.dateTime,
           bind: 'invoiceDate.invoiceDateTo',
+        },
+        {
+          name: 'invoiceCode',
+          label: intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码'),
+          type: FieldType.string,
+        },
+        {
+          name: 'invoiceNo',
+          label: intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码'),
+          type: FieldType.string,
         },
         {
           name: 'orderNumber',
