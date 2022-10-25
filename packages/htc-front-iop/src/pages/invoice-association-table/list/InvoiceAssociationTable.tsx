@@ -39,8 +39,8 @@ export default class InvoiceAssociationTable extends Component {
     const res = await getCurrentEmployeeInfoOut({ tenantId });
     if (res && res.content) {
       const empInfo = res.content[0];
-      if (empInfo && queryDataSet) {
-        queryDataSet.create({ companyObj: empInfo });
+      if (empInfo && queryDataSet && queryDataSet.current) {
+        queryDataSet.current.set({ companyObj: empInfo });
       }
     }
   }
@@ -168,6 +168,7 @@ export default class InvoiceAssociationTable extends Component {
           <Table
             customizable
             customizedCode="customized"
+            queryFieldsLimit={4}
             dataSet={this.invoiceAssociationTable}
             columns={this.columns}
             style={{ height: 440 }}
