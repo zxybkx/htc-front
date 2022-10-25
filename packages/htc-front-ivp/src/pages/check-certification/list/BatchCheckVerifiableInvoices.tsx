@@ -662,9 +662,12 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
         entryAccountState,
         entryAccountDateFrom,
         entryAccountDateTo,
-        sourceSystem,
+        systemCode,
+        docTypeHeaderId,
         documentTypeCode,
+        docTypeLineId,
         documentNumber,
+        detailId,
         salerName,
       } = queryData;
       // if (!taxDiskPassword) {
@@ -680,9 +683,12 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
         invoiceDateEnd,
         entryAccountDateFrom,
         entryAccountDateTo,
-        sourceSystem,
+        systemCode,
+        docTypeHeaderId,
         documentTypeCode,
+        docTypeLineId,
         documentNumber,
+        detailId,
         salerName,
         companyId,
       };
