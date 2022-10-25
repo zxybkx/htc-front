@@ -26,6 +26,8 @@ import intl from 'utils/intl';
 import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import { getCurrentOrganizationId, getCurrentTenant, getResponse } from 'utils/utils';
 import { chunk } from 'lodash';
+import ExcelExport from 'components/ExcelExport';
+import commonConfig from '@htccommon/config/commonConfig';
 import { statisticReportDownload } from '@src/services/checkCertificationService';
 import { downLoadFiles } from '@htccommon/utils/utils';
 import formatterCollections from 'utils/intl/formatterCollections';
@@ -37,6 +39,7 @@ import styles from '../checkcertification.less';
 const { TabPane } = Tabs;
 const modelCode = 'hivp.checkCertification';
 const tenantId = getCurrentOrganizationId();
+const API_PREFIX = commonConfig.IVP_API || '';
 
 interface ApplyDeductionPageProps {
   dispatch: Dispatch<any>;
@@ -50,6 +53,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
   state = {
     summaryData: [],
     detailData: [],
+    urlData: {} as any,
   };
 
   headerDS = new DataSet({
@@ -113,6 +117,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
           });
         }
       });
+      this.setState({ urlData: statisticalConfirmInfo });
     }
   }
 
@@ -224,6 +229,41 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
     this.detailDS.loadData(chunkData[_page - 1]);
   }
 
+  /**
+   * 导出条件
+   */
+  @Bind()
+  handleGetQueryParams() {
+    const { urlData } = this.state;
+    const {
+      currentPeriod,
+      companyId,
+      companyCode,
+      companyName,
+      employeeId,
+      employeeNum,
+      taxpayerNumber,
+      taxDiskPassword,
+      invoiceDateFromStr,
+      invoiceDateToStr,
+    } = urlData;
+    const queryParams = {
+      tenantId,
+      companyId,
+      companyCode,
+      companyName,
+      employeeId,
+      employeeNumber: employeeNum,
+      nsrsbh: taxpayerNumber,
+      tjyf: currentPeriod,
+      ssq: currentPeriod,
+      spmm: taxDiskPassword,
+      rqq: invoiceDateFromStr,
+      rqz: invoiceDateToStr,
+    };
+    return { ...queryParams } || {};
+  }
+
   render() {
     const { summaryData, detailData } = this.state;
     return (
@@ -232,6 +272,10 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
           backPath="/htc-front-ivp/check-certification/list?type=2"
           title={intl.get(`${modelCode}.title.certificationResult`).d('认证结果报表')}
         >
+          <ExcelExport
+            requestUrl={`${API_PREFIX}/v1/${tenantId}/invoice-operation/certified-result-statistic-report-export`}
+            queryParams={() => this.handleGetQueryParams()}
+          />
           <Button color={ButtonColor.primary} onClick={this.handlePrint}>
             {intl.get(`${modelCode}.button.printOfCertificationResult`).d('认证结果通知书打印')}
           </Button>
