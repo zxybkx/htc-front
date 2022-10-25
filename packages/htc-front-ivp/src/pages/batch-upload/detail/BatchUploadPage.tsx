@@ -6,7 +6,7 @@ import { chunk } from 'lodash';
 import { Bind } from 'lodash-decorators';
 import { Content, Header } from 'components/Page';
 import intl from 'utils/intl';
-import { Button, DataSet, Form, Output, Pagination, Table, Upload } from 'choerodon-ui/pro';
+import { Button, DataSet, Form, Modal, Output, Pagination, Table, Upload } from 'choerodon-ui/pro';
 import { Col, Row, Spin, Tag, Icon } from 'choerodon-ui';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
@@ -169,25 +169,10 @@ export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
     });
   }
 
-  // 确认档案
   @Bind()
-  async handleConfirmArchive() {
+  async confirmInterface(selectedList) {
     const { sourceCode } = this.props.match.params;
     const { companyCode, employeeNum } = this.state;
-    const selectedList = this.multipleDS.selected.map(rec => rec.toData());
-    if (
-      selectedList.some(
-        sl => !(sl.identifyState === 'RECOGNITION_FINISHED' && sl.dataCheckState === 'PASSED')
-      )
-    ) {
-      notification.error({
-        message: '',
-        description: intl
-          .get(`${modelCode}.view.confirmInvalid`)
-          .d('存在不能确认的数据，请重新勾选'),
-      });
-      return;
-    }
     const selectedRowKeys = selectedList.map(record => record.invoiceUploadFileId);
     const params = {
       tenantId,
@@ -212,6 +197,43 @@ export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
     }
   }
 
+  // 确认档案
+  @Bind()
+  handleConfirmArchive() {
+    const selectedList = this.multipleDS.selected.map(rec => rec.toData());
+    if (
+      selectedList.some(
+        sl =>
+          !(
+            sl.identifyState === 'RECOGNITION_FINISHED' &&
+            ['PASSED', 'NON_INVOICE_SOURCE_FILE'].includes(sl.dataCheckState)
+          )
+      )
+    ) {
+      notification.warning({
+        message: '',
+        description: intl
+          .get(`${modelCode}.view.confirmInvalid`)
+          .d('存在不能确认的数据，请重新勾选'),
+      });
+      return;
+    }
+    if (selectedList.some(sl => sl.dataCheckState === 'NON_INVOICE_SOURCE_FILE')) {
+      Modal.confirm({
+        key: Modal.key,
+        title: intl
+          .get(`${modelCode}.validate.confirmArchive`)
+          .d('当前发票档案文件非发票原文件，是否继续上传？'),
+      }).then(button => {
+        if (button === 'ok') {
+          this.confirmInterface(selectedList);
+        }
+      });
+    } else {
+      this.confirmInterface(selectedList);
+    }
+  }
+
   // 查看档案
   @Bind()
   async handleGotoArchiveView(invoicePoolHeaderId) {
@@ -233,7 +255,7 @@ export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
         width: 240,
         renderer: ({ text, record }) => {
           const identifyState = record?.get('identifyState');
-          const identifyStateMeaning = record?.get('identifyStateMeaning');
+          const identifyStateMeaning = record?.getField('identifyState')?.getText(identifyState);
           const invoicePoolHeaderId = record?.get('invoicePoolHeaderId');
           let color = '';
           let textColor = '';
