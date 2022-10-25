@@ -304,9 +304,10 @@ export async function enterpriseSave(params) {
  * @function: creatBatchNumber
  */
 export async function creatBatchNumber(params) {
-  const { tenantId } = params;
+  const { tenantId, ...otherParams } = params;
   return request(`${HIVP_API}/v1/${tenantId}/batch-check/create-batch-no`, {
     method: 'GET',
+    query: otherParams,
   });
 }
 /**
