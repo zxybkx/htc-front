@@ -504,9 +504,9 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       ...ScanGunModalDS(),
     });
     const handSave = async () => {
-      const res = getResponse(await creatBatchNumber({ tenantId }));
+      const { companyId, companyCode, employeeId, employeeNum } = empInfo;
+      const res = getResponse(await creatBatchNumber({ tenantId, companyId }));
       if (res) {
-        const { companyId, companyCode, employeeId, employeeNum } = empInfo;
         const selectedList = ds.selected.map(rec => rec.toData());
         const result = getResponse(
           await batchScanGunInvoices({
