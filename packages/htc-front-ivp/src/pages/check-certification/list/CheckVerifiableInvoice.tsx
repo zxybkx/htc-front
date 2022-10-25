@@ -290,7 +290,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
             invoiceNo: fphm,
             invoiceDate: kprq,
             validTaxAmount: yxse,
-            invoicePoolHeaderId: id,
+            invoiceId: id,
             invoiceCheckCollectId,
             invoiceAmount,
           } = record;
