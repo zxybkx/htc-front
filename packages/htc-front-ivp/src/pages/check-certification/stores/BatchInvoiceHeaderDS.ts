@@ -275,15 +275,14 @@ export default (): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
-          name: 'sourceSystem',
+          name: 'systemCode',
           type: FieldType.string,
           bind: 'systemCodeObj.systemCode',
         },
         {
-          name: 'sysTypeHeaderId',
+          name: 'docTypeHeaderId',
           type: FieldType.string,
           bind: 'systemCodeObj.docTypeHeaderId',
-          ignore: FieldIgnore.always,
         },
         {
           name: 'documentTypeCodeObj',
@@ -292,10 +291,10 @@ export default (): DataSetProps => {
           lovCode: 'HTC.DOCUMENT_TYPE_LOV',
           computedProps: {
             lovPara: ({ record }) => {
-              return { docTypeHeaderId: record.get('sysTypeHeaderId').join(',') };
+              return { docTypeHeaderId: record.get('docTypeHeaderId').join(',') };
             },
             disabled: ({ record }) => {
-              return !record.get('sysTypeHeaderId').length;
+              return !record.get('docTypeHeaderId').length;
             },
           },
           multiple: ',',
@@ -310,10 +309,9 @@ export default (): DataSetProps => {
           name: 'docTypeLineId',
           type: FieldType.string,
           bind: 'documentTypeCodeObj.docTypeLineId',
-          ignore: FieldIgnore.always,
         },
         {
-          name: 'docTypeHeaderId',
+          name: 'docuTypeHeaderId',
           type: FieldType.string,
           bind: 'documentTypeCodeObj.docTypeHeaderId',
           ignore: FieldIgnore.always,
@@ -327,12 +325,12 @@ export default (): DataSetProps => {
           computedProps: {
             lovPara: ({ record }) => {
               return {
-                docTypeHeaderId: record.get('docTypeHeaderId').join(','),
+                docTypeHeaderId: record.get('docuTypeHeaderId').join(','),
                 docTypeLineId: record.get('docTypeLineId').join(','),
               };
             },
             disabled: ({ record }) => {
-              return !record.get('docTypeHeaderId').length;
+              return !record.get('docuTypeHeaderId').length;
             },
           },
           ignore: FieldIgnore.always,
@@ -341,6 +339,11 @@ export default (): DataSetProps => {
           name: 'documentNumber',
           type: FieldType.string,
           bind: 'documentNumberObj.documentNumber',
+        },
+        {
+          name: 'detailId',
+          type: FieldType.string,
+          bind: 'documentNumberObj.detailId',
         },
         {
           name: 'salerName',
