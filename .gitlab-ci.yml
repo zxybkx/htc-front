@@ -86,7 +86,7 @@ docker_build:
           yarn config set ignore-engines true
           yarn bootstrap
         fi
-        npx hzero-cli info
+
     }
   export GROUP_NAME=htc
   export DOCKER_USER=User6371438
