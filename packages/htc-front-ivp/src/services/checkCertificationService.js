@@ -315,7 +315,7 @@ export async function enterpriseSave(params) {
  */
 export async function creatBatchNumber(params) {
   const { tenantId, ...otherParams } = params;
-  return request(`${HIVP_API}/v1/${tenantId}/batch-check/create-batch-no`, {
+  return request(`${HIVP_API}/v1/${tenantId}/batch-check/create-batch-no-scanner`, {
     method: 'GET',
     query: otherParams,
   });
