@@ -47,7 +47,7 @@ export default {
             MULTIPLE_SKIN_ENABLE: 'true', // UED配置是否启用，true / false
         },
     },
-  hzeroUed: {},
+    hzeroUed: {},
     manifest: {
         basePath: '/',
     },
@@ -55,7 +55,7 @@ export default {
         '@hzerojs/preset-hzero',
     ],
     plugins: [
-      'hzero-front',
+        'hzero-front',
     ],
     alias: {
         'components': 'hzero-front/lib/components',
@@ -99,6 +99,7 @@ export default {
             // },
             {
                 'name': 'hzero-front-hiam',
+                "registerRegex": ".*"
             },
             {
                 'name': 'hzero-front-hpfm',
@@ -108,6 +109,7 @@ export default {
             },
             {
                 'name': 'hzero-front-hmsg',
+                "registerRegex": ".*"
             },
             {
                 'name': 'hzero-front-himp',
@@ -123,6 +125,7 @@ export default {
             },
             {
                 'name': 'hzero-front-hrpt',
+                "registerRegex": ".*"
             },
             {
                 'name': 'hzero-front-hsdr',
