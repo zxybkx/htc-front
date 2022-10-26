@@ -54,9 +54,9 @@ export default {
     presets: [
         '@hzerojs/preset-hzero',
     ],
+    hzeroUed: {},
     plugins: [
-        '@hzerojs/plugin-hzero-layout',
-        '@hzerojs/plugin-hzero-ued',
+        'hzero-front',
     ],
     alias: {
         'components': 'hzero-front/lib/components',
