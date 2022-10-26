@@ -231,11 +231,10 @@ export async function checkInvoiceCount(params) {
  * 获取当前可勾选发票
  */
 export async function unCertifiedInvoiceQuery(params) {
-  const { tenantId, list, ...otherParams } = params;
+  const { tenantId, ...otherParams } = params;
   return request(`${HIVP_API}/v1/${tenantId}/batch-check/unCertified-invoice-query`, {
-    method: 'POST',
+    method: 'GET',
     query: otherParams,
-    body: list,
   });
 }
 
@@ -257,6 +256,17 @@ export async function batchCheck(params) {
 export async function getTaskPassword(params) {
   const { tenantId, ...otherParams } = params;
   return request(`${HIVP_API}/v1/${tenantId}/enterprise-file-infos`, {
+    method: 'GET',
+    query: otherParams,
+  });
+}
+
+/**
+ * 查询所属期
+ */
+export async function getCurPeriod(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/invoice-operation/business-time-companyId-cur`, {
     method: 'GET',
     query: otherParams,
   });
@@ -321,5 +331,36 @@ export async function batchScanGunInvoices(params) {
     method: 'POST',
     query: otherParams,
     body: list,
+  });
+}
+
+/**
+ * 不抵扣勾选-勾选请求
+ * @async
+ * @function partialCheck
+ * @param {object} params - 查询条件
+ * @returns {object} fetch Promise
+ */
+export async function partialCheck(params) {
+  const { tenantId, selectedList, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/non-deduction-check/partial-Check`, {
+    method: 'POST',
+    query: otherParams,
+    body: selectedList,
+  });
+}
+
+/**
+ * 批量勾选可认证发票-下载模板
+ * @async
+ * @function batchDownload
+ * @returns {object} fetch Promise
+ */
+export async function downloadTemplate(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/batch-check/download-file`, {
+    method: 'POST',
+    query: otherParams,
+    responseType: 'blob',
   });
 }

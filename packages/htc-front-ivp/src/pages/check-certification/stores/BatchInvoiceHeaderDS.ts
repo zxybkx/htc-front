@@ -92,12 +92,12 @@ export default (): DataSetProps => {
       },
       {
         name: 'taxStatistics',
-        label: intl.get(`hivp.checkCertification.view.taxselectedAmount`).d('本次勾选税额'),
+        label: intl.get('hivp.checkCertification.view.taxselectedAmount').d('本次勾选税额'),
         type: FieldType.currency,
       },
       {
         name: 'failReason',
-        label: intl.get(`hivp.checkCertification.view.failReason`).d('失败原因'),
+        label: intl.get('hivp.checkCertification.view.failReason').d('失败原因'),
         type: FieldType.string,
       },
       {
@@ -117,6 +117,18 @@ export default (): DataSetProps => {
       },
     ],
     queryDataSet: new DataSet({
+      autoCreate: true,
+      events: {
+        update: ({ record, name }) => {
+          if (name === 'systemCodeObj') {
+            record.set('documentTypeCodeObj', null);
+            record.set('documentNumberObj', null);
+          }
+          if (name === 'documentTypeCodeObj') {
+            record.set('documentNumberObj', null);
+          }
+        },
+      },
       fields: [
         {
           name: 'companyObj',
@@ -152,9 +164,34 @@ export default (): DataSetProps => {
           type: FieldType.string,
         },
         {
-          name: 'tjyf',
+          name: 'currentPeriod',
           label: intl.get(`${modelCode}.view.tjyf`).d('当前所属期'),
           type: FieldType.string,
+          readOnly: true,
+          required: true,
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'currentOperationalDeadline',
+          label: intl.get(`${modelCode}.view.currentOperationalDeadline`).d('当前可操作截止时间'),
+          labelWidth: '130',
+          type: FieldType.string,
+          transformRequest: value => moment(value).format('YYYY-MM-DD'),
+          readOnly: true,
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'checkableTimeRange',
+          label: intl.get(`${modelCode}.view.checkableTimeRange`).d('可勾选时间范围'),
+          type: FieldType.string,
+          readOnly: true,
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'currentCertState',
+          label: intl.get('hivp.taxRefund.view.currentCertState').d('当前认证状态'),
+          type: FieldType.string,
+          lookupCode: 'HIVP.CHECK_CONFIRM_STATE',
           readOnly: true,
           ignore: FieldIgnore.always,
         },
@@ -182,18 +219,136 @@ export default (): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
-          name: 'rqq',
+          name: 'invoiceDate',
+          label: intl.get(`htc.common.view.invoiceDate`).d('开票日期'),
+          type: FieldType.date,
+          range: ['invoiceDateFrom', 'invoiceDateEnd'],
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'invoiceDateFrom',
           label: intl.get('hivp.bill.view.invoiceDateFrom').d('开票日期从'),
           type: FieldType.date,
-          max: 'rqz',
+          bind: 'invoiceDate.invoiceDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
-          name: 'rqz',
+          name: 'invoiceDateEnd',
           label: intl.get('hivp.bill.view.invoiceDateTo').d('开票日期至'),
           type: FieldType.date,
-          min: 'rqq',
+          bind: 'invoiceDate.invoiceDateEnd',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'entryAccountState',
+          label: intl.get('hivp.bill.view.entryAccountState').d('入账状态'),
+          type: FieldType.string,
+          lookupCode: 'HIVP.ACCOUNT_STATE',
+          multiple: ',',
+        },
+        {
+          name: 'entryAccountDate',
+          label: intl.get('htc.common.view.entryAccountDate').d('入账日期'),
+          type: FieldType.date,
+          range: ['entryAccountDateFrom', 'entryAccountDateTo'],
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'entryAccountDateFrom',
+          type: FieldType.date,
+          bind: 'entryAccountDate.entryAccountDateFrom',
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'entryAccountDateTo',
+          type: FieldType.date,
+          bind: 'entryAccountDate.entryAccountDateTo',
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'systemCodeObj',
+          label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
+          type: FieldType.object,
+          lovCode: 'HTC.SOURCE_SYSTEM',
+          lovPara: { enabledFlag: 1 },
+          multiple: ',',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'systemCode',
+          type: FieldType.string,
+          bind: 'systemCodeObj.systemCode',
+        },
+        {
+          name: 'docTypeHeaderId',
+          type: FieldType.string,
+          bind: 'systemCodeObj.docTypeHeaderId',
+        },
+        {
+          name: 'documentTypeCodeObj',
+          label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
+          type: FieldType.object,
+          lovCode: 'HTC.DOCUMENT_TYPE_LOV',
+          computedProps: {
+            lovPara: ({ record }) => {
+              return { docTypeHeaderId: record.get('docTypeHeaderId').join(',') };
+            },
+            disabled: ({ record }) => {
+              return !record.get('docTypeHeaderId').length;
+            },
+          },
+          multiple: ',',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentTypeCode',
+          type: FieldType.string,
+          bind: 'documentTypeCodeObj.documentTypeCode',
+        },
+        {
+          name: 'docTypeLineId',
+          type: FieldType.string,
+          bind: 'documentTypeCodeObj.docTypeLineId',
+        },
+        {
+          name: 'docuTypeHeaderId',
+          type: FieldType.string,
+          bind: 'documentTypeCodeObj.docTypeHeaderId',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentNumberObj',
+          label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
+          type: FieldType.object,
+          lovCode: 'HTC.DOCUMENT_CODE_LOV',
+          multiple: ',',
+          computedProps: {
+            lovPara: ({ record }) => {
+              return {
+                docTypeHeaderId: record.get('docuTypeHeaderId').join(','),
+                docTypeLineId: record.get('docTypeLineId').join(','),
+              };
+            },
+            disabled: ({ record }) => {
+              return !record.get('docuTypeHeaderId').length;
+            },
+          },
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentNumber',
+          type: FieldType.string,
+          bind: 'documentNumberObj.documentNumber',
+        },
+        {
+          name: 'detailId',
+          type: FieldType.string,
+          bind: 'documentNumberObj.detailId',
+        },
+        {
+          name: 'salerName',
+          label: intl.get('htc.common.view.salerName').d('销方名称'),
+          type: FieldType.string,
         },
         {
           name: 'xfsbh',
@@ -205,7 +360,7 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.checkState`).d('勾选标志'),
           type: FieldType.string,
           lookupCode: 'HIVP.CHECK_STATE',
-          defaultValue: '0',
+          // defaultValue: '0',
         },
         {
           name: 'qt',

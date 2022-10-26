@@ -1,9 +1,9 @@
-/*
- * @Description:当期勾选(取消)可认证发票
+/**
+ * @Description:不抵扣勾选
  * @version: 1.0
- * @Author: shan.zhang@hand-china.com
- * @Date: 2020-09-29 10:24:22
- * @LastEditTime: 2022-09-02 11:03:24
+ * @Author: xinyan.zhou@hand-china.com
+ * @Date: 2022-09-28 15:01
+ * @LastEditTime:
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -67,7 +67,7 @@ export default (): DataSetProps => {
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const url = `${API_PREFIX}/v1/${tenantId}/invoice-operation/certifiable-invoice-query`;
+        const url = `${API_PREFIX}/v1/${tenantId}/non-deduction-check/query`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
           url,
@@ -81,15 +81,7 @@ export default (): DataSetProps => {
       },
       submit: ({ data, params }) => {
         return {
-          url: `${API_PREFIX}/v1/${tenantId}/invoice-pool-header-infos/batch-save`,
-          data,
-          params,
-          method: 'POST',
-        };
-      },
-      update: ({ data, params }) => {
-        return {
-          url: `${API_PREFIX}/v1/${tenantId}/invoice-operation/update-valid-tax-amount`,
+          url: `${API_PREFIX}/v1/${tenantId}/non-deduction-check/save-noDeductReason`,
           data,
           params,
           method: 'POST',
@@ -201,6 +193,12 @@ export default (): DataSetProps => {
         type: FieldType.currency,
         validator: (value, name, record) =>
           Promise.resolve(validTaxAmountValidator(value, name, record)),
+      },
+      {
+        name: 'reasonsForNonDeduction',
+        label: intl.get('hivp.checkCertification.view.reasonsForNonDeduction').d('不抵扣原因'),
+        type: FieldType.string,
+        lookupCode: 'NO_DEDUCT_REASON',
       },
       {
         name: 'invoiceState',
@@ -381,8 +379,8 @@ export default (): DataSetProps => {
           required: true,
         },
         {
-          name: 'currentOperationalDeadline',
-          label: intl.get(`${modelCode}.view.currentOperationalDeadline`).d('当前可操作截止时间'),
+          name: 'expiredDate',
+          label: intl.get(`${modelCode}.view.expiredDate`).d('当前可操作截止时间'),
           labelWidth: '130',
           type: FieldType.string,
           transformRequest: value => moment(value).format('YYYY-MM-DD'),
@@ -424,7 +422,7 @@ export default (): DataSetProps => {
           type: FieldType.string,
         },
         {
-          name: 'invoiceNumber',
+          name: 'invoiceNo',
           label: intl.get(`${modelCode}.view.invoiceNumber`).d('发票/缴款书号码'),
           labelWidth: '120',
           type: FieldType.string,
@@ -546,19 +544,21 @@ export default (): DataSetProps => {
         },
         {
           name: 'entryAccountDate',
-          label: intl.get('hivp.bill.view.entryAccountDate').d('入账日期'),
+          label: intl.get(`htc.common.view.entryAccountDate`).d('入账日期'),
           type: FieldType.date,
           range: ['entryAccountDateFrom', 'entryAccountDateTo'],
           ignore: FieldIgnore.always,
         },
         {
           name: 'entryAccountDateFrom',
+          label: intl.get('hivp.bill.view.entryAccountDateFrom').d('入账日期从'),
           type: FieldType.date,
           bind: 'entryAccountDate.entryAccountDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'entryAccountDateTo',
+          label: intl.get('hivp.bill.view.entryAccountDateTo').d('入账日期至'),
           type: FieldType.date,
           bind: 'entryAccountDate.entryAccountDateTo',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
@@ -637,6 +637,12 @@ export default (): DataSetProps => {
           type: FieldType.string,
           lookupCode: 'HTC.HIVP.ISPOOL_FLAG',
           // defaultValue: 'Y',
+        },
+        {
+          name: 'reasonsForNonDeduction',
+          label: intl.get('hivp.bill.view.reasonsForNonDeduction').d('不抵扣原因'),
+          type: FieldType.string,
+          lookupCode: 'NO_DEDUCT_REASON',
         },
       ],
     }),

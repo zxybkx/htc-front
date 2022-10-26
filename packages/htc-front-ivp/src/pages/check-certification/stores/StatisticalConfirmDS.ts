@@ -14,6 +14,7 @@ import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import { EMAIL } from 'utils/regExp';
+import moment from 'moment';
 
 const modelCode = 'hivp.checkCertification';
 const API_PREFIX = commonConfig.IVP_API || '';
@@ -78,31 +79,84 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
-        name: 'employeeNumber',
+        name: 'employeeName',
         label: intl.get('hiop.redInvoiceInfo.modal.employeeName').d('请求员工'),
         type: FieldType.string,
       },
     ],
     queryDataSet: new DataSet({
+      autoCreate: true,
       fields: [
         {
           name: 'companyId',
           type: FieldType.number,
         },
         {
-          name: 'authenticationDateObj',
-          label: intl.get(`${modelCode}.view.authenticationDateObj`).d('认证所属期'),
+          name: 'currentPeriod',
+          label: intl.get('hivp.taxRefund.view.tjyf').d('当前所属期'),
+          type: FieldType.string,
+          readOnly: true,
+          required: true,
+        },
+        {
+          name: 'currentOperationalDeadline',
+          label: intl.get(`${modelCode}.view.currentOperationalDeadline`).d('当前可操作截止时间'),
+          labelWidth: '130',
+          type: FieldType.string,
+          transformRequest: value => moment(value).format('YYYY-MM-DD'),
+          readOnly: true,
+        },
+        {
+          name: 'currentCertState',
+          label: intl.get('hivp.taxRefund.view.currentCertState').d('当前认证状态'),
+          type: FieldType.string,
+          lookupCode: 'HIVP.CHECK_CONFIRM_STATE',
+          readOnly: true,
+        },
+        {
+          name: 'requestType',
+          label: intl.get('hivp.checkCertification.view.requestType').d('请求类型'),
+          type: FieldType.string,
+          lookupCode: 'HIVP.CERT_REQUEST_TYPE',
+          multiple: ',',
+          defaultValue: [
+            'APPLY_FOR_STATISTICS',
+            'CANCEL_FOR_STATISTICS',
+            'APPLY_FOR_CONFIRM',
+            'CANCEL_FOR_CONFIRM',
+          ],
+        },
+        {
+          name: 'confirmPassword',
+          label: intl.get(`${modelCode}.modal.confirmPassword`).d('确认密码'),
+          type: FieldType.string,
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'authenticationDateObjFrom',
+          label: intl.get(`${modelCode}.view.currentPeriodFrom`).d('所属期范围从'),
           type: FieldType.object,
           lovCode: 'HIVP.BUSINESS_TIME_INFO',
           cascadeMap: { companyId: 'companyId' },
           ignore: FieldIgnore.always,
-          required: true,
         },
         {
-          name: 'statisticalPeriod',
+          name: 'currentPeriodFrom',
           type: FieldType.string,
-          bind: 'authenticationDateObj.currentPeriod',
-          // ignore: FieldIgnore.always,
+          bind: 'authenticationDateObjFrom.currentPeriod',
+        },
+        {
+          name: 'authenticationDateObjTo',
+          label: intl.get(`${modelCode}.view.currentPeriodTo`).d('所属期范围至'),
+          type: FieldType.object,
+          lovCode: 'HIVP.BUSINESS_TIME_INFO',
+          cascadeMap: { companyId: 'companyId' },
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'currentPeriodTo',
+          type: FieldType.string,
+          bind: 'authenticationDateObjTo.currentPeriod',
         },
         {
           name: 'currentCertState',
@@ -121,6 +175,10 @@ const TimeRange = (): DataSetProps => {
     autoCreate: true,
     fields: [
       {
+        name: 'companyId',
+        type: FieldType.number,
+      },
+      {
         name: 'invoiceDateFrom',
         label: intl.get(`${modelCode}.view.checkTimeFrom`).d('勾选日期从'),
         type: FieldType.date,
@@ -133,6 +191,19 @@ const TimeRange = (): DataSetProps => {
         type: FieldType.date,
         required: true,
         min: 'invoiceDateFrom',
+      },
+      {
+        name: 'authenticationDateObj',
+        label: intl.get(`${modelCode}.view.currentPeriod`).d('所属期'),
+        type: FieldType.object,
+        lovCode: 'HIVP.BUSINESS_TIME_INFO',
+        cascadeMap: { companyId: 'companyId' },
+        required: true,
+      },
+      {
+        name: 'currentPeriod',
+        type: FieldType.string,
+        bind: 'authenticationDateObj.currentPeriod',
       },
     ],
   };
