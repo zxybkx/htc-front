@@ -2,7 +2,7 @@
  * @Description: 进项发票规则维护
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-10-09 14:51:37
- * @LastEditTime: 2022-10-24 11:32:43
+ * @LastEditTime: 2022-10-26 11:21:40
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { FunctionComponent } from 'react';
@@ -31,6 +31,19 @@ interface Props {
 
 const InvoiceRuleHeaderForm: FunctionComponent<Props> = (props: Props) => {
   const { dataSet, manualDataSet } = props;
+  const reset = () => {
+    const { companyCode, companyId, employeeNumber }: any = manualDataSet.toData()[0];
+    manualDataSet.reset();
+    const { current } = manualDataSet;
+    if (current) {
+      current.set({
+        companyId,
+        companyCode,
+        employeeNumber,
+      });
+    }
+  };
+
   return (
     <>
       <Card
@@ -61,6 +74,7 @@ const InvoiceRuleHeaderForm: FunctionComponent<Props> = (props: Props) => {
             <Button color={ButtonColor.primary} type={ButtonType.submit}>
               {intl.get('hivp.checkRule.button.getCheckInvoice').d('获取勾选发票')}
             </Button>
+            <Button onClick={reset}>{intl.get('hivp.checkRule').d('重置')}</Button>
           </div>
         </Form>
         <Form dataSet={manualDataSet} columns={4} labelTooltip={Tooltip.overflow}>
