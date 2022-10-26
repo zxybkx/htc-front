@@ -12,4 +12,6 @@ export interface EmployeeInterface {
   mobile: string;
   taxpayerNumber: string;
   tenantId: number;
+  authorityCode: string;
+  inChannelCode: string;
 }

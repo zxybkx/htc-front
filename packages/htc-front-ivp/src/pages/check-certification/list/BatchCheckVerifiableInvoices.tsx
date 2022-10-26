@@ -6,7 +6,7 @@
  * @LastEditTime: 2022-09-20 13:49
  * @Copyright: Copyright (c) 2020, Hand
  */
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Button,
   DataSet,
@@ -14,12 +14,14 @@ import {
   DateTimePicker,
   Dropdown,
   Form,
+  Lov,
   Menu,
   Modal as ModalPro,
   Select,
   Table,
   TextField,
   Upload,
+  Modal,
 } from 'choerodon-ui/pro';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
@@ -29,27 +31,29 @@ import {
   batchCheck,
   downloadFile,
   refreshStatus,
-  unCertifiedInvoiceQuery,
   creatBatchNumber,
   batchScanGunInvoices,
+  unCertifiedInvoiceQuery,
+  getCurPeriod,
+  downloadTemplate,
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
+import { API_HOST } from 'utils/config';
+import commonConfig from '@htccommon/config/commonConfig';
 import { getAccessToken, getResponse } from 'utils/utils';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnAlign, ColumnLock, TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
 import queryString from 'query-string';
-import commonConfig from '@htccommon/config/commonConfig';
 import { downLoadFiles } from '@htccommon/utils/utils';
-import { API_HOST } from 'utils/config';
 import { observer } from 'mobx-react-lite';
 import moment from 'moment';
-import { Col, Icon, message, Row, Tag, Tooltip } from 'choerodon-ui';
-import { DEFAULT_DATE_FORMAT } from 'utils/constants';
+import { Col, Icon, message, Row, Tag, Alert } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { ValueChangeAction } from 'choerodon-ui/pro/lib/text-field/enum';
 import BatchInvoiceHeaderDS from '../stores/BatchInvoiceHeaderDS';
 import ScanGunModalDS from '../stores/ScanGunModalDS';
+import InvoiceCategoryContext from './CommonStore';
 import styles from '../checkcertification.less';
 
 const { Item: MenuItem } = Menu;
@@ -62,60 +66,65 @@ interface BatchCheckVerifiableInvoicesProps {
   companyAndPassword: DataSet;
   empInfo: any;
   currentPeriodData: any;
-  checkInvoiceCount: number;
   history: any;
   batchInvoiceHeaderDS?: DataSet;
 }
 
+const acceptType = [
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-excel',
+];
+
 const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> = props => {
-  const {
-    batchInvoiceHeaderDS,
-    empInfo,
-    currentPeriodData,
-    checkInvoiceCount,
-    companyAndPassword,
-    history,
-  } = props;
+  const { batchInvoiceHeaderDS, empInfo, currentPeriodData, companyAndPassword, history } = props;
   const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
   const [showMore, setShowMore] = useState<boolean>(false);
+  const { immediatePeriod, setImmediatePeriod } = useContext(InvoiceCategoryContext);
 
-  const setInitialValue = () => {
+  let singleUpload;
+
+  const saveUpload = node => {
+    singleUpload = node;
+  };
+
+  const setCompanyObjFromProps = () => {
     if (batchInvoiceHeaderDS) {
       const { queryDataSet } = batchInvoiceHeaderDS;
-      const tjyf = queryDataSet?.current?.get('tjyf');
+      const currentPeriod = queryDataSet?.current?.get('currentPeriod');
       const { companyId } = empInfo;
-      if (queryDataSet) {
+      if (queryDataSet && queryDataSet.current) {
+        queryDataSet.current!.set({
+          companyObj: empInfo,
+          authorityCode: empInfo.authorityCode,
+        });
+      }
+      if (currentPeriod && companyId) batchInvoiceHeaderDS.query();
+    }
+  };
+
+  const setCurrentPeriodFromProps = () => {
+    if (batchInvoiceHeaderDS) {
+      const { queryDataSet } = batchInvoiceHeaderDS;
+      if (queryDataSet && queryDataSet.current) {
+        const period = immediatePeriod || currentPeriodData;
         const {
           currentPeriod,
           currentOperationalDeadline,
           checkableTimeRange,
           currentCertState,
-        } = currentPeriodData;
-        if (queryDataSet.current) {
-          queryDataSet.current!.set({
-            companyObj: empInfo,
-            authorityCode: empInfo.authorityCode,
-            tjyf: currentPeriod,
-            currentOperationalDeadline,
-            checkableTimeRange,
-            currentCertState,
-          });
-        } else {
-          queryDataSet.create({
-            companyObj: empInfo,
-            authorityCode: empInfo.authorityCode,
-            tjyf: currentPeriod,
-            currentOperationalDeadline,
-            checkableTimeRange,
-            currentCertState,
-          });
-        }
+        } = period;
+        queryDataSet.current!.set({
+          currentPeriod,
+          currentOperationalDeadline,
+          checkableTimeRange,
+          currentCertState,
+        });
       }
-      if (tjyf && companyId) batchInvoiceHeaderDS.query();
     }
   };
 
-  useEffect(() => setInitialValue(), [empInfo, currentPeriodData]);
+  useEffect(() => setCompanyObjFromProps(), [empInfo]);
+  useEffect(() => setCurrentPeriodFromProps(), [currentPeriodData, immediatePeriod]);
 
   const handleUploadSuccess = response => {
     if (batchInvoiceHeaderDS) {
@@ -150,10 +159,8 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       'Access-Control-Allow-Origin': '*',
       Authorization: `bearer ${getAccessToken()}`,
     },
-    multiple: false,
     showUploadBtn: false,
-    showPreviewImage: false,
-    showUploadList: false,
+    uploadImmediately: false,
     onUploadSuccess: handleUploadSuccess,
     onUploadError: handleUploadError,
   };
@@ -169,12 +176,10 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     } = empInfo;
     return (
       <Upload
+        ref={saveUpload}
         {...uploadProps}
         disabled={!companyId}
-        accept={[
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'application/vnd.ms-excel',
-        ]}
+        accept={acceptType}
         action={`${API_HOST}${HIVP_API}/v1/${tenantId}/batch-check/upload-certified-file?companyId=${companyId}&companyCode=${companyCode}&employeeId=${employeeId}&employeeNumber=${employeeNum}&taxpayerNumber=${taxpayerNumber}&taxDiskPassword=${taxDiskPassword}&authorityCode=${authorityCode}`}
       />
     );
@@ -188,6 +193,26 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
         onClick={btnProps.onClick}
         disabled={isDisabled}
         funcType={FuncType.flat}
+      >
+        {btnProps.title}
+      </Button>
+    );
+  });
+
+  const FreshButton = observer((btnProps: any) => {
+    const { inChannelCode } = empInfo;
+    const isDisabled = btnProps.dataSet!.selected.length === 0;
+    return (
+      <Button
+        key={btnProps.key}
+        onClick={btnProps.onClick}
+        disabled={isDisabled}
+        funcType={FuncType.flat}
+        style={{
+          display: ['AISINO_IN_CHANNEL', 'AISINO_IN_CHANNEL_PLUG'].includes(inChannelCode)
+            ? 'inline'
+            : 'none',
+        }}
       >
         {btnProps.title}
       </Button>
@@ -223,20 +248,8 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     );
   });
 
-  const Tooltips = () => {
-    const title =
-      checkInvoiceCount === 0
-        ? '根据当前输入查询条件，实时获取可勾选发票并汇总'
-        : '当前系统中存在请求中的发票，可在当期勾选可认证发票查看，请请求完成后再重新获取';
-    return (
-      <Tooltip title={title} placement="right">
-        <Icon type="help_outline" className={styles.icon} />
-      </Tooltip>
-    );
-  };
-
-  // 批量发票勾选（取消）可认证发票: 行
-  const batchOperation = async () => {
+  // 勾选请求接口
+  const checkCall = async () => {
     if (batchInvoiceHeaderDS) {
       const {
         companyId,
@@ -247,12 +260,6 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
         authorityCode,
       } = empInfo;
       const selectedList = batchInvoiceHeaderDS.selected.map(rec => rec.toData());
-      if (!taxDiskPassword) {
-        return notification.warning({
-          description: '',
-          message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-        });
-      }
       const params = {
         tenantId,
         companyId,
@@ -271,6 +278,45 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
           message: res.message,
         });
         batchInvoiceHeaderDS.query();
+      }
+      // 更新所属期
+      const { queryDataSet } = batchInvoiceHeaderDS;
+      const currentPeriod = queryDataSet?.current?.get('currentPeriod');
+      const periodRes = getResponse(await getCurPeriod({ tenantId, companyId, currentPeriod }));
+      if (periodRes) setImmediatePeriod(periodRes);
+    }
+  };
+
+  // 批量发票勾选（取消）可认证发票: 行
+  const batchOperation = () => {
+    if (batchInvoiceHeaderDS) {
+      if (batchInvoiceHeaderDS.selected.length > 1) {
+        notification.warning({
+          message: intl.get(`${modelCode}.validate.checkLength`).d('一次只能操作一条数据'),
+          description: '',
+        });
+        return;
+      }
+      const { queryDataSet } = batchInvoiceHeaderDS;
+      if (queryDataSet) {
+        const currentCertState = queryDataSet.current!.get('currentCertState');
+        // if (!taxDiskPassword) {
+        //   return notification.warning({
+        //     description: '',
+        //     message: intl
+        //       .get('hivp.checkCertification.notice.taxDiskPassword')
+        //       .d('请输入税盘密码！'),
+        //   });
+        // }
+        if (!['0', '1'].includes(currentCertState)) {
+          notification.warning({
+            message: intl
+              .get(`${modelCode}.validate.batchCheck`)
+              .d('当前认证状态为“已统计/已确签"，不允许勾选'),
+            description: '',
+          });
+        }
+        checkCall();
       }
     }
   };
@@ -291,6 +337,79 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
           onClick={() => batchOperation()}
           dataSet={batchInvoiceHeaderDS}
           title={intl.get(`${modelCode}.button.submitCancelTickRequest`).d('取消勾选')}
+        />
+      </MenuItem>
+    </Menu>
+  );
+
+  // 不抵扣勾选
+  const deductCheck = () => {
+    if (batchInvoiceHeaderDS) {
+      if (batchInvoiceHeaderDS.selected.length > 1) {
+        notification.warning({
+          message: intl.get(`${modelCode}.validate.checkLength`).d('一次只能操作一条数据'),
+          description: '',
+        });
+        return;
+      }
+      const { queryDataSet } = batchInvoiceHeaderDS;
+      const selectedList = batchInvoiceHeaderDS.selected.map(rec => rec.toData());
+      if (queryDataSet) {
+        const currentCertState = queryDataSet.current!.get('currentCertState');
+        // if (!taxDiskPassword) {
+        //   return notification.warning({
+        //     description: '',
+        //     message: intl
+        //       .get('hivp.checkCertification.notice.taxDiskPassword')
+        //       .d('请输入税盘密码！'),
+        //   });
+        // }
+        if (
+          !['0', '1'].includes(currentCertState) ||
+          selectedList?.some(item => item.checkState === 'R')
+        ) {
+          return notification.warning({
+            message: intl
+              .get(`${modelCode}.validate.deductCheck`)
+              .d('当前认证状态为“已统计/已确签"、或存在勾选状态为“请求中”的数据，不允许抵扣勾选'),
+            description: '',
+          });
+        }
+        checkCall();
+      }
+    }
+  };
+
+  const NoDeductButton = observer((btnProps: any) => {
+    const isDisabled = btnProps.dataSet!.selected.length === 0;
+    return (
+      <Button
+        key={btnProps.key}
+        onClick={btnProps.onClick}
+        disabled={isDisabled}
+        funcType={FuncType.link}
+      >
+        {btnProps.title}
+      </Button>
+    );
+  });
+
+  const noDeductMenu = (
+    <Menu>
+      <MenuItem>
+        <NoDeductButton
+          key="noDeductCheck"
+          onClick={() => deductCheck()}
+          dataSet={batchInvoiceHeaderDS}
+          title={intl.get(`${modelCode}.button.noDeductCheck`).d('不抵扣勾选')}
+        />
+      </MenuItem>
+      <MenuItem>
+        <NoDeductButton
+          key="cancelNoDeductibleCheck"
+          onClick={() => deductCheck()}
+          dataSet={batchInvoiceHeaderDS}
+          title={intl.get(`${modelCode}.button.cancelNoDeductibleCheck`).d('取消不抵扣勾选')}
         />
       </MenuItem>
     </Menu>
@@ -321,31 +440,13 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       const res = getResponse(await downloadFile(params));
       if (res) {
         const date = moment().format('YYYY-MM-DD HH:mm:ss');
-        const fileList = [
+        const files = [
           {
             data: res,
             fileName: `${taxpayerNumber}_${date}.xls`,
           },
         ];
-        downLoadFiles(fileList, 1);
-        // const blob = new Blob([res]); // 字节流
-        // if ((window.navigator as any).msSaveBlob) {
-        //   try {
-        //     (window.navigator as any).msSaveBlob(blob, `${taxpayerNumber}_${date}.xls`);
-        //   } catch (e) {
-        //     notification.error({
-        //       description: '',
-        //       message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
-        //     });
-        //   }
-        // } else {
-        //   const aElement = document.createElement('a');
-        //   const blobUrl = window.URL.createObjectURL(blob);
-        //   aElement.href = blobUrl; // 设置a标签路径
-        //   aElement.download = `${taxpayerNumber}_${date}.xls`;
-        //   aElement.click();
-        //   window.URL.revokeObjectURL(blobUrl);
-        // }
+        downLoadFiles(files, 1);
       }
     }
   };
@@ -377,59 +478,6 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   };
 
   /**
-   * 获取当前可勾选发票
-   */
-  const getCurrentCheckInvoices = async () => {
-    if (batchInvoiceHeaderDS) {
-      const { companyId, companyCode, employeeId, employeeNum } = empInfo;
-      const { queryDataSet } = batchInvoiceHeaderDS;
-      const rqq = queryDataSet?.current!.get('rqq');
-      const rqz = queryDataSet?.current!.get('rqz');
-      const xfsbh = queryDataSet?.current!.get('xfsbh');
-      const { currentPeriod, checkableTimeRange } = currentPeriodData;
-      if (!taxDiskPassword) {
-        return notification.warning({
-          description: '',
-          message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-        });
-      }
-      const params = {
-        tenantId,
-        companyId,
-        companyCode,
-        employeeId,
-        employeeNumber: employeeNum,
-        list: {
-          spmm: taxDiskPassword,
-          gxzt: '0',
-          checkableTimeRange,
-          rqq: rqq && rqq.format(DEFAULT_DATE_FORMAT),
-          rqz: rqz && rqz.format(DEFAULT_DATE_FORMAT),
-          xfsbh,
-          qt: currentPeriod,
-        },
-      };
-      const res = getResponse(await unCertifiedInvoiceQuery(params));
-      if (res) {
-        const { completeTime } = res;
-        let checkState;
-        if (completeTime) {
-          checkState = '1';
-        } else {
-          checkState = '0';
-        }
-        const data = [
-          {
-            ...res,
-            checkState,
-          },
-        ];
-        batchInvoiceHeaderDS.loadData(data);
-      }
-    }
-  };
-
-  /**
    * 删除勾选发票
    */
   const handleDeleteBatchCheck = () => {
@@ -456,9 +504,9 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       ...ScanGunModalDS(),
     });
     const handSave = async () => {
-      const res = getResponse(await creatBatchNumber({ tenantId }));
+      const { companyId, companyCode, employeeId, employeeNum } = empInfo;
+      const res = getResponse(await creatBatchNumber({ tenantId, companyId }));
       if (res) {
-        const { companyId, companyCode, employeeId, employeeNum } = empInfo;
         const selectedList = ds.selected.map(rec => rec.toData());
         const result = getResponse(
           await batchScanGunInvoices({
@@ -603,31 +651,141 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     }, 300);
   };
 
+  const summarizeByCondition = async () => {
+    if (batchInvoiceHeaderDS) {
+      const { queryDataSet } = batchInvoiceHeaderDS;
+      const queryData = queryDataSet?.current?.toData();
+      const { companyId } = empInfo;
+      const {
+        invoiceDateFrom,
+        invoiceDateEnd,
+        entryAccountState,
+        entryAccountDateFrom,
+        entryAccountDateTo,
+        systemCode,
+        docTypeHeaderId,
+        documentTypeCode,
+        docTypeLineId,
+        documentNumber,
+        detailId,
+        salerName,
+      } = queryData;
+      // if (!taxDiskPassword) {
+      //   return notification.warning({
+      //     description: '',
+      //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+      //   });
+      // }
+      const params = {
+        tenantId,
+        entryAccountState,
+        invoiceDateFrom,
+        invoiceDateEnd,
+        entryAccountDateFrom,
+        entryAccountDateTo,
+        systemCode,
+        docTypeHeaderId,
+        documentTypeCode,
+        docTypeLineId,
+        documentNumber,
+        detailId,
+        salerName,
+        companyId,
+      };
+      const res = getResponse(await unCertifiedInvoiceQuery(params));
+      if (res) {
+        const { completeTime } = res;
+        let checkState;
+        if (completeTime) {
+          checkState = '1';
+        } else {
+          checkState = '0';
+        }
+        const data = [
+          {
+            ...res,
+            checkState,
+          },
+        ];
+        batchInvoiceHeaderDS.loadData(data);
+      }
+    }
+  };
+
+  const handleUpload = async () => {
+    singleUpload.startUpload();
+  };
+
+  const downloadTemp = async () => {
+    const { companyId, companyCode, employeeId, employeeNum } = empInfo;
+    const params = {
+      tenantId,
+      companyId,
+      companyCode,
+      employeeId,
+      employeeNumber: employeeNum,
+    };
+    const res = await downloadTemplate(params);
+    if (res) {
+      const files = [
+        {
+          data: res,
+          fileName: '发票抵扣勾选导入模版.xls',
+        },
+      ];
+      downLoadFiles(files, 1);
+    }
+  };
+
+  const handleImportAndUpload = () => {
+    Modal.open({
+      title: intl.get(`${modelCode}.modal.title.batchCheckImport`).d('批量勾选导入'),
+      drawer: true,
+      children: (
+        <div>
+          <Alert
+            message={
+              <span>
+                请先下载《<a onClick={downloadTemp}>批量导入勾选发票模板</a>
+                》，按照模板要求填写后上传，一次性上传不要超过1000条
+              </span>
+            }
+            type="info"
+            showIcon
+            style={{ marginBottom: 10 }}
+          />
+          <p>
+            {intl.get(`${modelCode}.modal.upload.message`).d('请上传excel文件，文件大小不超过50M')}
+          </p>
+          <UploadButton />
+        </div>
+      ),
+      onOk: () => {
+        handleUpload();
+      },
+    });
+  };
+
   const batchButtons: Buttons[] = [
-    <UploadButton />,
+    <Button
+      color={ButtonColor.primary}
+      funcType={FuncType.flat}
+      onClick={() => handleImportAndUpload()}
+    >
+      {intl.get(`${modelCode}.button.batchImportAndUpload`).d('批量导入上传')}
+    </Button>,
     <HeaderButtons
       key="downloadFile"
       onClick={() => downLoad()}
       dataSet={batchInvoiceHeaderDS}
       title={intl.get('hivp.taxRefund.button.downloadFile').d('下载发票文件')}
     />,
-    <HeaderButtons
+    <FreshButton
       key="refresh"
       onClick={() => batchInvoiceRefresh()}
       dataSet={batchInvoiceHeaderDS}
       title={intl.get(`${modelCode}.button.batchRefresh`).d('刷新状态')}
     />,
-    <Button
-      key="getCurrentCheckInvoices"
-      onClick={() => getCurrentCheckInvoices()}
-      disabled={checkInvoiceCount !== 0}
-      color={ButtonColor.primary}
-      funcType={FuncType.raised}
-      id="checkInvoice"
-    >
-      {intl.get(`${modelCode}.button.getCurrentCheckable`).d('获取当前可勾选发票')}
-    </Button>,
-    <Tooltips />,
     <DeleteButton
       key="batchDelete"
       onClick={() => handleDeleteBatchCheck()}
@@ -640,6 +798,20 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
         <Icon type="arrow_drop_down" />
       </Button>
     </Dropdown>,
+    <Dropdown overlay={noDeductMenu}>
+      <Button
+        color={ButtonColor.primary}
+        style={{
+          float: 'right',
+          display: ['ZK_IN_CHANNEL_DIGITAL', 'ZK_IN_CHANNEL'].includes(empInfo.inChannelCode)
+            ? 'inline'
+            : 'none',
+        }}
+      >
+        {intl.get(`${modelCode}.button.noDeductCheck`).d('不抵扣勾选')}
+        <Icon type="arrow_drop_down" />
+      </Button>
+    </Dropdown>,
     <Button
       color={ButtonColor.primary}
       funcType={FuncType.raised}
@@ -647,6 +819,14 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       onClick={() => handleScanGun()}
     >
       {intl.get(`${modelCode}.button.scanCodeGunCollection`).d('扫码枪采集')}
+    </Button>,
+    <Button
+      color={ButtonColor.primary}
+      funcType={FuncType.raised}
+      style={{ float: 'right' }}
+      onClick={() => summarizeByCondition()}
+    >
+      {intl.get(`${modelCode}.button.summarizeByCondition`).d('按条件汇总')}
     </Button>,
   ];
 
@@ -694,6 +874,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
             requestTime,
             completeTime,
             batchNumber,
+            inChannelCode: empInfo.inChannelCode,
           })
         ),
       }),
@@ -781,6 +962,12 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     const { queryDataSet, buttons, dataSet } = batchProps;
     return (
       <div style={{ marginBottom: '0.1rem' }}>
+        <Form dataSet={queryDataSet} columns={4}>
+          <TextField name="currentPeriod" />
+          <TextField name="checkableTimeRange" />
+          <DatePicker name="currentOperationalDeadline" />
+          <Select name="currentCertState" />
+        </Form>
         <Row>
           <Col span={19}>
             {showMore ? (
@@ -814,13 +1001,28 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
                     </b>
                   </h3>
                   <Form dataSet={queryDataSet} columns={3}>
-                    <TextField name="tjyf" />
-                    <TextField name="currentOperationalDeadline" />
-                    <TextField name="checkableTimeRange" />
-                    <Select name="currentCertState" />
-                    <DatePicker name="rqq" />
-                    <DatePicker name="rqz" />
-                    <TextField name="xfsbh" />
+                    <DatePicker name="invoiceDate" />
+                    <Select name="entryAccountState" />
+                    <DatePicker name="entryAccountDate" />
+                    <Lov
+                      name="systemCodeObj"
+                      maxTagCount={1}
+                      maxTagTextLength={1}
+                      maxTagPlaceholder={restValues => `+${restValues.length}...`}
+                    />
+                    <Lov
+                      name="documentTypeCodeObj"
+                      maxTagCount={1}
+                      maxTagTextLength={1}
+                      maxTagPlaceholder={restValues => `+${restValues.length}...`}
+                    />
+                    <Lov
+                      name="documentNumberObj"
+                      maxTagCount={1}
+                      maxTagTextLength={1}
+                      maxTagPlaceholder={restValues => `+${restValues.length}...`}
+                    />
+                    <TextField name="salerName" />
                   </Form>
                 </div>
               </div>
@@ -885,13 +1087,12 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
 export default formatterCollections({
   code: [
     modelCode,
-    'hiop.invoiceWorkbench',
-    'hiop.invoiceRule',
     'hivp.taxRefund',
     'hiop.redInvoiceInfo',
     'htc.common',
     'hcan.invoiceDetail',
     'hivp.bill',
+    'hivp.invoicesArchiveUpload',
   ],
 })(
   withProps(
