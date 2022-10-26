@@ -48,7 +48,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'invoiceDate',
-        label: intl.get('hivp.checkRule.manual.invoiceDate').d('手动获取发票开票日期范围'),
+        label: intl.get('hivp.checkRule.manual.invoiceDate').d('开票日期'),
         range: ['invoiceDateStart', 'invoiceDateEnd'],
         defaultValue: { invoiceDateStart: moment().subtract(1, 'day'), invoiceDateEnd: new Date() },
         type: FieldType.date,
@@ -82,7 +82,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceTickDate',
-        label: intl.get('hivp.checkRule.manual.invoiceTickDate').d('手动获取勾选发票勾选时间范围'),
+        label: intl.get('hivp.checkRule.manual.invoiceTickDate').d('勾选日期'),
         range: ['invoiceTickDateStart', 'invoiceTickDateEnd'],
         type: FieldType.date,
         computedProps: {
@@ -115,7 +115,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceInDate',
-        label: intl.get('hivp.checkRule.manual.invoiceInDate').d('手动获取勾选发票入库时间范围'),
+        label: intl.get('hivp.checkRule.manual.invoiceInDate').d('入库日期'),
         range: ['invoiceInDateStart', 'invoiceInDateEnd'],
         type: FieldType.date,
         ignore: FieldIgnore.always,
