@@ -99,6 +99,7 @@ export default {
             // },
             {
                 'name': 'hzero-front-hiam',
+                "registerRegex": ".*"
             },
             {
                 'name': 'hzero-front-hpfm',
@@ -108,6 +109,7 @@ export default {
             },
             {
                 'name': 'hzero-front-hmsg',
+                "registerRegex": ".*"
             },
             {
                 'name': 'hzero-front-himp',
@@ -123,6 +125,7 @@ export default {
             },
             {
                 'name': 'hzero-front-hrpt',
+                "registerRegex": ".*"
             },
             {
                 'name': 'hzero-front-hsdr',
