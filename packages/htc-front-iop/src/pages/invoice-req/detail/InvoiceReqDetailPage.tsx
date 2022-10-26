@@ -30,6 +30,7 @@ import { Bind } from 'lodash-decorators';
 import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import intl from 'utils/intl';
 import { forEach, isEmpty } from 'lodash';
+import { closeTab } from 'utils/menuTab';
 import { FormLayout } from 'choerodon-ui/pro/lib/form/enum';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
@@ -52,7 +53,7 @@ import {
   reqSubmit,
 } from '@src/services/invoiceReqService';
 import { Button as PermissionButton } from 'components/Permission';
-import { base64toBlob, getPresentMenu } from '@htccommon/utils/utils';
+import { downLoadFiles, getPresentMenu } from '@htccommon/utils/utils';
 import InvoiceReqDetailDS from '../stores/InvoiceReqDetailDS';
 import InvoiceReqLinesDS from '../stores/InvoiceReqLinesDS';
 import styles from '../../invoice-workbench/invoiceWorkbench.module.less';
@@ -666,28 +667,44 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
    */
   @Bind()
   printZip(list) {
+    // forEach(list, (item, key) => {
+    //   const date = moment().format('YYYY-MM-DD HH:mm:ss');
+    //   const zipName = `${date}-${key}`;
+    //   const fileList = [{
+    //     data: stream,
+    //     fileName: `${name}.${type}`,
+    //   }];
+    //   downLoadFiles(fileList);
+    //   const blob = new Blob([base64toBlob(item)]);
+    //   if (window.navigator.msSaveBlob) {
+    //     try {
+    //       window.navigator.msSaveBlob(blob, `${zipName}.zip`);
+    //     } catch (e) {
+    //       notification.error({
+    //         description: '',
+    //         message: intl.get('hzero.common.notification.download.error').d('下载失败'),
+    //       });
+    //     }
+    //   } else {
+    //     const aElement = document.createElement('a');
+    //     const blobUrl = window.URL.createObjectURL(blob);
+    //     aElement.href = blobUrl; // 设置a标签路径
+    //     aElement.download = `${zipName}.zip`;
+    //     aElement.click();
+    //     window.URL.revokeObjectURL(blobUrl);
+    //   }
+    // });
+    const fileList: any[] = [];
     forEach(list, (item, key) => {
       const date = moment().format('YYYY-MM-DD HH:mm:ss');
       const zipName = `${date}-${key}`;
-      const blob = new Blob([base64toBlob(item)]);
-      if (window.navigator.msSaveBlob) {
-        try {
-          window.navigator.msSaveBlob(blob, `${zipName}.zip`);
-        } catch (e) {
-          notification.error({
-            description: '',
-            message: intl.get('hzero.common.notification.download.error').d('下载失败'),
-          });
-        }
-      } else {
-        const aElement = document.createElement('a');
-        const blobUrl = window.URL.createObjectURL(blob);
-        aElement.href = blobUrl; // 设置a标签路径
-        aElement.download = `${zipName}.zip`;
-        aElement.click();
-        window.URL.revokeObjectURL(blobUrl);
-      }
+      const file = {
+        data: item,
+        fileName: `${zipName}.zip`,
+      };
+      fileList.push(file);
     });
+    downLoadFiles(fileList, 0);
   }
 
   @Bind()
@@ -720,26 +737,35 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
   async printInvoiceInterface(params) {
     const res = getResponse(await exportNotZip(params));
     if (res) {
+      // res.forEach(item => {
+      //   const blob = new Blob([base64toBlob(item.data)]);
+      //   if (window.navigator.msSaveBlob) {
+      //     try {
+      //       window.navigator.msSaveBlob(blob, item.fileName);
+      //     } catch (e) {
+      //       notification.error({
+      //         description: '',
+      //         message: intl.get('hzero.common.notification.error').d('下载失败'),
+      //       });
+      //     }
+      //   } else {
+      //     const aElement = document.createElement('a');
+      //     const blobUrl = window.URL.createObjectURL(blob);
+      //     aElement.href = blobUrl; // 设置a标签路径
+      //     aElement.download = item.fileName;
+      //     aElement.click();
+      //     window.URL.revokeObjectURL(blobUrl);
+      //   }
+      // });
+      const fileList: any[] = [];
       res.forEach(item => {
-        const blob = new Blob([base64toBlob(item.data)]);
-        if (window.navigator.msSaveBlob) {
-          try {
-            window.navigator.msSaveBlob(blob, item.fileName);
-          } catch (e) {
-            notification.error({
-              description: '',
-              message: intl.get('hzero.common.notification.error').d('下载失败'),
-            });
-          }
-        } else {
-          const aElement = document.createElement('a');
-          const blobUrl = window.URL.createObjectURL(blob);
-          aElement.href = blobUrl; // 设置a标签路径
-          aElement.download = item.fileName;
-          aElement.click();
-          window.URL.revokeObjectURL(blobUrl);
-        }
+        const file = {
+          data: item.data,
+          fileName: item.fileName,
+        };
+        fileList.push(file);
       });
+      downLoadFiles(fileList, 0);
       const printElement = document.createElement('a');
       printElement.href = 'Webshell://'; // 设置a标签路径
       printElement.click();
@@ -798,12 +824,18 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
    */
   renderHeaderBts = () => {
     const { requestStatus, deleteFlag, invoiceType, sourceType } = this.state;
+    const saveDisable =
+      !['N', 'Q'].includes(requestStatus) || deleteFlag === 'Y' || ['7', '8'].includes(sourceType);
     return (
       <>
         <PermissionButton
           type="c7n-pro"
-          // color={ButtonColor.dark}
-          disabled={this.isCreatePage || !['N', 'Q'].includes(requestStatus) || deleteFlag === 'Y'}
+          disabled={
+            this.isCreatePage ||
+            !['N', 'Q'].includes(requestStatus) ||
+            deleteFlag === 'Y' ||
+            ['7', '8'].includes(sourceType)
+          }
           onClick={() => this.handleSubmitReq()}
           permissionList={[
             {
@@ -817,7 +849,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
         </PermissionButton>
         <PermissionButton
           type="c7n-pro"
-          disabled={!['N', 'Q'].includes(requestStatus) || deleteFlag === 'Y'}
+          disabled={saveDisable}
           onClick={() => this.handleSaveReq(true)}
           permissionList={[
             {
@@ -831,7 +863,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
         </PermissionButton>
         <PermissionButton
           type="c7n-pro"
-          disabled={!['N', 'Q'].includes(requestStatus) || deleteFlag === 'Y'}
+          disabled={saveDisable}
           onClick={() => this.handleSaveReq(false)}
           permissionList={[
             {
@@ -972,6 +1004,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
 
   render() {
     const { search } = this.props.location;
+    const { companyId, headerId, billFlag } = this.props.match.params;
     const { invoiceType } = this.state;
     const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
     let pathname = '/htc-front-iop/invoice-req/list';
@@ -993,6 +1026,9 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
         <Header
           backPath={pathname}
           title={intl.get('hiop.invoiceReq.title.billApply').d('开票申请单')}
+          onBack={() =>
+            closeTab(`/htc-front-iop/invoice-req/detail/${companyId}/${headerId}/${billFlag}`)
+          }
         >
           {this.renderHeaderBts()}
         </Header>

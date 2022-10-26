@@ -37,7 +37,7 @@ const modelCode = 'hivp.invoicesArchiveUpload';
 const { Panel } = Collapse;
 const tenantId = getCurrentOrganizationId();
 const HIVP_API = commonConfig.IVP_API;
-const acceptType = ['.pdf', '.jpg', '.png', '.ofd'];
+const acceptType = ['.pdf', 'image/*', '.ofd'];
 @formatterCollections({
   code: [modelCode, 'hivp.invoicesArchiveUpload', 'htc.common', 'hivp.batchCheck'],
 })
@@ -126,6 +126,21 @@ export default class ArchiveInformationPage extends Component<ArchiveUploadPageP
           const title = intl
             .get(`${modelCode}.view.uploadConfirm`)
             .d('OCR识别信息与发票信息不一致，是否继续上传？');
+          Modal.confirm({
+            key: Modal.key,
+            title,
+          }).then(button => {
+            if (button === 'ok') {
+              this.singleIsCheck = 'N';
+              this.singleUpload.startUpload();
+            } else {
+              this.setState({ btnFlag: '', loadingFlag: false });
+            }
+          });
+        } else if (resp.failed && resp.code === 'H1026') {
+          const title = intl
+            .get('hivp.invoicesArchiveUpload.validate.confirmArchive')
+            .d('当前发票档案文件非发票原文件，是否继续上传？');
           Modal.confirm({
             key: Modal.key,
             title,

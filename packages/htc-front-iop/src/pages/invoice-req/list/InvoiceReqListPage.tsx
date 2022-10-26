@@ -61,7 +61,7 @@ import {
   runReport,
   sendQrCode,
 } from '@src/services/invoiceReqService';
-import { base64toBlob, getPresentMenu } from '@htccommon/utils/utils';
+import { getPresentMenu, downLoadFiles } from '@htccommon/utils/utils';
 import InvoiceReqListDS from '../stores/InvoiceReqListDS';
 
 const tenantId = getCurrentOrganizationId();
@@ -333,24 +333,31 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       qrCodeUrl,
     };
     const res = getResponse(await downloadQrCode(params));
-    const blob = new Blob([base64toBlob(res.data.fileBase)]);
-    if ((window.navigator as any).msSaveBlob) {
-      try {
-        (window.navigator as any).msSaveBlob(blob);
-      } catch (e) {
-        notification.error({
-          description: '',
-          message: intl.get('hiop.invoiceReq.notification.error.orCode').d('二维码下载失败'),
-        });
-      }
-    } else {
-      const aElement = document.createElement('a');
-      const blobUrl = window.URL.createObjectURL(blob);
-      aElement.href = blobUrl; // 设置a标签路径
-      aElement.download = res.data.fileName;
-      aElement.click();
-      window.URL.revokeObjectURL(blobUrl);
-    }
+    const fileList = [
+      {
+        data: res.data.fileBase,
+        fileName: res.data.fileName,
+      },
+    ];
+    downLoadFiles(fileList, 0);
+    // const blob = new Blob([base64toBlob(res.data.fileBase)]);
+    // if ((window.navigator as any).msSaveBlob) {
+    //   try {
+    //     (window.navigator as any).msSaveBlob(blob);
+    //   } catch (e) {
+    //     notification.error({
+    //       description: '',
+    //       message: intl.get('hiop.invoiceReq.notification.error.orCode').d('二维码下载失败'),
+    //     });
+    //   }
+    // } else {
+    //   const aElement = document.createElement('a');
+    //   const blobUrl = window.URL.createObjectURL(blob);
+    //   aElement.href = blobUrl; // 设置a标签路径
+    //   aElement.download = res.data.fileName;
+    //   aElement.click();
+    //   window.URL.revokeObjectURL(blobUrl);
+    // }
   }
 
   /**
@@ -610,28 +617,39 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
    */
   @Bind()
   printZip(list) {
+    // forEach(list, (item, key) => {
+    //   const date = moment().format('YYYY-MM-DD HH:mm:ss');
+    //   const zipName = `${date}-${key}`;
+    //   const blob = new Blob([base64toBlob(item)]);
+    //   if ((window.navigator as any).msSaveBlob) {
+    //     try {
+    //       (window.navigator as any).msSaveBlob(blob, `${zipName}.zip`);
+    //     } catch (e) {
+    //       notification.error({
+    //         description: '',
+    //         message: intl.get('hzero.common.notification.download.error').d('下载失败'),
+    //       });
+    //     }
+    //   } else {
+    //     const aElement = document.createElement('a');
+    //     const blobUrl = window.URL.createObjectURL(blob);
+    //     aElement.href = blobUrl; // 设置a标签路径
+    //     aElement.download = `${zipName}.zip`;
+    //     aElement.click();
+    //     window.URL.revokeObjectURL(blobUrl);
+    //   }
+    // });
+    const fileList: any[] = [];
     forEach(list, (item, key) => {
       const date = moment().format('YYYY-MM-DD HH:mm:ss');
       const zipName = `${date}-${key}`;
-      const blob = new Blob([base64toBlob(item)]);
-      if ((window.navigator as any).msSaveBlob) {
-        try {
-          (window.navigator as any).msSaveBlob(blob, `${zipName}.zip`);
-        } catch (e) {
-          notification.error({
-            description: '',
-            message: intl.get('hzero.common.notification.download.error').d('下载失败'),
-          });
-        }
-      } else {
-        const aElement = document.createElement('a');
-        const blobUrl = window.URL.createObjectURL(blob);
-        aElement.href = blobUrl; // 设置a标签路径
-        aElement.download = `${zipName}.zip`;
-        aElement.click();
-        window.URL.revokeObjectURL(blobUrl);
-      }
+      const file = {
+        data: item,
+        fileName: `${zipName}.zip`,
+      };
+      fileList.push(file);
     });
+    downLoadFiles(fileList, 0);
   }
 
   @Bind()
@@ -713,26 +731,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       }
     }
     if (res) {
-      res.forEach(item => {
-        const blob = new Blob([base64toBlob(item.data)]);
-        if ((window.navigator as any).msSaveBlob) {
-          try {
-            (window.navigator as any).msSaveBlob(blob, item.fileName);
-          } catch (e) {
-            notification.error({
-              description: '',
-              message: intl.get('hzero.common.notification.download.error').d('下载失败'),
-            });
-          }
-        } else {
-          const aElement = document.createElement('a');
-          const blobUrl = window.URL.createObjectURL(blob);
-          aElement.href = blobUrl; // 设置a标签路径
-          aElement.download = item.fileName;
-          aElement.click();
-          window.URL.revokeObjectURL(blobUrl);
-        }
-      });
+      downLoadFiles(res, 0);
       const printElement = document.createElement('a');
       printElement.href = regName; // 设置a标签路径
       printElement.click();

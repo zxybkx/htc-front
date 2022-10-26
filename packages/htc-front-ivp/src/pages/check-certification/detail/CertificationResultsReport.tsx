@@ -14,7 +14,6 @@ import {
   Button,
   DataSet,
   Form,
-  notification,
   Pagination,
   Select,
   Table,
@@ -27,8 +26,10 @@ import intl from 'utils/intl';
 import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import { getCurrentOrganizationId, getCurrentTenant, getResponse } from 'utils/utils';
 import { chunk } from 'lodash';
+import ExcelExport from 'components/ExcelExport';
+import commonConfig from '@htccommon/config/commonConfig';
 import { statisticReportDownload } from '@src/services/checkCertificationService';
-import { base64toBlob } from '@htccommon/utils/utils';
+import { downLoadFiles } from '@htccommon/utils/utils';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { ApplyDeductionHeader } from '../stores/ApplyDeductionSummary';
 import CertificationResultDetailsDS from '../stores/CertificationResultDetail';
@@ -38,6 +39,7 @@ import styles from '../checkcertification.less';
 const { TabPane } = Tabs;
 const modelCode = 'hivp.checkCertification';
 const tenantId = getCurrentOrganizationId();
+const API_PREFIX = commonConfig.IVP_API || '';
 
 interface ApplyDeductionPageProps {
   dispatch: Dispatch<any>;
@@ -51,6 +53,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
   state = {
     summaryData: [],
     detailData: [],
+    urlData: {} as any,
   };
 
   headerDS = new DataSet({
@@ -73,7 +76,6 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
     if (statisticalConfirmInfoStr) {
       const statisticalConfirmInfo = JSON.parse(decodeURIComponent(statisticalConfirmInfoStr));
       const {
-        statisticalPeriod,
         currentPeriod,
         currentCertState,
         companyId,
@@ -90,7 +92,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
       this.headerDS.current!.set({
         tenantName: getCurrentTenant().tenantName,
         currentCertState,
-        currentPeriod: statisticalPeriod,
+        currentPeriod,
       });
       this.summaryDS.setQueryParameter('companyId', companyId);
       this.summaryDS.setQueryParameter('companyCode', companyCode);
@@ -98,7 +100,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
       this.summaryDS.setQueryParameter('employeeId', employeeId);
       this.summaryDS.setQueryParameter('employeeNumber', employeeNum);
       this.summaryDS.setQueryParameter('nsrsbh', taxpayerNumber);
-      this.summaryDS.setQueryParameter('tjyf', statisticalPeriod);
+      this.summaryDS.setQueryParameter('tjyf', currentPeriod);
       this.summaryDS.setQueryParameter('ssq', currentPeriod);
       this.summaryDS.setQueryParameter('spmm', taxDiskPassword);
       this.summaryDS.setQueryParameter('rqq', invoiceDateFromStr);
@@ -115,6 +117,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
           });
         }
       });
+      this.setState({ urlData: statisticalConfirmInfo });
     }
   }
 
@@ -152,7 +155,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
     if (statisticalConfirmInfoStr) {
       const statisticalConfirmInfo = JSON.parse(decodeURIComponent(statisticalConfirmInfoStr));
       const {
-        statisticalPeriod,
+        currentPeriod,
         companyId,
         companyCode,
         companyName,
@@ -171,32 +174,39 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
         employeeId,
         employeeNumber: employeeNum,
         nsrsbh: taxpayerNumber,
-        ssq: statisticalPeriod,
-        tjyf: statisticalPeriod,
+        ssq: currentPeriod,
+        tjyf: currentPeriod,
         spmm: taxDiskPassword,
         rqq: invoiceDateFromStr,
         rqz: invoiceDateToStr,
       };
       const res = getResponse(await statisticReportDownload(params));
       if (res) {
-        const blob = new Blob([base64toBlob(res)]);
-        if ((window.navigator as any).msSaveBlob) {
-          try {
-            (window.navigator as any).msSaveBlob(blob);
-          } catch (e) {
-            notification.error({
-              description: '',
-              message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
-            });
-          }
-        } else {
-          const aElement = document.createElement('a');
-          const blobUrl = window.URL.createObjectURL(blob);
-          aElement.href = blobUrl; // 设置a标签路径
-          aElement.download = '认证结果通知书.pdf';
-          aElement.click();
-          window.URL.revokeObjectURL(blobUrl);
-        }
+        const fileList = [
+          {
+            data: res,
+            fileName: '认证结果通知书.pdf',
+          },
+        ];
+        downLoadFiles(fileList, 0);
+        // const blob = new Blob([base64toBlob(res)]);
+        // if ((window.navigator as any).msSaveBlob) {
+        //   try {
+        //     (window.navigator as any).msSaveBlob(blob);
+        //   } catch (e) {
+        //     notification.error({
+        //       description: '',
+        //       message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
+        //     });
+        //   }
+        // } else {
+        //   const aElement = document.createElement('a');
+        //   const blobUrl = window.URL.createObjectURL(blob);
+        //   aElement.href = blobUrl; // 设置a标签路径
+        //   aElement.download = '认证结果通知书.pdf';
+        //   aElement.click();
+        //   window.URL.revokeObjectURL(blobUrl);
+        // }
       }
     }
   }
@@ -219,14 +229,53 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
     this.detailDS.loadData(chunkData[_page - 1]);
   }
 
+  /**
+   * 导出条件
+   */
+  @Bind()
+  handleGetQueryParams() {
+    const { urlData } = this.state;
+    const {
+      currentPeriod,
+      companyId,
+      companyCode,
+      companyName,
+      employeeId,
+      employeeNum,
+      taxpayerNumber,
+      taxDiskPassword,
+      invoiceDateFromStr,
+      invoiceDateToStr,
+    } = urlData;
+    const queryParams = {
+      tenantId,
+      companyId,
+      companyCode,
+      companyName,
+      employeeId,
+      employeeNumber: employeeNum,
+      nsrsbh: taxpayerNumber,
+      tjyf: currentPeriod,
+      ssq: currentPeriod,
+      spmm: taxDiskPassword,
+      rqq: invoiceDateFromStr,
+      rqz: invoiceDateToStr,
+    };
+    return { ...queryParams } || {};
+  }
+
   render() {
     const { summaryData, detailData } = this.state;
     return (
       <>
         <Header
-          backPath="/htc-front-ivp/check-certification/list"
+          backPath="/htc-front-ivp/check-certification/list?type=2"
           title={intl.get(`${modelCode}.title.certificationResult`).d('认证结果报表')}
         >
+          <ExcelExport
+            requestUrl={`${API_PREFIX}/v1/${tenantId}/invoice-operation/certified-result-statistic-report-export`}
+            queryParams={() => this.handleGetQueryParams()}
+          />
           <Button color={ButtonColor.primary} onClick={this.handlePrint}>
             {intl.get(`${modelCode}.button.printOfCertificationResult`).d('认证结果通知书打印')}
           </Button>

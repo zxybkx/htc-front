@@ -102,7 +102,7 @@ const checkCertificationRouterConfig = [
     routes: [
       {
         path: '/htc-front-ivp/check-certification/list',
-        component: '@/pages/check-certification/list/CheckCertificationListPage',
+        component: '@/pages/check-certification/list/CheckCertifiList',
       },
       {
         //  已认证详情
@@ -321,6 +321,32 @@ const invoiceCheck = [
     ],
   },
 ];
+
+const checkRules = [
+  {
+    path: '/htc-front-ivp/check-authentication',
+    routes: [
+      {
+        path: '/htc-front-ivp/check-authentication/list',
+        component: '@/pages/check-authentication/list/CheckAuthenticationRulesPage',
+      }
+    ]
+  }]
+const deductionStatement = [
+  {
+    path: '/htc-front-ivp/deduction-statement',
+    routes: [
+      {
+        path: '/htc-front-ivp/deduction-statement/list',
+        component: '@/pages/deduction-statement/list/DeductionStatementListPage',
+      },
+      {
+        path: '/htc-front-ivp/deduction-statement/detail',
+        component: '@/pages/deduction-statement/detail/InvoiceDetailPage',
+      },
+    ],
+  },
+]
 export default extendParentConfig({
   webpack5: {},
   devServer: {
@@ -336,6 +362,8 @@ export default extendParentConfig({
     ...batchDentificationCheck,
     ...taxRefund,
     ...invoiceCheck,
+    ...checkRules,
+    ...deductionStatement,
   ],
 
   extraBabelPlugins: [       //原/packages/xxx/.babelrc.js--plugins

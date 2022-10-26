@@ -21,7 +21,7 @@ const modelCode = 'hivp.checkCertification';
 const validTaxAmountValidator = (value, name, record) => {
   if (value && name && record) {
     // 发票税额
-    const taxAmount = record.getField('taxAmount')?.getValue() || 0;
+    const taxAmount = Number(record.get('taxAmount')) || 0;
     if (value < 0 || value > taxAmount) {
       return intl
         .get(`${modelCode}.notice.taxAmountMessageNotice`)
@@ -29,6 +29,36 @@ const validTaxAmountValidator = (value, name, record) => {
     }
   }
   return undefined;
+};
+
+// 行勾选设置头数据 type 0-取消勾选/1-勾选
+const calculateSelectedData = (dataSet, record, type) => {
+  const invoiceAmount = Number(record.get('invoiceAmount')) || 0;
+  const _taxAmount = Number(record.get('taxAmount')) || 0;
+  const _validTaxAmount = Number(record.get('validTaxAmount')) || 0;
+  const number = dataSet.selected.length;
+  const { queryDataSet } = dataSet;
+  if (queryDataSet) {
+    const amount = queryDataSet.current!.get('amount');
+    const taxAmount = queryDataSet.current!.get('taxAmount');
+    const validTaxAmount = queryDataSet.current!.get('validTaxAmount');
+    let curAmount;
+    let curTaxAmount;
+    let curValidTaxAmount;
+    if (type === 0) {
+      curAmount = amount - invoiceAmount;
+      curTaxAmount = taxAmount - _taxAmount;
+      curValidTaxAmount = validTaxAmount - _validTaxAmount;
+    } else {
+      curAmount = amount + invoiceAmount;
+      curTaxAmount = taxAmount + _taxAmount;
+      curValidTaxAmount = validTaxAmount + _validTaxAmount;
+    }
+    queryDataSet.current!.set({ amount: curAmount });
+    queryDataSet.current!.set({ taxAmount: curTaxAmount });
+    queryDataSet.current!.set({ validTaxAmount: curValidTaxAmount });
+    queryDataSet.current!.set({ number });
+  }
 };
 
 export default (): DataSetProps => {
@@ -71,36 +101,20 @@ export default (): DataSetProps => {
     primaryKey: 'invoicePoolHeaderId',
     events: {
       select: ({ dataSet, record }) => {
-        const invoiceAmount = record.getField('invoiceAmount')?.getValue() || 0;
-        const _taxAmount = record.getField('taxAmount')?.getValue() || 0;
-        const _validTaxAmount = record.getField('validTaxAmount')?.getValue() || 0;
-        const number = dataSet.selected.length;
-        const { queryDataSet } = dataSet;
-        const amount = queryDataSet && queryDataSet.current!.get('amount');
-        const taxAmount = queryDataSet && queryDataSet.current!.get('taxAmount');
-        const validTaxAmount = queryDataSet && queryDataSet.current!.get('validTaxAmount');
-        const curAmount = amount + invoiceAmount;
-        const curTaxAmount = taxAmount + _taxAmount;
-        const curValidTaxAmount = validTaxAmount + _validTaxAmount;
-        if (queryDataSet) {
-          queryDataSet.current!.set({ amount: curAmount });
-          queryDataSet.current!.set({ taxAmount: curTaxAmount });
-          queryDataSet.current!.set({ validTaxAmount: curValidTaxAmount });
-          queryDataSet.current!.set({ number });
-        }
+        calculateSelectedData(dataSet, record, 1);
       },
       selectAll: ({ dataSet }) => {
         let amount = 0;
         let taxAmount = 0;
         let validTaxAmount = 0;
         dataSet.forEach(record => {
-          amount += record.getField('invoiceAmount')?.getValue() || 0;
+          amount += Number(record.get('invoiceAmount')) || 0;
         });
         dataSet.forEach(record => {
-          taxAmount += record.getField('taxAmount')?.getValue() || 0;
+          taxAmount += Number(record.get('taxAmount')) || 0;
         });
         dataSet.forEach(record => {
-          validTaxAmount += record.getField('validTaxAmount')?.getValue() || 0;
+          validTaxAmount += Number(record.get('validTaxAmount')) || 0;
         });
         const { queryDataSet } = dataSet;
         if (queryDataSet) {
@@ -111,23 +125,7 @@ export default (): DataSetProps => {
         }
       },
       unSelect: ({ dataSet, record }) => {
-        const invoiceAmount = record.getField('invoiceAmount')?.getValue() || 0;
-        const _taxAmount = record.getField('taxAmount')?.getValue() || 0;
-        const _validTaxAmount = record.getField('validTaxAmount')?.getValue() || 0;
-        const number = dataSet.selected.length;
-        const { queryDataSet } = dataSet;
-        const amount = queryDataSet && queryDataSet.current!.get('amount');
-        const taxAmount = queryDataSet && queryDataSet.current!.get('taxAmount');
-        const validTaxAmount = queryDataSet && queryDataSet.current!.get('validTaxAmount');
-        const curAmount = amount - invoiceAmount;
-        const curTaxAmount = taxAmount - _taxAmount;
-        const curValidTaxAmount = validTaxAmount - _validTaxAmount;
-        if (queryDataSet) {
-          queryDataSet.current!.set({ amount: curAmount });
-          queryDataSet.current!.set({ taxAmount: curTaxAmount });
-          queryDataSet.current!.set({ validTaxAmount: curValidTaxAmount });
-          queryDataSet.current!.set({ number });
-        }
+        calculateSelectedData(dataSet, record, 0);
       },
       unSelectAll: ({ dataSet }) => {
         const { queryDataSet } = dataSet;
@@ -264,10 +262,30 @@ export default (): DataSetProps => {
         lookupCode: 'HIVP.ACCOUNT_STATE',
       },
       {
+        name: 'entryAccountDate',
+        label: intl.get('hivp.bill.view.entryAccountDate').d('入账日期'),
+        type: FieldType.string,
+      },
+      {
         name: 'receiptsState',
         label: intl.get(`${modelCode}.view.receiptsState`).d('单据关联状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.INTERFACE_DOCS_STATE',
+      },
+      {
+        name: 'systemName',
+        label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
+        type: FieldType.string,
+      },
+      {
+        name: 'documentTypeMeaning',
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
+        type: FieldType.string,
+      },
+      {
+        name: 'documentNumber',
+        label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
+        type: FieldType.string,
       },
       {
         name: 'abnormalSign',
@@ -275,6 +293,12 @@ export default (): DataSetProps => {
         type: FieldType.string,
         lookupCode: 'HIVP.ABNORMAL_SIGN',
         multiple: ',',
+      },
+      {
+        name: 'purpose',
+        label: intl.get(`${modelCode}.view.purpose`).d('用途'),
+        type: FieldType.string,
+        lookupCode: 'HIVP.INVOICE_CHECK_FO',
       },
       {
         name: 'annotation',
@@ -308,6 +332,18 @@ export default (): DataSetProps => {
       },
     ],
     queryDataSet: new DataSet({
+      autoCreate: true,
+      events: {
+        update: ({ record, name }) => {
+          if (name === 'systemCodeObj') {
+            record.set('documentTypeCodeObj', null);
+            record.set('documentNumberObj', null);
+          }
+          if (name === 'documentTypeCodeObj') {
+            record.set('documentNumberObj', null);
+          }
+        },
+      },
       fields: [
         {
           name: 'companyObj',
@@ -376,7 +412,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'invoiceCategory',
-          label: intl.get('htc.common.view.invoiceType').d('发票类别'),
+          label: intl.get(`${modelCode}.view.invoiceType`).d('发票类别'),
           type: FieldType.string,
           defaultValue: '01',
           lookupCode: 'HIVC.INVOICE_CATEGORY',
@@ -394,18 +430,149 @@ export default (): DataSetProps => {
           type: FieldType.string,
         },
         {
+          name: 'invoiceDate',
+          label: intl.get(`htc.common.view.invoiceDate`).d('开票日期'),
+          type: FieldType.date,
+          range: ['invoiceDateFrom', 'invoiceDateTo'],
+          ignore: FieldIgnore.always,
+        },
+        {
           name: 'invoiceDateFrom',
           label: intl.get('hivp.bill.view.invoiceDateFrom').d('开票日期从'),
           type: FieldType.date,
-          max: 'invoiceDateTo',
+          bind: 'invoiceDate.invoiceDateFrom',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'invoiceDateTo',
           label: intl.get('hivp.bill.view.invoiceDateTo').d('开票日期至'),
           type: FieldType.date,
-          min: 'invoiceDateFrom',
+          bind: 'invoiceDate.invoiceDateTo',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'checkState',
+          label: intl.get(`${modelCode}.view.checkState`).d('勾选状态'),
+          type: FieldType.string,
+          lookupCode: 'HIVP.CHECK_STATE',
+        },
+        {
+          name: 'systemCodeObj',
+          label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
+          type: FieldType.object,
+          lovCode: 'HTC.SOURCE_SYSTEM',
+          lovPara: { enabledFlag: 1 },
+          multiple: ',',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'systemCode',
+          type: FieldType.string,
+          bind: 'systemCodeObj.systemCode',
+        },
+        {
+          name: 'docTypeHeaderId',
+          type: FieldType.string,
+          bind: 'systemCodeObj.docTypeHeaderId',
+        },
+        {
+          name: 'documentTypeCodeObj',
+          label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
+          type: FieldType.object,
+          lovCode: 'HTC.DOCUMENT_TYPE_LOV',
+          computedProps: {
+            lovPara: ({ record }) => {
+              return { docTypeHeaderId: record.get('docTypeHeaderId').join(',') };
+            },
+            disabled: ({ record }) => {
+              return !record.get('docTypeHeaderId').length;
+            },
+          },
+          multiple: ',',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentTypeCode',
+          type: FieldType.string,
+          bind: 'documentTypeCodeObj.documentTypeCode',
+        },
+        {
+          name: 'docTypeLineId',
+          type: FieldType.string,
+          bind: 'documentTypeCodeObj.docTypeLineId',
+        },
+        {
+          name: 'docuTypeHeaderId',
+          type: FieldType.string,
+          bind: 'documentTypeCodeObj.docTypeHeaderId',
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentNumberObj',
+          label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
+          type: FieldType.object,
+          lovCode: 'HTC.DOCUMENT_CODE_LOV',
+          multiple: ',',
+          computedProps: {
+            lovPara: ({ record }) => {
+              return {
+                docTypeHeaderId: record.get('docuTypeHeaderId').join(','),
+                docTypeLineId: record.get('docTypeLineId').join(','),
+              };
+            },
+            disabled: ({ record }) => {
+              return !record.get('docuTypeHeaderId').length;
+            },
+          },
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentNumber',
+          type: FieldType.string,
+          bind: 'documentNumberObj.documentNumber',
+        },
+        {
+          name: 'detailId',
+          type: FieldType.string,
+          bind: 'documentNumberObj.detailId',
+        },
+        {
+          name: 'entryAccountState',
+          label: intl.get('hivp.bill.view.entryAccountState').d('入账状态'),
+          type: FieldType.string,
+          lookupCode: 'HIVP.ACCOUNT_STATE',
+          // defaultValue: '1',
+          multiple: ',',
+        },
+        {
+          name: 'entryAccountDate',
+          label: intl.get('hivp.bill.view.entryAccountDate').d('入账日期'),
+          type: FieldType.date,
+          range: ['entryAccountDateFrom', 'entryAccountDateTo'],
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'entryAccountDateFrom',
+          type: FieldType.date,
+          bind: 'entryAccountDate.entryAccountDateFrom',
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'entryAccountDateTo',
+          type: FieldType.date,
+          bind: 'entryAccountDate.entryAccountDateTo',
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'salerName',
+          label: intl.get('htc.common.view.salerName').d('销方名称'),
+          type: FieldType.string,
+        },
+        {
+          name: 'abnormalSign',
+          label: intl.get(`${modelCode}.view.abnormalSign`).d('异常标记'),
+          type: FieldType.string,
+          lookupCode: 'HIVP.ABNORMAL_SIGN',
         },
         {
           name: 'managementState',
@@ -417,7 +584,7 @@ export default (): DataSetProps => {
           name: 'invoiceState',
           label: intl.get('hivp.batchCheck.view.invoiceStatus').d('发票状态'),
           type: FieldType.string,
-          defaultValue: '0',
+          // defaultValue: '0',
           lookupCode: 'HMDM.INVOICE_STATE',
         },
         {
@@ -428,7 +595,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'number',
-          label: intl.get(`${modelCode}.view.CheckThisTime`).d('本次勾选'),
+          label: intl.get(`${modelCode}.view.CheckThisTime`).d('本次勾选份数'),
           type: FieldType.number,
           ignore: FieldIgnore.always,
           readOnly: true,
@@ -469,6 +636,7 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.enteredThePool`).d('是否已入池'),
           type: FieldType.string,
           lookupCode: 'HTC.HIVP.ISPOOL_FLAG',
+          // defaultValue: 'Y',
         },
       ],
     }),

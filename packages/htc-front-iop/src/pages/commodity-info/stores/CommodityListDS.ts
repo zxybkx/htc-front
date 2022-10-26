@@ -256,6 +256,11 @@ export default (): DataSetProps => {
           label: intl.get('hiop.commodityInfo.modal.commodityName').d('商品名称'),
           type: FieldType.string,
         },
+        {
+          name: 'projectNumber',
+          label: intl.get('hiop.commodityInfo.modal.onlyProjectNumber').d('项目编码'),
+          type: FieldType.string,
+        },
       ],
     }),
   };

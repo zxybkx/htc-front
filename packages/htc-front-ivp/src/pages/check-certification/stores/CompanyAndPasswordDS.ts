@@ -57,6 +57,11 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.taxDiskPassword`).d('税盘密码'),
         type: FieldType.string,
         required: true,
+        computedProps: {
+          required: ({ record }) =>
+            record &&
+            !['ZK_IN_CHANNEL_DIGITAL', 'ZK_IN_CHANNEL'].includes(record.get('inChannelCode')),
+        },
       },
       {
         name: 'inChannelCode',

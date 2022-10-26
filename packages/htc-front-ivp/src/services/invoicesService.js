@@ -247,13 +247,10 @@ export async function confirmFile(params) {
  * @returns {object} fetch Promise
  */
 export async function ofdInvoiceResolver(params) {
-  return request(
-    `${CHAN_API}/v1/ofd-invoice-resolver-site/signature-info-front-end-call`,
-    {
-      method: 'GET',
-      query: params,
-    }
-  );
+  return request(`${CHAN_API}/v1/ofd-invoice-resolver-site/signature-info-front-end-call`, {
+    method: 'GET',
+    query: params,
+  });
 }
 
 /**
@@ -266,6 +263,20 @@ export async function urlTojpg(params) {
   const { tenantId, ...otherParams } = params;
   return request(`${CHAN_API}/v1/${tenantId}/ofd-invoice-resolver/url-to-jpg`, {
     method: 'POST',
+    query: otherParams,
+  });
+}
+
+/**
+ * 档案查看-文件名为空的文件数据
+ * @async
+ * @function fileStream
+ * @returns {object} fetch Promise
+ */
+export async function fileStream(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${CHAN_API}/v1/${tenantId}/file-stream/by-url`, {
+    method: 'GET',
     query: otherParams,
   });
 }

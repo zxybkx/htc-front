@@ -18,10 +18,11 @@ function getModuleInfo(module, key) {
   try {
     package = JSON.parse(fs.readFileSync(path.resolve(__dirname,
       `../packages/${module}/package.json`), 'utf-8'));
-  } catch(err) {
+  } catch (err) {
     throw err
   }
-  return key ? package[key] : package; }
+  return key ? package[key] : package;
+}
 /**
  * 显示发布加载信息
  * @param {array} modules 选择发布的模块
@@ -42,7 +43,7 @@ async function releaseLoading(modules = []) {
  */
 async function release(module, tag) {
   console.log(`${module},${tag}`);
-  const command = `cd ${path.resolve(__dirname, `../packages/${module}`)}; yarn transpile ;${npmPublish} ${tag !== 'release' ? `--tag ${tag}` : ''};`
+  const command = `cd ${path.resolve(__dirname, `../packages/${module}`)} && yarn transpile && ${npmPublish} ${tag !== 'release' ? `--tag ${tag}` : ''}`
   await exec(command, (error, stdout) => {
     console.log(command);
     const version = getModuleInfo(module, 'version');

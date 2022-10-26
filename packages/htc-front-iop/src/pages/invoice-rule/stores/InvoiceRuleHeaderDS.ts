@@ -332,6 +332,15 @@ export default (): DataSetProps => {
         lookupCode: 'HTC.HIOP_QR_CODE_INVALID',
       },
       {
+        name: 'projectNumberFlag',
+        label: intl
+          .get('hiop.invoiceRule.modal.BringProductInfo')
+          .d('开票申请单导入自动带出商品信息'),
+        type: FieldType.string,
+        defaultValue: 'N',
+        lookupCode: 'HIOP_PROJECT_NUMBER_FLAG',
+      },
+      {
         name: 'distributionInvoiceFlag',
         label: intl
           .get('hiop.invoiceRule.modal.distributionInvoiceFlag')

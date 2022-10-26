@@ -57,7 +57,6 @@ export default class InvoiceMainQueryHistoryListPage extends Component<
     return [
       {
         header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
-        width: 60,
         renderer: ({ record }) => {
           return record ? this.tableDS.indexOf(record) + 1 : '';
         },
@@ -67,6 +66,7 @@ export default class InvoiceMainQueryHistoryListPage extends Component<
       { name: 'employeeName', width: 130 },
       { name: 'resultQueryMeaning', width: 180 },
       { name: 'batchNo', width: 270 },
+      { name: 'inChannelCode', width: 140 },
       { name: 'startDate', width: 130 },
       { name: 'processRemark', width: 160 },
       { name: 'processDateFrom', width: 160 },

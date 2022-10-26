@@ -16,7 +16,6 @@ import {
   Button,
   DataSet,
   Form,
-  notification,
   Pagination,
   Select,
   Table,
@@ -30,7 +29,9 @@ import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import { chunk } from 'lodash';
 import { DEFAULT_DATETIME_FORMAT } from 'utils/constants';
 import moment from 'moment';
-import { base64toBlob } from '@htccommon/utils/utils';
+import ExcelExport from 'components/ExcelExport';
+import commonConfig from '@htccommon/config/commonConfig';
+import { downLoadFiles } from '@htccommon/utils/utils';
 import { deductionReportDownload } from '@src/services/checkCertificationService';
 import formatterCollections from 'utils/intl/formatterCollections';
 import ApplyDeductionSummaryDS, { ApplyDeductionHeader } from '../stores/ApplyDeductionSummary';
@@ -40,6 +41,7 @@ import styles from '../checkcertification.less';
 const { TabPane } = Tabs;
 const modelCode = 'hivp.checkCertification';
 const tenantId = getCurrentOrganizationId();
+const API_PREFIX = commonConfig.IVP_API || '';
 
 interface RouterInfo {
   certRequestHeaderId: any;
@@ -65,6 +67,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
   state = {
     summaryData: [],
     detailData: [],
+    urlData: {} as any,
   };
 
   headerDS = new DataSet({
@@ -87,7 +90,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
     if (statisticalConfirmInfoStr) {
       const statisticalConfirmInfo = JSON.parse(decodeURIComponent(statisticalConfirmInfoStr));
       const {
-        statisticalPeriod,
+        currentPeriod,
         currentCertState,
         companyId,
         companyCode,
@@ -104,7 +107,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
       this.headerDS.current!.set({
         tenantName: getCurrentTenant().tenantName,
         currentCertState,
-        currentPeriod: statisticalPeriod,
+        currentPeriod,
         queryTime: date,
       });
       this.summaryDS.setQueryParameter('companyId', companyId);
@@ -112,7 +115,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
       this.summaryDS.setQueryParameter('employeeId', employeeId);
       this.summaryDS.setQueryParameter('employeeNumber', employeeNum);
       this.summaryDS.setQueryParameter('nsrsbh', taxpayerNumber);
-      this.summaryDS.setQueryParameter('ssq', statisticalPeriod);
+      this.summaryDS.setQueryParameter('ssq', currentPeriod);
       this.summaryDS.setQueryParameter('invoiceCategory', invoiceCategory);
       this.summaryDS.setQueryParameter('spmm', taxDiskPassword);
       this.summaryDS.setQueryParameter('rqq', invoiceDateFromStr);
@@ -129,6 +132,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
           });
         }
       });
+      this.setState({ urlData: statisticalConfirmInfo });
     }
   }
 
@@ -248,7 +252,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
     if (statisticalConfirmInfoStr) {
       const statisticalConfirmInfo = JSON.parse(decodeURIComponent(statisticalConfirmInfoStr));
       const {
-        statisticalPeriod,
+        currentPeriod,
         companyId,
         companyCode,
         employeeId,
@@ -267,7 +271,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
         employeeId,
         employeeNumber: employeeNum,
         nsrsbh: taxpayerNumber,
-        ssq: statisticalPeriod,
+        ssq: currentPeriod,
         invoiceCategory,
         spmm: taxDiskPassword,
         rqq: invoiceDateFromStr,
@@ -276,24 +280,31 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
       };
       const res = getResponse(await deductionReportDownload(params));
       if (res) {
-        const blob = new Blob([base64toBlob(res)]);
-        if ((window.navigator as any).msSaveBlob) {
-          try {
-            (window.navigator as any).msSaveBlob(blob);
-          } catch (e) {
-            notification.error({
-              description: '',
-              message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
-            });
-          }
-        } else {
-          const aElement = document.createElement('a');
-          const blobUrl = window.URL.createObjectURL(blob);
-          aElement.href = blobUrl; // 设置a标签路径
-          aElement.download = '申报抵扣统计表.pdf';
-          aElement.click();
-          window.URL.revokeObjectURL(blobUrl);
-        }
+        const fileList = [
+          {
+            data: res,
+            fileName: '申报抵扣统计表.pdf',
+          },
+        ];
+        downLoadFiles(fileList, 0);
+        // const blob = new Blob([base64toBlob(res)]);
+        // if ((window.navigator as any).msSaveBlob) {
+        //   try {
+        //     (window.navigator as any).msSaveBlob(blob);
+        //   } catch (e) {
+        //     notification.error({
+        //       description: '',
+        //       message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
+        //     });
+        //   }
+        // } else {
+        //   const aElement = document.createElement('a');
+        //   const blobUrl = window.URL.createObjectURL(blob);
+        //   aElement.href = blobUrl; // 设置a标签路径
+        //   aElement.download = '申报抵扣统计表.pdf';
+        //   aElement.click();
+        //   window.URL.revokeObjectURL(blobUrl);
+        // }
       }
     }
   }
@@ -316,6 +327,42 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
     this.detailDS.loadData(chunkData[_page - 1]);
   }
 
+  /**
+   * 导出条件
+   */
+  @Bind()
+  handleGetQueryParams() {
+    const { urlData } = this.state;
+    const {
+      currentPeriod,
+      companyId,
+      companyCode,
+      employeeId,
+      employeeNum,
+      taxpayerNumber,
+      invoiceCategory,
+      taxDiskPassword,
+      invoiceDateFromStr,
+      invoiceDateToStr,
+      authorityCode,
+    } = urlData;
+    const queryParams = {
+      tenantId,
+      companyId,
+      companyCode,
+      employeeId,
+      employeeNumber: employeeNum,
+      nsrsbh: taxpayerNumber,
+      ssq: currentPeriod,
+      invoiceCategory,
+      spmm: taxDiskPassword,
+      rqq: invoiceDateFromStr,
+      rqz: invoiceDateToStr,
+      zgjgdm: authorityCode,
+    };
+    return { ...queryParams } || {};
+  }
+
   render() {
     const { summaryData, detailData } = this.state;
     return (
@@ -324,6 +371,10 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
           backPath="/htc-front-ivp/check-certification/list?type=2"
           title={intl.get(`${modelCode}.title.applyDeduction`).d('申请抵扣统计表')}
         >
+          <ExcelExport
+            requestUrl={`${API_PREFIX}/v1/${tenantId}/invoice-operation/export-excel`}
+            queryParams={() => this.handleGetQueryParams()}
+          />
           <Button color={ButtonColor.primary} onClick={this.handlePrint}>
             {intl.get(`${modelCode}.button.applyDeductionPrint`).d('申请抵扣统计表打印')}
           </Button>

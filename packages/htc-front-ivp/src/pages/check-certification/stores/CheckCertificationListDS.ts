@@ -1,9 +1,9 @@
-/*
+/**
  * @Description:勾选认证-更新企业档案
  * @version: 1.0
  * @Author: shan.zhang@hand-china.com
  * @Date: 2020-09-23 14:26:15
- * @LastEditTime: 2022-07-26 16:15:22
+ * @LastEditTime: 2022-08-26 09:32:22
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
@@ -157,6 +157,7 @@ export default (): DataSetProps => {
       },
     ],
     queryDataSet: new DataSet({
+      autoCreate: true,
       events: {
         update: ({ record, name, value }) => {
           if (value && name === 'companyObj') {
