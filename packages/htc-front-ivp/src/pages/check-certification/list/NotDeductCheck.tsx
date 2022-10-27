@@ -54,6 +54,7 @@ interface CheckCertificationPageProps {
 const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
   const { noDeductCheckDS, companyAndPassword, empInfo, currentPeriodData } = props;
   const [verfiableMoreDisplay, setVerfiableMoreDisplay] = useState<boolean>(false);
+  const [checkLoading, setCheckLoading] = useState<boolean>(false);
   const { immediatePeriod, setImmediatePeriod } = useContext(InvoiceCategoryContext);
 
   const setCompanyObjFromProps = () => {
@@ -273,6 +274,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
         taxDiskPassword,
         selectedList,
       };
+      setCheckLoading(true);
       const res = getResponse(await partialCheck(params));
       if (res) {
         notification.success({
@@ -281,6 +283,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
         });
         noDeductCheckDS.query();
       }
+      setCheckLoading(false);
       // 更新所属期
       const periodRes = getResponse(await getCurPeriod({ tenantId, companyId, currentPeriod }));
       if (periodRes) setImmediatePeriod(periodRes);
@@ -407,7 +410,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
 
   const tableButtons: Buttons[] = [
     <Dropdown overlay={btnMenu}>
-      <Button color={ButtonColor.primary}>
+      <Button color={ButtonColor.primary} loading={checkLoading}>
         {intl.get(`${modelCode}.button.batchVerifiable`).d('勾选')}
         <Icon type="arrow_drop_down" />
       </Button>
