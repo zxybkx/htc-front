@@ -90,7 +90,6 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
       if (queryDataSet && queryDataSet.current) {
         const curCompanyId = queryDataSet.current.get('companyId');
         if (!isEmpty(empInfo) && companyId !== curCompanyId) {
-          console.log(345);
           queryDataSet.current.reset();
           queryDataSet.current!.set({
             companyId,
@@ -105,14 +104,16 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
       if (queryDataSet && queryDataSet.current) {
-        const period = immediatePeriod || currentPeriodData;
-        const { currentPeriod, currentCertState, currentOperationalDeadline } = period;
-        console.log(23);
-        queryDataSet.current!.set({
-          currentPeriod,
-          currentOperationalDeadline,
-          currentCertState,
-        });
+        const companyId = queryDataSet.current.get('companyId');
+        if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
+          const period = immediatePeriod || currentPeriodData;
+          const { currentPeriod, currentCertState, currentOperationalDeadline } = period;
+          queryDataSet.current!.set({
+            currentPeriod,
+            currentOperationalDeadline,
+            currentCertState,
+          });
+        }
       }
     }
   };

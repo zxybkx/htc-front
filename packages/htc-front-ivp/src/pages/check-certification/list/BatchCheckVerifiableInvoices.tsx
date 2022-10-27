@@ -97,7 +97,6 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       if (queryDataSet && queryDataSet.current) {
         const curCompanyId = queryDataSet.current.get('companyId');
         if (!isEmpty(empInfo) && companyId !== curCompanyId) {
-          console.log(234);
           queryDataSet.current.reset();
           queryDataSet.current!.set({
             companyObj: empInfo,
@@ -115,20 +114,22 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     if (batchInvoiceHeaderDS) {
       const { queryDataSet } = batchInvoiceHeaderDS;
       if (queryDataSet && queryDataSet.current) {
-        const period = immediatePeriod || currentPeriodData;
-        const {
-          currentPeriod,
-          currentOperationalDeadline,
-          checkableTimeRange,
-          currentCertState,
-        } = period;
-        console.log(22);
-        queryDataSet.current!.set({
-          currentPeriod,
-          currentOperationalDeadline,
-          checkableTimeRange,
-          currentCertState,
-        });
+        const companyId = queryDataSet.current.get('companyId');
+        if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
+          const period = immediatePeriod || currentPeriodData;
+          const {
+            currentPeriod,
+            currentOperationalDeadline,
+            checkableTimeRange,
+            currentCertState,
+          } = period;
+          queryDataSet.current!.set({
+            currentPeriod,
+            currentOperationalDeadline,
+            checkableTimeRange,
+            currentCertState,
+          });
+        }
       }
     }
   };

@@ -64,7 +64,6 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
       if (queryDataSet && queryDataSet.current) {
         const curCompanyId = queryDataSet.current.get('companyId');
         if (!isEmpty(empInfo) && empInfo.companyId !== curCompanyId) {
-          console.log(456);
           queryDataSet.current.reset();
           queryDataSet.current!.set({
             companyObj: empInfo,
@@ -80,24 +79,26 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     if (noDeductCheckDS) {
       const { queryDataSet } = noDeductCheckDS;
       if (queryDataSet && queryDataSet.current) {
-        const period = immediatePeriod || currentPeriodData;
-        const {
-          currentPeriod,
-          currentOperationalDeadline,
-          checkableTimeRange,
-          currentCertState,
-        } = period;
-        const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
-        const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
-        console.log(24);
-        queryDataSet.current!.set({
-          currentPeriod,
-          expiredDate: currentOperationalDeadline,
-          checkableTimeRange,
-          currentCertState,
-          invoiceDateFrom: dateFrom,
-          invoiceDateTo: dateTo,
-        });
+        const companyId = queryDataSet.current.get('companyId');
+        if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
+          const period = immediatePeriod || currentPeriodData;
+          const {
+            currentPeriod,
+            currentOperationalDeadline,
+            checkableTimeRange,
+            currentCertState,
+          } = period;
+          const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
+          const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
+          queryDataSet.current!.set({
+            currentPeriod,
+            expiredDate: currentOperationalDeadline,
+            checkableTimeRange,
+            currentCertState,
+            invoiceDateFrom: dateFrom,
+            invoiceDateTo: dateTo,
+          });
+        }
       }
     }
   };
