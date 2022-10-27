@@ -340,7 +340,7 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceRedFlush.modal.remark').d('发票备注'),
         type: FieldType.string,
         computedProps: {
-          maxLength: ({ record }) => (record.get('invoiceVariety') === '41' ? 5 : 3),
+          maxLength: ({ record }) => (record.get('invoiceVariety') === '41' ? 170 : 230),
         },
       },
     ],
