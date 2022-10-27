@@ -466,9 +466,9 @@ export default (dsParams): DataSetProps => {
         name: 'remark',
         label: intl.get('hiop.invoiceReq.modal.addRemark').d('附加备注'),
         type: FieldType.string,
-        maxLength: 200,
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
+          maxLength: ({ record }) => (record.get('invoiceType') === '41' ? 170 : 230),
         },
       },
       {
