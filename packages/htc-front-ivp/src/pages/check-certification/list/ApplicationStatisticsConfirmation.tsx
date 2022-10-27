@@ -39,15 +39,12 @@ import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import queryString from 'query-string';
 import { observer } from 'mobx-react-lite';
-// import moment from 'moment';
+import { isEmpty } from 'lodash';
 import { Col, Icon, Row, Tag } from 'choerodon-ui';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
 import formatterCollections from 'utils/intl/formatterCollections';
-import StatisticalConfirmDS, {
-  TimeRange,
-  // AutomaticStatistics,
-} from '../stores/StatisticalConfirmDS';
+import StatisticalConfirmDS, { TimeRange } from '../stores/StatisticalConfirmDS';
 import StatisticalDetailDS from '../stores/StatisticalDetailDS';
 import InvoiceCategoryContext from './CommonStore';
 
@@ -80,6 +77,8 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     currentPeriodData,
   } = props;
   const [showMore, setShowMore] = useState<boolean>(false);
+  const [statisticsLoading, setStatisticsLoading] = useState<boolean>(false);
+  const [confirmedLoading, setConfirmedLoading] = useState<boolean>(false);
   const { invoiceCategory, immediatePeriod, setImmediatePeriod } = useContext(
     InvoiceCategoryContext
   );
@@ -89,9 +88,15 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
       if (queryDataSet && queryDataSet.current) {
-        queryDataSet.current!.set({
-          companyId,
-        });
+        const curCompanyId = queryDataSet.current.get('companyId');
+        if (!isEmpty(empInfo) && companyId !== curCompanyId) {
+          console.log(345);
+          queryDataSet.current.reset();
+          queryDataSet.current!.set({
+            companyId,
+          });
+          statisticalConfirmDS.loadData([]);
+        }
       }
     }
   };
@@ -102,6 +107,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
       if (queryDataSet && queryDataSet.current) {
         const period = immediatePeriod || currentPeriodData;
         const { currentPeriod, currentCertState, currentOperationalDeadline } = period;
+        console.log(23);
         queryDataSet.current!.set({
           currentPeriod,
           currentOperationalDeadline,
@@ -251,12 +257,6 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         mobile,
       } = empInfo;
       const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-      // if (!taxDiskPassword) {
-      //   return notification.warning({
-      //     description: '',
-      //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-      //   });
-      // }
       const judgeRes = await judgeButton({ tenantId, companyId });
       if (judgeRes || currentCertState === '3') {
         notification.warning({
@@ -288,6 +288,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         statisticalPeriod: currentPeriod,
         statisticalFlag,
       };
+      setStatisticsLoading(true);
       const res = getResponse(await applyStatistics(params));
       if (res) {
         notification.success({
@@ -296,6 +297,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         });
         statisticalConfirmDS.query();
       }
+      setStatisticsLoading(false);
       // 更新所属期
       const periodRes = getResponse(await getCurPeriod({ tenantId, companyId, currentPeriod }));
       if (periodRes) setImmediatePeriod(periodRes);
@@ -520,12 +522,6 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
       const { queryDataSet } = statisticalConfirmDS;
       const currentCertState = queryDataSet && queryDataSet.current?.get('currentCertState');
       const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-      // if (!taxDiskPassword) {
-      //   return notification.warning({
-      //     description: '',
-      //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-      //   });
-      // }
       if (['0', '1'].includes(currentCertState)) {
         notification.warning({
           description: '',
@@ -578,6 +574,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         confirmFlag: type,
         confirmPassword,
       };
+      setConfirmedLoading(true);
       const res = getResponse(await confirmSignature(params));
       if (res) {
         notification.success({
@@ -586,6 +583,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         });
         statisticalConfirmDS.query();
       }
+      setConfirmedLoading(false);
       // 更新所属期
       const periodRes = getResponse(await getCurPeriod({ tenantId, companyId, currentPeriod }));
       if (periodRes) setImmediatePeriod(periodRes);
@@ -615,13 +613,13 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
 
   const statisticalButtons: Buttons[] = [
     <Dropdown overlay={btnMenu}>
-      <Button color={ButtonColor.primary}>
+      <Button color={ButtonColor.primary} loading={statisticsLoading}>
         {intl.get('hivp.checkCertification.button.batchStatistics').d('统计')}
         <Icon type="arrow_drop_down" />
       </Button>
     </Dropdown>,
     <Dropdown overlay={confirmMenu}>
-      <Button color={ButtonColor.primary}>
+      <Button color={ButtonColor.primary} loading={confirmedLoading}>
         {intl.get('hivp.checkCertification.button.batchConfirmed').d('确签')}
         <Icon type="arrow_drop_down" />
       </Button>
@@ -710,7 +708,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
       name: 'deductionInfo',
       aggregation: true,
       align: ColumnAlign.left,
-      width: 150,
+      // width: 150,
       children: [
         { name: 'deductionInvoiceNum' },
         { name: 'deductionValidTaxAmount' },
