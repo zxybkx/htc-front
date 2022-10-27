@@ -39,6 +39,7 @@ import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import queryString from 'query-string';
 import { observer } from 'mobx-react-lite';
+import { isEmpty } from 'lodash';
 import { Col, Icon, Row, Tag } from 'choerodon-ui';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
@@ -87,9 +88,14 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
       if (queryDataSet && queryDataSet.current) {
-        queryDataSet.current!.set({
-          companyId,
-        });
+        const curCompanyId = queryDataSet.current.get('companyId');
+        if (!isEmpty(empInfo) && companyId !== curCompanyId) {
+          queryDataSet.current.reset();
+          queryDataSet.current!.set({
+            companyId,
+          });
+          statisticalConfirmDS.loadData([]);
+        }
       }
     }
   };
@@ -98,13 +104,16 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
       if (queryDataSet && queryDataSet.current) {
-        const period = immediatePeriod || currentPeriodData;
-        const { currentPeriod, currentCertState, currentOperationalDeadline } = period;
-        queryDataSet.current!.set({
-          currentPeriod,
-          currentOperationalDeadline,
-          currentCertState,
-        });
+        const companyId = queryDataSet.current.get('companyId');
+        if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
+          const period = immediatePeriod || currentPeriodData;
+          const { currentPeriod, currentCertState, currentOperationalDeadline } = period;
+          queryDataSet.current!.set({
+            currentPeriod,
+            currentOperationalDeadline,
+            currentCertState,
+          });
+        }
       }
     }
   };
@@ -249,12 +258,6 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         mobile,
       } = empInfo;
       const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-      // if (!taxDiskPassword) {
-      //   return notification.warning({
-      //     description: '',
-      //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-      //   });
-      // }
       const judgeRes = await judgeButton({ tenantId, companyId });
       if (judgeRes || currentCertState === '3') {
         notification.warning({
@@ -520,12 +523,6 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
       const { queryDataSet } = statisticalConfirmDS;
       const currentCertState = queryDataSet && queryDataSet.current?.get('currentCertState');
       const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-      // if (!taxDiskPassword) {
-      //   return notification.warning({
-      //     description: '',
-      //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-      //   });
-      // }
       if (['0', '1'].includes(currentCertState)) {
         notification.warning({
           description: '',
@@ -712,7 +709,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
       name: 'deductionInfo',
       aggregation: true,
       align: ColumnAlign.left,
-      width: 150,
+      // width: 150,
       children: [
         { name: 'deductionInvoiceNum' },
         { name: 'deductionValidTaxAmount' },

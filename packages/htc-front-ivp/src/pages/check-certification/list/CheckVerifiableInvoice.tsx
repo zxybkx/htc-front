@@ -40,7 +40,7 @@ import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import queryString from 'query-string';
 import { ProgressStatus } from 'choerodon-ui/lib/progress/enum';
 import { observer } from 'mobx-react-lite';
-import { set, uniqBy } from 'lodash';
+import { set, uniqBy, isEmpty } from 'lodash';
 import { Col, Icon, Modal, Row, Tag, Tooltip } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import CertifiableInvoiceListDS from '../stores/CertifiableInvoiceListDS';
@@ -84,10 +84,15 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     if (certifiableInvoiceListDS) {
       const { queryDataSet } = certifiableInvoiceListDS;
       if (queryDataSet && queryDataSet.current) {
-        queryDataSet.current!.set({
-          companyObj: empInfo,
-          authorityCode: empInfo.authorityCode,
-        });
+        const companyId = queryDataSet.current.get('companyId');
+        if (!isEmpty(empInfo) && empInfo.companyId !== companyId) {
+          queryDataSet.current.reset();
+          queryDataSet.current!.set({
+            companyObj: empInfo,
+            authorityCode: empInfo.authorityCode,
+          });
+          certifiableInvoiceListDS.loadData([]);
+        }
       }
     }
   };
@@ -96,23 +101,26 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     if (certifiableInvoiceListDS) {
       const { queryDataSet } = certifiableInvoiceListDS;
       if (queryDataSet && queryDataSet.current) {
-        const period = immediatePeriod || currentPeriodData;
-        const {
-          currentPeriod,
-          currentOperationalDeadline,
-          checkableTimeRange,
-          currentCertState,
-        } = period;
-        const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
-        const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
-        queryDataSet.current!.set({
-          currentPeriod,
-          currentOperationalDeadline,
-          checkableTimeRange,
-          currentCertState,
-          invoiceDateFrom: dateFrom,
-          invoiceDateTo: dateTo,
-        });
+        const companyId = queryDataSet.current.get('companyId');
+        if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
+          const period = immediatePeriod || currentPeriodData;
+          const {
+            currentPeriod,
+            currentOperationalDeadline,
+            checkableTimeRange,
+            currentCertState,
+          } = period;
+          const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
+          const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
+          queryDataSet.current!.set({
+            currentPeriod,
+            currentOperationalDeadline,
+            checkableTimeRange,
+            currentCertState,
+            invoiceDateFrom: dateFrom,
+            invoiceDateTo: dateTo,
+          });
+        }
       }
     }
   };
@@ -272,15 +280,8 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     const contentRows = selectedList?.length;
     let invoiceRequestParamDto = {};
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-    // if (!taxDiskPassword) {
-    //   return notification.warning({
-    //     description: '',
-    //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-    //   });
-    // }
     if (certifiableInvoiceListDS) {
       const { queryDataSet } = certifiableInvoiceListDS;
-      // const { currentPeriod } = currentPeriodData;
       const invoiceCategory = queryDataSet?.current?.get('invoiceCategory');
       const currentPeriod = queryDataSet?.current?.get('currentPeriod');
       if (invoiceCategory === '01') {
