@@ -48,6 +48,7 @@ import queryString from 'query-string';
 import { downLoadFiles } from '@htccommon/utils/utils';
 import { observer } from 'mobx-react-lite';
 import moment from 'moment';
+import { isEmpty } from 'lodash';
 import { Col, Icon, message, Row, Tag, Alert } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { ValueChangeAction } from 'choerodon-ui/pro/lib/text-field/enum';
@@ -92,14 +93,19 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   const setCompanyObjFromProps = () => {
     if (batchInvoiceHeaderDS) {
       const { queryDataSet } = batchInvoiceHeaderDS;
-      const currentPeriod = queryDataSet?.current?.get('currentPeriod');
       const { companyId } = empInfo;
       if (queryDataSet && queryDataSet.current) {
-        queryDataSet.current!.set({
-          companyObj: empInfo,
-          authorityCode: empInfo.authorityCode,
-        });
+        const curCompanyId = queryDataSet.current.get('companyId');
+        if (!isEmpty(empInfo) && companyId !== curCompanyId) {
+          queryDataSet.current.reset();
+          queryDataSet.current!.set({
+            companyObj: empInfo,
+            authorityCode: empInfo.authorityCode,
+          });
+          batchInvoiceHeaderDS.loadData([]);
+        }
       }
+      const currentPeriod = queryDataSet?.current?.get('currentPeriod');
       if (currentPeriod && companyId) batchInvoiceHeaderDS.query();
     }
   };
@@ -108,19 +114,22 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     if (batchInvoiceHeaderDS) {
       const { queryDataSet } = batchInvoiceHeaderDS;
       if (queryDataSet && queryDataSet.current) {
-        const period = immediatePeriod || currentPeriodData;
-        const {
-          currentPeriod,
-          currentOperationalDeadline,
-          checkableTimeRange,
-          currentCertState,
-        } = period;
-        queryDataSet.current!.set({
-          currentPeriod,
-          currentOperationalDeadline,
-          checkableTimeRange,
-          currentCertState,
-        });
+        const companyId = queryDataSet.current.get('companyId');
+        if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
+          const period = immediatePeriod || currentPeriodData;
+          const {
+            currentPeriod,
+            currentOperationalDeadline,
+            checkableTimeRange,
+            currentCertState,
+          } = period;
+          queryDataSet.current!.set({
+            currentPeriod,
+            currentOperationalDeadline,
+            checkableTimeRange,
+            currentCertState,
+          });
+        }
       }
     }
   };
@@ -309,14 +318,6 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       const { queryDataSet } = batchInvoiceHeaderDS;
       if (queryDataSet) {
         const currentCertState = queryDataSet.current!.get('currentCertState');
-        // if (!taxDiskPassword) {
-        //   return notification.warning({
-        //     description: '',
-        //     message: intl
-        //       .get('hivp.checkCertification.notice.taxDiskPassword')
-        //       .d('请输入税盘密码！'),
-        //   });
-        // }
         if (!['0', '1'].includes(currentCertState)) {
           notification.warning({
             message: intl
@@ -365,14 +366,6 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       const selectedList = batchInvoiceHeaderDS.selected.map(rec => rec.toData());
       if (queryDataSet) {
         const currentCertState = queryDataSet.current!.get('currentCertState');
-        // if (!taxDiskPassword) {
-        //   return notification.warning({
-        //     description: '',
-        //     message: intl
-        //       .get('hivp.checkCertification.notice.taxDiskPassword')
-        //       .d('请输入税盘密码！'),
-        //   });
-        // }
         if (
           !['0', '1'].includes(currentCertState) ||
           selectedList?.some(item => item.checkState === 'R')
