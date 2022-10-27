@@ -365,7 +365,7 @@ export default (dsParams): DataSetProps => {
       {
         name: 'remark',
         label: intl.get('hzero.common.remark').d('备注'),
-        maxLength: 200,
+        // maxLength: 200,
         type: FieldType.string,
       },
       {
