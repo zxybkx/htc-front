@@ -39,15 +39,11 @@ import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import queryString from 'query-string';
 import { observer } from 'mobx-react-lite';
-// import moment from 'moment';
 import { Col, Icon, Row, Tag } from 'choerodon-ui';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
 import formatterCollections from 'utils/intl/formatterCollections';
-import StatisticalConfirmDS, {
-  TimeRange,
-  // AutomaticStatistics,
-} from '../stores/StatisticalConfirmDS';
+import StatisticalConfirmDS, { TimeRange } from '../stores/StatisticalConfirmDS';
 import StatisticalDetailDS from '../stores/StatisticalDetailDS';
 import InvoiceCategoryContext from './CommonStore';
 
@@ -80,6 +76,8 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     currentPeriodData,
   } = props;
   const [showMore, setShowMore] = useState<boolean>(false);
+  const [statisticsLoading, setStatisticsLoading] = useState<boolean>(false);
+  const [confirmedLoading, setConfirmedLoading] = useState<boolean>(false);
   const { invoiceCategory, immediatePeriod, setImmediatePeriod } = useContext(
     InvoiceCategoryContext
   );
@@ -288,6 +286,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         statisticalPeriod: currentPeriod,
         statisticalFlag,
       };
+      setStatisticsLoading(true);
       const res = getResponse(await applyStatistics(params));
       if (res) {
         notification.success({
@@ -296,6 +295,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         });
         statisticalConfirmDS.query();
       }
+      setStatisticsLoading(false);
       // 更新所属期
       const periodRes = getResponse(await getCurPeriod({ tenantId, companyId, currentPeriod }));
       if (periodRes) setImmediatePeriod(periodRes);
@@ -578,6 +578,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         confirmFlag: type,
         confirmPassword,
       };
+      setConfirmedLoading(true);
       const res = getResponse(await confirmSignature(params));
       if (res) {
         notification.success({
@@ -586,6 +587,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         });
         statisticalConfirmDS.query();
       }
+      setConfirmedLoading(false);
       // 更新所属期
       const periodRes = getResponse(await getCurPeriod({ tenantId, companyId, currentPeriod }));
       if (periodRes) setImmediatePeriod(periodRes);
@@ -615,13 +617,13 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
 
   const statisticalButtons: Buttons[] = [
     <Dropdown overlay={btnMenu}>
-      <Button color={ButtonColor.primary}>
+      <Button color={ButtonColor.primary} loading={statisticsLoading}>
         {intl.get('hivp.checkCertification.button.batchStatistics').d('统计')}
         <Icon type="arrow_drop_down" />
       </Button>
     </Dropdown>,
     <Dropdown overlay={confirmMenu}>
-      <Button color={ButtonColor.primary}>
+      <Button color={ButtonColor.primary} loading={confirmedLoading}>
         {intl.get('hivp.checkCertification.button.batchConfirmed').d('确签')}
         <Icon type="arrow_drop_down" />
       </Button>

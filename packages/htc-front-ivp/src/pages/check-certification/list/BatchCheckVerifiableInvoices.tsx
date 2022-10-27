@@ -79,6 +79,8 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   const { batchInvoiceHeaderDS, empInfo, currentPeriodData, companyAndPassword, history } = props;
   const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
   const [showMore, setShowMore] = useState<boolean>(false);
+  const [checkLoading, setCheckLoading] = useState<boolean>(false);
+  const [noDeductLoading, setNoDeductLoading] = useState<boolean>(false);
   const { immediatePeriod, setImmediatePeriod } = useContext(InvoiceCategoryContext);
 
   let singleUpload;
@@ -248,8 +250,11 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     );
   });
 
-  // 勾选请求接口
-  const checkCall = async () => {
+  /**
+   * 勾选请求接口
+   * param type 0-勾选1-不抵扣勾选
+   */
+  const checkCall = async type => {
     if (batchInvoiceHeaderDS) {
       const {
         companyId,
@@ -271,6 +276,8 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
         authorityCode,
         invoiceCheckCollects: selectedList,
       };
+      if (type === 0) setCheckLoading(true);
+      if (type === 1) setNoDeductLoading(true);
       const res = getResponse(await batchCheck(params));
       if (res) {
         notification.success({
@@ -279,6 +286,8 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
         });
         batchInvoiceHeaderDS.query();
       }
+      if (type === 0) setCheckLoading(false);
+      if (type === 1) setNoDeductLoading(false);
       // 更新所属期
       const { queryDataSet } = batchInvoiceHeaderDS;
       const currentPeriod = queryDataSet?.current?.get('currentPeriod');
@@ -316,7 +325,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
             description: '',
           });
         }
-        checkCall();
+        checkCall(0);
       }
     }
   };
@@ -375,7 +384,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
             description: '',
           });
         }
-        checkCall();
+        checkCall(1);
       }
     }
   };
@@ -793,7 +802,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       title={intl.get('hzero.common.button.delete').d('删除')}
     />,
     <Dropdown overlay={btnMenu}>
-      <Button color={ButtonColor.primary} style={{ float: 'right' }}>
+      <Button color={ButtonColor.primary} style={{ float: 'right' }} loading={checkLoading}>
         {intl.get(`${modelCode}.button.batchVerifiable`).d('勾选')}
         <Icon type="arrow_drop_down" />
       </Button>
@@ -807,6 +816,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
             ? 'inline'
             : 'none',
         }}
+        loading={noDeductLoading}
       >
         {intl.get(`${modelCode}.button.noDeductCheck`).d('不抵扣勾选')}
         <Icon type="arrow_drop_down" />

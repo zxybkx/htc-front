@@ -75,6 +75,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   const [progressValue, setProgressValue] = useState<number>(0);
   const [visible, setVisible] = useState<boolean>(false);
   const [verfiableMoreDisplay, setVerfiableMoreDisplay] = useState<boolean>(false);
+  const [checkLoading, setCheckLoading] = useState<boolean>(false);
   const { setInvoiceCategory, immediatePeriod, setImmediatePeriod } = useContext(
     InvoiceCategoryContext
   );
@@ -332,6 +333,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         taxpayerNumber,
         invoiceRequestParamDto,
       };
+      setCheckLoading(true);
       const res = getResponse(await handlecheckRequest(params));
       if (res) {
         notification.success({
@@ -340,6 +342,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         });
         certifiableInvoiceListDS.query();
       }
+      setCheckLoading(false);
       // 更新所属期
       const periodRes = getResponse(await getCurPeriod({ tenantId, companyId, currentPeriod }));
       if (periodRes) setImmediatePeriod(periodRes);
@@ -668,7 +671,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
 
   const tableButtons: Buttons[] = [
     <Dropdown overlay={btnMenu}>
-      <Button color={ButtonColor.primary}>
+      <Button color={ButtonColor.primary} loading={checkLoading}>
         {intl.get(`${modelCode}.button.batchVerifiable`).d('勾选')}
         <Icon type="arrow_drop_down" />
       </Button>
