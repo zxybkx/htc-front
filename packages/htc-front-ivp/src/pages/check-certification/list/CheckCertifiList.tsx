@@ -171,7 +171,7 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
         }
       }
     }
-    // setActiveKey('certifiableInvoice');
+    setActiveKey('certifiableInvoice');
   };
 
   /**

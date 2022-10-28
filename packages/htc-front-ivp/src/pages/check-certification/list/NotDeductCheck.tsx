@@ -27,6 +27,7 @@ import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
 import { partialCheck, getCurPeriod } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import moment from 'moment';
+import { isEmpty } from 'lodash';
 import { getResponse } from 'utils/utils';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
@@ -54,16 +55,22 @@ interface CheckCertificationPageProps {
 const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
   const { noDeductCheckDS, companyAndPassword, empInfo, currentPeriodData } = props;
   const [verfiableMoreDisplay, setVerfiableMoreDisplay] = useState<boolean>(false);
+  const [checkLoading, setCheckLoading] = useState<boolean>(false);
   const { immediatePeriod, setImmediatePeriod } = useContext(InvoiceCategoryContext);
 
   const setCompanyObjFromProps = () => {
     if (noDeductCheckDS) {
       const { queryDataSet } = noDeductCheckDS;
       if (queryDataSet && queryDataSet.current) {
-        queryDataSet.current!.set({
-          companyObj: empInfo,
-          authorityCode: empInfo.authorityCode,
-        });
+        const curCompanyId = queryDataSet.current.get('companyId');
+        if (!isEmpty(empInfo) && empInfo.companyId !== curCompanyId) {
+          queryDataSet.current.reset();
+          queryDataSet.current!.set({
+            companyObj: empInfo,
+            authorityCode: empInfo.authorityCode,
+          });
+          noDeductCheckDS.loadData([]);
+        }
       }
     }
   };
@@ -72,23 +79,26 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     if (noDeductCheckDS) {
       const { queryDataSet } = noDeductCheckDS;
       if (queryDataSet && queryDataSet.current) {
-        const period = immediatePeriod || currentPeriodData;
-        const {
-          currentPeriod,
-          currentOperationalDeadline,
-          checkableTimeRange,
-          currentCertState,
-        } = period;
-        const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
-        const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
-        queryDataSet.current!.set({
-          currentPeriod,
-          expiredDate: currentOperationalDeadline,
-          checkableTimeRange,
-          currentCertState,
-          invoiceDateFrom: dateFrom,
-          invoiceDateTo: dateTo,
-        });
+        const companyId = queryDataSet.current.get('companyId');
+        if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
+          const period = immediatePeriod || currentPeriodData;
+          const {
+            currentPeriod,
+            currentOperationalDeadline,
+            checkableTimeRange,
+            currentCertState,
+          } = period;
+          const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
+          const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
+          queryDataSet.current!.set({
+            currentPeriod,
+            expiredDate: currentOperationalDeadline,
+            checkableTimeRange,
+            currentCertState,
+            invoiceDateFrom: dateFrom,
+            invoiceDateTo: dateTo,
+          });
+        }
       }
     }
   };
@@ -247,12 +257,6 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     const selectedList = noDeductCheckDS?.selected.map(rec => rec.toData());
     // let invoiceRequestParamDto = {};
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-    // if (!taxDiskPassword) {
-    //   return notification.warning({
-    //     description: '',
-    //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-    //   });
-    // }
     if (noDeductCheckDS) {
       const { queryDataSet } = noDeductCheckDS;
       const currentPeriod = queryDataSet?.current?.get('currentPeriod');
@@ -273,6 +277,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
         taxDiskPassword,
         selectedList,
       };
+      setCheckLoading(true);
       const res = getResponse(await partialCheck(params));
       if (res) {
         notification.success({
@@ -281,6 +286,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
         });
         noDeductCheckDS.query();
       }
+      setCheckLoading(false);
       // 更新所属期
       const periodRes = getResponse(await getCurPeriod({ tenantId, companyId, currentPeriod }));
       if (periodRes) setImmediatePeriod(periodRes);
@@ -407,7 +413,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
 
   const tableButtons: Buttons[] = [
     <Dropdown overlay={btnMenu}>
-      <Button color={ButtonColor.primary}>
+      <Button color={ButtonColor.primary} loading={checkLoading}>
         {intl.get(`${modelCode}.button.batchVerifiable`).d('勾选')}
         <Icon type="arrow_drop_down" />
       </Button>
