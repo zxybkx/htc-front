@@ -957,12 +957,23 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
     if (queryDataSet) {
       const curQueryInfo = queryDataSet.current!.toData();
       const _selectedList = selectedList.map(record => {
-        const { checkCode, invoiceNo, ...otherData } = record;
-        return {
-          checkNumber: checkCode && checkCode.substr(checkCode.length - 6),
-          invoiceNumber: invoiceNo,
-          ...otherData,
-        };
+        const { checkCode, invoiceNo, invoiceAmount, taxAmount, ...otherData } = record;
+        if (invoiceNo && invoiceNo.length === 20) {
+          return {
+            checkNumber: checkCode && checkCode.substr(checkCode.length - 6),
+            invoiceNumber: invoiceNo,
+            invoiceAmount: (Number(invoiceAmount) || 0) + (Number(taxAmount) || 0),
+            ...otherData,
+          };
+        } else {
+          return {
+            checkNumber: checkCode && checkCode.substr(checkCode.length - 6),
+            invoiceNumber: invoiceNo,
+            invoiceAmount,
+            taxAmount,
+            ...otherData,
+          };
+        }
       });
       const params = {
         tenantId,
