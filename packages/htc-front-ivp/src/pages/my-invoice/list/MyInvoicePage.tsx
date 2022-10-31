@@ -354,7 +354,11 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
             title: '',
             renderer: ({ record }) => {
               const invoiceTypeMeaning = record && record.get('invoiceTypeMeaning');
-              return <a onClick={() => this.handleGotoDetailPage(record)}>{invoiceTypeMeaning}</a>;
+              return (
+                <span>
+                  {invoiceTypeMeaning}
+                </span>
+              );
             },
           },
         ],
