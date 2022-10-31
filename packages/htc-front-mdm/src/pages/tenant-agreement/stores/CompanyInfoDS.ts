@@ -48,7 +48,7 @@ export default (tenantId, agreementId): DataSetProps => {
         };
       },
       create: ({ data, params }) => {
-        const newList = data.map((item) => ({
+        const newList = data.map(item => ({
           ...item,
           agreementId,
         }));
@@ -61,7 +61,7 @@ export default (tenantId, agreementId): DataSetProps => {
       },
     },
     feedback: {
-      submitFailed: (resp) => {
+      submitFailed: resp => {
         notification.error({
           description: '',
           message: resp && resp.message,
@@ -74,11 +74,11 @@ export default (tenantId, agreementId): DataSetProps => {
     fields: [
       {
         name: 'agreementCompanyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'tenantId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'tenantNum',
@@ -112,7 +112,7 @@ export default (tenantId, agreementId): DataSetProps => {
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'companyObject.companyId',
       },
       {

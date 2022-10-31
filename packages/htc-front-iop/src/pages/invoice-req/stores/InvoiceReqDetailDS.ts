@@ -174,11 +174,11 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'headerId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',
@@ -196,7 +196,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'employeeId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'employeeNum',
@@ -511,7 +511,7 @@ export default (dsParams): DataSetProps => {
       {
         name: 'applicantId',
         label: intl.get('hiop.invoiceReq.modal.applicantId').d('申请人标识'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'applicantNumber',
@@ -528,7 +528,7 @@ export default (dsParams): DataSetProps => {
       {
         name: 'reviewerId',
         label: intl.get('hiop.invoiceReq.modal.reviewerId').d('审核人标识'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'reviewerNumber',
@@ -647,7 +647,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'docTypeHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'systemCodeObj.docTypeHeaderId',
         ignore: FieldIgnore.always,
       },

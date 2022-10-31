@@ -49,7 +49,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'docTypeHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'orderSeq',

@@ -40,11 +40,11 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'taxHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'taxpayerNumber',
@@ -160,7 +160,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'companyId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: 'companyObj.companyId',
         },
         {

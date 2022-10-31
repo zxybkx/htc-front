@@ -180,7 +180,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'tenantId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: `tenantObject.tenantId`,
       },
       {

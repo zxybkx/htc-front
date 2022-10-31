@@ -51,11 +51,11 @@ export default (dsParams): DataSetProps => {
     fields: [
       {
         name: 'originalAccountHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'inChannelCode',

@@ -83,7 +83,7 @@ export default (dsProps): DataSetProps => {
       },
       {
         name: 'employeeId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'receiptNumber',

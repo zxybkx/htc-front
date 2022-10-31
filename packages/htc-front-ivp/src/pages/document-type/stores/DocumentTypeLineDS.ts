@@ -19,7 +19,7 @@ const modelCode = 'hivp.documentType';
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
-  console.log('API_PREFIX', API_PREFIX);
+
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -55,11 +55,11 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'docTypeLineId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'docTypeHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'orderSeq',
