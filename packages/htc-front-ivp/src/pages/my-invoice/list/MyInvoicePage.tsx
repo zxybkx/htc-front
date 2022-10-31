@@ -84,7 +84,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
   @Bind()
   handleGotoInvoiceCheck() {
     const { queryDataSet } = this.props.invoiceDS;
-    const pathname = `/${process.env.MY_ROUTE}/invoice-check/query`;
+    const pathname = '/htc-front-ivp/invoice-check/query';
     const companyId = queryDataSet && queryDataSet.current!.get('companyId');
     openTab({
       key: pathname,
