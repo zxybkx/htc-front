@@ -78,7 +78,7 @@ export default {
 
             return remoteArr.map(v => {
                 if (additionalArr.includes(v)) {
-                    return [v, '145_hotfix']
+                    return [v, '1_5_4']
                 }
                 return v;
             });

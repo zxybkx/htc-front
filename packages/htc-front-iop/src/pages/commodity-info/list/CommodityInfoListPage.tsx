@@ -54,6 +54,7 @@ export default class CommodityInfoListPage extends Component<CommodityInfoPagePr
   });
 
   async componentDidMount() {
+    console.log('123');
     const res = await getCurrentEmployeeInfoOut({ tenantId });
     if (res && res.content) {
       const empInfo = res.content[0];
