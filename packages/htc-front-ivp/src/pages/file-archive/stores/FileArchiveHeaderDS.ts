@@ -38,7 +38,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
         required: true,
         readOnly: true,
       },
@@ -65,7 +65,7 @@ export default (): DataSetProps => {
         type: FieldType.date,
         defaultValue: moment(),
         required: true,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'entryPeriodFlag',
@@ -98,7 +98,7 @@ export default (): DataSetProps => {
         name: 'archiveDate',
         label: intl.get(`${modelCode}.view.archiveDate`).d('归档期间'),
         type: FieldType.month,
-        transformRequest: (value) => value && moment(value).format('YYYY-MM'),
+        transformRequest: value => value && moment(value).format('YYYY-MM'),
         computedProps: {
           required: ({ record }) => record.get('archiveMethod') === '2',
         },

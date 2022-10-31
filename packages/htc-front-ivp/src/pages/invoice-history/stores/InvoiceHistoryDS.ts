@@ -44,11 +44,11 @@ export default (dsParams): DataSetProps => {
       {
         name: 'historyRecordId',
         label: intl.get('hivp.bill.view.billPoolHeaderId').d('记录ID'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'invoicePoolHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'incidentType',

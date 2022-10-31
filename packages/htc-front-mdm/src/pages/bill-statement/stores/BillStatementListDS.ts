@@ -38,7 +38,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',
@@ -196,7 +196,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'agreementCompanyId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: `companyNameObject.agreementCompanyId`,
       },
       {

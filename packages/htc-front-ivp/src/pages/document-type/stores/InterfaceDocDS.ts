@@ -48,15 +48,15 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'detailId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'docTypeLineId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'docTypeHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'orderSeq',
@@ -74,7 +74,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'companyObj.companyId',
       },
       {
@@ -160,7 +160,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'companyObj.companyId',
       },
       {

@@ -44,15 +44,15 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'taxLineId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'taxHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'invoiceType',

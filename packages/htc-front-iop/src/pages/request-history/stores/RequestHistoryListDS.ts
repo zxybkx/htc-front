@@ -40,7 +40,7 @@ export default (): DataSetProps => {
       {
         name: 'requestId',
         label: intl.get(`${modelCode}.view.requestId`).d('请求id'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'tenantId',
@@ -125,7 +125,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'tenantId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: `tenantObject.tenantId`,
       },
       {

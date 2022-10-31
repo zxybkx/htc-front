@@ -472,7 +472,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'companyId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: 'companyObj.companyId',
         },
         {

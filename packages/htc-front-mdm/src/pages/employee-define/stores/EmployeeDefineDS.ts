@@ -68,7 +68,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'employeeId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyName',
@@ -175,13 +175,13 @@ export default (): DataSetProps => {
       {
         name: 'rolesMeaning',
         type: FieldType.string,
-        bind: `rolesObject.name`,
+        bind: 'rolesObject.name',
         multiple: ',',
       },
       {
         name: 'roleIds',
-        type: FieldType.number,
-        bind: `rolesObject.id`,
+        type: FieldType.string,
+        bind: 'rolesObject.id',
         multiple: ',',
         ignore: FieldIgnore.always,
       },
@@ -244,7 +244,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: `companyNameObject.companyId`,
       },
       {
@@ -274,7 +274,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'roleIds',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: `roleIdObject.id`,
         multiple: ',',
       },

@@ -27,7 +27,7 @@ export default (isNew): DataSetProps => {
         };
         return axiosConfig;
       },
-      destroy: (redInvoiceRequisitionLineList) => {
+      destroy: redInvoiceRequisitionLineList => {
         if (!isNew) {
           return {
             url: `${HIOP_API}/v1/${organizationId}/red-invoice-requisition-lines/batch-remove`,
@@ -45,7 +45,7 @@ export default (isNew): DataSetProps => {
     fields: [
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',

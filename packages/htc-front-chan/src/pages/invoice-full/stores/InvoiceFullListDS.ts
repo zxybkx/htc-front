@@ -55,7 +55,7 @@ export default (): DataSetProps => {
       {
         name: 'invoiceHeaderId',
         label: intl.get(`${modelCode}.view.invoiceHeaderId`).d('发票ID'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'checkCount',
@@ -165,7 +165,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'tenantId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: `tenantObject.tenantId`,
       },
       {

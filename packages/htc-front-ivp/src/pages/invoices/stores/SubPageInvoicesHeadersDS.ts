@@ -39,11 +39,11 @@ export default (dsParams): DataSetProps => {
       {
         name: 'invoicePoolHeaderId',
         label: intl.get(`hivp.bill.view.billPoolHeaderId`).d('记录ID'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'invoiceHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'tenantName',
@@ -54,7 +54,7 @@ export default (dsParams): DataSetProps => {
       {
         name: 'companyId',
         label: intl.get(`hivp.batchCheck.view.companyId`).d('公司ID'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',
@@ -74,7 +74,7 @@ export default (dsParams): DataSetProps => {
       {
         name: 'employeeId',
         label: intl.get(`hivp.bill.view.employeeId`).d('员工id'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'employeeNum',

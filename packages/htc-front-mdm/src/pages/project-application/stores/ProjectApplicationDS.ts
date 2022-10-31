@@ -277,7 +277,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'tenantId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: `tenantName.tenantId`,
         },
       ],
@@ -419,7 +419,7 @@ const LinkDS = (): DataSetProps => {
       },
       {
         name: 'systemCompanyId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: `companyNameObject.companyId`,
       },
       {

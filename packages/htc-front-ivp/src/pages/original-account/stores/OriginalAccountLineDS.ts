@@ -40,11 +40,11 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'originalAccountLinesId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'originalAccountHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'getDate',
@@ -85,7 +85,7 @@ export default (): DataSetProps => {
       {
         name: 'parameter',
         label: intl.get('hzero.common.model.param').d('参数'),
-        type: FieldType.object,
+        type: FieldType.string,
       },
       {
         name: 'exceptionInfo',
