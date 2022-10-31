@@ -365,16 +365,16 @@ export default (dsParams): DataSetProps => {
       {
         name: 'remark',
         label: intl.get('hzero.common.remark').d('备注'),
-        maxLength: 200,
+        // maxLength: 200,
         type: FieldType.string,
       },
       {
         name: 'userRemark',
         label: intl.get('hzero.common.remark').d('备注'),
         type: FieldType.string,
-        maxLength: 200,
         computedProps: {
           readOnly: ({ record }) => record.get('readonly'),
+          maxLength: ({ record }) => (record.get('invoiceVariety') === '41' ? 170 : 230),
         },
       },
       {

@@ -282,12 +282,12 @@ export default class ArchiveViewPage extends Component<ArchiveViewPageProps> {
             )}
             <Output name="recordType" />
           </Form>
-          <Form dataSet={this.queryDocDS} columns={7}>
-            <Output name="documentNumber" />
-            <Output name="documentSourceKey" colSpan={2} />
-            <Output name="documentRemark" colSpan={2} />
-            <Output name="relationInvoiceQuantity" />
-          </Form>
+          {/* <Form dataSet={this.queryDocDS} columns={7}> */}
+          {/*  <Output name="documentNumber" /> */}
+          {/*  <Output name="documentSourceKey" colSpan={2} /> */}
+          {/*  <Output name="documentRemark" colSpan={2} /> */}
+          {/*  <Output name="relationInvoiceQuantity" /> */}
+          {/* </Form> */}
         </Content>
       </>
     );

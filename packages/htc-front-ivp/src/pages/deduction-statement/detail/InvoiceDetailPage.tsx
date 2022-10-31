@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-11-24 10:56:29
- * @LastEditTime: 2022-10-21 17:36:35
+ * @LastEditTime: 2022-10-28 10:43:33
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -15,10 +15,11 @@ import { DataSet, Table, Button } from 'choerodon-ui/pro';
 import { Content, Header } from 'components/Page';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
-import notification from 'utils/notification';
+// import notification from 'utils/notification';
 import { downLoadReport } from '@src/services/checkAuthenticationService';
 import ExcelExport from 'components/ExcelExport';
 import commonConfig from '@htccommon/config/commonConfig';
+import { downLoadFiles } from '@htccommon/utils/utils';
 import InvoiceDetailDS from '../stores/InvoiceDetailDS';
 import { ActiveKey } from '../list/DeductionStatementListPage';
 
@@ -153,12 +154,14 @@ export default class CheckRuleListPage extends Component<DeductionStatementListP
         tenantId,
       })
     );
-    if (res) {
-      notification.success({
-        message: intl
-          .get('hivp.deductionStatement.notice.downloadCertificationSuccess')
-          .d('认证结果通知书下载成功'),
-      });
+    if (res && typeof res === 'string') {
+      const fileList = [
+        {
+          data: res,
+          fileName: `${intl.get('hivp.deductionStatement.result.book').d('认证结果通知书')}.pdf`,
+        },
+      ];
+      downLoadFiles(fileList, 0);
     }
   }
 
