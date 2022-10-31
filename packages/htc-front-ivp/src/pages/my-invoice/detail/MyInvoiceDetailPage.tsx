@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: yang.wang04@hand-china.com
  * @Date: 2020-07-20 16:19:48
- * @LastEditTime: 2022-07-26 17:08:29
+ * @LastEditTime: 2022-10-31 10:52:38
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -42,17 +42,19 @@ export default class MyInvoiceDetailPage extends Component<InvoicePoolDetailPage
   render() {
     const { sourceCode, sourceHeaderId } = this.props.match.params;
     const { invoiceHeaderId, invoiceType } = this.state;
-    return sourceCode === invoiceSourceCode ? (
+    return sourceCode === invoiceSourceCode
+      ? invoiceHeaderId && (
       <InvoiceDetailPage
         backPath="/htc-front-ivp/my-invoice/list"
         invoiceHeaderId={invoiceHeaderId}
         invoiceType={invoiceType}
       />
-    ) : (
+        )
+      : sourceHeaderId && (
       <BillPoolDetailPage
         backPath="/htc-front-ivp/my-invoice/list"
         billPoolHeaderId={sourceHeaderId}
       />
-    );
+        );
   }
 }
