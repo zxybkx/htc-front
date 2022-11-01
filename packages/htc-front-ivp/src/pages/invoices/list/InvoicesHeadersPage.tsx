@@ -460,12 +460,12 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
   handleDeleteHeaders() {
     const headersList = this.props.headerDS.selected;
 
-    const checkdFlag = headersList.some(hl => {
-      const rec = hl.toData();
-      return (
-        rec.invoicePoolHeaderId && !(rec.inOutType === 'IN' && rec.buyerName !== rec.companyName)
-      );
-    });
+    // const checkdFlag = headersList.some(hl => {
+    //   const rec = hl.toData();
+    //   return (
+    //     rec.invoicePoolHeaderId && !(rec.inOutType === 'IN' && rec.buyerName !== rec.companyName)
+    //   );
+    // });
     const relatedFlag = headersList.some(hl => {
       const rec = hl.toData();
       return (
@@ -473,13 +473,13 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
         !(rec.inOutType === 'IN' && rec.receiptsState !== '1' && rec.entryAccountState !== '1')
       );
     });
-    if (checkdFlag) {
-      notification.warning({
-        description: '',
-        message: intl.get(`${modelCode}.view.checkdFlag`).d('不允许删除本公司的进销项发票'),
-      });
-      return;
-    }
+    // if (checkdFlag) {
+    //   notification.warning({
+    //     description: '',
+    //     message: intl.get(`${modelCode}.view.checkdFlag`).d('不允许删除本公司的进销项发票'),
+    //   });
+    //   return;
+    // }
     if (relatedFlag) {
       notification.warning({
         description: '',
