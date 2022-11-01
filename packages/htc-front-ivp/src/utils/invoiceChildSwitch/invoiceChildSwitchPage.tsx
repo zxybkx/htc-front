@@ -3,7 +3,7 @@
  * @version: 1.0
  * @Author: huishan.yu@hand-china.com
  * @Date: 2021-10-29 12:00:48
- * @LastEditTime: 2022-08-25 17:46:33
+ * @LastEditTime: 2022-11-01 12:02:47
  * @Copyright: Copyright (c) 2021, Hand
  */
 import React, { Component } from 'react';
@@ -66,7 +66,7 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
         invoiceHeaderid = entryPoolSource === 'EXTERNAL_IMPORT' ? poolHeaderId : invoiceHeaderId;
         pathname =
           sourceCode === 'BILL_POOL'
-            ? `/htc-front-ivp/my-invoice/billDetail/${invoiceHeaderid}/${invoiceType}`
+            ? `/htc-front-ivp/my-invoice/billDetail/${billPoolHeaderId}/${invoiceType}`
             : `/htc-front-ivp/my-invoice/invoiceDetail/${invoiceHeaderid}/${invoiceType}/${entryPoolSource}/${companyCode}`;
         break;
       case 'invoices':
