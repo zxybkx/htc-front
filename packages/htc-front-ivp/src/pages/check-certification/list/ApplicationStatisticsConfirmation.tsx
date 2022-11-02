@@ -652,6 +652,16 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     />,
   ];
 
+  const handleReset = () => {
+    if (statisticalConfirmDS) {
+      const { queryDataSet } = statisticalConfirmDS;
+      if (queryDataSet) {
+        queryDataSet.reset();
+        setCompanyObjFromProps();
+      }
+    }
+  };
+
   // 当期已勾选发票统计确签:查询条件
   const renderQueryBar = propsDS => {
     const { dataSet, queryDataSet, buttons } = propsDS;
@@ -685,12 +695,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
                 </span>
               )}
             </Button>
-            <Button
-              onClick={() => {
-                queryDataSet.reset();
-                queryDataSet.create();
-              }}
-            >
+            <Button onClick={() => handleReset()}>
               {intl.get('hzero.common.status.reset').d('重置')}
             </Button>
             <Button color={ButtonColor.primary} onClick={() => dataSet.query()}>
