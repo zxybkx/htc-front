@@ -41,11 +41,11 @@ import queryString from 'query-string';
 import { ProgressStatus } from 'choerodon-ui/lib/progress/enum';
 import { observer } from 'mobx-react-lite';
 import { set, uniqBy, isEmpty } from 'lodash';
-import { Col, Icon, Modal, Row, Tag, Tooltip } from 'choerodon-ui';
+import { Col, Icon, Modal, Row, Tag } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import CertifiableInvoiceListDS from '../stores/CertifiableInvoiceListDS';
 import InvoiceCategoryContext from './CommonStore';
-import styles from '../checkcertification.less';
+// import styles from '../checkcertification.less';
 
 const { Item: MenuItem } = Menu;
 
@@ -56,7 +56,7 @@ interface CheckCertificationPageProps {
   companyAndPassword: DataSet;
   empInfo: any;
   currentPeriodData: any;
-  checkInvoiceCount: number;
+  // checkInvoiceCount: number;
   history: any;
   certifiableInvoiceListDS?: DataSet;
 }
@@ -67,7 +67,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     companyAndPassword,
     empInfo,
     history,
-    checkInvoiceCount,
+    // checkInvoiceCount,
     currentPeriodData,
   } = props;
   const [progressStatus, setProgressStatus] = useState<any>(ProgressStatus.active);
@@ -579,21 +579,21 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     );
   });
 
-  const Tooltips = () => {
-    const title =
-      checkInvoiceCount === 0
-        ? ''
-        : '当前系统中存在请求中的发票，可在当期勾选可认证发票查看，请请求完成后再重新获取';
-    return (
-      <Tooltip title={title} placement="top">
-        <Icon
-          type="help_outline"
-          className={styles.icon}
-          style={{ display: checkInvoiceCount === 0 ? 'none' : 'inline' }}
-        />
-      </Tooltip>
-    );
-  };
+  // const Tooltips = () => {
+  //   const title =
+  //     checkInvoiceCount === 0
+  //       ? ''
+  //       : '当前系统中存在请求中的发票，可在当期勾选可认证发票查看，请请求完成后再重新获取';
+  //   return (
+  //     <Tooltip title={title} placement="top">
+  //       <Icon
+  //         type="help_outline"
+  //         className={styles.icon}
+  //         style={{ display: checkInvoiceCount === 0 ? 'none' : 'inline' }}
+  //       />
+  //     </Tooltip>
+  //   );
+  // };
 
   const btnMenu = (
     <Menu>
@@ -620,12 +620,12 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     // const { currentPeriod } = currentPeriodData;
     const { queryDataSet } = btnProps.dataSet;
     const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
-    const isDisabled = !currentPeriod || checkInvoiceCount !== 0;
+    // const isDisabled = !currentPeriod;
     return (
       <Button
         key={btnProps.key}
         onClick={btnProps.onClick}
-        disabled={isDisabled}
+        disabled={!currentPeriod}
         funcType={FuncType.flat}
       >
         {btnProps.title}
@@ -683,7 +683,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       onClick={() => handleFindVerifiableInvoice()}
       title={intl.get(`${modelCode}.button.verifiableInvoices`).d('实时查找可认证发票')}
     />,
-    <Tooltips />,
+    // <Tooltips />,
     <CertifiedDetail
       key="certifiedDetails"
       dataSet={certifiableInvoiceListDS}

@@ -68,9 +68,9 @@ function downloadFileIe(fileList, type) {
   }
 }
 
-function pause(msec) {
+function pause(msec = 1000) {
   return new Promise(resolve => {
-    setTimeout(resolve, msec || 1000);
+    setTimeout(resolve, msec);
   });
 }
 
