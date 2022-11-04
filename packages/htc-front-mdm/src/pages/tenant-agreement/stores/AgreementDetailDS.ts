@@ -37,7 +37,7 @@ export default (agreementId): DataSetProps => {
     fields: [
       {
         name: 'agreementId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'tenantId',

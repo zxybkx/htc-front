@@ -316,15 +316,15 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'lineId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'headerId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',

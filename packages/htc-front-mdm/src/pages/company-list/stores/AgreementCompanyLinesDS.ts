@@ -41,7 +41,7 @@ export default (dsParams): DataSetProps => {
     fields: [
       {
         name: 'agreementCompanyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',
@@ -57,7 +57,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'administrator',

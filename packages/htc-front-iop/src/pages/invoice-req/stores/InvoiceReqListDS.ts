@@ -40,11 +40,11 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'headerId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',
@@ -61,7 +61,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'employeeId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'employeeNum',
@@ -243,7 +243,7 @@ export default (): DataSetProps => {
       {
         name: 'applicantId',
         label: intl.get('hiop.invoiceReq.modal.applicantId').d('申请人标识'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'applicantNumber',
@@ -260,7 +260,7 @@ export default (): DataSetProps => {
       {
         name: 'reviewerId',
         label: intl.get('hiop.invoiceReq.modal.reviewerId').d('审核人标识'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'reviewerNumber',
@@ -351,7 +351,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'companyId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: 'companyObj.companyId',
         },
         {
@@ -376,7 +376,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'employeeId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: 'companyObj.employeeId',
           // ignore: FieldIgnore.always,
         },

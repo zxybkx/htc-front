@@ -192,11 +192,11 @@ export default class InvoiceChildSwitchPage extends Component<InvoiceChildSwitch
     const activeTabKey = getActiveTabKey();
     let record; // 获取跳转record缓存
     if (activeTabKey.includes('/invoices')) {
-      record = JSON.parse(localStorage.getItem('currentInvoicerecord')!) || {};
+      record = JSON.parse(localStorage.getItem('currentInvoicerecord')!);
     } else if (activeTabKey.includes('/bills')) {
-      record = JSON.parse(localStorage.getItem('currentBillrecord')!) || {};
+      record = JSON.parse(localStorage.getItem('currentBillrecord')!);
     } else {
-      record = JSON.parse(localStorage.getItem('myInvoicerecord')!) || {};
+      record = JSON.parse(localStorage.getItem('myInvoicerecord')!);
     }
     console.log('record//', record);
     const { billPoolHeaderId } = record;

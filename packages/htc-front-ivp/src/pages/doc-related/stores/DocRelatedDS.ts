@@ -88,7 +88,7 @@ export default (dsParams): DataSetProps => {
     fields: [
       {
         name: 'detailId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',
@@ -96,7 +96,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'invoicePoolHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'systemObj',

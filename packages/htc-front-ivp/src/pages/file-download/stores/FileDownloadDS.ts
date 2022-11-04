@@ -56,11 +56,11 @@ export default (): DataSetProps => {
       {
         name: 'invoiceFileHeaderId',
         label: intl.get('hivp.bill.view.billPoolHeaderId').d('记录ID'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'recordPeriod',

@@ -109,7 +109,7 @@ export default (): DataSetProps => {
       {
         name: 'companyId',
         label: intl.get(`${modelCode}.view.companyId`).d('公司ID'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',
@@ -271,7 +271,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'receivedEmployeeId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'ticketCollectorObj.employeeId',
       },
       {
@@ -317,7 +317,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'tabActiveKey',
