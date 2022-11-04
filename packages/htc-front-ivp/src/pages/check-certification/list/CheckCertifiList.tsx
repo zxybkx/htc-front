@@ -68,7 +68,7 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
   const [empInfo, setEmpInfo] = useState({} as EmployeeInterface);
   const [currentPeriod, setCurrentPeriod] = useState<object>({});
   const [activeKey, setActiveKey] = useState<string>('certifiableInvoice');
-  const [invoiceCount, setInvoiceCount] = useState<number>(0);
+  // const [invoiceCount, setInvoiceCount] = useState<number>(0);
 
   // 获取初始值
   const getInitialValue = async () => {
@@ -88,13 +88,13 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
     if (queryDataSet) {
       const curCompanyId = queryDataSet.current?.get('companyId');
       const _currentPeriod = queryDataSet.current?.get('currentPeriod');
-      const _invoiceCount = queryDataSet.current?.get('invoiceCount');
+      // const _invoiceCount = queryDataSet.current?.get('invoiceCount');
       if (_currentPeriod) {
         setCurrentPeriod(_currentPeriod);
       }
-      if (_invoiceCount || _invoiceCount === 0) {
-        setInvoiceCount(_invoiceCount);
-      }
+      // if (_invoiceCount || _invoiceCount === 0) {
+      // setInvoiceCount(_invoiceCount);
+      // }
       if (curCompanyId) {
         const curInfo = await getCurrentEmployeeInfo({ tenantId, companyId: curCompanyId });
         if (curInfo && curInfo.content) getEmpInfoAndAuthorityCode(curInfo.content[0]);
@@ -104,7 +104,7 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
           companyAndPassword.loadData(res.content);
           // 获取是否有勾选请求中的发票
           const checkInvoiceCountRes = await checkInvoiceCount({ tenantId });
-          setInvoiceCount(checkInvoiceCountRes);
+          // setInvoiceCount(checkInvoiceCountRes);
           queryDataSet.current!.set({ invoiceCount: checkInvoiceCountRes });
           getEmpInfoAndAuthorityCode(res.content[0]);
         }
@@ -463,7 +463,7 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
                     companyAndPassword={companyAndPassword}
                     empInfo={empInfo}
                     currentPeriodData={currentPeriod}
-                    checkInvoiceCount={invoiceCount}
+                    // checkInvoiceCount={invoiceCount}
                     history={history}
                   />
                 </TabPane>
