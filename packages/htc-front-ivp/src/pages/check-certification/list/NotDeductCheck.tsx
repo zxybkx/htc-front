@@ -439,6 +439,16 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     }
   };
 
+  const handleReset = () => {
+    if (noDeductCheckDS) {
+      const { queryDataSet } = noDeductCheckDS;
+      if (queryDataSet) {
+        queryDataSet.reset();
+        setCompanyObjFromProps();
+      }
+    }
+  };
+
   // 当期勾选(取消)可认证发票: 头
   function renderQueryBar(propsDS) {
     const { queryDataSet, buttons } = propsDS;
@@ -518,12 +528,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
                 </span>
               )}
             </Button>
-            <Button
-              onClick={() => {
-                queryDataSet.reset();
-                queryDataSet.create();
-              }}
-            >
+            <Button onClick={() => handleReset()}>
               {intl.get('hzero.common.status.reset').d('重置')}
             </Button>
             <Button color={ButtonColor.primary} onClick={() => handleVerifiableQuery()}>
