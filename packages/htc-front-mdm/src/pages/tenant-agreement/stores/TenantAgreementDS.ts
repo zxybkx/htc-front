@@ -64,7 +64,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'agreementId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'tenantObject',
@@ -81,7 +81,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'tenantId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: `tenantObject.tenantId`,
       },
       {
@@ -89,7 +89,7 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.enableDate`).d('启用日期'),
         type: FieldType.date,
         required: true,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'customerName',
@@ -127,7 +127,7 @@ export default (): DataSetProps => {
         required: true,
         // defaultValue: moment().format(DEFAULT_DATE_FORMAT),
         max: 'endDate',
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'endDate',
@@ -136,7 +136,7 @@ export default (): DataSetProps => {
         required: true,
         // defaultValue: moment().format(DEFAULT_DATE_FORMAT),
         min: 'startDate',
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'billDay',
@@ -216,14 +216,14 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.enableDateFrom`).d('启用日期从'),
         type: FieldType.date,
         max: 'enableDateTo',
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'enableDateTo',
         label: intl.get(`${modelCode}.view.enableDateTo`).d('启用日期至'),
         type: FieldType.date,
         min: 'enableDateFrom',
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'tenantName',
@@ -234,7 +234,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'tenantId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: `tenantName.tenantId`,
       },
     ],

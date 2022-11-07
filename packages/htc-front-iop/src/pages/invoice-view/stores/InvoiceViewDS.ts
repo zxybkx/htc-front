@@ -41,7 +41,7 @@ export default (dsParams): DataSetProps => {
     fields: [
       {
         name: 'invoicingOrderHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'downloadFileType',

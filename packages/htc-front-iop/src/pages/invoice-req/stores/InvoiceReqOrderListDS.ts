@@ -38,11 +38,11 @@ const ReqHeaderDS = (): DataSetProps => {
     fields: [
       {
         name: 'headerId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',
@@ -60,7 +60,7 @@ const ReqHeaderDS = (): DataSetProps => {
       },
       {
         name: 'employeeId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'employeeNum',
@@ -153,7 +153,7 @@ const ReqHeaderDS = (): DataSetProps => {
       {
         name: 'applicantId',
         label: intl.get('hiop.invoiceReq.modal.applicantId').d('申请人标识'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'applicantNumber',
@@ -194,15 +194,15 @@ const OrderLinesDS = (): DataSetProps => {
     fields: [
       {
         name: 'orderLineId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'headerId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'lineNum',
@@ -283,11 +283,11 @@ const OrderLinesDS = (): DataSetProps => {
       },
       {
         name: 'orderHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'orderLineId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'orderNumber',
@@ -319,7 +319,7 @@ const OrderLinesDS = (): DataSetProps => {
       {
         name: 'orderSubmitterId',
         label: intl.get('hiop.invoiceReq.modal.orderSubmitterId').d('审核人ID'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'orderSubmitterNumber',

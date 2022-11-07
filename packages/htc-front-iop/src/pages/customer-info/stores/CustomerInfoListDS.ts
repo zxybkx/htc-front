@@ -113,7 +113,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',
@@ -121,7 +121,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'customerInformationId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'employeeId',
@@ -203,7 +203,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'qualifiedEmployeesIds',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'qualifiedAuditorObj.employeeId',
         multiple: ',',
         transformRequest: value => value || null,
@@ -324,7 +324,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'companyId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: 'companyObj.companyId',
         },
         {

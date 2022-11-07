@@ -40,7 +40,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'detailId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'systemName',

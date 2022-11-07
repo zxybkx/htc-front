@@ -34,7 +34,7 @@ export default (dsParams): DataSetProps => {
     fields: [
       {
         name: 'redInvoiceApplyHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'redInfoSerialNumber',

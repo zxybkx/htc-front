@@ -185,7 +185,7 @@ export default (dsParams): DataSetProps => {
         },
         {
           name: 'companyId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: 'authenticationDateObj.companyId',
         },
         {
