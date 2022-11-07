@@ -264,7 +264,7 @@ export default (dsParams): DataSetProps => {
         name: 'redMarkReason',
         label: intl.get('hiop.invoiceWorkbench.modal.redMarkReason').d('红冲原因'),
         type: FieldType.string,
-        lookupCode: '',
+        lookupCode: 'HTC.HIOP.REDREASON',
         computedProps: {
           readOnly: ({ record }) => record.get('readonly'),
           required: ({ record }) => ['2', '41', '52'].includes(record.get('invoiceVariety')),
