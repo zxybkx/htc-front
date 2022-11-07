@@ -492,6 +492,13 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   }
 
   /**
+   * @description: 电子交付-二维码交付
+   * @function: handleQRDelivery
+   */
+  @Bind()
+  handleQRDelivery() {}
+
+  /**
    * @description: 电子交付模态框
    * @function: modalElectronicDomRender
    */
@@ -508,8 +515,11 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
               ? intl.get('hhiop.invoiceWorkbench.view.bulkSave').d('批量保存')
               : intl.get('hzero.common.table.column.save').d('保存')}
           </Button>
+          <Button color={ButtonColor.primary} onClick={this.handleQRDelivery}>
+            {intl.get('hiop.invoiceWorkbench.btn.QRCodeDelivery').d('二维码交付')}
+          </Button>
           <Button color={ButtonColor.primary} onClick={this.handleRePush}>
-            {intl.get('hiop.invoiceWorkbench.btn.rePush').d('重新推送')}
+            {intl.get('hiop.invoiceWorkbench.btn.rePush').d('链接推送')}
           </Button>
         </div>
       ),
