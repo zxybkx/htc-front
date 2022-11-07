@@ -8,6 +8,7 @@
 import request from 'utils/request';
 import commonConfig from '@htccommon/config/commonConfig';
 import { getCurrentOrganizationId } from 'utils/utils';
+
 const HIOP_API = commonConfig.IOP_API || '';
 const tenantId = getCurrentOrganizationId();
 /**
@@ -17,10 +18,10 @@ const tenantId = getCurrentOrganizationId();
  * @returns {object} fetch Promise
  */
 export async function paperDeliverNotice(params) {
-    return request(`${HIOP_API}/v1/${tenantId}/invoice-delivery-infos/sendDeliveryNotice`, {
-        method: 'POST',
-        body: params,
-    });
+  return request(`${HIOP_API}/v1/${tenantId}/invoice-delivery-infos/sendDeliveryNotice`, {
+    method: 'POST',
+    body: params,
+  });
 }
 /**
  * @description: 电票交付=>重新推送
@@ -29,8 +30,21 @@ export async function paperDeliverNotice(params) {
  * @returns {object} fetch Promise
  */
 export async function electronicRePush(params) {
-    return request(`${HIOP_API}/v1/${tenantId}/invoice-delivery-infos/toPush`, {
-        method: 'POST',
-        body: params,
-    });
+  return request(`${HIOP_API}/v1/${tenantId}/invoice-delivery-infos/toPush`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+/**
+ * @description: 电票交付-二维码交付
+ * @function: electronicRePush
+ * @param {object} params
+ * @returns {object} fetch Promise
+ */
+export async function qrCodeDelivery(params) {
+  return request(`${HIOP_API}/v1/${tenantId}/invoice-delivery-infos/qr-code-delivery`, {
+    method: 'POST',
+    body: params,
+  });
 }
