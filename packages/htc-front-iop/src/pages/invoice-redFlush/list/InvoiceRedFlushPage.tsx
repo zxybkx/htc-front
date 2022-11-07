@@ -693,7 +693,6 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         <TextField name="referenceNumber" />
         <Select name="deliveryWay" />
         <TextField name="electronicReceiverInfo" />
-        <TextArea name="remark" rows={1} colSpan={2} resize={ResizeType.both} />
       </Form>
     );
     return (
@@ -790,7 +789,8 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
                 }
               />
               {/*---*/}
-              <TextField name="redMarkReason" colSpan={6} />
+              <Select name="redMarkReason" colSpan={3} />
+              <TextArea name="remark" rows={1} colSpan={3} resize={ResizeType.both} />
             </Form>
             {!showMore && (
               <Button block onClick={() => this.setState({ showMore: !showMore })}>
