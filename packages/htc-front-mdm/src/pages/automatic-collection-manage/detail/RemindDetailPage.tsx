@@ -13,8 +13,7 @@ import { Content, Header } from 'components/Page';
 import intl from 'utils/intl';
 import { HZERO_FILE } from 'utils/config';
 import { getAccessToken } from 'utils/utils';
-
-const modelCode = 'hmdm.automatic-collection-manage';
+import formatterCollections from 'utils/intl/formatterCollections';
 
 interface RouterInfo {}
 
@@ -22,6 +21,9 @@ interface BillViewPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
 
+@formatterCollections({
+  code: ['hmdm.automaticCollection'],
+})
 export default class RemindDetailPage extends Component<BillViewPageProps> {
   /**
    * 渲染自动催收提醒内容
@@ -45,7 +47,7 @@ export default class RemindDetailPage extends Component<BillViewPageProps> {
     return (
       <>
         <Header
-          title={intl.get(`${modelCode}.title`).d('自动催收提醒')}
+          title={intl.get('hmdm.automaticCollection.title.automaticCollection').d('自动催收提醒')}
           backPath="/htc-front-mdm/automatic-collection-manage/list"
         />
         <Content>

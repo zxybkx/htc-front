@@ -20,6 +20,7 @@ import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import withProps from 'utils/withProps';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { observer } from 'mobx-react-lite';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import commonConfig from '@htccommon/config/commonConfig';
@@ -53,6 +54,9 @@ interface AutomaticCollectionManagePageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
+@formatterCollections({
+  code: ['hmdm.automaticCollection'],
+})
 export default class AutomaticCollectionManagePage extends Component<
   AutomaticCollectionManagePageProps
 > {
