@@ -10,16 +10,20 @@ import React, { Component } from 'react';
 import { Content } from 'components/Page';
 import intl from 'utils/intl';
 import { Result } from 'choerodon-ui';
+import formatterCollections from 'utils/intl/formatterCollections';
 
-const modelCode = 'hmdm.apply-tenant-result';
-
+@formatterCollections({
+  code: ['hmdm.applyTenant'],
+})
 export default class ResultPage extends Component {
   render() {
     return (
       <Content>
         <Result
           status="warning"
-          title={intl.get(`${modelCode}.view.info`).d('该链接已失效，请联系汇税通管理员重新申请!')}
+          title={intl
+            .get('hmdm.applyTenant.view.message.linkInvalid')
+            .d('该链接已失效，请联系汇税通管理员重新申请!')}
         />
       </Content>
     );
