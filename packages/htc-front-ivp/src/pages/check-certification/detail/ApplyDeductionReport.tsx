@@ -248,6 +248,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
   @Bind()
   async handlePrint() {
     const { search } = this.props.location;
+    const { summaryData, detailData } = this.state;
     const statisticalConfirmInfoStr = new URLSearchParams(search).get('statisticalConfirmInfo');
     if (statisticalConfirmInfoStr) {
       const statisticalConfirmInfo = JSON.parse(decodeURIComponent(statisticalConfirmInfoStr));
@@ -277,6 +278,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
         rqq: invoiceDateFromStr,
         rqz: invoiceDateToStr,
         zgjgdm: authorityCode,
+        list: [...summaryData, ...detailData],
       };
       const res = getResponse(await deductionReportDownload(params));
       if (res) {
@@ -287,24 +289,6 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
           },
         ];
         downLoadFiles(fileList, 0);
-        // const blob = new Blob([base64toBlob(res)]);
-        // if ((window.navigator as any).msSaveBlob) {
-        //   try {
-        //     (window.navigator as any).msSaveBlob(blob);
-        //   } catch (e) {
-        //     notification.error({
-        //       description: '',
-        //       message: intl.get('hiop.invoiceRule.notification.error.upload').d('下载失败'),
-        //     });
-        //   }
-        // } else {
-        //   const aElement = document.createElement('a');
-        //   const blobUrl = window.URL.createObjectURL(blob);
-        //   aElement.href = blobUrl; // 设置a标签路径
-        //   aElement.download = '申报抵扣统计表.pdf';
-        //   aElement.click();
-        //   window.URL.revokeObjectURL(blobUrl);
-        // }
       }
     }
   }
