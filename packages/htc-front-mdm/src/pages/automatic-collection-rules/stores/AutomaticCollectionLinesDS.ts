@@ -11,8 +11,6 @@ import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import commonConfig from '@htccommon/config/commonConfig';
 
-const modelCode = 'hmdm.automatic-collection-rules-lines';
-
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
 
@@ -53,7 +51,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'expensesTypeObject',
-        label: intl.get(`${modelCode}.view.expensesTypeCode`).d('费用类型代码'),
+        label: intl.get('hmdm.automaticCollection.view.expensesTypeCode').d('费用类型代码'),
         type: FieldType.object,
         lovCode: 'HMDM.EXPENSES_TYPE_CODE',
         ignore: FieldIgnore.always,
@@ -65,79 +63,79 @@ export default (): DataSetProps => {
       },
       {
         name: 'expensesTypeMeaning',
-        label: intl.get(`${modelCode}.view.expensesTypeMeaning`).d('费用类型'),
+        label: intl.get('hmdm.automaticCollection.view.expensesTypeMeaning').d('费用类型'),
         type: FieldType.string,
         bind: 'expensesTypeObject.meaning',
       },
       {
         name: 'solutionPackage',
-        label: intl.get(`${modelCode}.view.solutionPackage`).d('方案包'),
+        label: intl.get('hmdm.automaticCollection.view.solutionPackage').d('方案包'),
         type: FieldType.string,
       },
       {
         name: 'solutionPackageNumber',
-        label: intl.get(`${modelCode}.view.solutionPackageNumber`).d('数量'),
+        label: intl.get('htc.common.view.quantity').d('数量'),
         type: FieldType.number,
       },
       {
         name: 'unitPrice',
-        label: intl.get(`${modelCode}.view.unitPrice`).d('单价'),
+        label: intl.get('hiop.invoiceWorkbench.modal.price').d('单价'),
         type: FieldType.currency,
       },
       {
         name: 'billingCode',
-        label: intl.get(`${modelCode}.view.billingCode`).d('单位'),
+        label: intl.get('htc.common.view.unit').d('单位'),
         type: FieldType.string,
         lookupCode: 'HMDM.BILLING_CODE',
       },
       {
         name: 'annualFee',
-        label: intl.get(`${modelCode}.view.annualFee`).d('年费'),
+        label: intl.get('hmdm.automaticCollection.view.annualFee').d('年费'),
         type: FieldType.currency,
       },
       {
         name: 'excessUnitPrice',
-        label: intl.get(`${modelCode}.view.excessUnitPrice`).d('超量后单价'),
+        label: intl.get('hmdm.automaticCollection.view.excessUnitPrice').d('超量后单价'),
         type: FieldType.currency,
       },
       {
         name: 'customerBillingModelCodeMeaning',
-        label: intl.get(`${modelCode}.view.customerBillingModelCodeMeaning`).d('客户计费模式'),
+        label: intl.get('hmdm.automaticCollection.view.customerBillingModelCode').d('客户计费模式'),
         type: FieldType.string,
       },
       {
         name: 'billingStartDate',
-        label: intl.get(`${modelCode}.view.billingStartDate`).d('计费有效期从'),
+        label: intl.get('hmdm.automaticCollection.view.billingValidFrom').d('计费有效期从'),
         type: FieldType.dateTime,
       },
       {
         name: 'billingEndDate',
-        label: intl.get(`${modelCode}.view.billingEndDate`).d('计费有效期到'),
+        label: intl.get('hmdm.automaticCollection.view.billingValidityExpires').d('计费有效期到'),
         type: FieldType.dateTime,
       },
       {
         name: 'daysRemind',
-        label: intl.get(`${modelCode}.view.daysRemind`).d('剩余天数提醒'),
+        label: intl.get('hmdm.automaticCollection.view.daysRemind').d('剩余天数提醒'),
         type: FieldType.number,
       },
       {
         name: 'onceRemind',
-        label: intl.get(`${modelCode}.view.onceRemind`).d('剩余次数提醒'),
+        label: intl.get('hmdm.automaticCollection.view.onceRemind').d('剩余次数提醒'),
         type: FieldType.number,
       },
       {
         name: 'daysSend',
-        label: intl.get(`${modelCode}.view.daysSend`).d('剩余天数发送'),
+        label: intl.get('hmdm.automaticCollection.view.daysSend').d('剩余天数发送'),
         type: FieldType.number,
       },
       {
         name: 'onceSend',
-        label: intl.get(`${modelCode}.view.onceSend`).d('剩余次数发送'),
+        label: intl.get('hmdm.automaticCollection.view.onceSend').d('剩余次数发送'),
         type: FieldType.number,
       },
       {
         name: 'enabledFlag',
-        label: intl.get(`${modelCode}.view.enabledFlag`).d('启用状态'),
+        label: intl.get('htc.common.modal.enabledFlag').d('启用状态'),
         type: FieldType.boolean,
         falseValue: 0,
         trueValue: 1,

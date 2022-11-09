@@ -11,8 +11,6 @@ import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import commonConfig from '@htccommon/config/commonConfig';
 
-const modelCode = 'hmdm.automatic-collection-collection-manage-lines';
-
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
 
@@ -51,74 +49,74 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'companyCode',
-        label: intl.get(`${modelCode}.view.expensesTypeCode`).d('公司代码'),
+        label: intl.get('htc.common.modal.companyCode').d('公司代码'),
         type: FieldType.string,
       },
       {
         name: 'expensesTypeCode',
-        label: intl.get(`${modelCode}.view.expensesTypeCode`).d('费用类型代码'),
+        label: intl.get('hmdm.automaticCollection.view.expensesTypeCode').d('费用类型代码'),
         type: FieldType.string,
       },
       {
         name: 'expensesTypeMeaning',
-        label: intl.get(`${modelCode}.view.expensesTypeMeaning`).d('费用类型'),
+        label: intl.get('hmdm.automaticCollection.view.expensesTypeMeaning').d('费用类型'),
         type: FieldType.string,
       },
       {
         name: 'solutionPackage',
-        label: intl.get(`${modelCode}.view.solutionPackage`).d('方案包'),
+        label: intl.get('hmdm.automaticCollection.view.solutionPackage').d('方案包'),
         type: FieldType.string,
         lookupCode: 'HMDM.PLAN_PACKAGE',
       },
       {
         name: 'solutionPackageNumber',
-        label: intl.get(`${modelCode}.view.solutionPackageNumber`).d('数量'),
+        label: intl.get('htc.common.view.quantity').d('数量'),
         type: FieldType.number,
       },
       {
         name: 'billingCode',
-        label: intl.get(`${modelCode}.view.billingCode`).d('单位'),
+        label: intl.get('htc.common.view.unit').d('单位'),
         type: FieldType.string,
         lookupCode: 'HMDM.BILLING_CODE',
       },
       {
         name: 'annualFee',
-        label: intl.get(`${modelCode}.view.annualFee`).d('年费'),
+        label: intl.get('hmdm.automaticCollection.view.annualFee').d('年费'),
         type: FieldType.currency,
       },
       {
         name: 'excessUnitPrice',
-        label: intl.get(`${modelCode}.view.excessUnitPrice`).d('超量后单价'),
+        label: intl.get('hmdm.automaticCollection.view.excessUnitPrice').d('超量后单价'),
         type: FieldType.currency,
       },
       {
         name: 'usedQuantity',
-        label: intl.get(`${modelCode}.view.usedQuantity`).d('目前已使用'),
+        label: intl.get('hmdm.automaticCollection.view.usedQuantity').d('目前已使用'),
         type: FieldType.number,
       },
       {
         name: 'remainingQuantity',
-        label: intl.get(`${modelCode}.view.remainingQuantity`).d('剩余数量'),
+        label: intl.get('hmdm.automaticCollection.view.remainingQuantity').d('剩余数量'),
         type: FieldType.number,
       },
       {
         name: 'conReason',
-        label: intl.get(`${modelCode}.view.conReason`).d('催收原因'),
+        label: intl.get('hmdm.automaticCollection.view.conReason').d('催收原因'),
         type: FieldType.string,
       },
       {
         name: 'billingStartDate',
-        label: intl.get(`${modelCode}.view.billingStartDate`).d('计费起始日'),
+        label: intl.get('hmdm.automaticCollection.view.billingStartDate').d('计费起始日'),
         type: FieldType.dateTime,
       },
       {
         name: 'billingEndDate',
-        label: intl.get(`${modelCode}.view.billingEndDate`).d('计费到期日'),
+        label: intl.get('hmdm.automaticCollection.view.billingEndDate').d('计费到期日'),
         type: FieldType.dateTime,
       },
       {
         name: 'customerBillingModelCode',
-        label: intl.get(`${modelCode}.view.customerBillingModelCode`).d('客户计费模式'),
+        label: intl.get('hmdm.automaticCollection.view.customerBillingModelCode').d('客户计费模式'),
         type: FieldType.string,
         lookupCode: 'HMDM.CUSTOMER_BILLING_MODEL',
       },

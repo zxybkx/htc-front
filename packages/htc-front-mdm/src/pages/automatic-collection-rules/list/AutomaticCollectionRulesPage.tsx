@@ -9,6 +9,7 @@ import React, { Component } from 'react';
 import { Content, Header } from 'components/Page';
 import { Dispatch } from 'redux';
 import intl from 'utils/intl';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
 import { DataSet, Table } from 'choerodon-ui/pro';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
@@ -16,12 +17,13 @@ import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import AutomaticCollectionHeaderDS from '../stores/AutomaticCollectionHeaderDS';
 import AutomaticCollectionLinesDS from '../stores/AutomaticCollectionLinesDS';
 
-const modelCode = 'hmdm.automatic-collection-rules';
-
 interface AutomaticCollectionRulesPageProps {
   dispatch: Dispatch<any>;
 }
 
+@formatterCollections({
+  code: ['hmdm.automaticCollection', 'htc.common', 'hiop.invoiceWorkbench', 'hiop.invoiceRule'],
+})
 export default class AutomaticCollectionRulesPage extends Component<
   AutomaticCollectionRulesPageProps
 > {
@@ -78,7 +80,7 @@ export default class AutomaticCollectionRulesPage extends Component<
   get linesColumns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('htc.common.orderSeq').d('序号'),
         width: 80,
         renderer: ({ record }) => {
           return record ? this.rulesLineDS.indexOf(record) + 1 : '';
@@ -105,7 +107,11 @@ export default class AutomaticCollectionRulesPage extends Component<
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('自动催收规则维护')} />
+        <Header
+          title={intl
+            .get(`hmdm.automaticCollection.title.automaticCollectionRuleMaintenance`)
+            .d('自动催收规则维护')}
+        />
         <Content>
           <Table
             queryFieldsLimit={3}

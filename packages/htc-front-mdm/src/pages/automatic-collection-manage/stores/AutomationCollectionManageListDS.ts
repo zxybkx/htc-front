@@ -16,8 +16,6 @@ import { EMAIL } from 'utils/regExp';
 import moment from 'moment';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 
-const modelCode = 'hmdm.automatic-collection-manage-list';
-
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
 
@@ -52,93 +50,93 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'tenantName',
-        label: intl.get(`${modelCode}.view.tenantName`).d('租户名称'),
+        label: intl.get('htc.common.view.tenantName').d('租户名称'),
         type: FieldType.string,
       },
       {
         name: 'companyCode',
-        label: intl.get(`${modelCode}.view.companyCode`).d('公司代码'),
+        label: intl.get('htc.common.modal.companyCode').d('公司代码'),
         type: FieldType.string,
       },
       {
         name: 'companyName',
-        label: intl.get(`${modelCode}.view.companyName`).d('公司名称'),
+        label: intl.get('htc.common.view.companyName').d('公司名称'),
         type: FieldType.string,
       },
       {
         name: 'creationDate',
-        label: intl.get(`${modelCode}.view.creationDate`).d('创建日期'),
+        label: intl.get('hmdm.automaticCollection.view.creationDate').d('创建日期'),
         type: FieldType.dateTime,
       },
       {
         name: 'sendTime',
-        label: intl.get(`${modelCode}.view.sendTime`).d('发送时间'),
+        label: intl.get('hmdm.automaticCollection.view.sendTime').d('发送时间'),
         type: FieldType.dateTime,
       },
       {
         name: 'collectionStatus',
-        label: intl.get(`${modelCode}.view.collectionStatus`).d('催收状态'),
+        label: intl.get('hmdm.automaticCollection.view.collectionStatus').d('催收状态'),
         type: FieldType.string,
         lookupCode: 'HTC.HMDM.DUNNING_STATUS',
       },
       {
         name: 'receiver',
-        label: intl.get(`${modelCode}.view.receiver`).d('接收人'),
+        label: intl.get('hmdm.automaticCollection.view.receiver').d('接收人'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'receiverEmail',
-        label: intl.get(`${modelCode}.view.receiverEmail`).d('接收人电子邮箱'),
+        label: intl.get('hmdm.automaticCollection.view.receiverEmail').d('接收人电子邮箱'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'receiverPhone',
-        label: intl.get(`${modelCode}.view.receiverPhone`).d('接收人电话'),
+        label: intl.get('hmdm.automaticCollection.view.receiverPhone').d('接收人电话'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'agreementStartDate',
-        label: intl.get(`${modelCode}.view.agreementStartDate`).d('协议起始日'),
+        label: intl.get('hmdm.automaticCollection.view.agreementStartDate').d('协议起始日'),
         type: FieldType.date,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'agreementEndDate',
-        label: intl.get('hiop.invoiceRule.modal.agreementEndDate').d('协议到期日'),
+        label: intl.get('hmdm.automaticCollection.view.agreementEndDate').d('协议到期日'),
         type: FieldType.date,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'fileUrl',
-        label: intl.get('hiop.invoiceRule.modal.remind').d('提醒内容'),
+        label: intl.get('hmdm.automaticCollection.view.fileUrl').d('提醒内容'),
         type: FieldType.string,
       },
       {
         name: 'remindMode',
-        label: intl.get('hiop.invoiceRule.modal.remindMode').d('提醒模式'),
+        label: intl.get('hmdm.automaticCollection.view.remindMode').d('提醒模式'),
         type: FieldType.string,
         lookupCode: 'HTC.HMDM.REMIND_MODE',
       },
       {
         name: 'personPhone',
-        label: intl.get('hiop.invoiceRule.modal.personPhone').d('负责人电话'),
+        label: intl.get('hmdm.automaticCollection.view.personPhone').d('负责人电话'),
         type: FieldType.string,
         pattern: phoneReg,
         required: true,
       },
       {
         name: 'personEmail',
-        label: intl.get('hiop.invoiceRule.modal.personEmail').d('负责人邮箱'),
+        label: intl.get('hmdm.automaticCollection.view.personEmail').d('负责人邮箱'),
         type: FieldType.string,
         pattern: EMAIL,
         required: true,
       },
       {
         name: 'persons',
-        label: intl.get('hiop.invoiceRule.modal.persons').d('负责人'),
+        label: intl.get('hmdm.automaticCollection.view.persons').d('负责人'),
         type: FieldType.string,
         required: true,
       },
@@ -147,7 +145,7 @@ export default (): DataSetProps => {
       fields: [
         {
           name: 'tenantObject',
-          label: intl.get(`${modelCode}.view.tenantObject`).d('租户名称'),
+          label: intl.get('htc.common.view.tenantName').d('租户名称'),
           type: FieldType.object,
           lovCode: 'HPFM.TENANT',
           ignore: FieldIgnore.always,
@@ -159,13 +157,13 @@ export default (): DataSetProps => {
         },
         {
           name: 'tenantName',
-          label: intl.get(`${modelCode}.view.tenantName`).d('租户名称'),
+          label: intl.get('htc.common.view.tenantName').d('租户名称'),
           type: FieldType.string,
           bind: `tenantObject.tenantName`,
         },
         {
           name: 'companyNameObject',
-          label: intl.get(`${modelCode}.view.companyNameObject`).d('公司名称'),
+          label: intl.get('htc.common.view.companyName').d('公司名称'),
           type: FieldType.object,
           lovCode: 'HMDM.COMPANY_INFO_SITE',
           cascadeMap: { organizationId: 'tenantId' },
@@ -189,11 +187,11 @@ export default (): DataSetProps => {
         {
           name: 'persons',
           type: FieldType.string,
-          label: intl.get(`${modelCode}.view.persons`).d('负责人'),
+          label: intl.get('hmdm.automaticCollection.view.persons').d('负责人'),
         },
         {
           name: 'agreementStart',
-          label: intl.get('hiop.invoiceWorkbench.modal.submitDates').d('协议起始日从到'),
+          label: intl.get('hmdm.automaticCollection.view.agreementStartDate').d('协议起始日'),
           type: FieldType.date,
           range: ['agreementStartDateStart', 'agreementStartDateEnd'],
           labelWidth: '120',
@@ -201,20 +199,18 @@ export default (): DataSetProps => {
         },
         {
           name: 'agreementStartDateStart',
-          label: intl.get(`${modelCode}.view.agreementStartDateStart`).d('协议起始日从'),
           type: FieldType.date,
           labelWidth: '120',
           bind: 'agreementStart.agreementStartDateStart',
         },
         {
           name: 'agreementStartDateEnd',
-          label: intl.get(`${modelCode}.view.agreementStartDateEnd`).d('协议起始日到'),
           type: FieldType.date,
           bind: 'agreementStart.agreementStartDateEnd',
         },
         {
           name: 'agreementEndDate',
-          label: intl.get('hiop.invoiceWorkbench.modal.submitDates').d('协议到期日从到'),
+          label: intl.get('hmdm.automaticCollection.view.agreementEndDate').d('协议到期日'),
           type: FieldType.date,
           range: ['agreementEndDateStart', 'agreementEndDateEnd'],
           labelWidth: '120',
@@ -222,19 +218,17 @@ export default (): DataSetProps => {
         },
         {
           name: 'agreementEndDateStart',
-          label: intl.get(`${modelCode}.view.fslx`).d('协议到期日从'),
           type: FieldType.date,
           bind: 'agreementEndDate.agreementEndDateStart',
         },
         {
           name: 'agreementEndDateEnd',
-          label: intl.get(`${modelCode}.view.agreementEndDateEnd`).d('协议到期日到'),
           type: FieldType.date,
           bind: 'agreementEndDate.agreementEndDateEnd',
         },
         {
           name: 'createDate',
-          label: intl.get('hiop.invoiceWorkbench.modal.submitDates').d('创建日期从到'),
+          label: intl.get('hmdm.automaticCollection.view.creationDate').d('创建日期'),
           type: FieldType.date,
           range: ['createDateStart', 'createDateEnd'],
           labelWidth: '120',
@@ -242,19 +236,17 @@ export default (): DataSetProps => {
         },
         {
           name: 'createDateStart',
-          label: intl.get(`${modelCode}.view.createDateStart`).d('创建日期从'),
           type: FieldType.date,
           bind: 'createDate.createDateStart',
         },
         {
           name: 'createDateEnd',
-          label: intl.get(`${modelCode}.view.createDateEnd`).d('创建日期到'),
           type: FieldType.date,
           bind: 'createDate.createDateEnd',
         },
         {
           name: 'SendTime',
-          label: intl.get('hiop.invoiceWorkbench.modal.submitDates').d('发送日期从到'),
+          label: intl.get('hmdm.automaticCollection.view.SendTime').d('发送日期'),
           type: FieldType.date,
           range: ['startSendTime', 'endSendTime'],
           labelWidth: '130',
@@ -262,25 +254,23 @@ export default (): DataSetProps => {
         },
         {
           name: 'startSendTime',
-          label: intl.get(`${modelCode}.view.startSendTime`).d('发送日期从'),
           type: FieldType.date,
           bind: 'SendTime.startSendTime',
         },
         {
           name: 'endSendTime',
-          label: intl.get(`${modelCode}.view.endSendTime`).d('发送日期到'),
           type: FieldType.date,
           bind: 'SendTime.endSendTime',
         },
         {
           name: 'collectionStatus',
-          label: intl.get(`${modelCode}.view.collectionStatus`).d('催收状态'),
+          label: intl.get('hmdm.automaticCollection.view.collectionStatus').d('催收状态'),
           type: FieldType.string,
           lookupCode: 'HTC.HMDM.DUNNING_STATUS',
         },
         {
           name: 'remindMode',
-          label: intl.get(`${modelCode}.view.remindMode`).d('提醒模式'),
+          label: intl.get('hmdm.automaticCollection.view.remindMode').d('提醒模式'),
           type: FieldType.string,
           lookupCode: 'HTC.HMDM.REMIND_MODE',
         },
