@@ -978,6 +978,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
 
   const renderQueryBar = batchProps => {
     const { queryDataSet, buttons, dataSet } = batchProps;
+    const apiCondition = process.env.EMPLOYEE_API;
     return (
       <div style={{ marginBottom: '0.1rem' }}>
         <Form dataSet={queryDataSet} columns={4}>
@@ -1022,24 +1023,34 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
                     <DatePicker name="invoiceDate" />
                     <Select name="entryAccountState" />
                     <DatePicker name="entryAccountDate" />
-                    <Lov
-                      name="systemCodeObj"
-                      maxTagCount={1}
-                      maxTagTextLength={1}
-                      maxTagPlaceholder={restValues => `+${restValues.length}...`}
-                    />
-                    <Lov
-                      name="documentTypeCodeObj"
-                      maxTagCount={1}
-                      maxTagTextLength={1}
-                      maxTagPlaceholder={restValues => `+${restValues.length}...`}
-                    />
-                    <Lov
-                      name="documentNumberObj"
-                      maxTagCount={1}
-                      maxTagTextLength={1}
-                      maxTagPlaceholder={restValues => `+${restValues.length}...`}
-                    />
+                    {apiCondition === 'OP' ? (
+                      <>
+                        <Select name="entryAccountState" />
+                        <Select name="entryAccountState" />
+                        <TextField name="entryAccountState" />
+                      </>
+                    ) : (
+                      <>
+                        <Lov
+                          name="systemCodeObj"
+                          maxTagCount={1}
+                          maxTagTextLength={1}
+                          maxTagPlaceholder={restValues => `+${restValues.length}...`}
+                        />
+                        <Lov
+                          name="documentTypeCodeObj"
+                          maxTagCount={1}
+                          maxTagTextLength={1}
+                          maxTagPlaceholder={restValues => `+${restValues.length}...`}
+                        />
+                        <Lov
+                          name="documentNumberObj"
+                          maxTagCount={1}
+                          maxTagTextLength={1}
+                          maxTagPlaceholder={restValues => `+${restValues.length}...`}
+                        />
+                      </>
+                    )}
                     <TextField name="salerName" />
                   </Form>
                 </div>

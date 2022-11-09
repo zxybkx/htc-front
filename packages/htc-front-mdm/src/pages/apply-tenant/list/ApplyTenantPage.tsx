@@ -36,6 +36,7 @@ import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { getAccessToken, getResponse } from 'utils/utils';
 import { isString } from 'lodash';
 import commonConfig from '@htccommon/config/commonConfig';
+import formatterCollections from 'utils/intl/formatterCollections';
 import {
   deleteFilesInfo,
   downloadFiles,
@@ -49,7 +50,6 @@ import ApplyTenantDS from '../stores/ApplyTenantDS';
 import ApplyTenantListDS from '../stores/ApplyTenantListDS';
 import styles from '../instruction.module.less';
 
-const modelCode = 'hmdm.apply-tenant';
 const HMDM_API = commonConfig.MDM_API;
 const acceptType = [
   '.pdf',
@@ -69,6 +69,16 @@ interface ProjectApplicationPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
 
+@formatterCollections({
+  code: [
+    'htc.common',
+    'hiop.invoiceReq',
+    'hivp.bill',
+    'hmdm.applyTenant',
+    'hivp.invoicesArchiveUpload',
+    'hcan.invoiceDetail',
+  ],
+})
 export default class ApplyTenantPage extends Component<ProjectApplicationPageProps> {
   state = {
     showButtons: true,
@@ -116,7 +126,7 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
     return (
       <div style={{ marginBottom: 20 }}>
         <h3 style={{ display: 'inline' }}>
-          <b>{intl.get(`${modelCode}.invoiceOrderCardTwo`).d('公司信息')}</b>
+          <b>{intl.get('hiop.invoiceReq.title.companyInfo').d('公司信息')}</b>
         </h3>
         {buttons}
       </div>
@@ -143,7 +153,7 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
       return [
         <span className="action-link" key="action">
           <a onClick={() => this.handleEdit(record)}>
-            {intl.get(`${modelCode}.button.edit`).d('编辑')}
+            {intl.get('hzero.common.button.editor').d('编辑')}
           </a>
         </span>,
       ];
@@ -160,7 +170,7 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
       { name: 'openEndDate' },
       {
         name: 'operation',
-        header: intl.get('hzero.common.action').d('操作'),
+        header: intl.get('hzero.common.btn.action').d('操作'),
         width: 80,
         command: commonCommand,
         lock: ColumnLock.right,
@@ -221,7 +231,7 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
     if (linksType === '1') {
       return [
         {
-          header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+          header: intl.get('htc.common.orderSeq').d('序号'),
           width: 60,
           renderer: ({ record }) => {
             return record ? record.index + 1 : '';
@@ -233,7 +243,7 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
     if (linksType === '2') {
       return [
         {
-          header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+          header: intl.get('htc.common.orderSeq').d('序号'),
           width: 60,
           renderer: ({ record }) => {
             return record ? record.index + 1 : '';
@@ -245,7 +255,7 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
     if (linksType === '3') {
       return [
         {
-          header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+          header: intl.get('htc.common.orderSeq').d('序号'),
           width: 60,
           renderer: ({ record }) => {
             return record ? record.index + 1 : '';
@@ -315,8 +325,8 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
   openModal(record, isNew) {
     const modal = Modal.open({
       title: isNew
-        ? intl.get(`${modelCode}.view.addCompany`).d('新增公司')
-        : intl.get(`${modelCode}.view.editCompany`).d('编辑公司'),
+        ? intl.get('hmdm.applyTenant.modalTile.newCompany').d('新增公司')
+        : intl.get('hmdm.applyTenant.modalTile.editCompany').d('编辑公司'),
       drawer: true,
       children: (
         <Form record={record}>
@@ -339,15 +349,15 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
       footer: (
         <div>
           <Button color={ButtonColor.primary} onClick={() => this.handleCreate(modal)}>
-            {intl.get(`${modelCode}.completed`).d('保存')}
+            {intl.get('hzero.common.btn.save').d('保存')}
           </Button>
           {isNew && (
             <Button onClick={() => this.saveAndCreate(modal)}>
-              {intl.get(`${modelCode}.completed`).d('保存并新增')}
+              {intl.get('hivp.bill.button.saveAndadd').d('保存并新增')}
             </Button>
           )}
           <Button onClick={() => this.handleCancel(record, modal, isNew)}>
-            {intl.get(`${modelCode}.modalColse`).d('取消')}
+            {intl.get('hzero.c7nProUI.Modal.cancel').d('取消')}
           </Button>
         </div>
       ),
@@ -393,14 +403,14 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
           funcType={FuncType.link}
           style={{ marginLeft: 10 }}
         >
-          {intl.get('hzero.common.button.add ').d('新增')}
+          {intl.get('hzero.common.btn.add').d('新增')}
         </Button>,
         <HeaderButtons
           key="delete"
           icon="delete"
           onClick={() => this.handleDelete()}
           dataSet={this.applyTenantListDS}
-          title={intl.get(`${modelCode}.button.delete`).d('删除')}
+          title={intl.get('hzero.common.button.enter').d('删除')}
         />,
       ];
     } else {
@@ -477,7 +487,7 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
       footer: (
         <div>
           <Button onClick={() => modal.close()} color={ButtonColor.primary}>
-            {intl.get(`${modelCode}.modalColse`).d('确定')}
+            {intl.get('hzero.c7nProUI.Modal.ok').d('确定')}
           </Button>
         </div>
       ),
@@ -525,24 +535,6 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
       },
     ];
     downLoadFiles(fileList, 0);
-    // const blob = new Blob([base64toBlob(text)]);
-    // if ((window.navigator as any).msSaveBlob) {
-    //   try {
-    //     (window.navigator as any).msSaveBlob(blob, name);
-    //   } catch (e) {
-    //     notification.error({
-    //       description: '',
-    //       message: intl.get(`${modelCode}.view.ieUploadInfo`).d('下载失败'),
-    //     });
-    //   }
-    // } else {
-    //   const aElement = document.createElement('a');
-    //   const blobUrl = window.URL.createObjectURL(blob);
-    //   aElement.href = blobUrl; // 设置a标签路径
-    //   aElement.download = name;
-    //   aElement.click();
-    //   window.URL.revokeObjectURL(blobUrl);
-    // }
   }
 
   /**
@@ -570,7 +562,7 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
     const res = getResponse(await downloadTemplateInfo());
     if (res) {
       const modal = Modal.open({
-        title: intl.get(`${modelCode}.view.downloadTemplate`).d('下载模板'),
+        title: intl.get(`hmdm.applyTenant.modal.title.downloadTemplate`).d('下载模板'),
         bodyStyle: { background: '#D5DAE0', padding: '10px' },
         children: (
           <div>
@@ -591,7 +583,7 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
         footer: (
           <div>
             <Button onClick={() => modal.close()} color={ButtonColor.primary}>
-              {intl.get(`${modelCode}.modalClose`).d('返回')}
+              {intl.get('hzero.common.button.back').d('返回')}
             </Button>
           </div>
         ),
@@ -649,7 +641,7 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
       onUploadError: this.handleFnError,
     };
     const modal = Modal.open({
-      title: intl.get(`${modelCode}.view.uploadAttachment`).d('上传附件'),
+      title: intl.get('hmdm.applyTenant.modal.title.uploadAttachments').d('上传附件'),
       bodyStyle: { background: '#D5DAE0', padding: '10px' },
       children: (
         <div>
@@ -665,7 +657,7 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
                 <p style={{ cursor: 'pointer' }}>
                   {item.fileName}
                   <Popconfirm
-                    title={intl.get(`${modelCode}.view.uploadAttachment`).d('确定删除吗？')}
+                    title={intl.get('hmdm.applyTenant.view.title.deleteContent').d('确定删除吗？')}
                     onConfirm={() => this.deleteUploadFile(uniqueCode, item.fileUrl)}
                     okText={intl.get('hzero.common.button.ok').d('确定')}
                     cancelText={intl.get('hzero.common.button.cancel').d('取消')}
@@ -685,7 +677,7 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
       footer: (
         <div>
           <Button onClick={() => modal.close()} color={ButtonColor.primary}>
-            {intl.get(`${modelCode}.modalClose`).d('返回')}
+            {intl.get('hzero.common.button.back').d('返回')}
           </Button>
         </div>
       ),
@@ -702,14 +694,14 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
       if (res) {
         notification.success({
           description: '',
-          message: intl.get(`${modelCode}.view.uploadInvalid`).d('导入成功'),
+          message: intl.get('hmdm.applyTenant.view.message.importSuccess').d('导入成功'),
         });
         this.applyTenantDS.query();
       }
     } catch (err) {
       notification.error({
         description: err.message,
-        message: intl.get(`${modelCode}.view.uploadInvalid`).d('上传返回数据无效'),
+        message: intl.get('hivp.invoicesArchiveUpload.view.uploadInvalid').d('上传返回数据无效'),
       });
     }
   };
@@ -744,16 +736,16 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
           ]}
           action={`${API_HOST}${HMDM_API}/v1/apply-items/import-tenant-info`}
         >
-          {intl.get(`${modelCode}.import`).d('导入')}
+          {intl.get('hzero.common.button.import').d('导入')}
         </Upload>
         <Button onClick={() => this.handleDownloadTemplate()} style={{ marginRight: 10 }}>
-          {intl.get(`${modelCode}.uploadExcel`).d('下载导入模板')}
+          {intl.get('hmdm.applyTenant.button.downloadImportTemplate').d('下载导入模板')}
         </Button>
         <Button onClick={() => this.showInstruction()}>
-          {intl.get(`${modelCode}.instructions`).d('填写说明')}
+          {intl.get('hmdm.applyTenant.button.fillingInstructions').d('填写说明')}
         </Button>
         <Button onClick={() => this.getUploadInfo()}>
-          {intl.get(`${modelCode}.uploadAttachment`).d('上传附件')}
+          {intl.get('hzero.common.button.uploadButton').d('上传附件')}
         </Button>
       </>
     );
@@ -773,14 +765,18 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
     queryMoreArray.push(<TextField name="collection" />);
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('汇税通客户申请平台')}>
+        <Header
+          title={intl
+            .get('hmdm.applyTenant.title.customerApplicationPlatform')
+            .d('汇税通客户申请平台')}
+        >
           {this.renderHeaderBts()}
         </Header>
         <div style={{ overflow: 'auto' }}>
           <Card style={{ marginTop: 10 }}>
             <div style={{ marginBottom: 20 }}>
               <h3>
-                <b>{intl.get(`${modelCode}.tenantInfo`).d('租户信息')}</b>
+                <b>{intl.get('htc.common.view.tenantInfo').d('租户信息')}</b>
               </h3>
             </div>
             <Spin dataSet={this.applyTenantDS}>
@@ -803,10 +799,10 @@ export default class ApplyTenantPage extends Component<ProjectApplicationPagePro
           </Card>
           <div style={{ margin: 10 }}>
             <Button color={ButtonColor.primary} onClick={() => this.handleSubmit()}>
-              {intl.get(`${modelCode}.submit`).d('提交')}
+              {intl.get('hzero.common.button.submit').d('提交')}
             </Button>
             <Button onClick={() => this.handleExit()}>
-              {intl.get(`${modelCode}.exit`).d('退出')}
+              {intl.get('hmdm.applyTenant.button.signOut').d('退出')}
             </Button>
           </div>
         </div>

@@ -20,6 +20,7 @@ import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { TableButtonType } from 'choerodon-ui/pro/lib/table/enum';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import withProps from 'utils/withProps';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { observer } from 'mobx-react-lite';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import commonConfig from '@htccommon/config/commonConfig';
@@ -27,7 +28,7 @@ import { batchSave, createNewAuto, sendCollection } from '@src/services/automati
 import AutomaticCollectionManageDS from '../stores/AutomationCollectionManageListDS';
 import AutomaticCollectionManageLineDS from '../stores/AutomaticCollectionManageLineDS';
 
-const modelCode = 'hmdm.automatic-collection-manage';
+const modelCode = 'hmdm.automaticCollection';
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.MDM_API || '';
 
@@ -53,6 +54,9 @@ interface AutomaticCollectionManagePageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
+@formatterCollections({
+  code: ['hmdm.automaticCollection'],
+})
 export default class AutomaticCollectionManagePage extends Component<
   AutomaticCollectionManagePageProps
 > {
@@ -105,7 +109,7 @@ export default class AutomaticCollectionManagePage extends Component<
     const data = this.props.tableDS.selected.map(record => record.toData());
     if (data.some(item => item.collectionStatus !== 'PENDING_DUNNING')) {
       notification.warning({
-        message: intl.get(`${modelCode}.createMessage`).d('请先生成催收提醒'),
+        message: intl.get('hmdm.automaticCollection.message.createMessage').d('请先生成催收提醒'),
         description: '',
       });
       return;
@@ -158,7 +162,7 @@ export default class AutomaticCollectionManagePage extends Component<
         key="batchCreate"
         onClick={() => this.handelBatchCreate()}
         dataSet={this.props.tableDS}
-        title={intl.get(`${modelCode}.generateReminder`).d('生成催收提醒')}
+        title={intl.get('hmdm.automaticCollection.button.generateReminder').d('生成催收提醒')}
       />,
       <BatchButtons
         key="batchSend"
