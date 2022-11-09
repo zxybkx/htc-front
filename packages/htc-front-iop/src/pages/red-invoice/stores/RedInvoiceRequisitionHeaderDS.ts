@@ -20,7 +20,7 @@ import { DEFAULT_DATE_FORMAT } from 'utils/constants';
  * @params {object} record-行记录
  * @returns {*[]}
  */
-const headerReadOnlyRule = (record) => {
+const headerReadOnlyRule = record => {
   return !['E', 'R', 'N'].includes(record.get('status')) && record.get('status');
 };
 
@@ -85,7 +85,7 @@ export default (dsParams): DataSetProps => {
     fields: [
       {
         name: 'redInvoiceApplyHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'applicantType',
@@ -211,7 +211,7 @@ export default (dsParams): DataSetProps => {
       {
         name: 'employeeId',
         label: intl.get('hiop.invoiceReq.modal.applicantName').d('申请人'),
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'uploadEmployeeNameObj.employeeId',
       },
       {
@@ -310,7 +310,7 @@ export default (dsParams): DataSetProps => {
           readOnly: ({ record }) => record.get('deductionStatus') !== '01',
           required: ({ record }) => record.get('deductionStatus') !== '01',
         },
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'sellerName',
@@ -333,14 +333,14 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.redInvoiceInfo.modal.invoiceAmount').d('合计金额'),
         type: FieldType.currency,
         readOnly: true,
-        transformRequest: (value) => value && value.toFixed(2),
+        transformRequest: value => value && value.toFixed(2),
       },
       {
         name: 'taxAmount',
         label: intl.get('hiop.invoiceWorkbench.modal.totalTaxAmount').d('合计税额'),
         type: FieldType.currency,
         readOnly: true,
-        transformRequest: (value) => value && value.toFixed(2),
+        transformRequest: value => value && value.toFixed(2),
       },
       {
         name: 'buyerName',

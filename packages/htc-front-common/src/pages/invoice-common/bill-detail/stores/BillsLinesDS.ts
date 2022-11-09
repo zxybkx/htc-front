@@ -41,12 +41,12 @@ export default (): DataSetProps => {
       {
         name: 'billPoolLineId',
         label: intl.get(`${modelCode}.view.billPoolLineId`).d('记录行ID'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'billPoolHeaderId',
         label: intl.get(`${modelCode}.view.billPoolHeaderId`).d('记录ID'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'goodsName',

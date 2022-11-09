@@ -60,7 +60,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'tenantId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: `tenantObject.tenantId`,
       },
       {
@@ -122,16 +122,16 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.termination`).d('是否关联截止'),
         type: FieldType.boolean,
         defaultValue: false,
-        transformResponse: (value) => value === 0,
-        transformRequest: (value) => (value ? 0 : 1),
+        transformResponse: value => value === 0,
+        transformRequest: value => (value ? 0 : 1),
       },
       {
         name: 'enabledFlag',
         label: intl.get(`${modelCode}.view.enabledFlag`).d('启用状态'),
         type: FieldType.boolean,
         defaultValue: false,
-        transformResponse: (value) => value !== 0,
-        transformRequest: (value) => (value ? 1 : 0),
+        transformResponse: value => value !== 0,
+        transformRequest: value => (value ? 1 : 0),
       },
     ],
     queryFields: [
@@ -187,7 +187,7 @@ export default (): DataSetProps => {
         type: FieldType.string,
         lookupCode: 'HPFM.ENABLED_FLAG',
         labelWidth: '150',
-        transformRequest: (value) => {
+        transformRequest: value => {
           if (value === '0') {
             return '1';
           } else if (value === '1') {

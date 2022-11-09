@@ -233,11 +233,7 @@ export default (): DataSetProps => {
               return { enabledFlag: 1, docTypeHeaderId: record.get('docTypeHeaderId').join(',') };
             },
             disabled: ({ record }) => {
-              if (record.get('docTypeHeaderId').length) {
-                return false;
-              } else {
-                return true;
-              }
+              return !record.get('docTypeHeaderId').length;
             },
           },
           multiple: ',',
@@ -280,7 +276,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'companyId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: 'companyObj.companyId',
         },
         {

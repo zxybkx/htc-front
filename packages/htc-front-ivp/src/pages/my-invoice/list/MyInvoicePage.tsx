@@ -92,7 +92,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
       title: intl.get('hcan.invoiceCheck.view.title').d('手工发票查验'),
       search: queryString.stringify({ companyId }),
       closable: true,
-      type: 'menu',
+      // type: 'menu',
     });
   }
 
@@ -108,7 +108,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
       title: intl.get('hivp.batchCheck.title.check').d('批量识别查验'),
       search: queryString.stringify({ companyId }),
       closable: true,
-      type: 'menu',
+      // type: 'menu',
     });
   }
 
@@ -354,11 +354,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
             title: '',
             renderer: ({ record }) => {
               const invoiceTypeMeaning = record && record.get('invoiceTypeMeaning');
-              return (
-                <span>
-                  {invoiceTypeMeaning}
-                </span>
-              );
+              return <span>{invoiceTypeMeaning}</span>;
             },
           },
         ],

@@ -276,11 +276,11 @@ export async function getCurPeriod(params) {
  * 勾选认证-下载申报抵扣统计表
  */
 export async function deductionReportDownload(params) {
-  const { tenantId, list, ...otherParams } = params;
+  const { tenantId, dto, ...otherParams } = params;
   return request(`${HIVP_API}/v1/${tenantId}/invoice-operation/deduction-apply-report/download`, {
     method: 'POST',
     query: otherParams,
-    body: list,
+    body: dto,
     responseType: 'text',
   });
 }
@@ -289,13 +289,13 @@ export async function deductionReportDownload(params) {
  * 勾选认证-下载认证结果统计表
  */
 export async function statisticReportDownload(params) {
-  const { tenantId, list, ...otherParams } = params;
+  const { tenantId, dto, ...otherParams } = params;
   return request(
     `${HIVP_API}/v1/${tenantId}/invoice-operation/certified-result-statistic-report/download`,
     {
       method: 'POST',
       query: otherParams,
-      body: list,
+      body: dto,
       responseType: 'text',
     }
   );

@@ -44,7 +44,7 @@ export default (companyId): DataSetProps => {
     fields: [
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
         defaultValue: companyId,
       },
       {
@@ -105,7 +105,7 @@ export default (companyId): DataSetProps => {
       },
       {
         name: 'assignId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'invoicePermissions.employeeId',
         multiple: true,
         ignore: FieldIgnore.always,

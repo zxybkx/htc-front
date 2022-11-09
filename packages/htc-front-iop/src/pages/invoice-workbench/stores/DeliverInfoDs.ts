@@ -1,4 +1,4 @@
-/*
+/**
  * @Description: 发票交付
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-07-08 16:22:07
@@ -25,11 +25,11 @@ export default (dsParams): DataSetProps => {
         };
         return axiosConfig;
       },
-      submit: (config): AxiosRequestConfig => {
-        let data = {};
-        config.data.forEach(item => {
+      submit: ({ data, params }) => {
+        let lists;
+        data.forEach(item => {
           const invoiceOrderHeaderIds = item.invoiceOrderHeaderId.split(',');
-          data = item.invoiceInformation.split(',').map((inner, index) => {
+          lists = item.invoiceInformation.split(',').map((inner, index) => {
             return {
               ...item,
               invoiceInformation: inner,
@@ -37,14 +37,12 @@ export default (dsParams): DataSetProps => {
             };
           });
         });
-        const url = `${API_PREFIX}/v1/${tenantId}/invoice-delivery-infos`;
-        const axiosConfig: AxiosRequestConfig = {
-          ...config,
-          data,
-          url,
+        return {
+          url: `${API_PREFIX}/v1/${tenantId}/invoice-delivery-infos`,
+          data: lists,
+          params,
           method: 'POST',
         };
-        return axiosConfig;
       },
     },
     fields: [
@@ -55,7 +53,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'invoiceDeliveryInfoId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'invoiceInformation',
@@ -67,6 +65,7 @@ export default (dsParams): DataSetProps => {
       {
         name: 'postLogisticsCompany',
         label: intl.get('hiop.invoiceWorkbench.view.logisticsCompany').d('邮寄物流公司'),
+        type: FieldType.string,
         lookupCode: 'HTC.POST_LOGISTICS_COMPANY',
       },
       {
