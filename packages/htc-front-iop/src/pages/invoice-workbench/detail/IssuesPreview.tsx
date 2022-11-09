@@ -54,11 +54,11 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
   }
   const title = invoiceVariety && invoiceVarietyConfig[invoiceVariety];
   const calcAmount = record => {
-    const { taxIncludedFlag, amount } = record;
-    const taxRate = Number(record.taxRate) || 0;
+    const { taxIncludedFlag, amount, taxAmount } = record;
+    // const taxRate = Number(record.taxRate) || 0;
     let amountWithoutTax = amount.toFixed(2);
     if (taxIncludedFlag === 1) {
-      amountWithoutTax = (amount / (1 + taxRate)).toFixed(2);
+      amountWithoutTax = (amount - taxAmount).toFixed(2);
     }
     return amountWithoutTax;
   };
@@ -77,7 +77,11 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
   };
   const calcTaxRate = record => {
     const { taxRate } = record;
-    return `${Number(taxRate * 100).toString()}%`;
+    if (taxRate === -1) {
+      return '';
+    } else {
+      return `${Number(taxRate * 100).toString()}%`;
+    }
   };
   const renderHeader = () => {
     return (

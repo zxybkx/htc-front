@@ -2,7 +2,7 @@
  * @Description: 发票交付
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-07-08 16:22:07
- * @LastEditTime: 2022-07-19 10:44:33
+ * @LastEditTime: 2022-11-09 15:17:33
  * @Copyright: Copyright (c) 2020, Hand
  */
 import commonConfig from '@htccommon/config/commonConfig';
