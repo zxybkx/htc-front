@@ -52,15 +52,15 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'rulesLinesId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'rulesHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyName',
@@ -86,7 +86,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'employeeId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'employeeNumObj.employeeId',
       },
       {
@@ -113,7 +113,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'qualifiedAuditorIds',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'qualifiedAuditorObj.employeeId',
         multiple: ',',
       },

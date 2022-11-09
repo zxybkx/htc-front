@@ -308,11 +308,7 @@ export default (): DataSetProps => {
               return { enabledFlag: 1, docTypeHeaderId: record.get('sysTypeHeaderId').join(',') };
             },
             disabled: ({ record }) => {
-              if (!record.get('sysTypeHeaderId').length) {
-                return true;
-              } else {
-                return false;
-              }
+              return !record.get('sysTypeHeaderId').length;
             },
           },
           multiple: ',',

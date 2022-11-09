@@ -37,11 +37,11 @@ export default (): DataSetProps => {
       {
         name: 'invoicePoolHeaderId',
         label: intl.get('hivp.bill.view.billPoolHeaderId').d('记录ID'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'invoiceHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'fileUrl',
@@ -70,7 +70,7 @@ export default (): DataSetProps => {
         label: intl.get('htc.common.view.invoiceDate').d('开票日期'),
         type: FieldType.date,
         // required: true,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'invoiceAmount',
@@ -100,7 +100,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'detailId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'systemName',

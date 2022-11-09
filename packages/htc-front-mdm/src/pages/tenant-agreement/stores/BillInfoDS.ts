@@ -45,7 +45,7 @@ export default (tenantId): DataSetProps => {
         };
       },
       create: ({ data, params }) => {
-        const newList = data.map((item) => ({
+        const newList = data.map(item => ({
           ...item,
           tenantId,
           // agreementId,
@@ -66,7 +66,7 @@ export default (tenantId): DataSetProps => {
       },
     },
     feedback: {
-      submitFailed: (resp) => {
+      submitFailed: resp => {
         notification.error({
           description: '',
           message: resp && resp.message,
@@ -78,7 +78,7 @@ export default (tenantId): DataSetProps => {
     fields: [
       {
         name: 'indicatorPlanLineId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'billNumber',
@@ -148,13 +148,13 @@ export default (tenantId): DataSetProps => {
         name: 'sendDate',
         label: intl.get(`${modelCode}.view.sendDate`).d('发送时间'),
         type: FieldType.date,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'billRecordStart',
         label: intl.get(`${modelCode}.view.billRecordStart`).d('账单记录起始时间'),
         type: FieldType.dateTime,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
         required: true,
         max: 'billRecordEnd',
       },
@@ -162,7 +162,7 @@ export default (tenantId): DataSetProps => {
         name: 'billRecordEnd',
         label: intl.get(`${modelCode}.view.billRecordEnd`).d('账单记录结束时间'),
         type: FieldType.dateTime,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
         required: true,
         min: 'billRecordStart',
       },

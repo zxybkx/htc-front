@@ -44,7 +44,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'redInvoiceApplynOptId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'businessNoticeNum',
@@ -65,13 +65,13 @@ export default (): DataSetProps => {
       {
         name: 'redInvoiceDateFrom',
         label: intl.get('hiop.redInvoiceInfo.modal.redInvoiceDateFrom').d('填开日期起'),
-        transformResponse: (value) => value && moment(value, 'YYYY-MM-DD'),
+        transformResponse: value => value && moment(value, 'YYYY-MM-DD'),
         type: FieldType.string,
       },
       {
         name: 'redInvoiceDateTo',
         label: intl.get('hiop.redInvoiceInfo.modal.redInvoiceDateTo').d('填开日期止'),
-        transformResponse: (value) => value && moment(value, 'YYYY-MM-DD'),
+        transformResponse: value => value && moment(value, 'YYYY-MM-DD'),
         type: FieldType.string,
       },
       {
@@ -131,7 +131,7 @@ const HeaderDS = (): DataSetProps => {
     fields: [
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyName',
@@ -145,7 +145,7 @@ const HeaderDS = (): DataSetProps => {
       },
       {
         name: 'employeeId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'employeeDesc',
@@ -171,13 +171,13 @@ const HeaderDS = (): DataSetProps => {
         name: 'fromDate',
         type: FieldType.dateTime,
         bind: 'fillDate.fromDate',
-        transformRequest: (value) => value && moment(value).format('YYYYMMDD'),
+        transformRequest: value => value && moment(value).format('YYYYMMDD'),
       },
       {
         name: 'untilDate',
         type: FieldType.dateTime,
         bind: 'fillDate.untilDate',
-        transformRequest: (value) => value && moment(value).format('YYYYMMDD'),
+        transformRequest: value => value && moment(value).format('YYYYMMDD'),
       },
       {
         name: 'overdueStatus',

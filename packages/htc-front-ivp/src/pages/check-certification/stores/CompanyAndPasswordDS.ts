@@ -38,7 +38,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
         ignore: FieldIgnore.always,
       },
       {

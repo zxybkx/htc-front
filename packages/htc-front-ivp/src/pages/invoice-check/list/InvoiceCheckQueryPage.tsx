@@ -58,8 +58,7 @@ export default class InvoiceCheckQueryPage extends Component<InvoiceCheckQueryPa
 
   componentDidMount() {
     const { search } = this.props.location;
-    const companyIdStr = new URLSearchParams(search).get('companyId');
-    const companyId = companyIdStr && JSON.parse(decodeURIComponent(companyIdStr));
+    const companyId = new URLSearchParams(search).get('companyId');
     const dsData = this.props.queryDS.toData();
     const params = { tenantId: this.tenantId, companyId };
     getCurrentEmployeeInfo(params).then(resp => {

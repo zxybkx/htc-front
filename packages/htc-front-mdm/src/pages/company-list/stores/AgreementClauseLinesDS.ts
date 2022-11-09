@@ -37,7 +37,7 @@ export default (dsParams): DataSetProps => {
     fields: [
       {
         name: 'clausesId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'expensesTypeInfo',

@@ -622,7 +622,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'docTypeHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'systemCodeObj.docTypeHeaderId',
         ignore: FieldIgnore.always,
       },

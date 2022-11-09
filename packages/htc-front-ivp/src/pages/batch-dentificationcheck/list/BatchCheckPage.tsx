@@ -107,8 +107,7 @@ export default class BatchCheckPage extends Component<BatchCheckPageProps> {
     const { queryDataSet } = this.props.batchCheckDS;
     if (queryDataSet) {
       const { search } = this.props.location;
-      const companyIdStr = new URLSearchParams(search).get('companyId');
-      const companyId = companyIdStr && JSON.parse(decodeURIComponent(companyIdStr));
+      const companyId = new URLSearchParams(search).get('companyId');
       const res = await getCurrentEmployeeInfo({ tenantId, companyId });
       const curCompanyId = queryDataSet.current!.get('companyId');
       if (res && res.content) {

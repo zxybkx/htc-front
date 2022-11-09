@@ -39,7 +39,7 @@ export default (tenantId): DataSetProps => {
         };
       },
       create: ({ data, params }) => {
-        const newList = data.map((item) => ({
+        const newList = data.map(item => ({
           ...item,
           tenantId,
         }));
@@ -68,7 +68,7 @@ export default (tenantId): DataSetProps => {
       },
     },
     feedback: {
-      submitFailed: (resp) => {
+      submitFailed: resp => {
         notification.error({
           description: '',
           message: resp && resp.message,
@@ -81,7 +81,7 @@ export default (tenantId): DataSetProps => {
     fields: [
       {
         name: 'indicatorPlanLineId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',

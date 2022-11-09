@@ -53,13 +53,13 @@ export default (): DataSetProps => {
       },
       {
         name: 'redInvoiceApplyHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'redInvoiceDate',
         label: intl.get('hiop.redInvoiceInfo.modal.redInvoiceDate').d('填开时间'),
         type: FieldType.dateTime,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
         required: true,
       },
       {
@@ -142,7 +142,7 @@ export default (): DataSetProps => {
         name: 'uploadDate',
         label: intl.get('hiop.redInvoiceInfo.modal.uploadDate').d('上传局端时间'),
         type: FieldType.dateTime,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
       },
       {
         name: 'businessNoticeNum',
@@ -188,7 +188,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'companyId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: 'companyObj.companyId',
         },
         {
@@ -241,13 +241,13 @@ export default (): DataSetProps => {
           name: 'redInvoiceDateFrom',
           type: FieldType.dateTime,
           bind: 'redInvoiceDate.redInvoiceDateFrom',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
         },
         {
           name: 'redInvoiceDateTo',
           type: FieldType.dateTime,
           bind: 'redInvoiceDate.redInvoiceDateTo',
-          transformRequest: (value) => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
+          transformRequest: value => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
         },
         {
           name: 'serialNumber',
@@ -322,7 +322,7 @@ const RedInvoiceCreateDS = (): DataSetProps => {
     fields: [
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
         ignore: FieldIgnore.always,
       },
       {
