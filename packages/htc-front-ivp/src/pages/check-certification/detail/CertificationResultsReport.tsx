@@ -180,7 +180,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
         spmm: taxDiskPassword,
         rqq: invoiceDateFromStr,
         rqz: invoiceDateToStr,
-        list: [...summaryData, ...detailData],
+        dto: { certifiedResultStatisticSummaryDtoList: summaryData, detailList: detailData },
       };
       const res = getResponse(await statisticReportDownload(params));
       if (res) {

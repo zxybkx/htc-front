@@ -278,7 +278,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
         rqq: invoiceDateFromStr,
         rqz: invoiceDateToStr,
         zgjgdm: authorityCode,
-        list: [...summaryData, ...detailData],
+        dto: { deductionApplySummaryDtoList: summaryData, detailList: detailData },
       };
       const res = getResponse(await deductionReportDownload(params));
       if (res) {

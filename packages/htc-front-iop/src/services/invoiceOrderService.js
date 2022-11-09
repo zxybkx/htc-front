@@ -278,13 +278,11 @@ export async function employeeList(params) {
  * @returns {object} fetch Promise
  */
 export async function employeePurchaseMark(params) {
-  const { tenantId, companyId, employeeId } = params;
-  return request(
-    `${HIOP_API}/v1/${tenantId}/billing-info/employee-purchase-mark?companyId=${companyId}&employeeId=${employeeId}`,
-    {
-      method: 'GET',
-    }
-  );
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIOP_API}/v1/${tenantId}/billing-info/employee-purchase-mark`, {
+    method: 'GET',
+    query: otherParams,
+  });
 }
 
 /**
