@@ -460,7 +460,7 @@ export default (): DataSetProps => {
           name: 'systemCodeShare',
           label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
           type: FieldType.string,
-          lookupCode: 'HTC.SOURCE_SYSTEM',
+          lookupCode: 'HTC.SOURCE_SYSTEM_SHARE',
         },
         {
           name: 'systemCodeObj',
@@ -485,7 +485,7 @@ export default (): DataSetProps => {
           name: 'documentTypeCodeShare',
           label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
           type: FieldType.string,
-          lookupCode: 'HTC.DOCUMENT_TYPE_LOV',
+          lookupCode: 'HTC.DOCUMENT_TYPE_SHARE_LOV',
         },
         {
           name: 'documentTypeCodeObj',
