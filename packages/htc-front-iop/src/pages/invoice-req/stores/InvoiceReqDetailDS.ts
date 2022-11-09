@@ -258,10 +258,13 @@ export default (dsParams): DataSetProps => {
         },
         textField: 'receiptName',
         valueField: 'taxpayerNumber',
-        lookupAxiosConfig: () => ({
-          url: `${API_PREFIX}/v1/${tenantId}/requisition-headers/receipt-lov?companyId=${encodeURIComponent(
-            companyId
-          )}`,
+        lookupUrl: `${API_PREFIX}/v1/${tenantId}/requisition-headers/receipt-lov`,
+        lookupAxiosConfig: config => ({
+          ...config,
+          params: {
+            companyId,
+            ...config.params,
+          },
           method: 'GET',
         }),
         maxLength: 100,

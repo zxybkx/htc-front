@@ -244,8 +244,13 @@ export default (dsParams): DataSetProps => {
         required: true,
         textField: 'buyerName',
         valueField: 'buyerTaxpayerNumber',
-        lookupAxiosConfig: () => ({
-          url: `${API_PREFIX}/v1/${tenantId}/billing-info/buyer-info-list?companyId=${dsParams.companyId}`,
+        lookupUrl: `${API_PREFIX}/v1/${tenantId}/billing-info/buyer-info-list`,
+        lookupAxiosConfig: config => ({
+          ...config,
+          params: {
+            companyId: dsParams.companyId,
+            ...config.params,
+          },
           method: 'GET',
         }),
         maxLength: 100,
@@ -312,8 +317,13 @@ export default (dsParams): DataSetProps => {
         required: true,
         textField: 'sellerName',
         valueField: 'sellerTaxpayerNumber',
-        lookupAxiosConfig: () => ({
-          url: `${API_PREFIX}/v1/${tenantId}/billing-info/seller-info-list?companyId=${dsParams.companyId}`,
+        lookupUrl: `${API_PREFIX}/v1/${tenantId}/billing-info/seller-info-list`,
+        lookupAxiosConfig: config => ({
+          ...config,
+          params: {
+            companyId: dsParams.companyId,
+            ...config.params,
+          },
           method: 'GET',
         }),
         maxLength: 100,
