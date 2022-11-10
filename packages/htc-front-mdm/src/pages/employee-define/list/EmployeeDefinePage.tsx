@@ -1,5 +1,5 @@
 /**
- * page - 公司列表入口页面
+ * page - 员工信息维护
  * @Author: jesse.chen <jun.chen01@hand-china.com>
  * @Date: 2020-06-29
  * @LastEditeTime: 2020-06-29
@@ -38,6 +38,7 @@ import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import { isEmpty } from 'lodash';
 import notification from 'utils/notification';
 import ExcelExport from 'components/ExcelExport';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import { observer } from 'mobx-react-lite';
@@ -46,7 +47,6 @@ import employeeDefendDS from '../stores/EmployeeDefineDS';
 import styles from '../table.module.less';
 import EmployeePhoneModify from './EmployeePhoneModifyPage';
 
-const modelCode = 'hmdm.company-list';
 const modalKey = Modal.key();
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.MDM_API || '';
@@ -59,6 +59,18 @@ interface CompanyListPageProps {
   tableDS: DataSet;
 }
 
+@formatterCollections({
+  code: [
+    'hmdm.employeeInfo',
+    'hivp.batchCheck',
+    'htc.common',
+    'hivp.batchCheck',
+    'hiop.invoiceRule',
+    'hiop.invoiceRule',
+    'hivp.documentType',
+    'hmdm.companyList',
+  ],
+})
 export default class EmployeeDefinePage extends Component<CompanyListPageProps> {
   state = {
     treeData: [],
@@ -178,7 +190,7 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
     if (!validateValue) {
       notification.error({
         description: '',
-        message: intl.get('hzero.common.notification.invalid').d('数据校验不通过！'),
+        message: intl.get('hivp.batchCheck.notification.invalid').d('数据校验不通过！'),
       });
       return;
     }
@@ -186,7 +198,7 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
     if (res === undefined) {
       notification.warning({
         description: '',
-        message: intl.get('hadm.hystrix.view.message.title.noChange').d('请先修改数据'),
+        message: intl.get('htc.common.notification.noChange').d('请先修改数据'),
       });
     } else if (res && res.failed && res.message) {
       throw new Error(res);
@@ -211,7 +223,7 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
       this.tableDS.current!.set({ enabledFlag: 1 });
       this.handleSave(records);
     } else {
-      const title = intl.get(`${modelCode}.view.disableConfirm`).d('确认禁用？');
+      const title = intl.get('htc.common.notification.disableConfirm').d('确认禁用？');
       Modal.confirm({
         key: modalKey,
         title,
@@ -255,10 +267,10 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
       const argsParam = JSON.stringify(params);
       openTab({
         key: `/himp/commentImport/${code}`,
-        title: intl.get('hzero.common.button.import').d('导入'),
+        title: intl.get('hzero.common.title.import').d('导入'),
         search: queryString.stringify({
           prefixPath: API_PREFIX,
-          action: intl.get(`${modelCode}.view.employeeImport`).d('员工导入'),
+          action: intl.get('hmdm.employeeInfo.view.employeeImport').d('员工导入'),
           args: argsParam,
         }),
       });
@@ -295,7 +307,7 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
     if (isEmpty(employeeInfosList)) {
       notification.warning({
         description: '',
-        message: intl.get(`${modelCode}.view.createAccount`).d('至少选择一条数据！'),
+        message: intl.get('hzero.common.message.validation.atLeast').d('至少选择一条数据！'),
       });
       return;
     }
@@ -315,7 +327,7 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
     const phoneProps = { email, companyId, mobile, internationalTelCode };
     const modal = Modal.open({
       key: Modal.key(),
-      title: intl.get(`${modelCode}.invoiceQuery.phoneModify`).d('修改手机号'),
+      title: intl.get('hmdm.employeeInfo.modal.title.phoneModify').d('修改手机号'),
       drawer: true,
       width: 480,
       footer: null,
@@ -448,21 +460,21 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
               key: 'saveAndCreate',
               ele: (
                 <a onClick={() => this.handleSaveAndCreateAccount([records])}>
-                  {intl.get(`${modelCode}.button.saveAndCreate`).d('新建账户')}
+                  {intl.get('hmdm.employeeInfo.button.saveAndCreate').d('新建账户')}
                 </a>
               ),
               len: 6,
-              title: intl.get(`${modelCode}.button.saveAndCreate`).d('新建账户'),
+              title: intl.get('hmdm.employeeInfo.button.saveAndCreate').d('新建账户'),
             },
             {
               key: 'phoneModify',
               ele: (
                 <a onClick={() => this.handlePhoneModify(record)}>
-                  {intl.get(`${modelCode}.button.phoneModify`).d('修改手机号')}
+                  {intl.get('hmdm.employeeInfo.button.phoneModify').d('修改手机号')}
                 </a>
               ),
               len: 6,
-              title: intl.get(`${modelCode}.button.phoneModify`).d('修改手机号'),
+              title: intl.get('hmdm.employeeInfo.button.phoneModify').d('修改手机号'),
             },
           ];
           const btnMenu = (
@@ -480,15 +492,15 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
                 style={{ color: curFlag === 0 ? 'green' : 'gray' }}
               >
                 {curFlag === 0
-                  ? intl.get('hzero.common.status.enableFlag').d('启用')
-                  : intl.get('hzero.common.status.disable').d('禁用')}
+                  ? intl.get('hzero.common.button.enabled').d('启用')
+                  : intl.get('hzero.common.button.unEnabled').d('禁用')}
               </a>
               <a onClick={() => this.handleEdit(record)}>
-                {intl.get(`${modelCode}.button.edit`).d('编辑')}
+                {intl.get('hzero.common.button.editor').d('编辑')}
               </a>
               <Dropdown overlay={btnMenu}>
                 <a>
-                  {intl.get('hzero.common.button.action').d('更多')}
+                  {intl.get('hzero.common.button.more').d('更多')}
                   <Icon type="arrow_drop_down" />
                 </a>
               </Dropdown>
@@ -523,7 +535,7 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
       if (!companyNameObject) {
         return notification.error({
           description: '',
-          message: intl.get(`${modelCode}.view.unQuery`).d('请选择公司！'),
+          message: intl.get('hmdm.employeeInfo.message.selectCompany').d('请选择公司！'),
         });
       } else {
         this.tableDS.query();
@@ -580,10 +592,10 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
           </Col>
           <Col span={4} style={{ textAlign: 'end' }}>
             <Button onClick={() => this.handleReset()}>
-              {intl.get(`${modelCode}.button.reset`).d('重置')}
+              {intl.get('hzero.common.button.common.reset').d('重置')}
             </Button>
             <Button color={ButtonColor.primary} onClick={() => this.handleQuery()}>
-              {intl.get(`${modelCode}.button.query`).d('查询')}
+              {intl.get('hzero.common.button.query').d('查询')}
             </Button>
           </Col>
         </Row>
@@ -668,12 +680,12 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
         <Menu>
           <MenuItem>
             <a onClick={() => this.handleAddLine()}>
-              {intl.get('hzero.common.button.assetChange').d('添加成员')}
+              {intl.get('hmdm.employeeInfo.button.assetChange').d('添加成员')}
             </a>
           </MenuItem>
           <MenuItem>
             <a onClick={() => this.batchCreate()}>
-              {intl.get('hzero.common.button.createAccount').d('新建账户')}
+              {intl.get('hmdm.employeeInfo.button.saveAndCreate').d('新建账户')}
             </a>
           </MenuItem>
         </Menu>
@@ -693,11 +705,11 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
               key="delete"
               onClick={() => this.handleDelete()}
               dataSet={this.tableDS}
-              title={intl.get('hzero.common.button.delete').d('删除')}
+              title={intl.get('hzero.common.button.enter').d('删除')}
             />
             <Dropdown overlay={menu}>
               <Button color={ButtonColor.primary}>
-                {intl.get('hzero.common.button.assetChange').d('添加')}
+                {intl.get('hivp.batchCheck.button.addTo').d('添加')}
                 <Icon type="arrow_drop_down" />
               </Button>
             </Dropdown>
@@ -736,7 +748,11 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
       });
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('员工信息维护')}>
+        <Header
+          title={intl
+            .get('hmdm.employeeInfo.title.employeeInformationMaintenance')
+            .d('员工信息维护')}
+        >
           <ExcelExport
             requestUrl={`${API_PREFIX}/v1/${tenantId}/employee-infos/export`}
             queryParams={() => this.handleGetQueryParams()}
@@ -745,7 +761,7 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
             key="import"
             onClick={() => this.handleImport()}
             dataSet={this.tableDS}
-            title={intl.get(`${modelCode}.button.import`).d('导入')}
+            title={intl.get('hzero.common.button.import').d('导入')}
           />
         </Header>
         <Row gutter={8} style={{ height: 'calc(100%)' }}>
