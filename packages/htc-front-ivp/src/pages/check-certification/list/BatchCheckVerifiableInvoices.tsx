@@ -1025,9 +1025,9 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
                     <DatePicker name="entryAccountDate" />
                     {apiCondition === 'OP' ? (
                       <>
-                        <Select name="entryAccountState" />
-                        <Select name="entryAccountState" />
-                        <TextField name="entryAccountState" />
+                        <Select name="systemCodeShare" />
+                        <Select name="documentTypeCodeShare" />
+                        <TextField name="documentNumberShare" />
                       </>
                     ) : (
                       <>
