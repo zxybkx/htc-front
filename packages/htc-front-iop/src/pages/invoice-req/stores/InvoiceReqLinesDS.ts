@@ -512,6 +512,7 @@ export default (): DataSetProps => {
       {
         name: 'unit',
         label: intl.get('hiop.invoiceWorkbench.modal.projectUnit').d('单位'),
+        bind: 'commodityNumberObj.projectUnit',
         type: FieldType.string,
       },
       {
