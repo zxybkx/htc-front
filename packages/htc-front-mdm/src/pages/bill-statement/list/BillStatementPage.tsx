@@ -15,6 +15,7 @@ import queryString from 'query-string';
 import { Bind } from 'lodash-decorators';
 import { observer } from 'mobx-react-lite';
 import withProps from 'utils/withProps';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { RouteComponentProps } from 'react-router-dom';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
@@ -24,8 +25,6 @@ import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { billInfomationDownload, sendEmail } from '@src/services/billStatementService';
 import { getResponse } from 'utils/utils';
 import BillStatementListDS from '../stores/BillStatementListDS';
-
-const modelCode = 'hmdm.bill-statement';
 
 interface BillStatementPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
@@ -42,6 +41,9 @@ interface BillStatementPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
+@formatterCollections({
+  code: ['hmdm.billStatement', 'htc.common', 'hmdm.automaticCollection', 'hiop.invoiceWorkbench'],
+})
 export default class BillStatementPage extends Component<BillStatementPageProps> {
   /**
    * 生成账单
@@ -53,7 +55,7 @@ export default class BillStatementPage extends Component<BillStatementPageProps>
     if (res && res.status === 'H1014') {
       notification.success({
         description: '',
-        message: intl.get(`${modelCode}.view.success`).d('操作成功!'),
+        message: intl.get('hzero.common.notification.success').d('操作成功!'),
       });
       this.props.tableDS.query();
     }
@@ -82,7 +84,7 @@ export default class BillStatementPage extends Component<BillStatementPageProps>
   get columns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('htc.common.orderSeq').d('序号'),
         width: 60,
         renderer: ({ record }) => {
           return record ? record.index + 1 : '';
@@ -152,7 +154,7 @@ export default class BillStatementPage extends Component<BillStatementPageProps>
     if (res && res.status === 'H1014') {
       notification.success({
         description: '',
-        message: intl.get(`${modelCode}.view.success`).d('操作成功!'),
+        message: intl.get('hzero.common.notification.success').d('操作成功!'),
       });
       this.props.tableDS.unSelectAll();
     }
@@ -191,13 +193,13 @@ export default class BillStatementPage extends Component<BillStatementPageProps>
         key="batchSend"
         onClick={() => this.batchSend()}
         dataSet={this.props.tableDS}
-        title={intl.get(`${modelCode}.batchSend`).d('发送')}
+        title={intl.get('hzero.common.button.send').d('发送')}
       />,
       <BatchButtons
         key="batchGenerateBill"
         onClick={() => this.batchGenerateBill()}
         dataSet={this.props.tableDS}
-        title={intl.get(`${modelCode}.batchGenerateBill`).d('生成账单')}
+        title={intl.get('hmdm.billStatement.button.batchGenerateBill').d('生成账单')}
       />,
     ];
   }
@@ -205,7 +207,7 @@ export default class BillStatementPage extends Component<BillStatementPageProps>
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('账单报表')} />
+        <Header title={intl.get('hmdm.billStatement.title.Statement').d('账单报表')} />
         <Content>
           <Table dataSet={this.props.tableDS} columns={this.columns} buttons={this.buttons} />
         </Content>

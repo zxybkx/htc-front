@@ -47,7 +47,9 @@ export default class RemindDetailPage extends Component<BillViewPageProps> {
     return (
       <>
         <Header
-          title={intl.get('hmdm.automaticCollection.title.automaticCollection').d('自动催收提醒')}
+          title={intl
+            .get('hmdm.automaticCollection.title.automaticCollectionReminder')
+            .d('自动催收提醒')}
           backPath="/htc-front-mdm/automatic-collection-manage/list"
         />
         <Content>

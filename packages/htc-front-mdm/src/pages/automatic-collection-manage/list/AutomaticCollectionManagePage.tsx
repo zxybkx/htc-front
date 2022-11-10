@@ -28,7 +28,6 @@ import { batchSave, createNewAuto, sendCollection } from '@src/services/automati
 import AutomaticCollectionManageDS from '../stores/AutomationCollectionManageListDS';
 import AutomaticCollectionManageLineDS from '../stores/AutomaticCollectionManageLineDS';
 
-const modelCode = 'hmdm.automaticCollection';
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.MDM_API || '';
 
@@ -55,7 +54,7 @@ interface AutomaticCollectionManagePageProps extends RouteComponentProps {
   { cacheState: true }
 )
 @formatterCollections({
-  code: ['hmdm.automaticCollection'],
+  code: ['hmdm.automaticCollection', 'htc.common'],
 })
 export default class AutomaticCollectionManagePage extends Component<
   AutomaticCollectionManagePageProps
@@ -168,7 +167,7 @@ export default class AutomaticCollectionManagePage extends Component<
         key="batchSend"
         onClick={() => this.handelBatchSend()}
         dataSet={this.props.tableDS}
-        title={intl.get(`${modelCode}.sendCollection`).d('发送催收提醒')}
+        title={intl.get(`hmdm.automaticCollection.button.sendCollection`).d('发送催收提醒')}
       />,
     ];
   }
@@ -303,7 +302,7 @@ export default class AutomaticCollectionManagePage extends Component<
   get lineColumns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('htc.common.orderSeq').d('序号'),
         width: 80,
         renderer: ({ record }) => {
           return record ? this.props.lineDS.indexOf(record) + 1 : '';
@@ -349,7 +348,9 @@ export default class AutomaticCollectionManagePage extends Component<
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('自动催收')}>
+        <Header
+          title={intl.get(`hmdm.automaticCollection.title.automaticCollection`).d('自动催收')}
+        >
           <ExcelExport
             requestUrl={`${API_PREFIX}/v1/${tenantId}/invoicing-order-headers/export`}
             queryParams={() => this.exportParams()}

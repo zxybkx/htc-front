@@ -29,7 +29,7 @@ import { responseDecryptionKey } from '@src/services/companyListService';
 import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
 import CompanyListDS from '../stores/CompanyListDS';
 
-const modelCode = 'hmdm.company-list';
+const modelCode = 'hmdm.companyList';
 const modalKey = Modal.key();
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.MDM_API || '';

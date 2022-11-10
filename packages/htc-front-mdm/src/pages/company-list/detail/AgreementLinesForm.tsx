@@ -10,17 +10,19 @@ import React, { Component } from 'react';
 import { DataSet, Form, Output } from 'choerodon-ui/pro';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import intl from 'utils/intl';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
 import AgreementCompanyLinesDS from '../stores/AgreementCompanyLinesDS';
 import AgreementClauseLinesDS from '../stores/AgreementClauseLinesDS';
 
-const modelCode = 'hmdm.agreement-clause';
-
 interface AgreementLinesProps {
   agreementParams: any;
 }
 
+@formatterCollections({
+  code: ['hmdm.companyList', 'htc.common', 'hmdm.automaticCollection', 'hmdm.billStatement'],
+})
 export default class AgreementLinesForm extends Component<AgreementLinesProps> {
   // 公司
   companyDS = new DataSet({
@@ -46,7 +48,7 @@ export default class AgreementLinesForm extends Component<AgreementLinesProps> {
     return [
       {
         name: 'orderSeq',
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('htc.common.orderSeq').d('序号'),
         width: 80,
         renderer: ({ record }) => {
           return record ? this.clauseDS.indexOf(record) + 1 : '';
