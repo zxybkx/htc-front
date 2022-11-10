@@ -566,7 +566,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         return {
           ...item,
           invoiceInformation: inner,
-          invoiceOrderHeaderId: Number(invoiceOrderHeaderIds[index]),
+          invoiceOrderHeaderId: invoiceOrderHeaderIds[index],
         };
       });
     });
