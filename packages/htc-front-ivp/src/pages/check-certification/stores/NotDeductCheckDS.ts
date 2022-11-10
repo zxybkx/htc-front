@@ -273,11 +273,13 @@ export default (): DataSetProps => {
       {
         name: 'systemName',
         label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
+        lookupCode: 'HTC.SOURCE_SYSTEM_SHARE',
         type: FieldType.string,
       },
       {
         name: 'documentTypeMeaning',
         label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
+        lookupCode: 'HTC.DOCUMENT_TYPE_SHARE_LOV',
         type: FieldType.string,
       },
       {

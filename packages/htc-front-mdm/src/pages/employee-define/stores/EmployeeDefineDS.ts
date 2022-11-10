@@ -16,8 +16,6 @@ import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import moment from 'moment';
 import commonConfig from '@htccommon/config/commonConfig';
 
-const modelCode = 'hmdm.employee-define';
-
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
   const tenantId = getCurrentOrganizationId();
@@ -72,41 +70,41 @@ export default (): DataSetProps => {
       },
       {
         name: 'companyName',
-        label: intl.get(`${modelCode}.view.companyName`).d('公司名称'),
+        label: intl.get('htc.common.view.companyName').d('公司名称'),
         type: FieldType.string,
       },
       {
         name: 'employeeTypeInfo',
-        label: intl.get(`${modelCode}.view.employeeTypeInfo`).d('员工类型'),
+        label: intl.get('hmdm.employeeInfo.view.employeeTypeInfo').d('员工类型'),
         type: FieldType.object,
       },
       {
         name: 'employeeTypeCode',
-        label: intl.get(`${modelCode}.view.employeeTypeCode`).d('类型'),
+        label: intl.get('hmdm.employeeInfo.view.employeeTypeCode').d('类型'),
         type: FieldType.string,
         lookupCode: 'HMDM.EMPLOYEE_TYPE',
         required: true,
       },
       {
         name: 'employeeNum',
-        label: intl.get(`${modelCode}.view.employeeNum`).d('员工号'),
+        label: intl.get('hiop.invoiceRule.modal.employeeNumObj').d('员工号'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'employeeNameInfo',
-        label: intl.get(`${modelCode}.view.employeeNameInfo`).d('姓名'),
+        label: intl.get('hiop.invoiceRule.modal.employeeName').d('姓名'),
         type: FieldType.object,
       },
       {
         name: 'employeeName',
-        label: intl.get(`${modelCode}.view.employeeName`).d('姓名'),
+        label: intl.get('hiop.invoiceRule.modal.employeeName').d('姓名'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'internationalTelCode',
-        label: intl.get(`${modelCode}.view.internationalTelCode`).d('国际区号'),
+        label: intl.get('hivp.batchCheck.view.countryCode').d('国际区号'),
         type: FieldType.string,
         lookupCode: 'HPFM.IDD',
         required: true,
@@ -114,7 +112,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'mobile',
-        label: intl.get(`${modelCode}.view.mobile`).d('手机号'),
+        label: intl.get('hzero.common.cellphone').d('手机号'),
         type: FieldType.string,
         required: true,
         computedProps: {
@@ -125,46 +123,48 @@ export default (): DataSetProps => {
           },
           defaultValidationMessages: ({ record }) => {
             if (record.get('internationalTelCode') === '+86') {
-              return { patternMismatch: '手机格式不正确' };
+              return {
+                patternMismatch: intl.get('hzero.common.validation.phone').d('手机格式不正确'),
+              };
             }
           },
         },
       },
       {
         name: 'connectInfo',
-        label: intl.get(`${modelCode}.view.connectInfo`).d('联系信息'),
+        label: intl.get('hmdm.employeeInfo.view.connectInfo').d('联系信息'),
         type: FieldType.object,
       },
       {
         name: 'email',
-        label: intl.get(`${modelCode}.view.email`).d('电子邮箱'),
+        label: intl.get('hmdm.employeeInfo.view.email').d('电子邮箱'),
         type: FieldType.string,
         required: true,
         pattern: EMAIL,
         defaultValidationMessages: {
-          patternMismatch: '邮箱格式不正确', // 正则不匹配的报错信息
+          patternMismatch: intl.get('hzero.common.validation.email').d('邮箱格式不正确'), // 正则不匹配的报错信息
         },
       },
       {
         name: 'organization',
-        label: intl.get(`${modelCode}.view.organization`).d('组织架构'),
+        label: intl.get('hmdm.employeeInfo.view.organization').d('组织架构'),
         type: FieldType.object,
       },
       {
         name: 'department',
-        label: intl.get(`${modelCode}.view.department`).d('员工部门-岗位'),
+        label: intl.get('hmdm.employeeInfo.view.department').d('员工部门-岗位'),
         type: FieldType.string,
       },
       {
         name: 'status',
-        label: intl.get(`${modelCode}.view.status`).d('员工状态'),
+        label: intl.get('hmdm.employeeInfo.view.status').d('员工状态'),
         type: FieldType.string,
         lookupCode: 'HMDM.EMPLOYEE_STATUS',
         required: true,
       },
       {
         name: 'rolesObject',
-        label: intl.get(`${modelCode}.view.rolesMeaning`).d('员工角色分配'),
+        label: intl.get('hmdm.employeeInfo.view.rolesObject').d('员工角色分配'),
         type: FieldType.object,
         lovCode: 'HMDM.EMPLOYEE_ROLES',
         required: true,
@@ -193,7 +193,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'enabledFlag',
-        label: intl.get(`${modelCode}.view.enabledFlag`).d('启用状态'),
+        label: intl.get('htc.common.modal.enabledFlag').d('启用状态'),
         type: FieldType.number,
         falseValue: 0,
         trueValue: 1,
@@ -202,12 +202,12 @@ export default (): DataSetProps => {
       },
       {
         name: 'validPeriod',
-        label: intl.get(`${modelCode}.view.validPeriod`).d('有效期'),
+        label: intl.get('hivp.documentType.view.dateInfo').d('有效期'),
         type: FieldType.object,
       },
       {
         name: 'startDate',
-        label: intl.get(`${modelCode}.view.startDate`).d('有效期从'),
+        label: intl.get('hmdm.companyList.view.startDate').d('有效期从'),
         type: FieldType.date,
         defaultValue: moment().format(DEFAULT_DATE_FORMAT),
         max: 'endDate',
@@ -215,19 +215,19 @@ export default (): DataSetProps => {
       },
       {
         name: 'endDate',
-        label: intl.get(`${modelCode}.view.endDate`).d('有效期至'),
+        label: intl.get('hmdm.companyList.view.endDate').d('有效期至'),
         type: FieldType.date,
         min: 'startDate',
         transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'vendorId',
-        label: intl.get(`${modelCode}.view.vendorId`).d('供应商'),
+        label: intl.get('hmdm.employeeInfo.view.vendorId').d('供应商'),
         type: FieldType.string,
       },
       {
         name: 'caseProductFlag',
-        label: intl.get(`${modelCode}.view.caseProductFlag`).d('是否分商品'),
+        label: intl.get('hmdm.employeeInfo.view.caseProductFlag').d('是否分商品'),
         type: FieldType.string,
         lookupCode: 'HPFM.FLAG',
       },
@@ -235,7 +235,7 @@ export default (): DataSetProps => {
     queryFields: [
       {
         name: 'companyNameObject',
-        label: intl.get(`${modelCode}.view.companyNameObject`).d('公司全称'),
+        label: intl.get('hivp.documentType.view.companyObj').d('公司全称'),
         type: 'object' as FieldType,
         lovCode: 'HMDM.COMPANY_NAME',
         lovPara: { tenantId, enabledFlag: 1 },
@@ -259,7 +259,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'roleIdObject',
-        label: intl.get(`${modelCode}.view.roleId`).d('员工角色'),
+        label: intl.get('hmdm.employeeInfo.view.roleId').d('员工角色'),
         type: FieldType.object,
         lovCode: 'HMDM.EMPLOYEE_ROLES',
         lovPara: { tenantId },
@@ -280,28 +280,28 @@ export default (): DataSetProps => {
       },
       {
         name: 'employeeNum',
-        label: intl.get(`${modelCode}.view.employeeNum`).d('员工号'),
+        label: intl.get('hiop.invoiceRule.modal.employeeNumObj').d('员工号'),
         type: FieldType.string,
       },
       {
         name: 'employeeName',
-        label: intl.get(`${modelCode}.view.employeeName`).d('姓名'),
+        label: intl.get('hiop.invoiceRule.modal.employeeName').d('姓名'),
         type: FieldType.string,
       },
       {
         name: 'mobile',
-        label: intl.get(`${modelCode}.view.mobile`).d('手机号'),
+        label: intl.get('hzero.common.cellphone').d('手机号'),
         type: FieldType.string,
       },
       {
         name: 'enabledFlag',
-        label: intl.get(`${modelCode}.view.enabledFlag`).d('启用状态'),
+        label: intl.get('htc.common.modal.enabledFlag').d('启用状态'),
         type: FieldType.number,
         lookupCode: 'HPFM.ENABLED_FLAG',
       },
       {
         name: 'status',
-        label: intl.get(`${modelCode}.view.status`).d('员工状态'),
+        label: intl.get('hmdm.employeeInfo.view.status').d('员工状态'),
         type: FieldType.string,
         lookupCode: 'HMDM.EMPLOYEE_STATUS',
       },
