@@ -12,6 +12,7 @@ import ExcelExport from 'components/ExcelExport';
 import { Content, Header } from 'components/Page';
 import { Bind } from 'lodash-decorators';
 import intl from 'utils/intl';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { DataSet, Table } from 'choerodon-ui/pro';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import commonConfig from '@htccommon/config/commonConfig';
@@ -20,11 +21,21 @@ import costSharingListDS from '../stores/CostSharingListDS';
 
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.MDM_API || '';
-const modelCode = 'hmdm.company-list';
 
 interface CostSharingListPageProps {
   dispatch: Dispatch<any>;
 }
+
+@formatterCollections({
+  code: [
+    'hmdm.costSharing',
+    'htc.common',
+    'hmdm.applyTenant',
+    'hiop.invoiceWorkbench',
+    'hmdm.automaticCollection',
+    'hmdm.companyList',
+  ],
+})
 export default class ProjectCostSharingPage extends Component<CostSharingListPageProps> {
   tableDS = new DataSet({
     autoQuery: true,
@@ -71,7 +82,11 @@ export default class ProjectCostSharingPage extends Component<CostSharingListPag
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('项目费用分摊报表')}>
+        <Header
+          title={intl
+            .get('hmdm.costSharing.title.projectCostAllocationReport')
+            .d('项目费用分摊报表')}
+        >
           <ExcelExport
             requestUrl={`${API_PREFIX}/v1/${tenantId}/cost-share-infos/export`}
             queryParams={() => this.exportParams()}

@@ -40,9 +40,16 @@ interface RouterInfo {
 interface TenantAgreementPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
-const modelCode = 'hmdm.apply-tenant';
+
 @formatterCollections({
-  code: ['hmdm.applyTenant'],
+  code: [
+    'hmdm.applyTenant',
+    'hivp.bill',
+    'hivp.documentType',
+    'hmdm.companyList',
+    'htc.common',
+    'hcan.invoiceDetail',
+  ],
 })
 export default class TenantApplyDetailPage extends Component<TenantAgreementPageProps> {
   serviceListDS = new DataSet({
@@ -109,7 +116,7 @@ export default class TenantApplyDetailPage extends Component<TenantAgreementPage
     const { subAccountStatus } = this.state;
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('hzero.common.model.orderSeq').d('序号'),
         width: 60,
         renderer: ({ record }) => {
           return record ? record.index + 1 : '';
@@ -140,7 +147,7 @@ export default class TenantApplyDetailPage extends Component<TenantAgreementPage
               disabled={subAccountStatus === '2'}
               onClick={() => this.handleEdit(record)}
             >
-              {intl.get(`${modelCode}.button.edit`).d('编辑')}
+              {intl.get('hzero.common.button.editor').d('编辑')}
             </Button>,
           ];
         },
@@ -158,7 +165,7 @@ export default class TenantApplyDetailPage extends Component<TenantAgreementPage
     const { subAccountStatus } = this.state;
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('hzero.common.model.orderSeq').d('序号'),
         width: 60,
         renderer: ({ record }) => {
           return record ? record.index + 1 : '';
@@ -185,7 +192,7 @@ export default class TenantApplyDetailPage extends Component<TenantAgreementPage
               disabled={subAccountStatus === '2'}
               onClick={() => this.handleServiceEdit(record)}
             >
-              {intl.get(`${modelCode}.button.edit`).d('编辑')}
+              {intl.get('hzero.common.button.editor').d('编辑')}
             </Button>,
           ];
         },
@@ -323,15 +330,15 @@ export default class TenantApplyDetailPage extends Component<TenantAgreementPage
       footer: (
         <div>
           <Button color={ButtonColor.primary} onClick={() => this.handleCreate(modal)}>
-            {intl.get(`${modelCode}.completed`).d('保存')}
+            {intl.get('hzero.common.button.save').d('保存')}
           </Button>
           {isNew && (
             <Button onClick={() => this.saveAndCreate(modal)}>
-              {intl.get(`${modelCode}.completed`).d('保存并新增')}
+              {intl.get('hivp.bill.button.saveAndadd').d('保存并新增')}
             </Button>
           )}
           <Button onClick={() => this.handleCancel(record, modal, isNew)}>
-            {intl.get(`${modelCode}.modalColse`).d('取消')}
+            {intl.get('hzero.common.button.cancel').d('取消')}
           </Button>
         </div>
       ),
@@ -362,15 +369,15 @@ export default class TenantApplyDetailPage extends Component<TenantAgreementPage
       footer: (
         <div>
           <Button color={ButtonColor.primary} onClick={() => this.handleServiceCreate(modal)}>
-            {intl.get(`${modelCode}.completed`).d('保存')}
+            {intl.get('hzero.common.button.save').d('保存')}
           </Button>
           {isNew && (
             <Button onClick={() => this.saveAndCreateService(modal)}>
-              {intl.get(`${modelCode}.completed`).d('保存并新增')}
+              {intl.get('hivp.bill.button.saveAndadd').d('保存并新增')}
             </Button>
           )}
           <Button onClick={() => this.handleServiceCancel(record, modal, isNew)}>
-            {intl.get(`${modelCode}.modalColse`).d('取消')}
+            {intl.get('hzero.common.button.cancel').d('取消')}
           </Button>
         </div>
       ),
@@ -433,14 +440,14 @@ export default class TenantApplyDetailPage extends Component<TenantAgreementPage
     const HeaderButtons = this.commonButton(subAccountStatus);
     return [
       <Button onClick={this.handleAdd} icon="add" key="add" disabled={subAccountStatus === '2'}>
-        {intl.get('hzero.common.button.add ').d('新增')}
+        {intl.get('hzero.common.button.increase').d('新增')}
       </Button>,
       <HeaderButtons
         key="delete"
         icon="delete"
         onClick={() => this.handleDelete()}
         dataSet={this.companyProgramDS}
-        title={intl.get(`${modelCode}.button.delete`).d('删除')}
+        title={intl.get('hzero.common.button.enter').d('删除')}
       />,
     ];
   }
@@ -471,7 +478,7 @@ export default class TenantApplyDetailPage extends Component<TenantAgreementPage
         onClick={this.handleServiceAdd}
         icon="add"
         key="add"
-        title={intl.get('hzero.common.button.add ').d('新增')}
+        title={intl.get('hzero.common.button.increase').d('新增')}
         dataSet={this.companyProgramDS}
       />,
       <HeaderButtons
@@ -479,7 +486,7 @@ export default class TenantApplyDetailPage extends Component<TenantAgreementPage
         icon="delete"
         onClick={() => this.handleServiceDelete()}
         dataSet={this.serviceListDS}
-        title={intl.get(`${modelCode}.button.delete`).d('删除')}
+        title={intl.get('hzero.common.button.enter').d('删除')}
       />,
     ];
   }
@@ -488,7 +495,7 @@ export default class TenantApplyDetailPage extends Component<TenantAgreementPage
     return (
       <>
         <Header
-          title={intl.get(`${modelCode}.title`).d('租户申请明细信息')}
+          title={intl.get('hmdm.applyTenant.title.tenantApplicationDetails').d('租户申请明细信息')}
           backPath="/htc-front-mdm/project-application/list"
         />
         <Content>
