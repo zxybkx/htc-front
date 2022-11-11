@@ -22,17 +22,25 @@ import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Button, DataSet, Table } from 'choerodon-ui/pro';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import intl from 'utils/intl';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { RouteComponentProps } from 'react-router-dom';
 import { openTab } from 'utils/menuTab';
 import tenantAgreementDS from '../stores/TenantAgreementDS';
 
-const modelCode = 'hmdm.tenant-agreement';
 const API_PREFIX = commonConfig.MDM_API || '';
 
 interface TenantAgreementPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
 }
 
+@formatterCollections({
+  code: [
+    'hmdm.tenantAgreement',
+    'hmdm.applyTenant',
+    'hmdm.employeeInfo',
+    'hmdm.automaticCollection',
+  ],
+})
 export default class TenantAgreementPage extends Component<TenantAgreementPageProps> {
   tableDS = new DataSet({
     autoQuery: true,
@@ -114,7 +122,7 @@ export default class TenantAgreementPage extends Component<TenantAgreementPagePr
               onClick={() => this.handleShowDetial(record)}
               disabled={agreementId === undefined}
             >
-              {intl.get('hzero.common.status.detial').d('明细')}
+              {intl.get('hmdm.tenantAgreement.button.detail').d('明细')}
             </Button>,
             TableCommandType.edit,
           ];
@@ -147,20 +155,24 @@ export default class TenantAgreementPage extends Component<TenantAgreementPagePr
     const code = 'HMDM.TENANT_AGREEMENT';
     openTab({
       key: `/himp/commentImport/${code}`,
-      title: intl.get('hzero.common.button.import').d('导入'),
+      title: intl.get('hzero.common.title.import').d('导入'),
     });
   }
 
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('租户协议维护')}>
+        <Header
+          title={intl
+            .get('hmdm.tenantAgreement.title.tenantAgreementMaintenance')
+            .d('租户协议维护')}
+        >
           <ExcelExport
             requestUrl={`${API_PREFIX}/v1/tenant-agreementss/export`}
             queryParams={() => this.exportParams()}
           />
           <Button onClick={() => this.handleBatchExport()}>
-            {intl.get(`${modelCode}.import`).d('导入')}
+            {intl.get('hzero.common.button.import').d('导入')}
           </Button>
         </Header>
         <Content>

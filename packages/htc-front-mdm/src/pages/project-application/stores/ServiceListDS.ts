@@ -12,8 +12,6 @@ import intl from 'utils/intl';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import { AxiosRequestConfig } from 'axios';
 
-const modelCode = 'hmdm.apply-tenantList';
-
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
   return {
@@ -56,19 +54,19 @@ export default (dsParams): DataSetProps => {
     fields: [
       {
         name: 'funcCode',
-        label: intl.get(`${modelCode}.view.funcCode`).d('服务名称'),
+        label: intl.get('hzero.common.serviceName').d('服务名称'),
         type: FieldType.string,
         lookupCode: 'HTC.HMDM.CUSTOMER_APPLY_SERVICE',
         required: true,
       },
       {
         name: 'creationDate',
-        label: intl.get(`${modelCode}.view.creationDate`).d('创建时间'),
+        label: intl.get('hzero.common.model.datetime.creation').d('创建时间'),
         type: FieldType.string,
       },
       {
         name: 'creationDateObj',
-        label: intl.get(`${modelCode}.view.creationDate`).d('开通时间'),
+        label: intl.get('hmdm.applyTenant.view.openStartDateObj').d('开通时间'),
         range: ['openStartDate', 'openEndDate'],
         type: FieldType.date,
         ignore: FieldIgnore.always,
@@ -76,19 +74,19 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'openStartDate',
-        label: intl.get(`${modelCode}.view.creationDate`).d('开通时间起'),
+        label: intl.get('hmdm.applyTenant.view.openStartDate').d('开通时间起'),
         type: FieldType.date,
         bind: 'creationDateObj.openStartDate',
       },
       {
         name: 'openEndDate',
-        label: intl.get(`${modelCode}.view.creationDateTo`).d('开通时间止'),
+        label: intl.get('hmdm.applyTenant.view.openEndDate').d('开通时间止'),
         type: FieldType.date,
         bind: 'creationDateObj.openEndDate',
       },
       {
         name: 'validityDate',
-        label: intl.get(`${modelCode}.view.creationDate`).d('有效期'),
+        label: intl.get('hivp.documentType.view.dateInfo').d('有效期'),
         range: ['validityStartDate', 'validityEndDate'],
         type: FieldType.date,
         ignore: FieldIgnore.always,
@@ -96,19 +94,19 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'validityStartDate',
-        label: intl.get(`${modelCode}.view.creationDate`).d('有效期从'),
+        label: intl.get('hmdm.companyList.view.startDate').d('有效期从'),
         type: FieldType.date,
         bind: 'validityDate.validityStartDate',
       },
       {
         name: 'validityEndDate',
-        label: intl.get(`${modelCode}.view.validityEndDate`).d('有效期至'),
+        label: intl.get('hmdm.companyList.view.endDate').d('有效期至'),
         type: FieldType.date,
         bind: 'validityDate.validityEndDate',
       },
       {
         name: 'quantity',
-        label: intl.get(`${modelCode}.view.quantity`).d('数量'),
+        label: intl.get('htc.common.view.quantity').d('数量'),
         type: FieldType.number,
         computedProps: {
           required: ({ record }) => record.get('serverType') === 'MEASURE_SERVICE',
@@ -116,19 +114,19 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'serverType',
-        label: intl.get(`${modelCode}.view.serverType`).d('服务方式'),
+        label: intl.get('hmdm.applyTenant.view.serverType').d('服务方式'),
         type: FieldType.string,
         lookupCode: 'HTC.HMDM_BILLING_SERVICE_CATEGORY',
         required: true,
       },
       {
         name: 'fileUrl',
-        label: intl.get(`${modelCode}.view.fileUrl`).d('附件'),
+        label: intl.get('hmdm.applyTenant.view.fileUrl').d('附件'),
         type: FieldType.string,
       },
       {
         name: 'remark',
-        label: intl.get(`${modelCode}.view.remark`).d('备注'),
+        label: intl.get('hzero.common.model.remark').d('备注'),
         type: FieldType.string,
       },
     ],

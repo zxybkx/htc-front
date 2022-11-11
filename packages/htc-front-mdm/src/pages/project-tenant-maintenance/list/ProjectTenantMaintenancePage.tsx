@@ -13,6 +13,7 @@ import queryString from 'query-string';
 import { Content, Header } from 'components/Page';
 import { Bind } from 'lodash-decorators';
 import intl from 'utils/intl';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { Button, DataSet, Table } from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import { openTab } from 'utils/menuTab';
@@ -25,11 +26,21 @@ import costSharingListDS from '../stores/TenantMaintenanceListDS';
 
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.MDM_API || '';
-const modelCode = 'hmdm.company-list';
 
 interface CostSharingListPageProps {
   dispatch: Dispatch<any>;
 }
+
+@formatterCollections({
+  code: [
+    'hmdm.projectTenantMaintenance',
+    'hiop.invoiceWorkbench',
+    'hmdm.applyTenant',
+    'hmdm.costSharing',
+    'hmdm.companyList',
+    'htc.common',
+  ],
+})
 export default class ProjectTenantMaintenancePage extends Component<CostSharingListPageProps> {
   tableDS = new DataSet({
     autoQuery: true,
@@ -57,7 +68,7 @@ export default class ProjectTenantMaintenancePage extends Component<CostSharingL
   get columns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('hzero.common.model.orderSeq').d('序号'),
         width: 60,
         renderer: ({ record }) => {
           return record ? record.index + 1 : '';
@@ -85,10 +96,10 @@ export default class ProjectTenantMaintenancePage extends Component<CostSharingL
     const code = 'HMDM.PROJECT_TENANT';
     openTab({
       key: `/himp/commentImport/${code}`,
-      title: intl.get('hzero.common.button.import').d('导入'),
+      title: intl.get('hzero.common.title.import').d('导入'),
       search: queryString.stringify({
         prefixPath: API_PREFIX,
-        action: intl.get(`${modelCode}.view.companyImport`).d('项目租户导入'),
+        action: intl.get('hmdm.projectTenantMaintenance.view.companyImport').d('项目租户导入'),
         tenantId,
       }),
     });
@@ -128,13 +139,13 @@ export default class ProjectTenantMaintenancePage extends Component<CostSharingL
     });
     return [
       <Button icon="add" onClick={this.create}>
-        {intl.get(`${modelCode}.add`).d('新增')}
+        {intl.get('hzero.common.button.add').d('新增')}
       </Button>,
       <SaveButtons
         key="save"
         onClick={() => this.handleSave()}
         dataSet={this.tableDS}
-        title={intl.get(`${modelCode}.button.save`).d('保存')}
+        title={intl.get('hzero.common.button.save').d('保存')}
       />,
     ];
   }
@@ -142,13 +153,17 @@ export default class ProjectTenantMaintenancePage extends Component<CostSharingL
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('项目租户维护')}>
+        <Header
+          title={intl
+            .get('hmdm.projectTenantMaintenance.title.projectTenantMaintenance')
+            .d('项目租户维护')}
+        >
           <ExcelExport
             requestUrl={`${API_PREFIX}/v1/${tenantId}/project-tenant-opts/export`}
             queryParams={() => this.exportParams()}
           />
           <Button onClick={() => this.handleImport()}>
-            {intl.get(`${modelCode}.import`).d('导入')}
+            {intl.get('hzero.common.button.import').d('导入')}
           </Button>
         </Header>
         <Content>

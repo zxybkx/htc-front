@@ -13,8 +13,6 @@ import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import { EMAIL } from 'utils/regExp';
 import { phoneReg } from '@htccommon/utils/utils';
 
-const modelCode = 'hmdm.apply-tenantList';
-
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
   return {
@@ -45,66 +43,66 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'companyCode',
-        label: intl.get(`${modelCode}.view.companyCode`).d('公司代码'),
+        label: intl.get('htc.common.modal.companyCode').d('公司代码'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'companyName',
-        label: intl.get(`${modelCode}.view.companyName`).d('公司名称'),
+        label: intl.get('htc.common.view.companyName').d('公司名称'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'companyShort',
-        label: intl.get(`${modelCode}.view.companyShort`).d('公司简称'),
+        label: intl.get('hmdm.applyTenant.view.companyShort').d('公司简称'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'companyTaxNumber',
-        label: intl.get(`${modelCode}.view.companyTaxNumber`).d('公司税号'),
+        label: intl.get('hivp.bill.view.taxpayerNumber').d('公司税号'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'addressPhone',
-        label: intl.get(`${modelCode}.view.addressPhone`).d('地址、电话'),
+        label: intl.get('htc.common.modal.companyAddressPhone').d('地址、电话'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'openBankAccount',
-        label: intl.get(`${modelCode}.view.openBankAccount`).d('开户行及账号'),
+        label: intl.get('htc.common.modal.bankNumber').d('开户行及账号'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'competentCode',
-        label: intl.get(`${modelCode}.view.competentCode`).d('主管税务机关代码'),
+        label: intl.get('hcan.invoiceDetail.view.taxAuthorityCode').d('主管税务机关代码'),
         type: FieldType.string,
         labelWidth: '150',
       },
       {
         name: 'companyAdmin',
-        label: intl.get(`${modelCode}.view.companyAdmin`).d('公司管理员'),
+        label: intl.get('hmdm.applyTenant.view.companyAdmin').d('公司管理员'),
         type: FieldType.string,
       },
       {
         name: 'adminPhone',
-        label: intl.get(`${modelCode}.view.adminPhone`).d('公司管理员手机号'),
+        label: intl.get('hmdm.applyTenant.view.adminPhone').d('公司管理员手机号'),
         type: FieldType.string,
         pattern: phoneReg,
       },
       {
         name: 'adminEmail',
-        label: intl.get(`${modelCode}.view.adminEmail`).d('公司管理员邮箱'),
+        label: intl.get('hmdm.applyTenant.view.adminEmail').d('公司管理员邮箱'),
         type: FieldType.string,
         pattern: EMAIL,
       },
       {
         name: 'openFunc',
-        label: intl.get(`${modelCode}.view.openFunc`).d('开通功能'),
+        label: intl.get('hmdm.applyTenant.view.openFunc').d('开通功能'),
         type: FieldType.string,
         lookupCode: 'HTC.HMDM.CUSTOMER_APPLY_SERVICE',
         multiple: ',',
@@ -112,17 +110,17 @@ export default (): DataSetProps => {
       },
       {
         name: 'remark',
-        label: intl.get(`${modelCode}.view.remark`).d('备注'),
+        label: intl.get('hzero.common.model.remark').d('备注'),
         type: FieldType.string,
       },
       {
         name: 'upload',
-        label: intl.get(`${modelCode}.view.collection`).d('上传'),
+        label: intl.get('hmdm.applyTenant.view.upload').d('上传'),
         type: FieldType.string,
       },
       {
         name: 'download',
-        label: intl.get(`${modelCode}.view.collection`).d('下载'),
+        label: intl.get('hmdm.applyTenant.modal.view.download').d('下载'),
         type: FieldType.string,
       },
     ],

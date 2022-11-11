@@ -16,8 +16,6 @@ import moment from 'moment';
 import { DEFAULT_DATE_FORMAT, DEFAULT_DATETIME_FORMAT } from 'utils/constants';
 import commonConfig from '@htccommon/config/commonConfig';
 
-const modelCode = 'hpln.index-plan';
-
 export default (tenantId): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
   return {
@@ -82,12 +80,12 @@ export default (tenantId): DataSetProps => {
       },
       {
         name: 'billNumber',
-        label: intl.get(`${modelCode}.view.billNumber`).d('账单编号'),
+        label: intl.get('hmdm.billStatement.view.billNumber').d('账单编号'),
         type: FieldType.string,
       },
       {
         name: 'companyNameObject',
-        label: intl.get(`${modelCode}.view.companyNameObject`).d('公司编码'),
+        label: intl.get('hmdm.tenantAgreement.view.companyNameObject').d('公司编码'),
         type: FieldType.object,
         lovCode: 'HMDM.COMPANY_INFO_SITE',
         lovPara: { organizationId: tenantId },
@@ -96,63 +94,63 @@ export default (tenantId): DataSetProps => {
       },
       {
         name: 'companyCode',
-        label: intl.get(`${modelCode}.view.companyCode`).d('公司编码'),
+        label: intl.get('hmdm.tenantAgreement.view.companyNameObject').d('公司编码'),
         type: FieldType.string,
         bind: 'companyNameObject.companyCode',
       },
       {
         name: 'companyName',
-        label: intl.get(`${modelCode}.view.companyName`).d('公司名称'),
+        label: intl.get('htc.common.view.companyName').d('公司名称'),
         type: FieldType.string,
         bind: 'companyNameObject.companyName',
       },
       {
         name: 'billType',
-        label: intl.get(`${modelCode}.view.billType`).d('账单类型'),
+        label: intl.get('hmdm.billStatement.view.billType').d('账单类型'),
         type: FieldType.string,
         lookupCode: 'HMDM.BILLING_TYPE',
         required: true,
       },
       {
         name: 'billPhyletic',
-        label: intl.get(`${modelCode}.view.billPhyletic`).d('账单种类'),
+        label: intl.get('hmdm.tenantAgreement.view.billPhyletic').d('账单种类'),
         type: FieldType.string,
         lookupCode: 'HMDM.BILLING_SPECIES',
         required: true,
       },
       {
         name: 'creationDate',
-        label: intl.get(`${modelCode}.view.creationDate`).d('生成时间'),
+        label: intl.get('hivp.taxRefund.view.sssj').d('生成时间'),
         type: FieldType.dateTime,
       },
       {
         name: 'receiver',
-        label: intl.get(`${modelCode}.view.receiver`).d('接收人'),
+        label: intl.get('hmdm.automaticCollection.view.receiver').d('接收人'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'email',
-        label: intl.get(`${modelCode}.view.email`).d('邮箱'),
+        label: intl.get('hzero.common.model.email').d('邮箱'),
         type: FieldType.string,
         pattern: EMAIL,
         required: true,
       },
       {
         name: 'phone',
-        label: intl.get(`${modelCode}.view.phone`).d('联系电话'),
+        label: intl.get('hmdm.tenantAgreement.view.phone').d('联系电话'),
         type: FieldType.string,
         pattern: phoneReg,
       },
       {
         name: 'sendDate',
-        label: intl.get(`${modelCode}.view.sendDate`).d('发送时间'),
+        label: intl.get('hmdm.automaticCollection.view.sendTime').d('发送时间'),
         type: FieldType.date,
         transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'billRecordStart',
-        label: intl.get(`${modelCode}.view.billRecordStart`).d('账单记录起始时间'),
+        label: intl.get('hmdm.tenantAgreement.view.billRecordStart').d('账单记录起始时间'),
         type: FieldType.dateTime,
         transformRequest: value => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
         required: true,
@@ -160,7 +158,7 @@ export default (tenantId): DataSetProps => {
       },
       {
         name: 'billRecordEnd',
-        label: intl.get(`${modelCode}.view.billRecordEnd`).d('账单记录结束时间'),
+        label: intl.get('hmdm.tenantAgreement.view.billRecordEnd').d('账单记录结束时间'),
         type: FieldType.dateTime,
         transformRequest: value => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
         required: true,
