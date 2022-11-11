@@ -184,11 +184,6 @@ export default (dsParams): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
-          name: 'companyId',
-          type: FieldType.string,
-          bind: 'authenticationDateObj.companyId',
-        },
-        {
           name: 'authenticationState',
           label: intl.get('hivp.checkCertification.view.currentCertState').d('当期认证状态'),
           type: FieldType.string,

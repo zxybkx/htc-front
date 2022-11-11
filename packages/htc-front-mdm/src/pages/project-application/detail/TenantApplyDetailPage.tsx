@@ -11,6 +11,7 @@ import { Content, Header } from 'components/Page';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import intl from 'utils/intl';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { Bind } from 'lodash-decorators';
 import { Dispatch } from 'redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -31,8 +32,6 @@ import TenantDetailDS from '../stores/TenantDetailDS';
 import CompanyProgramDS from '../stores/CompanyProgramDS';
 import ServiceListDS from '../stores/ServiceListDS';
 
-const modelCode = 'hmdm.apply-tenant';
-
 interface RouterInfo {
   tenantId: string;
   uniqueCode: string;
@@ -41,7 +40,10 @@ interface RouterInfo {
 interface TenantAgreementPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
-
+const modelCode = 'hmdm.apply-tenant';
+@formatterCollections({
+  code: ['hmdm.applyTenant'],
+})
 export default class TenantApplyDetailPage extends Component<TenantAgreementPageProps> {
   serviceListDS = new DataSet({
     autoQuery: false,
