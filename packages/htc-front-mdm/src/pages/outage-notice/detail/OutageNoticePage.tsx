@@ -10,14 +10,19 @@ import React, { Component } from 'react';
 import { Content, Header } from 'components/Page';
 import { Dispatch } from 'redux';
 import intl from 'utils/intl';
+import formatterCollections from 'utils/intl/formatterCollections';
 import notification from 'utils/notification';
 import { Button, DataSet, DatePicker, Form, Switch, TextArea, TextField } from 'choerodon-ui/pro';
 import { ButtonColor, ButtonType } from 'choerodon-ui/pro/lib/button/enum';
-import OutageNoticeDS, { modelCode } from '../stores/OutageNoticeDS';
+import OutageNoticeDS from '../stores/OutageNoticeDS';
 
 interface OutageNoticeDetailPageProps {
   dispatch: Dispatch<any>;
 }
+
+@formatterCollections({
+  code: ['hmdm.outageNotice', 'hiop.invoiceRule'],
+})
 export default class OutageNoticePage extends Component<OutageNoticeDetailPageProps> {
   outageNoticeDS = new DataSet({
     autoQuery: true,
@@ -42,20 +47,24 @@ export default class OutageNoticePage extends Component<OutageNoticeDetailPagePr
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('停机信息维护')}>
+        <Header
+          title={intl
+            .get('hmdm.outageNotice.title.shutdownInformationMaintenance')
+            .d('停机信息维护')}
+        >
           <Button
             color={ButtonColor.primary}
             type={ButtonType.button}
             onClick={() => this.handleSaveNotice(1)}
           >
-            发布
+            {intl.get('hzero.common.btn.release').d('发布')}
           </Button>
           <Button
             color={ButtonColor.primary}
             type={ButtonType.button}
             onClick={() => this.handleSaveNotice(0)}
           >
-            保存
+            {intl.get('hzero.common.button.save').d('保存')}
           </Button>
         </Header>
         <Content>
@@ -68,14 +77,6 @@ export default class OutageNoticePage extends Component<OutageNoticeDetailPagePr
             <Switch labelWidth={200} name="sendEmailToAdmin" />
             <TextArea name="specialEmail" newLine colSpan={2} labelWidth={150} />
             <TextArea name="noticeContext" newLine colSpan={2} labelWidth={150} />
-            {/* <RichText
-                  label={intl.get(`${modelCode}.view.noticeContext`).d("公告内容")}
-                  newLine
-                  name='noticeContext'
-                  colSpan={3}
-                  required
-                  style={{height:'4rem'}}
-                /> */}
           </Form>
         </Content>
       </>

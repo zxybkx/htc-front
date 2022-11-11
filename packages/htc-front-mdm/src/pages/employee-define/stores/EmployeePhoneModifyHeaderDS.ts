@@ -12,15 +12,13 @@ import intl from 'utils/intl';
 import { EMAIL } from 'utils/regExp';
 import { phoneReg } from '@htccommon/utils/utils';
 
-const modelCode = 'hmdm.employeeDefine';
-
 export default (dsProps): DataSetProps => {
   return {
     paging: false,
     fields: [
       {
         name: 'internationalTelCode',
-        label: intl.get(`${modelCode}.view.internationalTelCode`).d('国际区号'),
+        label: intl.get('hivp.batchCheck.view.countryCode').d('国际区号'),
         type: FieldType.string,
         lookupCode: 'HPFM.IDD',
         required: true,
@@ -28,7 +26,7 @@ export default (dsProps): DataSetProps => {
       },
       {
         name: 'updateMobile',
-        label: intl.get(`${modelCode}.view.updateMobile`).d('联系方式'),
+        label: intl.get('hmdm.billStatement.view.phone').d('联系方式'),
         type: FieldType.string,
         required: true,
         computedProps: {
@@ -39,7 +37,9 @@ export default (dsProps): DataSetProps => {
           },
           defaultValidationMessages: ({ record }) => {
             if (record.get('internationalTelCode') === '+86') {
-              return { patternMismatch: '手机格式不正确' };
+              return {
+                patternMismatch: intl.get('hzero.common.validation.phone').d('手机格式不正确'),
+              };
             }
           },
         },
@@ -47,7 +47,7 @@ export default (dsProps): DataSetProps => {
       },
       {
         name: 'updateEmail',
-        label: intl.get(`${modelCode}.view.updateEmail`).d('电子邮箱'),
+        label: intl.get('hmdm.employeeInfo.view.email').d('电子邮箱'),
         type: FieldType.string,
         pattern: EMAIL,
         defaultValue: dsProps.email,

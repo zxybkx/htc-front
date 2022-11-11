@@ -14,7 +14,6 @@ import moment from 'moment';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import commonConfig from '@htccommon/config/commonConfig';
 
-export const modelCode = 'hmdm.outage-notice';
 export default (): DataSetProps => {
   const HMDM_API = commonConfig.MDM_API || '';
   return {
@@ -54,55 +53,55 @@ export default (): DataSetProps => {
       },
       {
         name: 'noticeTitle',
-        label: intl.get(`${modelCode}.view.noticeTitle`).d('公告标题'),
+        label: intl.get('hmdm.outageNotice.view.noticeTitle').d('公告标题'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'startDate',
-        label: intl.get(`${modelCode}.view.startDate`).d('提示时间从'),
+        label: intl.get('hmdm.outageNotice.view.startDate').d('提示时间从'),
         type: FieldType.date,
         required: true,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         max: 'endDate',
       },
       {
         name: 'endDate',
-        label: intl.get(`${modelCode}.view.endDate`).d('提示时间至'),
+        label: intl.get('hmdm.outageNotice.view.endDate').d('提示时间至'),
         type: FieldType.date,
         required: true,
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         min: 'startDate',
       },
       {
         name: 'isEnable',
-        label: intl.get(`${modelCode}.view.isEnable`).d('是否启用'),
+        label: intl.get('hiop.invoiceRule.modal.enabledFlag').d('是否启用'),
         type: FieldType.boolean,
         trueValue: 'Y',
         falseValue: 'N',
       },
       {
         name: 'sendEmail',
-        label: intl.get(`${modelCode}.view.sendEmail`).d('是否发送邮件'),
+        label: intl.get('hmdm.outageNotice.view.sendEmail').d('是否发送邮件'),
         type: FieldType.boolean,
         trueValue: 'Y',
         falseValue: 'N',
       },
       {
         name: 'sendEmailToAdmin',
-        label: intl.get(`${modelCode}.view.sendEmailToAdmin`).d('是否发邮件至租户管理员'),
+        label: intl.get('hmdm.outageNotice.view.sendEmailToAdmin').d('是否发邮件至租户管理员'),
         type: FieldType.boolean,
         trueValue: 'Y',
         falseValue: 'N',
       },
       {
         name: 'specialEmail',
-        label: intl.get(`${modelCode}.view.specialEmail`).d('特别邮件提醒'),
+        label: intl.get('hmdm.outageNotice.view.specialEmail').d('特别邮件提醒'),
         type: FieldType.string,
       },
       {
         name: 'noticeContext',
-        label: intl.get(`${modelCode}.view.noticeContext`).d('公告内容'),
+        label: intl.get('hmdm.outageNotice.view.noticeContext').d('公告内容'),
         type: FieldType.string,
         required: true,
       },
