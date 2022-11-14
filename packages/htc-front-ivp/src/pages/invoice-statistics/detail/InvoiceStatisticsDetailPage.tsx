@@ -16,7 +16,7 @@ import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import intl from 'utils/intl';
 import { Bind } from 'lodash-decorators';
 import { getCurrentOrganizationId } from 'utils/utils';
-import DetailDS from '../stores/DetailDS';
+import DetailDS from '../stores/ReportDetailDS';
 
 const API_PREFIX = commonConfig.IVP_API || '';
 const tenantId = getCurrentOrganizationId();
