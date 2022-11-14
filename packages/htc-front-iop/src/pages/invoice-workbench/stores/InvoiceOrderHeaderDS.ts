@@ -204,7 +204,7 @@ export default (dsParams): DataSetProps => {
         name: 'listFlag',
         label: intl.get('hiop.invoiceWorkbench.modal.shopListFlag').d('购货清单标志'),
         type: FieldType.string,
-        lookupCode: 'HIOP.PURCHASE_LIST_MARK ',
+        lookupCode: 'HIOP.PURCHASE_LIST_MARK',
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
         },
