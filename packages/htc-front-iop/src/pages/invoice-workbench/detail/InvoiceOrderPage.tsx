@@ -35,14 +35,11 @@ import {
 } from 'choerodon-ui/pro';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { Bind } from 'lodash-decorators';
-import { queryIdpValue } from 'hzero-front/lib/services/api';
 import { ResizeType } from 'choerodon-ui/pro/lib/text-area/enum';
 import {
   batchSave,
   companyDetailInfo,
   defaultInvoiceInfo,
-  employeeInvoiceType,
-  employeePurchaseMark,
   exportPrintFile,
   lineRemove,
   orderCopy,
@@ -65,7 +62,6 @@ import IssuePreview from './IssuesPreview';
 import styles from '../invoiceWorkbench.module.less';
 
 const tenantId = getCurrentOrganizationId();
-const { Option } = Select;
 const permissionPath = `${getPresentMenu().name}.ps`;
 
 interface InvoiceOrderPageProps extends RouteComponentProps {
@@ -99,17 +95,13 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   });
 
   state = {
-    invoiceType: [],
     billingType: undefined,
-    invoiceVarietyOpt: [],
     isDisabled: false,
     submitDisabled: false,
     orderStatus: undefined,
     addDisabled: false,
     employeeInfo: {} as any,
-    purchaseMark: [],
-    invoiceVariety: undefined,
-    invoiceTypeTag: '',
+    invoiceVariety: '',
   };
 
   /**
@@ -119,52 +111,6 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     const { match } = this.props;
     const { invoicingOrderHeaderId } = match.params;
     return !invoicingOrderHeaderId;
-  }
-
-  /**
-   * 获取可用发票类型
-   * @params {object} employeeInfo 当前员工信息
-   */
-  @Bind()
-  async getInvoiceType(employeeInfo) {
-    const { companyId, employeeId } = employeeInfo;
-    const params = {
-      tenantId,
-      companyId,
-      employeeId,
-    };
-    const res = await employeeInvoiceType(params);
-    if (res && res.failed) {
-      notification.warning({
-        description: '',
-        message: res.message,
-      });
-    } else {
-      this.setState({ invoiceType: res });
-    }
-  }
-
-  /**
-   * 获取业务类型
-   * @params {object} employeeInfo 当前员工信息
-   */
-  @Bind()
-  async getPurchaseMark(employeeInfo) {
-    const { companyId, employeeId } = employeeInfo;
-    const params = {
-      tenantId,
-      companyId,
-      employeeId,
-    };
-    const res = await employeePurchaseMark(params);
-    if (res && res.failed) {
-      notification.warning({
-        description: '',
-        message: res.message,
-      });
-    } else {
-      this.setState({ purchaseMark: res });
-    }
   }
 
   /**
@@ -250,7 +196,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       }
       // 判断页面是否可编辑
       const { orderStatus, invoiceSourceType, invoiceVariety, hasPermission } = res;
-      this.setState({ orderStatus, billingType, invoiceVariety, invoiceTypeTag: invoiceVariety });
+      this.setState({ orderStatus, billingType, invoiceVariety });
       this.judgeIsEdit(orderStatus, billingType, sourceType, invoiceSourceType, hasPermission);
       if (sourceType === 'issues') {
         this.issueModal(
@@ -294,12 +240,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     const { invoicingOrderHeaderId, companyId } = this.props.match.params;
     const employeeRes = await getCurrentEmployeeInfo({ tenantId, companyId });
     const employeeInfo = employeeRes && employeeRes.content[0];
-    if (employeeInfo) {
-      this.getInvoiceType(employeeInfo);
-      this.getPurchaseMark(employeeInfo);
-    }
-    const invoiceVarietyOpt = await queryIdpValue('HMDM.INVOICE_TYPE');
-    this.setState({ invoiceVarietyOpt, employeeInfo });
+    this.setState({ employeeInfo });
     if (employeeInfo) {
       // 新建订单
       if (newFlag) {
@@ -315,7 +256,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         if (newData) {
           const { billingType, invoiceVariety } = newData;
           this.invoiceOrderHeaderDS.create(newData, 0);
-          this.setState({ billingType, invoiceTypeTag: invoiceVariety, orderStatus: 'N' });
+          this.setState({ billingType, invoiceVariety, orderStatus: 'N' });
         }
       } else {
         // 编辑/查看订单
@@ -323,24 +264,6 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         this.getOrderData(invoicingOrderHeaderId, employeeId);
       }
     }
-  }
-
-  /**
-   * 发票种类限制
-   * @params {object} value 当前值
-   */
-  @Bind()
-  invoiceDisabled(value) {
-    const { invoiceType } = this.state;
-    const curData: any = this.invoiceOrderHeaderDS.toData();
-    const { purchaseInvoiceFlag } = curData;
-    if (purchaseInvoiceFlag === '0') {
-      if (value === '0' || value === '52') {
-        return true;
-      }
-    }
-    const data = find(invoiceType, (item: any) => item.value === value);
-    if (data) return false;
   }
 
   /**
@@ -999,8 +922,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     const { companyCode } = this.state.employeeInfo;
     const params = { companyCode, tenantId };
     const res = getResponse(await companyDetailInfo(params));
+    const purchaseInvoiceFlag = (value && value.value) || '';
     if (res) {
-      if (value === '0') {
+      if (purchaseInvoiceFlag === '0') {
         const buyerObj = {
           buyerName: res.companyName,
           buyerTaxpayerNumber: res.taxpayerNumber,
@@ -1042,8 +966,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    */
   @Bind()
   invoiceVarietyChange(value) {
+    const invoiceVariety = (value && value.value) || '';
     this.setState({
-      invoiceTypeTag: value,
+      invoiceVariety,
     });
     const { companyId } = this.props.match.params;
     const curHeaderInfo = this.invoiceOrderHeaderDS.current!.toData();
@@ -1052,13 +977,13 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       const params = {
         tenantId,
         companyId,
-        invoiceVariety: value,
+        invoiceVariety,
         buyerName,
         sellerName,
       };
       this.setDefaultValue(params);
     }
-    this.handleTaxRateLovChange('invoiceType', value);
+    this.handleTaxRateLovChange('invoiceType', invoiceVariety);
   }
 
   /**
@@ -1118,8 +1043,8 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    * 发票类型切换UI切换
    */
   invoiceTypeTag() {
-    const { invoiceTypeTag } = this.state;
-    if (['51', '52'].includes(invoiceTypeTag)) {
+    const { invoiceVariety } = this.state;
+    if (['51', '52'].includes(invoiceVariety)) {
       return [
         <Select name="deliveryWay" />,
         <TextField name="electronicReceiverInfo" colSpan={2} />,
@@ -1342,7 +1267,6 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   }
 
   render() {
-    const { invoiceVarietyOpt, purchaseMark } = this.state;
     const { sourceType } = this.props.match.params;
     let pathname;
     if (['issues', 'invoiceOrder', 'likeOrder'].includes(sourceType)) {
@@ -1376,25 +1300,8 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
               <Select name="invoiceSourceType" />
               <TextField name="invoiceSourceOrder" />
               <TextField name="invoiceSourceFlag" />
-
-              <Select name="purchaseInvoiceFlag" onChange={this.invoiceFlagChange}>
-                {purchaseMark.map((item: any) => (
-                  <Option value={item.value} key={item.value}>
-                    {item && item.meaning}
-                  </Option>
-                ))}
-              </Select>
-              <Select name="invoiceVariety" onChange={this.invoiceVarietyChange}>
-                {invoiceVarietyOpt.map((item: any) => (
-                  <Option
-                    value={item.value}
-                    key={item.value}
-                    disabled={this.invoiceDisabled(item.value)}
-                  >
-                    {item && item.meaning}
-                  </Option>
-                ))}
-              </Select>
+              <Lov name="purchaseInvoiceFlagObj" onChange={this.invoiceFlagChange} />
+              <Lov name="invoiceTypeObj" onChange={this.invoiceVarietyChange} />
               <Select name="listFlag" onChange={this.flagChange} />
               <Lov
                 name="extNumberObj"

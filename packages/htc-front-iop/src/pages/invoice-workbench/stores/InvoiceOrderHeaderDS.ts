@@ -52,11 +52,7 @@ const setDefaultInvoiceInfo = (params, record) => {
  * @params {object} record-当前行
  */
 const judgePaperReadonly = record => {
-  return (
-    record.get('readonly') ||
-    record.get('invoiceVariety') === '51' ||
-    record.get('invoiceVariety') === '52'
-  );
+  return record.get('readonly') || ['51', '52'].includes(record.get('invoiceVariety'));
 };
 
 /**
@@ -144,8 +140,9 @@ export default (dsParams): DataSetProps => {
         if (name === 'sellerObj' && value) {
           setCustomerInfo(value, oldValue, record, 1, dsParams.companyId);
         }
-        if (name === 'invoiceVariety') {
-          if (value !== '51' && value !== '52') {
+        if (name === 'invoiceTypeObj' && value) {
+          const invoiceVariety = value.value;
+          if (invoiceVariety !== '51' && invoiceVariety !== '52') {
             record.set('deliveryWay', '0');
             record.set('electronicReceiverInfo', '');
           } else {
@@ -211,22 +208,48 @@ export default (dsParams): DataSetProps => {
         required: true,
       },
       {
-        name: 'purchaseInvoiceFlag',
+        name: 'purchaseInvoiceFlagObj',
         label: intl.get('hiop.tobeInvoice.modal.requestTypeObj').d('业务类型'),
-        type: FieldType.string,
+        type: FieldType.object,
+        lovCode: 'HIOP.ACQUISITION_SIGN',
+        cascadeMap: { companyId: 'companyId', employeeId: 'employeeId' },
+        ignore: FieldIgnore.always,
+        required: true,
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
         },
+      },
+      {
+        name: 'purchaseInvoiceFlag',
+        type: FieldType.string,
+        bind: 'purchaseInvoiceFlagObj.value',
+      },
+      {
+        name: 'purchaseInvoiceFlagMeaning',
+        type: FieldType.string,
+        bind: 'purchaseInvoiceFlagObj.meaning',
+      },
+      {
+        name: 'invoiceTypeObj',
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
+        type: FieldType.object,
+        lovCode: 'HIOP.INVOICE_VARIETY',
+        cascadeMap: { companyId: 'companyId', employeeId: 'employeeId' },
+        ignore: FieldIgnore.always,
         required: true,
+        computedProps: {
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
       },
       {
         name: 'invoiceVariety',
-        label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
         type: FieldType.string,
-        computedProps: {
-          readOnly: ({ record }) => headerReadOnlyRule(record),
-        },
-        required: true,
+        bind: 'invoiceTypeObj.value',
+      },
+      {
+        name: 'invoiceVarietyMeaning',
+        type: FieldType.string,
+        bind: 'invoiceTypeObj.meaning',
       },
       {
         name: 'buyerObj',
@@ -274,8 +297,7 @@ export default (dsParams): DataSetProps => {
         computedProps: {
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '0',
-          required: ({ record }) =>
-            record.get('invoiceVariety') === '0' || record.get('invoiceVariety') === '52',
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceVariety')),
         },
         maxLength: 100,
       },
@@ -286,8 +308,7 @@ export default (dsParams): DataSetProps => {
         computedProps: {
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '0',
-          required: ({ record }) =>
-            record.get('invoiceVariety') === '0' || record.get('invoiceVariety') === '52',
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceVariety')),
         },
         maxLength: 100,
       },
@@ -393,9 +414,7 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
-            record.get('readonly') ||
-            record.get('invoiceVariety') === '51' ||
-            record.get('invoiceVariety') === '52',
+            record.get('readonly') || ['51', '52'].includes(record.get('invoiceVariety')),
         },
       },
       {
