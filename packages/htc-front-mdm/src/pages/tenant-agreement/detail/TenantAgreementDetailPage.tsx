@@ -17,6 +17,7 @@ import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Dispatch } from 'redux';
 import intl from 'utils/intl';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { deviceStatusQuery, refreshToken } from '@src/services/companyListService';
 import agreementClauseDS from '../stores/AgreementClauseDS';
 import companyInfoDS from '../stores/CompanyInfoDS';
@@ -24,7 +25,6 @@ import companyProtocolDS from '../stores/CompanyProtocolDS';
 import agreementDetailDS from '../stores/AgreementDetailDS';
 import billInfoDS from '../stores/BillInfoDS';
 
-const modelCode = 'hpln.index-plan';
 const { TabPane } = Tabs;
 
 interface RouterInfo {
@@ -41,6 +41,20 @@ interface State {
   planStatus: string;
 }
 
+@formatterCollections({
+  code: [
+    'hmdm.tenantAgreement',
+    'hiop.taxInfo',
+    'htc.common',
+    'hmdm.automaticCollection',
+    'hiop.invoiceWorkbench',
+    'hmdm.companyList',
+    'hmdm.billStatement',
+    'hivp.documentType',
+    'hivp.taxRefund',
+    'hmdm.applyTenant',
+  ],
+})
 export default class TenantAgreementDetailPage extends Component<Props, State> {
   // 公司信息-公司协议
   companyProtocolDS = new DataSet({
@@ -110,7 +124,7 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
   get clauseColumns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('hzero.common.model.orderSeq').d('序号'),
         width: 80,
         renderer: ({ record }) => {
           return record ? this.agreementClauseColDS.indexOf(record) + 1 : '';
@@ -150,7 +164,7 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
       tenantId: record.get('tenantId'),
       companyCode: record.get('companyCode'),
     });
-    message.info(`${intl.get('hpln.index-plan.button.refToken').d('令牌刷新')}:${res}`);
+    message.info(`${intl.get('hmdm.tenantAgreement.message.refresh').d('令牌刷新')}:${res}`);
   }
 
   /**
@@ -176,9 +190,9 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
           <span>
             {res.data.map(data => (
               <p>
-                {intl.get(`${modelCode}.view.extNumber`).d('分机号：')}
+                {intl.get('hiop.taxInfo.view.extNumber').d('分机号：')}
                 {data.extNumber}&nbsp;&nbsp;&nbsp;
-                {intl.get(`${modelCode}.view.deviceStatus`).d('在线状态：')}
+                {intl.get('hiop.taxInfo.view.deviceStatus').d('在线状态：')}
                 {data.deviceStatus}
               </p>
             ))}
@@ -186,7 +200,7 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
         );
       }
       Modal.info({
-        title: intl.get(`${modelCode}.view.deviceStatusQuery`).d('设备在线查询'),
+        title: intl.get('hiop.taxInfo.view.deviceStatusQuery').d('设备在线查询'),
         children: showContent,
       });
     }
@@ -198,7 +212,7 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
   get companyInfoColumns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('hzero.common.model.orderSeq').d('序号'),
         width: 80,
         renderer: ({ record }) => {
           return record ? this.companyInfoColDS.indexOf(record) + 1 : '';
@@ -245,14 +259,14 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
               onClick={() => this.handleRefreshToken(record)}
               disabled={disabledFlag}
             >
-              {intl.get(`${modelCode}.button.refToken`).d('令牌刷新')}
+              {intl.get('hmdm.tenantAgreement.button.refToken').d('令牌刷新')}
             </Button>,
             <Button
               key="deviceStatusQuery"
               onClick={() => this.handleDeviceStatusQuery(record)}
               disabled={disabledFlag}
             >
-              {intl.get(`${modelCode}.button.deviceStatusQuery`).d('设备在线查询')}
+              {intl.get('hiop.taxInfo.button.deviceStatusQuery').d('设备在线查询')}
             </Button>,
           ];
         },
@@ -268,7 +282,7 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
   get companyProtocolColumns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('hzero.common.model.orderSeq').d('序号'),
         width: 80,
         renderer: ({ record }) => {
           return record ? this.companyProtocolDS.indexOf(record) + 1 : '';
@@ -305,7 +319,7 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
   get billInfoColumns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('hzero.common.model.orderSeq').d('序号'),
         width: 80,
         renderer: ({ record }) => {
           return record ? this.billInfo.indexOf(record) + 1 : '';
@@ -391,7 +405,7 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
     return (
       <>
         <Header
-          title={intl.get(`${modelCode}.title`).d('详细信息')}
+          title={intl.get('hmdm.tenantAgreement.title.detailedInformation').d('详细信息')}
           backPath="/htc-front-mdm/tenant-agreement/list"
         />
         <Content>

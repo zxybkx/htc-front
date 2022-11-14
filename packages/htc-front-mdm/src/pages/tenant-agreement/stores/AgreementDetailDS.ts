@@ -11,8 +11,6 @@ import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import commonConfig from '@htccommon/config/commonConfig';
 
-const modelCode = 'hmdm.tenant-agreement';
-
 export default (agreementId): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
   return {
@@ -37,23 +35,23 @@ export default (agreementId): DataSetProps => {
     fields: [
       {
         name: 'agreementId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'tenantId',
-        label: intl.get(`${modelCode}.view.tenantId`).d('租户ID'),
+        label: intl.get('htc.common.modal.tenantId').d('租户ID'),
         type: FieldType.string,
         disabled: true,
       },
       {
         name: 'tenantName',
-        label: intl.get(`${modelCode}.view.tenantName`).d('租户名称'),
+        label: intl.get('htc.common.modal.tenantName').d('租户名称'),
         type: FieldType.string,
         disabled: true,
       },
       {
         name: 'customerName',
-        label: intl.get(`${modelCode}.view.customerName`).d('客户全称'),
+        label: intl.get('hmdm.applyTenant.view.contractCustomerName').d('客户全称'),
         type: FieldType.string,
         disabled: true,
       },

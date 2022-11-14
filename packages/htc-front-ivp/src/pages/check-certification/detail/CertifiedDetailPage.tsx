@@ -138,8 +138,9 @@ export default class CertifiedDetailPage extends Component<CertifiedDetailPagePr
   // 导出
   @Bind()
   handleGetQueryParams() {
+    const { companyId } = this.state;
     const queryParams = this.tableDS.queryDataSet!.map(data => data.toData()) || {};
-    return { ...queryParams[0] } || {};
+    return { ...queryParams[0], companyId } || {};
   }
 
   get columns(): ColumnProps[] {

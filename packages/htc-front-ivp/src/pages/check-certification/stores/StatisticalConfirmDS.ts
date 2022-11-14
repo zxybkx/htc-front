@@ -89,7 +89,7 @@ export default (): DataSetProps => {
       fields: [
         {
           name: 'companyId',
-          type: FieldType.number,
+          type: FieldType.string,
         },
         {
           name: 'currentPeriod',
@@ -176,7 +176,7 @@ const TimeRange = (): DataSetProps => {
     fields: [
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'invoiceDateFrom',

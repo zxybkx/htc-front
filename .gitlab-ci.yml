@@ -25,7 +25,6 @@ docker_build:
   stage: docker_build
   script:
     - docker_build
-    - chart_build
   only:
     - uat
     - tags
@@ -47,12 +46,6 @@ docker_build:
 
   function restore_node_cache_and_build_cache(){
       echo "===: 恢复缓存"
-      if [ -f "$TEMP_DIR/dist.tar.gz" ]; then
-        tar -zxf $TEMP_DIR/dist.tar.gz
-      fi
-      if [ -f "$TEMP_DIR/node_modules.tar.gz" ]; then
-        tar -zxf $TEMP_DIR/node_modules.tar.gz
-      fi
   }
 
   function back_node_cache_and_build_cache(){
@@ -63,60 +56,52 @@ docker_build:
   }
 
   function node_module(){
-      restore_node_cache_and_build_cache
-      # yarn config set cache-folder $TEMP_DIR/yarn-cache
-      if [ -f "./dist/.commitId" ]; then
-        export LAST_BUILD_PARENT_GIT_HEAD=`cat ./dist/.commitId` # 获取上一次 build 父项目时的 提交代码版本
-        export CURRENT_GIT_HEAD=`git log -1 --pretty=format:"%H"` # 获取当前提交代码版本
-        export YARN_LOCK_CHANGE_LOG=`git diff $LAST_BUILD_PARENT_GIT_HEAD $CURRENT_GIT_HEAD  --shortstat -- yarn.lock` # 对比两次提交版本中的 yarn.lock 是否变化
-        if [[ -n "$YARN_LOCK_CHANGE_LOG" ]] ;then # 如果 yarn.lock 发生变化, 需要更新缓存。
-          echo -e "gitlab-ci -- yarn.lock 发生变化, 需要清除之前编译时留下来的缓存。\n\t $YARN_LOCK_CHANGE_LOG"
+        restore_node_cache_and_build_cache
+        if [ -f "./dist/.commitId" ]; then
+          export LAST_BUILD_PARENT_GIT_HEAD=`cat ./dist/.commitId` # 获取上一次 build 父项目时的 提交代码版本
+          export CURRENT_GIT_HEAD=`git log -1 --pretty=format:"%H"` # 获取当前提交代码版本
+          export YARN_LOCK_CHANGE_LOG=`git diff $LAST_BUILD_PARENT_GIT_HEAD $CURRENT_GIT_HEAD  --shortstat -- yarn.lock` # 对比两次提交版本中的 yarn.lock 是否变化
+          if [[ -n "$YARN_LOCK_CHANGE_LOG" ]] ;then
+            # 如果 yarn.lock 发生变化, 需要更新缓存。
+            echo -e "gitlab-ci -- yarn.lock 发生变化, 需要清除之前编译时留下来的缓存。\n\t $YARN_LOCK_CHANGE_LOG"
+            export CLEAR_TEMP_DIR=true
+            echo "==: yarn.lock 变更, 重新编译"
+          else
+            echo "==: 执行增量编译"
+          fi
+        else
           export CLEAR_TEMP_DIR=true
-          echo "warning: 需要清空 $CLEAR_TEMP_DIR"
+          echo "==: 第一次编译（非增量编译）"
         fi
-      else
-        export CLEAR_TEMP_DIR=true
-        echo "warning: 需要清空 $CLEAR_TEMP_DIR"
-      fi
-      if  [[ $CLEAR_TEMP_DIR =~ "true" ]] ;then
-        echo "gitlab-ci -- 开始清除之前编译缓存"
-        rm -rf $TEMP_DIR
-        echo "==: 开始安装依赖"
-        node -v
-        yarn config set ignore-engines true
-        yarn install --frozen-lockfile --no-progress --non-interactive
-        echo "==: 结束安装依赖"
-      fi
-      npx hzero-cli info
-  }
+        if  [[ $CLEAR_TEMP_DIR =~ "true" ]] ;then
+          echo "==: 初始化缓存目录：$TEMP_DIR"
+          rm -rf $TEMP_DIR
+          echo "==: 开始安装依赖"
+          node -v
+          yarn config set ignore-engines true
+          yarn install
+          echo "==: 结束安装依赖"
+        fi
+        if [ ! -d "node_modules" ]; then
+          yarn config set ignore-engines true
+          yarn bootstrap
+        fi
 
-  function node_build(){
-      # if [ -f "$TEMP_DIR/dist.tar.gz" ]; then
-      #   tar -zxf $TEMP_DIR/dist.tar.gz
-      # fi
-      # if [ -f "$TEMP_DIR/node_modules-cache.tar.gz" ]; then
-      #   tar -zxf $TEMP_DIR/node_modules-cache.tar.gz
-      # fi
-      if  [[ $UPDATE_MICRO_MODULES =~ "ALL" ]] || [[ ! -n "$UPDATE_MICRO_MODULES" ]] ;then
-        echo "全量编译"
-        npx hzero-cli info
-
-        yarn build:ms-all
-
-        yarn run build:dep-all:prod
-
-        yarn run build:app:prod
-      else
-        echo "增量编译子模块 $UPDATE_MICRO_MODULES"
-        yarn hzero-cli transpile hdbsp-front-common #解决webpack别名中引入目录bug，生成hdbsp-front-common/lib文件夹
-        yarn build:ms-production $UPDATE_MICRO_MODULES
-      fi
-      back_node_cache_and_build_cache
-  }
-
+    }
   export GROUP_NAME=htc
   export DOCKER_USER=User6371438
   export DOCKER_PWD=User6371438PWD
+
+  function node_build(){
+      echo "全量编译"
+      yarn build:ms-all
+      yarn run build:dep-all:prod
+      yarn run build:app:prod
+      echo "==: 编译完成"
+      back_node_cache_and_build_cache
+  }
+
+
   function docker_build(){
       # cp -r /cache/${CI_PROJECT_NAME}-${CI_PROJECT_ID}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}/* ${1:-"."}
       tar -zxf $TEMP_DIR/dist.tar.gz

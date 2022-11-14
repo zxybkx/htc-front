@@ -275,11 +275,13 @@ export default (): DataSetProps => {
       {
         name: 'systemName',
         label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
+        lookupCode: 'HTC.SOURCE_SYSTEM_SHARE',
         type: FieldType.string,
       },
       {
         name: 'documentTypeMeaning',
         label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
+        lookupCode: 'HTC.DOCUMENT_TYPE_SHARE_LOV',
         type: FieldType.string,
       },
       {
@@ -353,7 +355,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'companyId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: 'companyObj.companyId',
         },
         {
@@ -370,7 +372,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'employeeId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: 'companyObj.employeeId',
         },
         {
@@ -457,6 +459,12 @@ export default (): DataSetProps => {
           lookupCode: 'HIVP.CHECK_STATE',
         },
         {
+          name: 'systemCodeShare',
+          label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
+          type: FieldType.string,
+          lookupCode: 'HTC.SOURCE_SYSTEM_SHARE',
+        },
+        {
           name: 'systemCodeObj',
           label: intl.get('hivp.invoices.view.systemCode').d('来源系统'),
           type: FieldType.object,
@@ -474,6 +482,12 @@ export default (): DataSetProps => {
           name: 'docTypeHeaderId',
           type: FieldType.string,
           bind: 'systemCodeObj.docTypeHeaderId',
+        },
+        {
+          name: 'documentTypeCodeShare',
+          label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
+          type: FieldType.string,
+          lookupCode: 'HTC.DOCUMENT_TYPE_SHARE_LOV',
         },
         {
           name: 'documentTypeCodeObj',
@@ -506,6 +520,11 @@ export default (): DataSetProps => {
           type: FieldType.string,
           bind: 'documentTypeCodeObj.docTypeHeaderId',
           ignore: FieldIgnore.always,
+        },
+        {
+          name: 'documentNumberShare',
+          label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
+          type: FieldType.string,
         },
         {
           name: 'documentNumberObj',

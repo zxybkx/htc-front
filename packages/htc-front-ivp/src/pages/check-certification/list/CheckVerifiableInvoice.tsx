@@ -41,11 +41,11 @@ import queryString from 'query-string';
 import { ProgressStatus } from 'choerodon-ui/lib/progress/enum';
 import { observer } from 'mobx-react-lite';
 import { set, uniqBy, isEmpty } from 'lodash';
-import { Col, Icon, Modal, Row, Tag, Tooltip } from 'choerodon-ui';
+import { Col, Icon, Modal, Row, Tag } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import CertifiableInvoiceListDS from '../stores/CertifiableInvoiceListDS';
 import InvoiceCategoryContext from './CommonStore';
-import styles from '../checkcertification.less';
+// import styles from '../checkcertification.less';
 
 const { Item: MenuItem } = Menu;
 
@@ -56,7 +56,7 @@ interface CheckCertificationPageProps {
   companyAndPassword: DataSet;
   empInfo: any;
   currentPeriodData: any;
-  checkInvoiceCount: number;
+  // checkInvoiceCount: number;
   history: any;
   certifiableInvoiceListDS?: DataSet;
 }
@@ -67,7 +67,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     companyAndPassword,
     empInfo,
     history,
-    checkInvoiceCount,
+    // checkInvoiceCount,
     currentPeriodData,
   } = props;
   const [progressStatus, setProgressStatus] = useState<any>(ProgressStatus.active);
@@ -579,21 +579,21 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     );
   });
 
-  const Tooltips = () => {
-    const title =
-      checkInvoiceCount === 0
-        ? ''
-        : '当前系统中存在请求中的发票，可在当期勾选可认证发票查看，请请求完成后再重新获取';
-    return (
-      <Tooltip title={title} placement="top">
-        <Icon
-          type="help_outline"
-          className={styles.icon}
-          style={{ display: checkInvoiceCount === 0 ? 'none' : 'inline' }}
-        />
-      </Tooltip>
-    );
-  };
+  // const Tooltips = () => {
+  //   const title =
+  //     checkInvoiceCount === 0
+  //       ? ''
+  //       : '当前系统中存在请求中的发票，可在当期勾选可认证发票查看，请请求完成后再重新获取';
+  //   return (
+  //     <Tooltip title={title} placement="top">
+  //       <Icon
+  //         type="help_outline"
+  //         className={styles.icon}
+  //         style={{ display: checkInvoiceCount === 0 ? 'none' : 'inline' }}
+  //       />
+  //     </Tooltip>
+  //   );
+  // };
 
   const btnMenu = (
     <Menu>
@@ -620,12 +620,12 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     // const { currentPeriod } = currentPeriodData;
     const { queryDataSet } = btnProps.dataSet;
     const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
-    const isDisabled = !currentPeriod || checkInvoiceCount !== 0;
+    // const isDisabled = !currentPeriod;
     return (
       <Button
         key={btnProps.key}
         onClick={btnProps.onClick}
-        disabled={isDisabled}
+        disabled={!currentPeriod}
         funcType={FuncType.flat}
       >
         {btnProps.title}
@@ -683,7 +683,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       onClick={() => handleFindVerifiableInvoice()}
       title={intl.get(`${modelCode}.button.verifiableInvoices`).d('实时查找可认证发票')}
     />,
-    <Tooltips />,
+    // <Tooltips />,
     <CertifiedDetail
       key="certifiedDetails"
       dataSet={certifiableInvoiceListDS}
@@ -711,9 +711,20 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     }
   };
 
+  const handleReset = () => {
+    if (certifiableInvoiceListDS) {
+      const { queryDataSet } = certifiableInvoiceListDS;
+      if (queryDataSet) {
+        queryDataSet.reset();
+        setCompanyObjFromProps();
+      }
+    }
+  };
+
   // 当期勾选(取消)可认证发票: 头
   function renderQueryBar(propsDS) {
     const { queryDataSet, buttons } = propsDS;
+    const apiCondition = process.env.EMPLOYEE_API;
     const queryMoreArray: JSX.Element[] = [];
     queryMoreArray.push(<Select name="currentCertState" />);
     queryMoreArray.push(
@@ -724,30 +735,36 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     queryMoreArray.push(<DatePicker name="invoiceDate" colSpan={2} />);
     queryMoreArray.push(<Select name="checkState" />);
     queryMoreArray.push(<DatePicker name="entryAccountDate" colSpan={2} />);
-    queryMoreArray.push(
-      <Lov
-        name="systemCodeObj"
-        maxTagCount={1}
-        maxTagTextLength={1}
-        maxTagPlaceholder={restValues => `+${restValues.length}...`}
-      />
-    );
-    queryMoreArray.push(
-      <Lov
-        name="documentTypeCodeObj"
-        maxTagCount={1}
-        maxTagTextLength={1}
-        maxTagPlaceholder={restValues => `+${restValues.length}...`}
-      />
-    );
-    queryMoreArray.push(
-      <Lov
-        name="documentNumberObj"
-        maxTagCount={1}
-        maxTagTextLength={1}
-        maxTagPlaceholder={restValues => `+${restValues.length}...`}
-      />
-    );
+    if (apiCondition === 'OP') {
+      queryMoreArray.push(<Select name="systemCodeShare" />);
+      queryMoreArray.push(<Select name="documentTypeCodeShare" />);
+      queryMoreArray.push(<TextField name="documentNumberShare" />);
+    } else {
+      queryMoreArray.push(
+        <Lov
+          name="systemCodeObj"
+          maxTagCount={1}
+          maxTagTextLength={1}
+          maxTagPlaceholder={restValues => `+${restValues.length}...`}
+        />
+      );
+      queryMoreArray.push(
+        <Lov
+          name="documentTypeCodeObj"
+          maxTagCount={1}
+          maxTagTextLength={1}
+          maxTagPlaceholder={restValues => `+${restValues.length}...`}
+        />
+      );
+      queryMoreArray.push(
+        <Lov
+          name="documentNumberObj"
+          maxTagCount={1}
+          maxTagTextLength={1}
+          maxTagPlaceholder={restValues => `+${restValues.length}...`}
+        />
+      );
+    }
     queryMoreArray.push(<Select name="isPoolFlag" />);
     queryMoreArray.push(<Select name="entryAccountState" />);
     queryMoreArray.push(<TextField name="salerName" />);
@@ -791,12 +808,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
                 </span>
               )}
             </Button>
-            <Button
-              onClick={() => {
-                queryDataSet.reset();
-                queryDataSet.create();
-              }}
-            >
+            <Button onClick={() => handleReset()}>
               {intl.get('hzero.common.status.reset').d('重置')}
             </Button>
             <Button color={ButtonColor.primary} onClick={() => handleVerifiableQuery()}>

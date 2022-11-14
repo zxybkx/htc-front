@@ -22,7 +22,6 @@ import { TableQueryBarType } from 'choerodon-ui/pro/lib/table/enum';
 import EmployeePhoneModifyHeaderDS from '../stores/EmployeePhoneModifyHeaderDS';
 import EmployeePhoneModifyLineDS from '../stores/EmployeePhoneModifyLineDS';
 
-const modelCode = 'mdm.employeeDefine';
 const tenantId = getCurrentOrganizationId();
 
 interface EmployeePhoneModifyPageProps {
@@ -34,7 +33,7 @@ interface EmployeePhoneModifyPageProps {
 }
 
 @formatterCollections({
-  code: [modelCode],
+  code: ['hmdm.employeeInfo', 'htc.common', 'hivp.batchCheck', 'hmdm.billStatement'],
 })
 export default class EmployeePhoneModifyPage extends Component<EmployeePhoneModifyPageProps> {
   state = {
@@ -171,14 +170,14 @@ export default class EmployeePhoneModifyPage extends Component<EmployeePhoneModi
           />
           <div style={{ position: 'absolute', right: '0.3rem', bottom: '0.3rem' }}>
             <Button key="cancel" onClick={() => this.props.onCloseModal()}>
-              {intl.get(`${modelCode}.button.cancel`).d('取消')}
+              {intl.get('hzero.common.button.cancel').d('取消')}
             </Button>
             <Button
               key="save"
               onClick={() => this.handleSaveMobileAndCreateAccount(0)}
               color={ButtonColor.primary}
             >
-              {intl.get(`${modelCode}.button.save`).d('保存')}
+              {intl.get('hzero.common.button.save').d('保存')}
             </Button>
             <Button
               key="saveAndCreate"
@@ -186,7 +185,7 @@ export default class EmployeePhoneModifyPage extends Component<EmployeePhoneModi
               color={ButtonColor.primary}
               disabled={isDisabled}
             >
-              {intl.get(`${modelCode}.button.saveAndCreate`).d('保存并新建账户')}
+              {intl.get('hmdm.employeeInfo.button.saveAndCreateNewAccount').d('保存并新建账户')}
             </Button>
           </div>
         </Content>

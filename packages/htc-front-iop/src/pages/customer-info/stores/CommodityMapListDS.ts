@@ -14,7 +14,7 @@ import { getCurrentOrganizationId } from 'utils/utils';
 import { DataSetSelection, FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 
-const getTaxRate = (value) => {
+const getTaxRate = value => {
   if (value.indexOf('%') > 0) {
     return value.replace('%', '') / 100;
   } else {
@@ -78,7 +78,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'goodsMappingId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'employeeNum',
@@ -86,7 +86,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',
@@ -94,7 +94,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'customerInformationId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'customerCode',
@@ -180,10 +180,12 @@ export default (): DataSetProps => {
         computedProps: {
           readOnly: ({ record }) => {
             if (record.dataSet.parent) {
-              return record.dataSet.parent.current.get('invoiceType') ||
+              return (
+                record.dataSet.parent.current.get('invoiceType') ||
                 !record.dataSet.parent.current.get('extNumber')
+              );
             }
-          }
+          },
         },
       },
       {

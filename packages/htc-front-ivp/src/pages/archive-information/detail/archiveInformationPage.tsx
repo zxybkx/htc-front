@@ -195,7 +195,6 @@ export default class ArchiveInformationPage extends Component<ArchiveUploadPageP
       path: pathname,
       title: intl.get(`${modelCode}.path.viewArchives`).d('查看档案'),
       closable: true,
-      type: 'menu',
     });
   }
 

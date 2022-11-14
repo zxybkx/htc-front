@@ -21,6 +21,7 @@ import { observer } from 'mobx-react-lite';
 import { FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import intl from 'utils/intl';
+import formatterCollections from 'utils/intl/formatterCollections';
 import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import notification from 'utils/notification';
 import ExcelExport from 'components/ExcelExport';
@@ -29,7 +30,6 @@ import { responseDecryptionKey } from '@src/services/companyListService';
 import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
 import CompanyListDS from '../stores/CompanyListDS';
 
-const modelCode = 'hmdm.company-list';
 const modalKey = Modal.key();
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.MDM_API || '';
@@ -38,6 +38,15 @@ interface CompanyListPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
 }
 
+@formatterCollections({
+  code: [
+    'hmdm.companyList',
+    'hivp.batchCheck',
+    'htc.common',
+    'hivp.documentType',
+    'hcan.invoiceDetail',
+  ],
+})
 export default class CompanyListPage extends Component<CompanyListPageProps> {
   tableDS = new DataSet({
     autoQuery: true,
@@ -78,13 +87,13 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
     });
     return [
       <Button icon="add" onClick={this.create}>
-        {intl.get(`${modelCode}.add`).d('新增')}
+        {intl.get('hzero.common.btn.add').d('新增')}
       </Button>,
       <DeleteButtons
         key="delete"
         onClick={() => this.handleDelete()}
         dataSet={this.tableDS}
-        title={intl.get(`${modelCode}.button.delete`).d('删除')}
+        title={intl.get('hzero.common.button.enter').d('删除')}
       />,
     ];
   }
@@ -98,7 +107,7 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
     if (!validateValue) {
       notification.error({
         description: '',
-        message: intl.get('hzero.common.notification.invalid').d('数据校验不通过！'),
+        message: intl.get('hivp.batchCheck.notification.invalid').d('数据校验不通过！'),
       });
       return;
     }
@@ -106,7 +115,7 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
     if (res === undefined) {
       notification.warning({
         description: '',
-        message: intl.get('hadm.hystrix.view.message.title.noChange').d('请先修改数据'),
+        message: intl.get('htc.common.notification.noChange').d('请先修改数据'),
       });
     } else if (res && res.failed && res.message) {
       throw new Error(res);
@@ -127,7 +136,7 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
       this.tableDS.current!.set({ enabledFlag: 1 });
       this.handleSave();
     } else {
-      const title = intl.get(`${modelCode}.view.disableConfirm`).d('确认禁用？');
+      const title = intl.get('htc.common.notification.disableConfirm').d('确认禁用？');
       Modal.confirm({
         key: modalKey,
         title,
@@ -199,7 +208,7 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
     const res = await responseDecryptionKey({ tenantId, companyId });
     if (res) {
       Modal.info({
-        title: intl.get(`${modelCode}.view.decryptionKey`).d('解密秘钥'),
+        title: intl.get('hmdm.companyList.modal.title.decryptionKey').d('解密秘钥'),
         children: res,
       });
     }
@@ -341,14 +350,14 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
                 style={{ color: curFlag === 0 ? 'green' : 'gray' }}
               >
                 {curFlag === 0
-                  ? intl.get('hzero.common.status.enableFlag').d('启用')
-                  : intl.get('hzero.common.status.disable').d('禁用')}
+                  ? intl.get('hzero.common.button.enabled').d('启用')
+                  : intl.get('hzero.common.button.unEnabled').d('禁用')}
               </a>
               <a onClick={() => this.handleEdit(record)}>
-                {intl.get(`${modelCode}.button.edit`).d('编辑')}
+                {intl.get('hzero.common.button.editor').d('编辑')}
               </a>
               <a onClick={() => this.handleGetDecryption(records.companyId)}>
-                {intl.get(`${modelCode}.button.getDecryption`).d('获取秘钥')}
+                {intl.get('hmdm.companyList.button.getDecryption').d('获取秘钥')}
               </a>
             </span>,
           ];
@@ -381,10 +390,10 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
     const code = 'HMDM.COMPANY';
     openTab({
       key: `/himp/commentImport/${code}`,
-      title: intl.get('hzero.common.button.import').d('导入'),
+      title: intl.get('hzero.common.title.import').d('导入'),
       search: queryString.stringify({
         prefixPath: API_PREFIX,
-        action: intl.get(`${modelCode}.view.companyImport`).d('公司列表导入'),
+        action: intl.get('hmdm.companyList.view.companyImport').d('公司列表导入'),
         tenantId,
       }),
     });
@@ -393,13 +402,13 @@ export default class CompanyListPage extends Component<CompanyListPageProps> {
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('公司列表维护')}>
+        <Header title={intl.get('hmdm.companyList.title.companyListMaintenance').d('公司列表维护')}>
           <ExcelExport
             requestUrl={`${API_PREFIX}/v1/${tenantId}/company-list-infos/export`}
             queryParams={() => this.handleGetQueryParams()}
           />
           <Button onClick={() => this.handleImport()}>
-            {intl.get(`${modelCode}.import`).d('导入')}
+            {intl.get('hzero.common.button.import').d('导入')}
           </Button>
         </Header>
         <Content>

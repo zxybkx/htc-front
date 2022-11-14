@@ -171,7 +171,7 @@ export default (): DataSetProps => {
         {
           name: 'tenantId',
           label: intl.get('htc.common.modal.tenantId').d('租户id'),
-          type: FieldType.number,
+          type: FieldType.string,
         },
         {
           name: 'companyObj',
@@ -183,7 +183,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'companyId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: 'companyObj.companyId',
           ignore: FieldIgnore.always,
         },
@@ -203,7 +203,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'employeeId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: 'companyObj.employeeId',
           // ignore: FieldIgnore.always,
         },

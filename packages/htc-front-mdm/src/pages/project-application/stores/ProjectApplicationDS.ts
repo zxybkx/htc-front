@@ -18,7 +18,6 @@ import moment from 'moment';
 import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import { getCurrentUser } from 'utils/utils';
 
-const modelCode = 'hmdm.project-application';
 const loginInfo = getCurrentUser();
 const API_PREFIX = commonConfig.MDM_API || '';
 
@@ -59,7 +58,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'subAccountStatus',
-        label: intl.get(`${modelCode}.view.subAccountStatus`).d('状态'),
+        label: intl.get('hzero.common.model.status').d('状态'),
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.APPLY_ACCOUNT_STATUS',
         defaultValue: '1',
@@ -67,12 +66,12 @@ export default (): DataSetProps => {
       },
       {
         name: 'creationDate',
-        label: intl.get(`${modelCode}.view.creationDate`).d('创建时间'),
+        label: intl.get('hzero.common.model.datetime.creation').d('创建时间'),
         type: FieldType.string,
       },
       {
         name: 'contractCustomerName',
-        label: intl.get(`${modelCode}.view.contractCustomerName`).d('客户全称'),
+        label: intl.get('hmdm.applyTenant.view.contractCustomerName').d('客户全称'),
         type: FieldType.string,
         required: true,
         computedProps: {
@@ -81,7 +80,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'customerAdmin',
-        label: intl.get(`${modelCode}.view.customerAdmin`).d('客户管理员'),
+        label: intl.get('hmdm.applyTenant.view.customerAdmin').d('客户管理员'),
         type: FieldType.string,
         required: true,
         computedProps: {
@@ -90,7 +89,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'customerPhone',
-        label: intl.get(`${modelCode}.view.customerPhone`).d('客户手机号'),
+        label: intl.get('hmdm.applyTenant.view.customerPhone').d('客户手机号'),
         type: FieldType.string,
         pattern: phoneReg,
         required: true,
@@ -100,14 +99,14 @@ export default (): DataSetProps => {
       },
       {
         name: 'customerEmail',
-        label: intl.get(`${modelCode}.view.customerEmail`).d('客户邮箱'),
+        label: intl.get('hmdm.applyTenant.view.customerEmail').d('客户邮箱'),
         type: FieldType.string,
         pattern: EMAIL,
         required: true,
       },
       {
         name: 'projectNumber',
-        label: intl.get(`${modelCode}.view.projectNumber`).d('立项项目编号'),
+        label: intl.get('hmdm.applyTenant.view.projectNumber').d('立项项目编号'),
         type: FieldType.string,
         labelWidth: '130',
         required: true,
@@ -117,7 +116,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'contractNumber',
-        label: intl.get(`${modelCode}.view.contractNumber`).d('合同号'),
+        label: intl.get('hmdm.applyTenant.view.contractNumber').d('合同号'),
         type: FieldType.string,
         required: true,
         computedProps: {
@@ -126,7 +125,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'collection',
-        label: intl.get(`${modelCode}.view.collection`).d('是否回款'),
+        label: intl.get('hmdm.projectApplication.view.collection').d('是否回款'),
         type: FieldType.string,
         required: true,
         computedProps: {
@@ -135,7 +134,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'deliveryName',
-        label: intl.get(`${modelCode}.view.deliveryName`).d('汉得交付人'),
+        label: intl.get('hmdm.projectApplication.view.deliveryName').d('汉得交付人'),
         type: FieldType.string,
         computedProps: {
           disabled: ({ record }) => record.get('subAccountStatus') === '2',
@@ -143,7 +142,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'customerSystem',
-        label: intl.get(`${modelCode}.view.customerSystem`).d('客户对接产品'),
+        label: intl.get('hmdm.projectApplication.view.customerSystem').d('客户对接产品'),
         type: FieldType.string,
         computedProps: {
           disabled: ({ record }) => record.get('subAccountStatus') === '2',
@@ -151,12 +150,12 @@ export default (): DataSetProps => {
       },
       {
         name: 'linksCode',
-        label: intl.get(`${modelCode}.view.linksCode`).d('链接'),
+        label: intl.get('hmdm.projectApplication.view.linksCode').d('链接'),
         type: FieldType.string,
       },
       {
         name: 'systemTenantCode',
-        label: intl.get(`${modelCode}.view.systemTenantCode`).d('租户编码'),
+        label: intl.get('hzero.common.model.tenant.code').d('租户编码'),
         type: FieldType.string,
         required: true,
         computedProps: {
@@ -165,17 +164,17 @@ export default (): DataSetProps => {
       },
       {
         name: 'tenantId',
-        label: intl.get(`${modelCode}.view.tenantId`).d('租户ID'),
+        label: intl.get('htc.common.modal.tenantId').d('租户ID'),
         type: FieldType.string,
       },
       {
         name: 'subAccount',
-        label: intl.get(`${modelCode}.view.subAccount`).d('子账户'),
+        label: intl.get('hmdm.projectApplication.view.subAccount').d('子账户'),
         type: FieldType.string,
       },
       {
         name: 'subAccountPwd',
-        label: intl.get(`${modelCode}.view.subAccountPwd`).d('密码'),
+        label: intl.get('hzero.common.model.password').d('密码'),
         type: FieldType.string,
       },
     ],
@@ -183,17 +182,17 @@ export default (): DataSetProps => {
       fields: [
         {
           name: 'contractCustomerName',
-          label: intl.get(`${modelCode}.view.contractCustomerName`).d('客户名称'),
+          label: intl.get('hiop.customerInfo.modal.customerName').d('客户名称'),
           type: FieldType.string,
         },
         {
           name: 'companyTaxNumber',
-          label: intl.get(`${modelCode}.view.companyTaxNumber`).d('税号'),
+          label: intl.get('hmdm.projectApplication.view.companyTaxNumber').d('税号'),
           type: FieldType.string,
         },
         {
           name: 'phoneOrEmail',
-          label: intl.get(`${modelCode}.view.phoneOrEmail`).d('客户手机邮箱'),
+          label: intl.get('hmdm.projectApplication.view.phoneOrEmail').d('客户手机邮箱'),
           type: FieldType.string,
           computedProps: {
             pattern: ({ record }) => {
@@ -209,7 +208,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'creationDateObj',
-          label: intl.get(`${modelCode}.view.creationDate`).d('创建时间'),
+          label: intl.get('hzero.common.model.datetime.creation').d('创建时间'),
           range: ['creationDate', 'creationEndDate'],
           defaultValue: {
             creationDate: moment().startOf('month'),
@@ -221,63 +220,59 @@ export default (): DataSetProps => {
         },
         {
           name: 'creationDate',
-          label: intl.get(`${modelCode}.view.creationDate`).d('创建时间从'),
           type: FieldType.date,
           bind: 'creationDateObj.creationDate',
         },
         {
           name: 'creationEndDate',
-          label: intl.get(`${modelCode}.view.creationDateTo`).d('创建时间至'),
           type: FieldType.date,
           bind: 'creationDateObj.creationEndDate',
         },
         {
           name: 'openTenantDateObj',
-          label: intl.get(`${modelCode}.view.importDate`).d('开通日期'),
+          label: intl.get('hmdm.projectApplication.view.openTenantDateObj').d('开通日期'),
           range: ['openTenantStartDate', 'openTenantEndDate'],
           type: FieldType.date,
           ignore: FieldIgnore.always,
         },
         {
           name: 'openTenantStartDate',
-          label: intl.get(`${modelCode}.view.importDateFrom`).d('开通日期从'),
           type: FieldType.date,
           bind: 'openTenantDateObj.openTenantStartDate',
         },
         {
           name: 'openTenantEndDate',
-          label: intl.get(`${modelCode}.view.importDateTo`).d('开通日期至'),
           type: FieldType.date,
           bind: 'openTenantDateObj.openTenantEndDate',
         },
         {
           name: 'subAccountStatus',
-          label: intl.get(`${modelCode}.view.subAccountStatus`).d('审核状态'),
+          label: intl.get('hmdm.projectApplication.view.subAccountStatus').d('审核状态'),
           type: FieldType.string,
           lookupCode: 'HTC.HIOP.APPLY_ACCOUNT_STATUS',
         },
         {
           name: 'sourceType',
-          label: intl.get(`${modelCode}.view.sourceType`).d('数据来源'),
+          label: intl.get('hmdm.projectApplication.view.sourceType').d('数据来源'),
           type: FieldType.string,
           lookupCode: 'HTC.HMDM.APPLY_SOURCE_TYPE',
         },
         {
           name: 'openFunc',
-          label: intl.get(`${modelCode}.view.openFunc`).d('开通服务'),
+          label: intl.get('hmdm.projectApplication.view.openFunc').d('开通服务'),
           type: FieldType.string,
           lookupCode: 'HTC.HMDM.CUSTOMER_APPLY_SERVICE',
         },
         {
           name: 'tenantObj',
-          label: intl.get(`${modelCode}.view.tenantObj`).d('生成租户'),
+          label: intl.get('hmdm.projectApplication.view.tenantObj').d('生成租户'),
           type: FieldType.object,
           lovCode: 'HPFM.TENANT',
           ignore: FieldIgnore.always,
         },
         {
           name: 'tenantId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: `tenantName.tenantId`,
         },
       ],
@@ -332,7 +327,7 @@ const LinkDS = (): DataSetProps => {
     fields: [
       {
         name: 'linksType',
-        label: intl.get(`${modelCode}.view.linksType`).d('用途'),
+        label: intl.get('hivp.checkCertification.view.purpose').d('用途'),
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.APPLY_LINK_TYPE ',
         defaultValue: '2',
@@ -340,7 +335,7 @@ const LinkDS = (): DataSetProps => {
       },
       {
         name: 'linksAccountObj',
-        label: intl.get(`${modelCode}.view.linksAccountObj`).d('账号有效期'),
+        label: intl.get('hmdm.projectApplication.view.linksAccountObj').d('账号有效期'),
         range: ['linksAccountStart', 'linksAccountEnd'],
         type: FieldType.date,
         defaultValue: {
@@ -354,19 +349,17 @@ const LinkDS = (): DataSetProps => {
       },
       {
         name: 'linksAccountStart',
-        label: intl.get(`${modelCode}.view.linksAccountStart`).d('账号开通起'),
         type: FieldType.date,
         bind: 'linksAccountObj.linksAccountStart',
       },
       {
         name: 'linksAccountEnd',
-        label: intl.get(`${modelCode}.view.linksAccountEnd`).d('账号开通至'),
         type: FieldType.date,
         bind: 'linksAccountObj.linksAccountEnd',
       },
       {
         name: 'phone',
-        label: intl.get(`${modelCode}.view.phone`).d('手机号'),
+        label: intl.get('hzero.common.cellphone').d('手机号'),
         type: FieldType.string,
         pattern: phoneReg,
         computedProps: {
@@ -375,7 +368,7 @@ const LinkDS = (): DataSetProps => {
       },
       {
         name: 'email',
-        label: intl.get(`${modelCode}.view.email`).d('邮箱'),
+        label: intl.get('hzero.common.model.email').d('邮箱'),
         type: FieldType.string,
         pattern: EMAIL,
         computedProps: {
@@ -384,7 +377,7 @@ const LinkDS = (): DataSetProps => {
       },
       {
         name: 'tenantObject',
-        label: intl.get(`${modelCode}.view.tenantObject`).d('已建租户'),
+        label: intl.get('hmdm.projectApplication.view.builtTenants').d('已建租户'),
         type: FieldType.object,
         lovCode: 'HPFM.TENANT',
         ignore: FieldIgnore.always,
@@ -406,7 +399,7 @@ const LinkDS = (): DataSetProps => {
       },
       {
         name: 'companyNameObject',
-        label: intl.get(`${modelCode}.view.companyNameObject`).d('已建公司'),
+        label: intl.get('hmdm.projectApplication.view.companyNameObject').d('已建公司'),
         type: FieldType.object,
         lovCode: 'HMDM.COMPANY_INFO_SITE',
         cascadeMap: { organizationId: 'systemTenantId' },
@@ -419,7 +412,7 @@ const LinkDS = (): DataSetProps => {
       },
       {
         name: 'systemCompanyId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: `companyNameObject.companyId`,
       },
       {
@@ -429,13 +422,13 @@ const LinkDS = (): DataSetProps => {
       },
       {
         name: 'linksCode',
-        label: intl.get(`${modelCode}.view.linksCode`).d('生成链接'),
+        label: intl.get('hmdm.projectApplication.view.generateLinks').d('生成链接'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'validityDay',
-        label: intl.get(`${modelCode}.view.validityDay`).d('有效期'),
+        label: intl.get('hivp.documentType.view.dateInfo').d('有效期'),
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.APPLY_LINK_VALID',
         required: true,

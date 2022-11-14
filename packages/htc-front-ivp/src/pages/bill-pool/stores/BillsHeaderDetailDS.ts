@@ -146,12 +146,12 @@ export default (dsParams): DataSetProps => {
       {
         name: 'billPoolHeaderId',
         label: intl.get(`${modelCode}.view.billPoolHeaderId`).d('记录ID'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyId',
         label: intl.get('hivp.batchCheck.view.companyId').d('公司ID'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',
@@ -161,7 +161,7 @@ export default (dsParams): DataSetProps => {
       {
         name: 'employeeId',
         label: intl.get(`${modelCode}.view.employeeId`).d('员工id'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'employeeNum',

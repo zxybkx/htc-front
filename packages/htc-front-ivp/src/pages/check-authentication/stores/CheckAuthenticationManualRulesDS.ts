@@ -59,11 +59,7 @@ export default (): DataSetProps => {
             }
           },
           disabled: ({ record }) => {
-            if (record.get('checkStatus') === '1' || !!record.get('certificationStatus')) {
-              return true;
-            } else {
-              return false;
-            }
+            return record.get('checkStatus') === '1' || !!record.get('certificationStatus');
           },
         },
         ignore: FieldIgnore.always,
@@ -87,11 +83,7 @@ export default (): DataSetProps => {
         type: FieldType.date,
         computedProps: {
           required: ({ record }) => {
-            if (record.get('checkStatus') === '1' || !!record.get('certificationStatus')) {
-              return true;
-            } else {
-              return false;
-            }
+            return record.get('checkStatus') === '1' || !!record.get('certificationStatus');
           },
           disabled: ({ record }) => {
             if (record.get('checkStatus') === '0') {
@@ -207,17 +199,13 @@ export default (): DataSetProps => {
         lookupCode: 'HIVP.QUERY_STATUS',
         computedProps: {
           required: ({ record }) => {
-            if (record.get('certificationStatus')) {
-              return true;
-            } else {
-              return false;
-            }
+            return !!record.get('certificationStatus');
           },
         },
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',
@@ -235,11 +223,7 @@ export default (): DataSetProps => {
         cascadeMap: { companyId: 'companyId' },
         computedProps: {
           required: ({ record }) => {
-            if (record.get('certificationStatus')) {
-              return true;
-            } else {
-              return false;
-            }
+            return !!record.get('certificationStatus');
           },
         },
         ignore: FieldIgnore.always,

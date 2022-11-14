@@ -14,8 +14,6 @@ import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import moment from 'moment';
 import commonConfig from '@htccommon/config/commonConfig';
 
-const modelCode = 'hmdm.company-list';
-
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
   const tenantId = getCurrentOrganizationId();
@@ -63,65 +61,67 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyInfo',
-        label: intl.get(`${modelCode}.view.companyCode`).d('公司信息'),
+        label: intl.get('hmdm.companyList.view.companyInfo').d('公司信息'),
         type: FieldType.object,
         ignore: FieldIgnore.always,
       },
       {
         name: 'companyCode',
-        label: intl.get(`${modelCode}.view.companyCode`).d('公司代码'),
+        label: intl.get('htc.common.modal.companyCode').d('公司代码'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'companyNameInfo',
-        label: intl.get(`${modelCode}.view.companyNameInfo`).d('公司名称'),
+        label: intl.get('htc.common.view.companyName').d('公司名称'),
         type: FieldType.object,
         ignore: FieldIgnore.always,
       },
       {
         name: 'companyName',
-        label: intl.get(`${modelCode}.view.companyName`).d('公司全称'),
+        label: intl.get('hivp.documentType.view.companyObj').d('公司全称'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'companyShortName',
-        label: intl.get(`${modelCode}.view.companyShortName`).d('公司简称'),
+        label: intl.get('hmdm.applyTenant.view.companyShort').d('公司简称'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'taxpayerNumber',
-        label: intl.get(`${modelCode}.view.taxpayerNumber`).d('纳税识别号'),
+        label: intl.get('htc.common.modal.taxpayerNumber').d('纳税识别号'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'companyAddressPhone',
-        label: intl.get(`${modelCode}.view.companyAddressPhone`).d('地址、电话'),
+        label: intl.get('htc.common.modal.companyAddressPhone').d('地址、电话'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'bankNumber',
-        label: intl.get(`${modelCode}.view.bankNumber`).d('开户行及账号'),
+        label: intl.get('htc.common.modal.bankNumber').d('开户行及账号'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'competentTaxAuthoritiesInfo',
-        label: intl.get(`${modelCode}.view.competentTaxAuthorities`).d('主管税务机关代码/名称'),
+        label: intl
+          .get('hmdm.companyList.view.competentTaxAuthoritiesInfo')
+          .d('主管税务机关代码/名称'),
         type: FieldType.object,
         ignore: FieldIgnore.always,
       },
       {
         name: 'competentTaxAuthoritiesObject',
-        label: intl.get(`${modelCode}.view.competentTaxAuthorities`).d('主管税务机关代码'),
+        label: intl.get('hcan.invoiceDetail.view.taxAuthorityCode').d('主管税务机关代码'),
         type: FieldType.object,
         lovCode: 'HMDM.COMPETENT_TAX_AUTHORITIES',
         lovPara: { tenantId },
@@ -134,13 +134,13 @@ export default (): DataSetProps => {
       },
       {
         name: 'competentTaxAuthoritiesMeaning',
-        label: intl.get(`${modelCode}.view.competentTaxAuthoritiesMeaning`).d('主管税务机关名称'),
+        label: intl.get('hcan.invoiceDetail.view.taxAuthorityName').d('主管税务机关名称'),
         type: FieldType.string,
         bind: 'competentTaxAuthoritiesObject.meaning',
       },
       {
         name: 'enabledFlag',
-        label: intl.get(`${modelCode}.view.enabledFlag`).d('公司状态'),
+        label: intl.get('hmdm.companyList.view.enabledFlag').d('公司状态'),
         type: FieldType.number,
         falseValue: 0,
         trueValue: 1,
@@ -149,13 +149,13 @@ export default (): DataSetProps => {
       },
       {
         name: 'dateInfo',
-        label: intl.get(`${modelCode}.view.startDate`).d('创建日期/修改日期'),
+        label: intl.get('hmdm.companyList.view.createAndEditDate').d('创建日期/修改日期'),
         type: FieldType.object,
         ignore: FieldIgnore.always,
       },
       {
         name: 'startDate',
-        label: intl.get(`${modelCode}.view.startDate`).d('有效期从'),
+        label: intl.get('hmdm.companyList.view.startDate').d('有效期从'),
         type: FieldType.date,
         defaultValue: moment().format(DEFAULT_DATE_FORMAT),
         max: 'endDate',
@@ -163,19 +163,19 @@ export default (): DataSetProps => {
       },
       {
         name: 'endDate',
-        label: intl.get(`${modelCode}.view.endDate`).d('有效期至'),
+        label: intl.get('hmdm.companyList.view.endDate').d('有效期至'),
         type: FieldType.date,
         min: 'startDate',
         transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'creationDate',
-        label: intl.get(`${modelCode}.view.creationDate`).d('新增日期'),
+        label: intl.get('hmdm.companyList.view.creationDate').d('新增日期'),
         type: FieldType.dateTime,
       },
       {
         name: 'lastUpdateDate',
-        label: intl.get(`${modelCode}.view.lastUpdateDate`).d('修改日期'),
+        label: intl.get('hmdm.companyList.view.lastUpdateDate').d('修改日期'),
         type: FieldType.dateTime,
       },
     ],
@@ -192,12 +192,12 @@ export default (): DataSetProps => {
       },
       {
         name: 'taxpayerNumber',
-        label: intl.get(`${modelCode}.view.taxpayerNumber`).d('纳税识别号'),
+        label: intl.get('htc.common.modal.taxpayerNumber').d('纳税识别号'),
         type: FieldType.string,
       },
       {
         name: 'enabledFlag',
-        label: intl.get(`${modelCode}.view.enabledFlag`).d('是否启用'),
+        label: intl.get('hzero.common.model.common.enableFlag').d('是否启用'),
         type: FieldType.number,
         lookupCode: 'HPFM.ENABLED_FLAG',
       },

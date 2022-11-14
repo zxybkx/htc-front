@@ -961,8 +961,24 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     dataSet.query();
   };
 
+  const handleReset = () => {
+    if (batchInvoiceHeaderDS) {
+      const { queryDataSet } = batchInvoiceHeaderDS;
+      if (queryDataSet && queryDataSet.current) {
+        if (!isEmpty(empInfo)) {
+          queryDataSet.current.reset();
+          queryDataSet.current!.set({
+            companyObj: empInfo,
+            authorityCode: empInfo.authorityCode,
+          });
+        }
+      }
+    }
+  };
+
   const renderQueryBar = batchProps => {
     const { queryDataSet, buttons, dataSet } = batchProps;
+    const apiCondition = process.env.EMPLOYEE_API;
     return (
       <div style={{ marginBottom: '0.1rem' }}>
         <Form dataSet={queryDataSet} columns={4}>
@@ -1007,24 +1023,34 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
                     <DatePicker name="invoiceDate" />
                     <Select name="entryAccountState" />
                     <DatePicker name="entryAccountDate" />
-                    <Lov
-                      name="systemCodeObj"
-                      maxTagCount={1}
-                      maxTagTextLength={1}
-                      maxTagPlaceholder={restValues => `+${restValues.length}...`}
-                    />
-                    <Lov
-                      name="documentTypeCodeObj"
-                      maxTagCount={1}
-                      maxTagTextLength={1}
-                      maxTagPlaceholder={restValues => `+${restValues.length}...`}
-                    />
-                    <Lov
-                      name="documentNumberObj"
-                      maxTagCount={1}
-                      maxTagTextLength={1}
-                      maxTagPlaceholder={restValues => `+${restValues.length}...`}
-                    />
+                    {apiCondition === 'OP' ? (
+                      <>
+                        <Select name="systemCodeShare" />
+                        <Select name="documentTypeCodeShare" />
+                        <TextField name="documentNumberShare" />
+                      </>
+                    ) : (
+                      <>
+                        <Lov
+                          name="systemCodeObj"
+                          maxTagCount={1}
+                          maxTagTextLength={1}
+                          maxTagPlaceholder={restValues => `+${restValues.length}...`}
+                        />
+                        <Lov
+                          name="documentTypeCodeObj"
+                          maxTagCount={1}
+                          maxTagTextLength={1}
+                          maxTagPlaceholder={restValues => `+${restValues.length}...`}
+                        />
+                        <Lov
+                          name="documentNumberObj"
+                          maxTagCount={1}
+                          maxTagTextLength={1}
+                          maxTagPlaceholder={restValues => `+${restValues.length}...`}
+                        />
+                      </>
+                    )}
                     <TextField name="salerName" />
                   </Form>
                 </div>
@@ -1051,12 +1077,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
                 </span>
               )}
             </Button>
-            <Button
-              onClick={() => {
-                queryDataSet.reset();
-                queryDataSet.create();
-              }}
-            >
+            <Button onClick={() => handleReset()}>
               {intl.get('hzero.common.status.reset').d('重置')}
             </Button>
             <Button color={ButtonColor.primary} onClick={() => batchInvoiceQuery(dataSet)}>

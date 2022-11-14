@@ -12,7 +12,6 @@ import intl from 'utils/intl';
 import commonConfig from '@htccommon/config/commonConfig';
 import { getCurrentOrganizationId } from 'utils/utils';
 
-const modelCode = 'hmdm.tenantMaintenance';
 const tenantId = getCurrentOrganizationId();
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
@@ -52,7 +51,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'tenantObject',
-        label: intl.get(`${modelCode}.view.tenantName`).d('租户名称'),
+        label: intl.get('htc.common.view.tenantName').d('租户名称'),
         type: 'object' as FieldType,
         lovCode: 'HPFM.TENANT',
         ignore: FieldIgnore.always,
@@ -60,7 +59,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'tenantId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: `tenantObject.tenantId`,
       },
       {
@@ -70,26 +69,28 @@ export default (): DataSetProps => {
       },
       {
         name: 'projectName',
-        label: intl.get(`${modelCode}.view.projectName`).d('项目名称'),
+        label: intl.get('hiop.invoiceWorkbench.modal.projectNameSuffix').d('项目名称'),
         type: FieldType.string,
         required: true,
       },
       {
         name: 'projectNumber',
         type: FieldType.string,
-        label: intl.get(`${modelCode}.view.projectNumber`).d('立项项目编号'),
+        label: intl.get('hmdm.applyTenant.view.projectNumber').d('立项项目编号'),
         required: true,
       },
       {
         name: 'associationStartDate',
-        label: intl.get(`${modelCode}.view.associationStartDate`).d('关联起始时间'),
+        label: intl
+          .get('hmdm.projectTenantMaintenance.view.associationStartDate')
+          .d('关联起始时间'),
         type: FieldType.date,
         max: 'associationEndDate',
         required: true,
       },
       {
         name: 'associationEndDate',
-        label: intl.get(`${modelCode}.view.associationEndDate`).d('关联截至时间'),
+        label: intl.get('hmdm.projectTenantMaintenance.view.associationEndDate').d('关联截至时间'),
         type: FieldType.date,
         min: 'associationStartDate',
         computedProps: {
@@ -98,56 +99,58 @@ export default (): DataSetProps => {
       },
       {
         name: 'deliveryDocker',
-        label: intl.get(`${modelCode}.view.deliveryDocker`).d('交付对接人'),
+        label: intl.get('hmdm.costSharing.view.deliveryDocker').d('交付对接人'),
         type: FieldType.string,
       },
       {
         name: 'dockerContact',
-        label: intl.get(`${modelCode}.view.dockerContact`).d('对接人联系方式'),
+        label: intl.get('hmdm.costSharing.view.dockerContact').d('对接人联系方式'),
         type: FieldType.string,
       },
 
       {
         name: 'administrator',
-        label: intl.get(`${modelCode}.view.administrator`).d('管理员'),
+        label: intl.get('hmdm.companyList.view.administrator').d('管理员'),
         type: FieldType.string,
       },
       {
         name: 'adminEmail',
-        label: intl.get(`${modelCode}.view.adminEmail`).d('管理员邮箱'),
+        label: intl.get('hmdm.companyList.view.administratorMailbox').d('管理员邮箱'),
         type: FieldType.email,
       },
       {
         name: 'termination',
-        label: intl.get(`${modelCode}.view.termination`).d('是否关联截止'),
+        label: intl.get('hmdm.projectTenantMaintenance.view.termination').d('是否关联截止'),
         type: FieldType.boolean,
         defaultValue: false,
-        transformResponse: (value) => value === 0,
-        transformRequest: (value) => (value ? 0 : 1),
+        transformResponse: value => value === 0,
+        transformRequest: value => (value ? 0 : 1),
       },
       {
         name: 'enabledFlag',
-        label: intl.get(`${modelCode}.view.enabledFlag`).d('启用状态'),
+        label: intl.get('htc.common.modal.enabledFlag').d('启用状态'),
         type: FieldType.boolean,
         defaultValue: false,
-        transformResponse: (value) => value !== 0,
-        transformRequest: (value) => (value ? 1 : 0),
+        transformResponse: value => value !== 0,
+        transformRequest: value => (value ? 1 : 0),
       },
     ],
     queryFields: [
       {
         name: 'tenantName',
-        label: intl.get(`${modelCode}.view.tenantName`).d('租户名称'),
+        label: intl.get('htc.common.view.tenantName').d('租户名称'),
         type: FieldType.string,
       },
       {
         name: 'projectName',
-        label: intl.get(`${modelCode}.view.projectName`).d('项目名称'),
+        label: intl.get('hiop.invoiceWorkbench.modal.projectNameSuffix').d('项目名称'),
         type: FieldType.string,
       },
       {
         name: 'associationStartDate',
-        label: intl.get(`${modelCode}.view.associationStartDate`).d('关联起始时间'),
+        label: intl
+          .get('hmdm.projectTenantMaintenance.view.associationStartDate')
+          .d('关联起始时间'),
         type: FieldType.date,
         labelWidth: '150',
         range: ['associationStartDateFrom', 'associationStartDateTo'],
@@ -165,7 +168,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'associationEndDate',
-        label: intl.get(`${modelCode}.view.associationEndDate`).d('关联截至时间'),
+        label: intl.get('hmdm.projectTenantMaintenance.view.associationEndDate').d('关联截至时间'),
         type: FieldType.date,
         labelWidth: '150',
         range: ['associationEndDateFrom', 'associationEndDateTo'],
@@ -183,11 +186,11 @@ export default (): DataSetProps => {
       },
       {
         name: 'termination',
-        label: intl.get(`${modelCode}.view.enableDateTo`).d('是否关联截止'),
+        label: intl.get('hmdm.projectTenantMaintenance.view.termination').d('是否关联截止'),
         type: FieldType.string,
         lookupCode: 'HPFM.ENABLED_FLAG',
         labelWidth: '150',
-        transformRequest: (value) => {
+        transformRequest: value => {
           if (value === '0') {
             return '1';
           } else if (value === '1') {
@@ -197,12 +200,12 @@ export default (): DataSetProps => {
       },
       {
         name: 'deliveryDocker',
-        label: intl.get(`${modelCode}.view.enableDateTo`).d('交付对接人'),
+        label: intl.get('hmdm.costSharing.view.deliveryDocker').d('交付对接人'),
         type: FieldType.string,
       },
       {
         name: 'enabledFlag',
-        label: intl.get(`${modelCode}.view.enableDateTo`).d('是否启用'),
+        label: intl.get('hzero.common.model.common.enableFlag').d('是否启用'),
         type: FieldType.string,
         lookupCode: 'HPFM.ENABLED_FLAG',
       },

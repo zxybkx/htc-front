@@ -14,8 +14,7 @@ import { Content, Header } from 'components/Page';
 import intl from 'utils/intl';
 import { HZERO_FILE } from 'utils/config';
 import { getAccessToken } from 'utils/utils';
-
-const modelCode = 'hmdm.bill-statement';
+import formatterCollections from 'utils/intl/formatterCollections';
 
 interface RouterInfo {}
 
@@ -23,6 +22,9 @@ interface BillViewPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
 
+@formatterCollections({
+  code: ['hmdm.billStatement'],
+})
 export default class BillViewPage extends Component<BillViewPageProps> {
   /**
    * 渲染账单信息
@@ -46,7 +48,7 @@ export default class BillViewPage extends Component<BillViewPageProps> {
     return (
       <>
         <Header
-          title={intl.get(`${modelCode}.title`).d('账单信息')}
+          title={intl.get('hmdm.billStatement.title.billingInformation').d('账单信息')}
           backPath="/htc-front-mdm/bill-statement/list"
         />
         <Content>

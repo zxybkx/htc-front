@@ -46,12 +46,12 @@ export default (dsProps): DataSetProps => {
     fields: [
       {
         name: 'customerInformationId',
-        type: FieldType.number,
+        type: FieldType.string,
         defaultValue: customerInformationId,
       },
       {
         name: 'htcDynamicRemarkRulesId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'remarksRulePrefix',

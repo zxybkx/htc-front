@@ -120,7 +120,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'tenantId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: `tenantObject.tenantId`,
       },
       {
@@ -179,14 +179,14 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.invoiceDateStart`).d('开票日期起'),
         type: FieldType.date,
         max: 'invoiceDateEnd',
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'invoiceDateEnd',
         label: intl.get(`${modelCode}.view.invoiceDateEnd`).d('开票日期止'),
         type: FieldType.date,
         min: 'invoiceDateStart',
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'processDateFrom',
@@ -205,14 +205,14 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.statusChangeDateStart`).d('状态变更日期起'),
         type: FieldType.date,
         max: 'statusChangeDateEnd',
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
         name: 'statusChangeDateEnd',
         label: intl.get(`${modelCode}.view.statusChangeDateEnd`).d('状态变更日期止'),
         type: FieldType.date,
         min: 'statusChangeDateStart',
-        transformRequest: (value) => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
     ],
   };

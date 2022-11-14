@@ -40,7 +40,7 @@ export default (billPoolHeaderId): DataSetProps => {
       {
         name: 'billPoolHeaderId',
         label: intl.get(`${modelCode}.view.billPoolHeaderId`).d('记录ID'),
-        type: FieldType.number,
+        type: FieldType.string,
       },
       // {
       //   name: 'companyId',

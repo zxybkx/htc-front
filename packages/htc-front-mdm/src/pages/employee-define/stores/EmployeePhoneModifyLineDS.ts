@@ -13,8 +13,6 @@ import { DataSetSelection, FieldType } from 'choerodon-ui/pro/lib/data-set/enum'
 import intl from 'utils/intl';
 import commonConfig from '@htccommon/config/commonConfig';
 
-const modelCode = 'hmdm.employeeDefine';
-
 export default (dsProps): DataSetProps => {
   const HMDM_API = commonConfig.MDM_API || '';
   const organizationId = getCurrentOrganizationId();
@@ -41,12 +39,12 @@ export default (dsProps): DataSetProps => {
       },
       {
         name: 'companyName',
-        label: intl.get(`${modelCode}.view.unit`).d('公司名称'),
+        label: intl.get('htc.common.view.companyName').d('公司名称'),
         type: FieldType.string,
       },
       {
         name: 'rolesMeaning',
-        label: intl.get(`${modelCode}.view.unit`).d('员工角色'),
+        label: intl.get('hmdm.employeeInfo.view.roleId').d('员工角色'),
         type: FieldType.string,
       },
     ],

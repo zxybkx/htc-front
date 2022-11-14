@@ -439,9 +439,20 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     }
   };
 
+  const handleReset = () => {
+    if (noDeductCheckDS) {
+      const { queryDataSet } = noDeductCheckDS;
+      if (queryDataSet) {
+        queryDataSet.reset();
+        setCompanyObjFromProps();
+      }
+    }
+  };
+
   // 当期勾选(取消)可认证发票: 头
   function renderQueryBar(propsDS) {
     const { queryDataSet, buttons } = propsDS;
+    const apiCondition = process.env.EMPLOYEE_API;
     const queryMoreArray: JSX.Element[] = [];
     queryMoreArray.push(<Select name="currentCertState" />);
     queryMoreArray.push(<Select name="invoiceCategory" />);
@@ -450,30 +461,36 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     queryMoreArray.push(<DatePicker name="invoiceDate" colSpan={2} />);
     queryMoreArray.push(<Select name="checkState" />);
     queryMoreArray.push(<DatePicker name="entryAccountDate" colSpan={2} />);
-    queryMoreArray.push(
-      <Lov
-        name="systemCodeObj"
-        maxTagCount={1}
-        maxTagTextLength={1}
-        maxTagPlaceholder={restValues => `+${restValues.length}...`}
-      />
-    );
-    queryMoreArray.push(
-      <Lov
-        name="documentTypeCodeObj"
-        maxTagCount={1}
-        maxTagTextLength={1}
-        maxTagPlaceholder={restValues => `+${restValues.length}...`}
-      />
-    );
-    queryMoreArray.push(
-      <Lov
-        name="documentNumberObj"
-        maxTagCount={1}
-        maxTagTextLength={1}
-        maxTagPlaceholder={restValues => `+${restValues.length}...`}
-      />
-    );
+    if (apiCondition === 'OP') {
+      queryMoreArray.push(<Select name="systemCodeShare" />);
+      queryMoreArray.push(<Select name="documentTypeCodeShare" />);
+      queryMoreArray.push(<TextField name="documentNumberShare" />);
+    } else {
+      queryMoreArray.push(
+        <Lov
+          name="systemCodeObj"
+          maxTagCount={1}
+          maxTagTextLength={1}
+          maxTagPlaceholder={restValues => `+${restValues.length}...`}
+        />
+      );
+      queryMoreArray.push(
+        <Lov
+          name="documentTypeCodeObj"
+          maxTagCount={1}
+          maxTagTextLength={1}
+          maxTagPlaceholder={restValues => `+${restValues.length}...`}
+        />
+      );
+      queryMoreArray.push(
+        <Lov
+          name="documentNumberObj"
+          maxTagCount={1}
+          maxTagTextLength={1}
+          maxTagPlaceholder={restValues => `+${restValues.length}...`}
+        />
+      );
+    }
     queryMoreArray.push(<Select name="isPoolFlag" />);
     queryMoreArray.push(<Select name="entryAccountState" />);
     queryMoreArray.push(<TextField name="salerName" />);
@@ -518,12 +535,7 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
                 </span>
               )}
             </Button>
-            <Button
-              onClick={() => {
-                queryDataSet.reset();
-                queryDataSet.create();
-              }}
-            >
+            <Button onClick={() => handleReset()}>
               {intl.get('hzero.common.status.reset').d('重置')}
             </Button>
             <Button color={ButtonColor.primary} onClick={() => handleVerifiableQuery()}>

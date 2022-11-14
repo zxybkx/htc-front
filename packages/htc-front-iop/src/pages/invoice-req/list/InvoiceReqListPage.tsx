@@ -486,7 +486,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
         employeeNumber,
         headerIds,
       };
-      const res = await batchMerage(params);
+      const res = getResponse(await batchMerage(params));
       if (res && res.successFlag) {
         notification.success({
           description: '',

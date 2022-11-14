@@ -10,9 +10,11 @@ import React, { Component } from 'react';
 import { Content } from 'components/Page';
 import intl from 'utils/intl';
 import { Result } from 'choerodon-ui';
+import formatterCollections from 'utils/intl/formatterCollections';
 
-const modelCode = 'hmdm.apply-tenant-result';
-
+@formatterCollections({
+  code: ['hmdm.applyTenant'],
+})
 export default class SuccessPage extends Component {
   render() {
     return (
@@ -20,7 +22,7 @@ export default class SuccessPage extends Component {
         <Result
           status="success"
           title={intl
-            .get(`${modelCode}.view.info`)
+            .get('hmdm.applyTenant.view.message.openNotice')
             .d('管理员已收到您的开通申请，请您注意接收邮件开通通知')}
         />
       </Content>

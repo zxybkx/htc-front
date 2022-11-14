@@ -204,7 +204,7 @@ export default (dsParams): DataSetProps => {
         name: 'listFlag',
         label: intl.get('hiop.invoiceWorkbench.modal.shopListFlag').d('购货清单标志'),
         type: FieldType.string,
-        lookupCode: 'HIOP.PURCHASE_LIST_MARK ',
+        lookupCode: 'HIOP.PURCHASE_LIST_MARK',
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
         },
@@ -244,8 +244,13 @@ export default (dsParams): DataSetProps => {
         required: true,
         textField: 'buyerName',
         valueField: 'buyerTaxpayerNumber',
-        lookupAxiosConfig: () => ({
-          url: `${API_PREFIX}/v1/${tenantId}/billing-info/buyer-info-list?companyId=${dsParams.companyId}`,
+        lookupUrl: `${API_PREFIX}/v1/${tenantId}/billing-info/buyer-info-list`,
+        lookupAxiosConfig: config => ({
+          ...config,
+          params: {
+            companyId: dsParams.companyId,
+            ...config.params,
+          },
           method: 'GET',
         }),
         maxLength: 100,
@@ -312,8 +317,13 @@ export default (dsParams): DataSetProps => {
         required: true,
         textField: 'sellerName',
         valueField: 'sellerTaxpayerNumber',
-        lookupAxiosConfig: () => ({
-          url: `${API_PREFIX}/v1/${tenantId}/billing-info/seller-info-list?companyId=${dsParams.companyId}`,
+        lookupUrl: `${API_PREFIX}/v1/${tenantId}/billing-info/seller-info-list`,
+        lookupAxiosConfig: config => ({
+          ...config,
+          params: {
+            companyId: dsParams.companyId,
+            ...config.params,
+          },
           method: 'GET',
         }),
         maxLength: 100,
@@ -622,7 +632,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'docTypeHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'systemCodeObj.docTypeHeaderId',
         ignore: FieldIgnore.always,
       },

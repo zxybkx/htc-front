@@ -12,8 +12,6 @@ import { DataSetSelection, FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/d
 import intl from 'utils/intl';
 import commonConfig from '@htccommon/config/commonConfig';
 
-const modelCode = 'hmdm.bill-statement';
-
 export default (): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
 
@@ -38,7 +36,7 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',
@@ -46,124 +44,124 @@ export default (): DataSetProps => {
       },
       {
         name: 'billNumber',
-        label: intl.get(`${modelCode}.view.billNumber`).d('账单编号'),
+        label: intl.get('hmdm.billStatement.view.billNumber').d('账单编号'),
         type: FieldType.string,
       },
       {
         name: 'tenantName',
-        label: intl.get(`${modelCode}.view.tenantName`).d('租户名称'),
+        label: intl.get('htc.common.view.tenantName').d('租户名称'),
         type: FieldType.string,
       },
       {
         name: 'companyName',
-        label: intl.get(`${modelCode}.view.companyName`).d('公司名称'),
+        label: intl.get('htc.common.view.companyName').d('公司名称'),
         type: FieldType.string,
       },
       {
         name: 'billType',
-        label: intl.get(`${modelCode}.view.billType`).d('账单类型'),
+        label: intl.get('hmdm.billStatement.view.billType').d('账单类型'),
         type: FieldType.string,
         lookupCode: 'HMDM.BILLING_TYPE',
       },
       {
         name: 'customerBillingModelCodeMeaning',
-        label: intl.get(`${modelCode}.view.customerBillingModelCodeMeaning`).d('计费类型'),
+        label: intl.get('hmdm.billStatement.view.customerBillingModelCodeMeaning').d('计费类型'),
         type: FieldType.string,
       },
       {
         name: 'solutionPackageMeaning',
-        label: intl.get(`${modelCode}.view.solutionPackageMeaning`).d('方案包'),
+        label: intl.get('hmdm.automaticCollection.view.solutionPackage').d('方案包'),
         type: FieldType.string,
       },
       {
         name: 'expensesTypeMeaning',
-        label: intl.get(`${modelCode}.view.expensesTypeMeaning`).d('费用类型'),
+        label: intl.get('hmdm.automaticCollection.view.expensesTypeMeaning').d('费用类型'),
         type: FieldType.string,
       },
       {
         name: 'annualFee',
-        label: intl.get(`${modelCode}.view.annualFee`).d('年费'),
+        label: intl.get('hmdm.automaticCollection.view.annualFee').d('年费'),
         type: FieldType.currency,
       },
       {
         name: 'solutionPackageNumber',
-        label: intl.get(`${modelCode}.view.solutionPackageNumber`).d('数量'),
+        label: intl.get('htc.common.view.quantity').d('数量'),
         type: FieldType.number,
       },
       {
         name: 'usedQuantity',
-        label: intl.get(`${modelCode}.view.usedQuantity`).d('已使用'),
+        label: intl.get('hmdm.billStatement.view.usedQuantity').d('已使用'),
         type: FieldType.number,
       },
       {
         name: 'remainingQuantity',
-        label: intl.get(`${modelCode}.view.remainingQuantity`).d('剩余数量'),
+        label: intl.get('hmdm.automaticCollection.view.remainingQuantity').d('剩余数量'),
         type: FieldType.number,
       },
       {
         name: 'unitPrice',
-        label: intl.get(`${modelCode}.view.unitPrice`).d('单价'),
+        label: intl.get('hiop.invoiceWorkbench.modal.price').d('单价'),
         type: FieldType.currency,
       },
       {
         name: 'excessUnitPrice',
-        label: intl.get(`${modelCode}.view.excessUnitPrice`).d('超量后单价'),
+        label: intl.get('hmdm.automaticCollection.view.excessUnitPrice').d('超量后单价'),
         type: FieldType.currency,
       },
       {
         name: 'billingCode',
-        label: intl.get(`${modelCode}.view.billingCode`).d('单位'),
+        label: intl.get('htc.common.view.unit').d('单位'),
         type: FieldType.string,
         lookupCode: 'HMDM.BILLING_CODE',
       },
       {
         name: 'billingStartDate',
-        label: intl.get(`${modelCode}.view.billingStartDate`).d('计费起始日'),
+        label: intl.get('hmdm.automaticCollection.view.billingStartDate').d('计费起始日'),
         type: FieldType.dateTime,
       },
       {
         name: 'billingEndDate',
-        label: intl.get(`${modelCode}.view.billingEndDate`).d('计费到期日'),
+        label: intl.get('hmdm.automaticCollection.view.billingEndDate').d('计费到期日'),
         type: FieldType.dateTime,
       },
       {
         name: 'billingRule',
-        label: intl.get(`${modelCode}.view.billingRule`).d('计费规则'),
+        label: intl.get('hmdm.billStatement.view.billingRule').d('计费规则'),
         type: FieldType.string,
       },
       {
         name: 'invoiceMethodCode',
-        label: intl.get(`${modelCode}.view.invoiceMethodCode`).d('开票方式'),
+        label: intl.get('hmdm.billStatement.view.invoiceMethodCode').d('开票方式'),
         type: FieldType.string,
       },
       {
         name: 'lastUpdateDate',
-        label: intl.get(`${modelCode}.view.lastUpdateDate`).d('账单生成时间'),
+        label: intl.get('hmdm.billStatement.view.lastUpdateDate').d('账单生成时间'),
         type: FieldType.date,
       },
       {
         name: 'receiver',
-        label: intl.get(`${modelCode}.view.receiver`).d('账单接收人'),
+        label: intl.get('hmdm.billStatement.view.receiver').d('账单接收人'),
         type: FieldType.string,
       },
       {
         name: 'email',
-        label: intl.get(`${modelCode}.view.email`).d('账单接收邮箱'),
+        label: intl.get('hmdm.billStatement.view.email').d('账单接收邮箱'),
         type: FieldType.string,
       },
       {
         name: 'phone',
-        label: intl.get(`${modelCode}.view.phone`).d('联系方式'),
+        label: intl.get('hmdm.billStatement.view.phone').d('联系方式'),
         type: FieldType.string,
       },
       {
         name: 'sendDate',
-        label: intl.get(`${modelCode}.view.sendDate`).d('发送时间'),
+        label: intl.get('hmdm.automaticCollection.view.sendTime').d('发送时间'),
         type: FieldType.dateTime,
       },
       {
         name: 'expirationStatus',
-        label: intl.get(`${modelCode}.view.expirationStatus`).d('到期状态'),
+        label: intl.get('hmdm.billStatement.view.expirationStatus').d('到期状态'),
         type: FieldType.string,
         lookupCode: 'HMDM_EXPIRE_STATUS',
       },
@@ -171,7 +169,7 @@ export default (): DataSetProps => {
     queryFields: [
       {
         name: 'tenantObject',
-        label: intl.get(`${modelCode}.view.tenantObject`).d('租户名称'),
+        label: intl.get('htc.common.view.tenantName').d('租户名称'),
         type: FieldType.object,
         lovCode: 'HPFM.TENANT',
         ignore: FieldIgnore.always,
@@ -183,7 +181,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'companyNameObject',
-        label: intl.get(`${modelCode}.view.companyNameObject`).d('公司名称'),
+        label: intl.get('htc.common.view.companyName').d('公司名称'),
         type: FieldType.object,
         lovCode: 'HMDM.COMPANY_INFO_SITE',
         cascadeMap: { organizationId: 'tenantId' },
@@ -196,12 +194,12 @@ export default (): DataSetProps => {
       },
       {
         name: 'agreementCompanyId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: `companyNameObject.agreementCompanyId`,
       },
       {
         name: 'expensesTypeObject',
-        label: intl.get(`${modelCode}.view.expensesTypeCode`).d('费用类型'),
+        label: intl.get('hmdm.automaticCollection.view.expensesTypeMeaning').d('费用类型'),
         type: FieldType.object,
         lovCode: 'HMDM.EXPENSES_TYPE_CODE',
         ignore: FieldIgnore.always,
@@ -213,18 +211,18 @@ export default (): DataSetProps => {
       },
       {
         name: 'billNumber',
-        label: intl.get(`${modelCode}.view.billNumber`).d('账单编号'),
+        label: intl.get('hmdm.billStatement.view.billNumber').d('账单编号'),
         type: FieldType.string,
       },
       {
         name: 'expirationStatus',
-        label: intl.get(`${modelCode}.view.expirationStatus`).d('到期状态'),
+        label: intl.get('hmdm.billStatement.view.expirationStatus').d('到期状态'),
         type: FieldType.string,
         lookupCode: 'HMDM_EXPIRE_STATUS',
       },
       {
         name: 'customerBillingModelCode',
-        label: intl.get(`${modelCode}.view.customerBillingModelCode`).d('计费类型'),
+        label: intl.get('hmdm.billStatement.view.customerBillingModelCodeMeaning').d('计费类型'),
         type: FieldType.string,
         lookupCode: 'HMDM.CUSTOMER_BILLING_MODEL',
       },

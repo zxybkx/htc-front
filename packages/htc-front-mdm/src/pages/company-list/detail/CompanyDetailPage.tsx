@@ -16,8 +16,6 @@ import { getTenantAgreement } from '@src/services/companyListService';
 import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
 import AgreementLinesForm from './AgreementLinesForm';
 
-const modelCode = 'hmdm.company-detail';
-
 interface RouterInfo {
   companyId: any;
 }
@@ -25,7 +23,7 @@ interface CompanyDetailPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
 }
 @formatterCollections({
-  code: [modelCode],
+  code: ['hmdm.companyList'],
 })
 export default class CompanyDetailPage extends Component<CompanyDetailPageProps> {
   state = {
@@ -45,7 +43,7 @@ export default class CompanyDetailPage extends Component<CompanyDetailPageProps>
     return (
       <>
         <Header
-          title={intl.get(`${modelCode}.agreementTitle`).d('协议信息')}
+          title={intl.get('hmdm.companyList.title.protocolInformation').d('协议信息')}
           backPath="/htc-front-mdm/company/list"
         />
         <Content>

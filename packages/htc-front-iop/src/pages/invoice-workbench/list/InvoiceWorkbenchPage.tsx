@@ -57,7 +57,11 @@ import {
   electronicDownload,
 } from '@src/services/invoiceOrderService';
 import { judgeRedFlush } from '@src/services/invoiceReqService';
-import { paperDeliverNotice, electronicRePush } from '@src/services/deliverInvoiceService';
+import {
+  paperDeliverNotice,
+  electronicRePush,
+  qrCodeDelivery,
+} from '@src/services/deliverInvoiceService';
 import MenuItem from 'choerodon-ui/lib/menu/MenuItem';
 import { ResizeType } from 'choerodon-ui/pro/lib/text-area/enum';
 import InvoiceWorkbenchDS from '../stores/InvoiceWorkbenchDS';
@@ -492,6 +496,43 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   }
 
   /**
+   * @description: 电子交付-电票校验邮箱必填
+   * @function: handleQRDelivery
+   */
+  @Bind()
+  validateElectronicEmail() {
+    this.modalDeliver.dataSet.current!.getField('receiveNotificationEmail')!.set('required', true);
+    const params = this.modalDeliver.dataSet.toData();
+    if (!params[0].receiveNotificationEmail) {
+      notification.info({
+        description: '',
+        message: intl.get('htc.common.validation.completeValue').d('请先完善必输数据'),
+      });
+      return false;
+    }
+    return params;
+  }
+
+  /**
+   * @description: 电子交付-二维码交付
+   * @function: handleQRDelivery
+   */
+  @Bind()
+  async handleQRDelivery() {
+    const params = this.validateElectronicEmail();
+    if (params) {
+      const res = getResponse(await qrCodeDelivery(this.handleParams(params)));
+      if (res) {
+        notification.success({
+          description: '',
+          message: intl.get('hzero.common.notification.success').d('操作成功'),
+        });
+        Modal.destroyAll();
+      }
+    }
+  }
+
+  /**
    * @description: 电子交付模态框
    * @function: modalElectronicDomRender
    */
@@ -508,8 +549,11 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
               ? intl.get('hhiop.invoiceWorkbench.view.bulkSave').d('批量保存')
               : intl.get('hzero.common.table.column.save').d('保存')}
           </Button>
+          <Button color={ButtonColor.primary} onClick={this.handleQRDelivery}>
+            {intl.get('hiop.invoiceWorkbench.btn.QRCodeDelivery').d('二维码交付')}
+          </Button>
           <Button color={ButtonColor.primary} onClick={this.handleRePush}>
-            {intl.get('hiop.invoiceWorkbench.btn.rePush').d('重新推送')}
+            {intl.get('hiop.invoiceWorkbench.btn.rePush').d('链接推送')}
           </Button>
         </div>
       ),
@@ -566,7 +610,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         return {
           ...item,
           invoiceInformation: inner,
-          invoiceOrderHeaderId: Number(invoiceOrderHeaderIds[index]),
+          invoiceOrderHeaderId: invoiceOrderHeaderIds[index],
         };
       });
     });
@@ -579,22 +623,16 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
    */
   @Bind()
   async handleRePush() {
-    this.modalDeliver.dataSet.current!.getField('receiveNotificationEmail')!.set('required', true);
-    const params = this.modalDeliver.dataSet.toData();
-    if (!params[0].receiveNotificationEmail) {
-      notification.info({
-        description: '',
-        message: intl.get('htc.common.validation.completeValue').d('请先完善必输数据'),
-      });
-      return;
-    }
-    const res = getResponse(await electronicRePush(this.handleParams(params)));
-    if (res) {
-      notification.success({
-        description: '',
-        message: intl.get('hzero.common.notification.success').d('操作成功'),
-      });
-      Modal.destroyAll();
+    const params = this.validateElectronicEmail();
+    if (params) {
+      const res = getResponse(await electronicRePush(this.handleParams(params)));
+      if (res) {
+        notification.success({
+          description: '',
+          message: intl.get('hzero.common.notification.success').d('操作成功'),
+        });
+        Modal.destroyAll();
+      }
     }
   }
 

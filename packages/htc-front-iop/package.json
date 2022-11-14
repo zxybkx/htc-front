@@ -1,16 +1,17 @@
 {
   "name": "htc-front-iop",
-  "version": "1.0.0-BETA.1",
+  "version": "1.2.1",
   "homepage": "",
   "license": "ISC",
   "directories": {
     "lib": "lib"
   },
   "publishConfig": {
-    "registry": "http://nexus.saas.hand-china.com/content/repositories/hone-ui"
+    "registry": "http://nexus.saas.hand-china.com/content/repositories/hone-ui/"
   },
   "files": [
-    "lib"
+    "lib",
+    "config"
   ],
   "repository": {
     "type": "git",

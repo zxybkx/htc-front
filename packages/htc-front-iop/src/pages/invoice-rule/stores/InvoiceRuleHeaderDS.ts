@@ -105,11 +105,11 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'rulesHeaderId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
         required: true,
       },
       {
@@ -185,7 +185,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'defaultPayeeId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'defaultPayeeObj.employeeId',
       },
       {
@@ -260,7 +260,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'globalDrawerId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'globalDrawerObj.employeeId',
       },
       {
@@ -291,7 +291,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'defaultReviewerId',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'defaultReviewerObj.employeeId',
       },
       {
@@ -491,7 +491,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceWorkbenchListIds',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'invoiceWorkbenchListObj.employeeId',
         multiple: ',',
       },
@@ -528,7 +528,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoiceRequestListIds',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'invoiceRequestListObj.employeeId',
         multiple: ',',
       },
@@ -562,7 +562,7 @@ export default (): DataSetProps => {
       },
       {
         name: 'invoicePrepareListIds',
-        type: FieldType.number,
+        type: FieldType.string,
         bind: 'invoicePrepareListObj.employeeId',
         multiple: ',',
       },
@@ -691,7 +691,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'companyId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: 'companyObj.companyId',
         },
         {
@@ -716,7 +716,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'employeeId',
-          type: FieldType.number,
+          type: FieldType.string,
           bind: 'companyObj.employeeId',
           ignore: FieldIgnore.always,
         },

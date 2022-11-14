@@ -12,8 +12,6 @@ import intl from 'utils/intl';
 import notification from 'utils/notification';
 import commonConfig from '@htccommon/config/commonConfig';
 
-const modelCode = 'hpln.index-plan';
-
 export default (tenantId): DataSetProps => {
   const API_PREFIX = commonConfig.MDM_API || '';
   return {
@@ -39,7 +37,7 @@ export default (tenantId): DataSetProps => {
         };
       },
       create: ({ data, params }) => {
-        const newList = data.map((item) => ({
+        const newList = data.map(item => ({
           ...item,
           tenantId,
         }));
@@ -68,7 +66,7 @@ export default (tenantId): DataSetProps => {
       },
     },
     feedback: {
-      submitFailed: (resp) => {
+      submitFailed: resp => {
         notification.error({
           description: '',
           message: resp && resp.message,
@@ -81,16 +79,16 @@ export default (tenantId): DataSetProps => {
     fields: [
       {
         name: 'indicatorPlanLineId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',
-        label: intl.get(`${modelCode}.view.companyCode`).d('公司代码'),
+        label: intl.get('htc.common.modal.companyCode').d('公司代码'),
         type: FieldType.string,
       },
       {
         name: 'expensesTypeObject',
-        label: intl.get(`${modelCode}.view.expensesTypeCode`).d('费用类型代码'),
+        label: intl.get('hmdm.automaticCollection.view.expensesTypeCode').d('费用类型代码'),
         type: FieldType.object,
         lovCode: 'HMDM.EXPENSES_TYPE_CODE',
         ignore: FieldIgnore.always,
@@ -102,83 +100,83 @@ export default (tenantId): DataSetProps => {
       },
       {
         name: 'expensesTypeMeaning',
-        label: intl.get(`${modelCode}.view.expensesTypeMeaning`).d('费用类型'),
+        label: intl.get('hmdm.automaticCollection.view.expensesTypeMeaning').d('费用类型'),
         type: FieldType.string,
         bind: 'expensesTypeObject.meaning',
       },
       {
         name: 'solutionPackage',
-        label: intl.get(`${modelCode}.view.solutionPackage`).d('方案包'),
+        label: intl.get('hmdm.automaticCollection.view.solutionPackage').d('方案包'),
         type: FieldType.string,
         // required: true,
         lookupCode: 'HMDM.PLAN_PACKAGE',
       },
       {
         name: 'solutionPackageNumber',
-        label: intl.get(`${modelCode}.view.solutionPackageNumber`).d('数量'),
+        label: intl.get('htc.common.view.quantity').d('数量'),
         type: FieldType.number,
       },
       {
         name: 'unitPrice',
-        label: intl.get(`${modelCode}.view.unitPrice`).d('单价'),
+        label: intl.get('hiop.invoiceWorkbench.modal.price').d('单价'),
         type: FieldType.currency,
       },
       {
         name: 'annualFee',
-        label: intl.get(`${modelCode}.view.annualFee`).d('年费'),
+        label: intl.get('hmdm.automaticCollection.view.annualFee').d('年费'),
         type: FieldType.currency,
       },
       {
         name: 'excessUnitPrice',
-        label: intl.get(`${modelCode}.view.excessUnitPrice`).d('超量后单价'),
+        label: intl.get('hmdm.automaticCollection.view.excessUnitPrice').d('超量后单价'),
         type: FieldType.currency,
       },
       {
         name: 'termDescription',
-        label: intl.get(`${modelCode}.view.termDescription`).d('条款描述'),
+        label: intl.get('hmdm.companyList.view.termDescription').d('条款描述'),
         type: FieldType.string,
       },
       {
         name: 'customerBillingModelCode',
-        label: intl.get(`${modelCode}.view.customerBillingModelCode`).d('客户计费模式'),
+        label: intl.get('hmdm.automaticCollection.view.customerBillingModelCode').d('客户计费模式'),
         type: FieldType.string,
         lookupCode: 'HMDM.CUSTOMER_BILLING_MODEL',
       },
       {
         name: 'billingCode',
-        label: intl.get(`${modelCode}.view.billingCode`).d('单位'),
+        label: intl.get('htc.common.view.unit').d('单位'),
         type: FieldType.string,
         lookupCode: 'HMDM.BILLING_CODE',
       },
       {
         name: 'billingStartDate',
-        label: intl.get(`${modelCode}.view.billingStartDate`).d('计费起始日'),
+        label: intl.get('hmdm.automaticCollection.view.billingStartDate').d('计费起始日'),
         type: FieldType.dateTime,
       },
       {
         name: 'billingEndDate',
-        label: intl.get(`${modelCode}.view.billingEndDate`).d('计费到期日'),
+        label: intl.get('hmdm.automaticCollection.view.billingEndDate').d('计费到期日'),
         type: FieldType.dateTime,
       },
       {
         name: 'billingPrice',
-        label: intl.get(`${modelCode}.view.billingPrice`).d('计费单价'),
+        label: intl.get('hmdm.companyList.view.billingPrice').d('计费单价'),
         type: FieldType.currency,
       },
       {
         name: 'billingRule',
-        label: intl.get(`${modelCode}.view.billingRule`).d('计费规则'),
+        label: intl.get('hmdm.billStatement.view.billingRule').d('计费规则'),
         type: FieldType.string,
       },
       {
         name: 'invoiceMethodCode',
-        label: intl.get(`${modelCode}.view.invoiceMethodCode`).d('开票方式'),
+        label: intl.get('hmdm.billStatement.view.invoiceMethodCode').d('开票方式'),
         type: FieldType.string,
         lookupCode: 'HMDM.INVOICE_METHOD',
       },
       {
         name: 'enabledFlag',
-        label: intl.get(`${modelCode}.view.enabledFlag`).d('启用状态'),
+        label: intl.get('htc.common.modal.enabledFlag').d('启用状态'),
         type: FieldType.boolean,
         required: true,
         falseValue: 0,

@@ -36,6 +36,7 @@ import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import { observer } from 'mobx-react-lite';
+import formatterCollections from 'utils/intl/formatterCollections';
 import commonConfig from '@htccommon/config/commonConfig';
 import { getAccessToken, getResponse } from 'utils/utils';
 import {
@@ -49,7 +50,6 @@ import {
 import { downLoadFiles } from '@htccommon/utils/utils';
 import ProjectApplicationDS, { LinkDS } from '../stores/ProjectApplicationDS';
 
-const modelCode = 'hmdm.project-application';
 const HMDM_API = commonConfig.MDM_API;
 
 interface ProjectApplicationPageProps extends RouteComponentProps {
@@ -67,11 +67,21 @@ interface ProjectApplicationPageProps extends RouteComponentProps {
   },
   { cacheState: true }
 )
+@formatterCollections({
+  code: [
+    'hmdm.projectApplication',
+    'hmdm.applyTenant',
+    'hivp.bill',
+    'hivp.invoicesArchiveUpload',
+    'hiop.customerInfo',
+    'hivp.checkCertification',
+    'hivp.documentType',
+  ],
+})
 export default class ProjectApplicationPage extends Component<ProjectApplicationPageProps> {
   state = {};
 
   linkDS = new DataSet({
-    // autoCreate: true,
     autoQuery: false,
     ...LinkDS(),
   });
@@ -106,10 +116,10 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
                   queryDataSet.create();
                 }}
               >
-                {intl.get(`${modelCode}.button.reset`).d('重置')}
+                {intl.get('hzero.common.button.reset').d('重置')}
               </Button>
               <Button color={ButtonColor.primary} onClick={() => dataSet.query()}>
-                {intl.get(`${modelCode}.button.save`).d('查询')}
+                {intl.get('hzero.common.button.query').d('查询')}
               </Button>
             </Col>
           </Row>
@@ -155,24 +165,6 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
       },
     ];
     downLoadFiles(fileList, 0);
-    // const blob = new Blob([base64toBlob(text)]);
-    // if ((window.navigator as any).msSaveBlob) {
-    //   try {
-    //     (window.navigator as any).msSaveBlob(blob, name);
-    //   } catch (e) {
-    //     notification.error({
-    //       description: '',
-    //       message: intl.get(`${modelCode}.view.ieUploadInfo`).d('下载失败'),
-    //     });
-    //   }
-    // } else {
-    //   const aElement = document.createElement('a');
-    //   const blobUrl = window.URL.createObjectURL(blob);
-    //   aElement.href = blobUrl; // 设置a标签路径
-    //   aElement.download = name;
-    //   aElement.click();
-    //   window.URL.revokeObjectURL(blobUrl);
-    // }
   }
 
   /**
@@ -210,7 +202,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
     const res = getResponse(await queryUploadInfo({ uniqueCode }));
     if (res) {
       const modal = Modal.open({
-        title: intl.get(`${modelCode}.view.downloadAttachment`).d('下载附件'),
+        title: intl.get('hmdm.projectApplication.modal.title.downloadAttachment').d('下载附件'),
         bodyStyle: { background: '#D5DAE0', padding: '10px' },
         children: (
           <div>
@@ -219,10 +211,10 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
                 <p style={{ cursor: 'pointer' }}>
                   {item.fileName}
                   <Popconfirm
-                    title={intl.get(`${modelCode}.view.uploadAttachment`).d('确定删除吗？')}
+                    title={intl.get('hmdm.applyTenant.view.title.deleteContent').d('确定删除吗？')}
                     onConfirm={() => this.deleteUploadFile(uniqueCode, item.fileUrl, record)}
-                    okText={intl.get('hzero.common.button.ok').d('确定')}
-                    cancelText={intl.get('hzero.common.button.cancel').d('取消')}
+                    okText={intl.get('hzero.c7nUI.Popconfirm.okText').d('确定')}
+                    cancelText={intl.get('hzero.c7nUI.Popconfirm.cancelText').d('取消')}
                   >
                     <Icon style={{ color: 'red', float: 'right' }} type="delete" />
                   </Popconfirm>
@@ -239,7 +231,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
         footer: (
           <div>
             <Button onClick={() => modal.close()}>
-              {intl.get(`${modelCode}.modalClose`).d('取消')}
+              {intl.get('hzero.common.button.cancel').d('取消')}
             </Button>
           </div>
         ),
@@ -254,7 +246,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
   get columns(): ColumnProps[] {
     return [
       {
-        header: intl.get(`${modelCode}.view.orderSeq`).d('序号'),
+        header: intl.get('hzero.common.model.orderSeq').d('序号'),
         width: 60,
         renderer: ({ record }) => {
           return record ? record.index + 1 : '';
@@ -312,10 +304,10 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
       {
         name: 'downloadAttachment',
         width: 150,
-        title: intl.get(`${modelCode}.view.downloadAttachment`).d('下载附件'),
+        title: intl.get('hmdm.projectApplication.modal.title.downloadAttachment').d('下载附件'),
         renderer: ({ record }) => (
           <Button color={ButtonColor.primary} onClick={() => this.showAttachment(record)}>
-            {intl.get(`${modelCode}.view.downloadAttachment`).d('下载附件')}
+            {intl.get('hmdm.projectApplication.button.downloadAttachment').d('下载附件')}
           </Button>
         ),
       },
@@ -328,25 +320,25 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
           if (subAccountStatus === '1') {
             return [
               <Button funcType={FuncType.link} onClick={() => this.openModal(record, 2)}>
-                {intl.get(`${modelCode}.button.edit`).d('编辑')}
+                {intl.get('hzero.common.button.editor').d('编辑')}
               </Button>,
               <Button funcType={FuncType.link} onClick={() => this.handleSubmit(record)}>
-                {intl.get(`${modelCode}.button.submit`).d('提交')}
+                {intl.get('hzero.common.button.submit').d('提交')}
               </Button>,
             ];
           } else if (subAccountStatus === '2') {
             return [
               <Button funcType={FuncType.link} onClick={() => this.openModal(record, 3)}>
-                {intl.get(`${modelCode}.button.edit`).d('查看')}
+                {intl.get('hzero.common.button.look').d('查看')}
               </Button>,
               <Button funcType={FuncType.link} onClick={() => this.sendNotification(record)}>
-                {intl.get(`${modelCode}.button.sendNotification`).d('发送通知')}
+                {intl.get('hmdm.projectApplication.button.sendNotification').d('发送通知')}
               </Button>,
             ];
           } else {
             return [
               <Button funcType={FuncType.link} onClick={() => this.openModal(record, 3)}>
-                {intl.get(`${modelCode}.button.edit`).d('查看')}
+                {intl.get('hzero.common.button.look').d('查看')}
               </Button>,
             ];
           }
@@ -413,7 +405,9 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
   handleGenerateInviteLink() {
     const record = this.linkDS.create({}, 0);
     const modal = Modal.open({
-      title: intl.get('hzero.common.button.save').d('生成邀请链接'),
+      title: intl
+        .get('hmdm.projectApplication.modal.title.generateInvitationLink')
+        .d('生成邀请链接'),
       children: (
         <Form record={record}>
           <Select name="linksType" />
@@ -429,10 +423,10 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
       footer: (
         <div>
           <Button color={ButtonColor.primary} onClick={() => this.handlePush()}>
-            {intl.get(`${modelCode}.push`).d('推送')}
+            {intl.get('hmdm.projectApplication.button.push').d('推送')}
           </Button>
           <Button onClick={() => this.linkCancel(modal)}>
-            {intl.get(`${modelCode}.modalColse`).d('取消')}
+            {intl.get('hzero.common.button.cancel').d('取消')}
           </Button>
         </div>
       ),
@@ -524,13 +518,13 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
       footer: (
         <div>
           <Button color={ButtonColor.primary} onClick={() => this.handleCreate(modal)}>
-            {intl.get(`${modelCode}.completed`).d('保存')}
+            {intl.get('hzero.common.button.save').d('保存')}
           </Button>
           <Button onClick={() => this.saveAndCreate(modal)}>
-            {intl.get(`${modelCode}.completed`).d('保存并新增')}
+            {intl.get('hivp.bill.button.saveAndadd').d('保存并新增')}
           </Button>
           <Button onClick={() => this.handleCancel(record, modal, type)}>
-            {intl.get(`${modelCode}.modalColse`).d('取消')}
+            {intl.get('hzero.common.button.cancel').d('取消')}
           </Button>
         </div>
       ),
@@ -572,13 +566,13 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
         onClick={this.handleGenerateInviteLink}
         color={ButtonColor.default}
       >
-        {intl.get('hzero.common.button.generateInviteLink').d('生成邀请链接')}
+        {intl.get('hmdm.projectApplication.modal.title.generateInvitationLink').d('生成邀请链接')}
       </Button>,
       <BatchButtons
         key="batchDelete"
         onClick={this.handleDelete}
         color={ButtonColor.default}
-        title={intl.get('hzero.common.button.batchDelete').d('删除')}
+        title={intl.get('hzero.common.button.enter').d('删除')}
         dataSet={this.props.projectApplicationDS}
       />,
     ];
@@ -612,14 +606,14 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
       if (res) {
         notification.success({
           description: '',
-          message: intl.get(`${modelCode}.view.uploadInvalid`).d('导入成功'),
+          message: intl.get('hzero.common.components.imported.msg').d('导入成功'),
         });
         this.props.projectApplicationDS.query();
       }
     } catch (err) {
       notification.error({
         description: err.message,
-        message: intl.get(`${modelCode}.view.uploadInvalid`).d('上传返回数据无效'),
+        message: intl.get('hivp.invoicesArchiveUpload.view.uploadInvalid').d('上传返回数据无效'),
       });
     }
   };
@@ -651,7 +645,11 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
     };
     return (
       <>
-        <Header title={intl.get(`${modelCode}.title`).d('项目申请管理')}>
+        <Header
+          title={intl
+            .get('hmdm.projectApplication.title.projectApplicationManagement')
+            .d('项目申请管理')}
+        >
           <Button onClick={() => this.handleExport()}>
             {intl.get('hzero.common.button.export').d('导出')}
           </Button>
@@ -663,7 +661,7 @@ export default class ProjectApplicationPage extends Component<ProjectApplication
             ]}
             action={`${API_HOST}${HMDM_API}/v1/apply-items/import-tenant-info`}
           >
-            {intl.get(`${modelCode}.import`).d('导入')}
+            {intl.get('hzero.common.button.import').d('导入')}
           </Upload>
         </Header>
         <Content>

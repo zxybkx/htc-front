@@ -316,15 +316,15 @@ export default (): DataSetProps => {
     fields: [
       {
         name: 'lineId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'headerId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyId',
-        type: FieldType.number,
+        type: FieldType.string,
       },
       {
         name: 'companyCode',
@@ -512,6 +512,7 @@ export default (): DataSetProps => {
       {
         name: 'unit',
         label: intl.get('hiop.invoiceWorkbench.modal.projectUnit').d('单位'),
+        bind: 'commodityNumberObj.projectUnit',
         type: FieldType.string,
       },
       {
