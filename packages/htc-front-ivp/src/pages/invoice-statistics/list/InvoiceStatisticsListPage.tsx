@@ -2,12 +2,12 @@
  * @Description: 进销发票统计报表
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-11-03 16:12:58
- * @LastEditTime: 2022-11-08 10:40:01
+ * @LastEditTime: 2022-11-14 17:22:09
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
 import withProps from 'utils/withProps';
-import { DataSet, Table } from 'choerodon-ui/pro';
+import { DataSet, Table, TextField } from 'choerodon-ui/pro';
 import { Content, Header } from 'components/Page';
 import formatterCollections from 'utils/intl/formatterCollections';
 import ExcelExport from 'components/ExcelExport';
@@ -23,24 +23,24 @@ const API_PREFIX = commonConfig.IVP_API || '';
 const tenantId = getCurrentOrganizationId();
 const modelCode = 'hivp.invoiceStatistics';
 
+enum DetailType {
+  trueInvoiceAmount = 1,
+  trueTaxAmount = 2,
+  checkDeductionAmount = 3,
+  checkDeductionTaxAmount = 4,
+  fillingDeductionTaxAmount = 5,
+  fillingDeductionAmount = 6,
+  totalDeductionAmount = 7,
+  totalDeductionTaxAmount = 8,
+  inputTaxTransferAmount = 9,
+  inputTaxTransferTaxAmount = 10,
+}
 interface InvoiceStatisticsPageProps extends RouteComponentProps {
   listDS: DataSet;
 }
 
 @formatterCollections({
-  code: [
-    modelCode,
-    'hivp.bill',
-    'hivp.invoicesLayoutPush',
-    'htc.common',
-    'hcan.invoiceDetail',
-    'hivc.select',
-    'hivp.batchCheck',
-    'hiop.invoiceWorkbench',
-    'hivp.checkCertification',
-    'hiop.invoiceReq',
-    'hivp.invoicesArchiveUpload',
-  ],
+  code: [modelCode, 'htc.common', 'hivp.invoices'],
 })
 @withProps(
   () => {
@@ -54,11 +54,18 @@ interface InvoiceStatisticsPageProps extends RouteComponentProps {
 )
 export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsPageProps> {
   @Bind()
-  handleGotoDetailTablePage(record) {
-    const { history } = this.props;
+  handleGotoDetailTablePage(record, name) {
+    const { history, listDS } = this.props;
+    const { queryDataSet } = listDS;
+    const { tenantObject, companyObj, ...otherParms } =
+      queryDataSet && queryDataSet.current?.toData();
     history.push({
-      pathname: '/htc-front-ivp/deduction-statement/detail',
-      state: { record },
+      pathname: '/htc-front-ivp/invoice-statistics/detail',
+      state: {
+        ...otherParms,
+        ...record.toData(),
+        dataInfo: String(DetailType[name]),
+      },
     });
   }
 
@@ -93,48 +100,58 @@ export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsPa
       {
         name: 'trueInvoiceAmount',
         width: 120,
-        renderer: ({ record }) => {
+        renderer: ({ record, name }) => {
           const trueInvoiceAmount = record && record.get('trueInvoiceAmount');
-          return <a onClick={() => this.handleGotoDetailTablePage(record)}>{trueInvoiceAmount}</a>;
+          return (
+            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>{trueInvoiceAmount}</a>
+          );
         },
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'trueTaxAmount',
         width: 120,
-        renderer: ({ record }) => {
+        renderer: ({ record, name }) => {
           const trueTaxAmount = record && record.get('trueTaxAmount');
-          return <a onClick={() => this.handleGotoDetailTablePage(record)}>{trueTaxAmount}</a>;
+          return (
+            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>{trueTaxAmount}</a>
+          );
         },
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'unInvoiceIncomeAmount',
         width: 120,
+        editor: <TextField onBlur={() => this.props.listDS.submit()} />,
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'unInvoiceIncomeTaxAmount',
         width: 120,
+        editor: <TextField onBlur={() => this.props.listDS.submit()} />,
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'adjustIncomeAmount',
         width: 120,
+        editor: <TextField onBlur={() => this.props.listDS.submit()} />,
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'adjustIncomeTaxAmount',
         width: 120,
+        editor: <TextField onBlur={() => this.props.listDS.submit()} />,
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'checkDeductionAmount',
         width: 120,
-        renderer: ({ record }) => {
+        renderer: ({ record, name }) => {
           const checkDeductionAmount = record && record.get('checkDeductionAmount');
           return (
-            <a onClick={() => this.handleGotoDetailTablePage(record)}>{checkDeductionAmount}</a>
+            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
+              {checkDeductionAmount}
+            </a>
           );
         },
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
@@ -142,10 +159,12 @@ export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsPa
       {
         name: 'checkDeductionTaxAmount',
         width: 120,
-        renderer: ({ record }) => {
+        renderer: ({ record, name }) => {
           const checkDeductionTaxAmount = record && record.get('checkDeductionTaxAmount');
           return (
-            <a onClick={() => this.handleGotoDetailTablePage(record)}>{checkDeductionTaxAmount}</a>
+            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
+              {checkDeductionTaxAmount}
+            </a>
           );
         },
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
@@ -153,10 +172,10 @@ export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsPa
       {
         name: 'fillingDeductionTaxAmount',
         width: 120,
-        renderer: ({ record }) => {
+        renderer: ({ record, name }) => {
           const fillingDeductionTaxAmount = record && record.get('fillingDeductionTaxAmount');
           return (
-            <a onClick={() => this.handleGotoDetailTablePage(record)}>
+            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
               {fillingDeductionTaxAmount}
             </a>
           );
@@ -166,10 +185,12 @@ export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsPa
       {
         name: 'fillingDeductionAmount',
         width: 120,
-        renderer: ({ record }) => {
+        renderer: ({ record, name }) => {
           const fillingDeductionAmount = record && record.get('fillingDeductionAmount');
           return (
-            <a onClick={() => this.handleGotoDetailTablePage(record)}>{fillingDeductionAmount}</a>
+            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
+              {fillingDeductionAmount}
+            </a>
           );
         },
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
@@ -177,10 +198,12 @@ export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsPa
       {
         name: 'inputTaxTransferAmount',
         width: 120,
-        renderer: ({ record }) => {
+        renderer: ({ record, name }) => {
           const inputTaxTransferAmount = record && record.get('inputTaxTransferAmount');
           return (
-            <a onClick={() => this.handleGotoDetailTablePage(record)}>{inputTaxTransferAmount}</a>
+            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
+              {inputTaxTransferAmount}
+            </a>
           );
         },
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
@@ -188,10 +211,10 @@ export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsPa
       {
         name: 'inputTaxTransferTaxAmount',
         width: 120,
-        renderer: ({ record }) => {
+        renderer: ({ record, name }) => {
           const inputTaxTransferTaxAmount = record && record.get('inputTaxTransferTaxAmount');
           return (
-            <a onClick={() => this.handleGotoDetailTablePage(record)}>
+            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
               {inputTaxTransferTaxAmount}
             </a>
           );
@@ -201,10 +224,12 @@ export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsPa
       {
         name: 'totalDeductionAmount',
         width: 120,
-        renderer: ({ record }) => {
+        renderer: ({ record, name }) => {
           const totalDeductionAmount = record && record.get('totalDeductionAmount');
           return (
-            <a onClick={() => this.handleGotoDetailTablePage(record)}>{totalDeductionAmount}</a>
+            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
+              {totalDeductionAmount}
+            </a>
           );
         },
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
@@ -212,10 +237,12 @@ export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsPa
       {
         name: 'totalDeductionTaxAmount',
         width: 120,
-        renderer: ({ record }) => {
+        renderer: ({ record, name }) => {
           const totalDeductionTaxAmount = record && record.get('totalDeductionTaxAmount');
           return (
-            <a onClick={() => this.handleGotoDetailTablePage(record)}>{totalDeductionTaxAmount}</a>
+            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
+              {totalDeductionTaxAmount}
+            </a>
           );
         },
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
@@ -278,12 +305,12 @@ export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsPa
       <>
         <Header title={intl.get(`${modelCode}.view.title`).d('进销发票统计报表')}>
           <ExcelExport
-            requestUrl={`${API_PREFIX}/v1/${tenantId}/invoice-pool-main/export-invoice`}
+            requestUrl={`${API_PREFIX}/v1/${tenantId}/in-out-invoice/export-all`}
             queryParams={() => this.handleGetQueryParams()}
           />
         </Header>
         <Content>
-          <Table dataSet={this.props.listDS} columns={this.columns} style={{ height: 400 }} />
+          <Table dataSet={this.props.listDS} columns={this.columns} style={{ height: 500 }} />
         </Content>
       </>
     );

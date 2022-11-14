@@ -2,7 +2,7 @@
  * @Description: 进销发票统计报表
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-11-03 16:12:58
- * @LastEditTime: 2022-11-08 14:26:57
+ * @LastEditTime: 2022-11-14 17:27:43
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -12,40 +12,40 @@ import formatterCollections from 'utils/intl/formatterCollections';
 import ExcelExport from 'components/ExcelExport';
 import commonConfig from '@htccommon/config/commonConfig';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
-import { RouteComponentProps } from 'react-router-dom';
+// import { RouteComponentProps } from 'react-router-dom';
 import intl from 'utils/intl';
 import { Bind } from 'lodash-decorators';
 import { getCurrentOrganizationId } from 'utils/utils';
-import DetailDS from '../stores/DetailDs';
+import DetailDS from '../stores/DetailDS';
 
 const API_PREFIX = commonConfig.IVP_API || '';
 const tenantId = getCurrentOrganizationId();
 const modelCode = 'hivp.invoiceStatistics';
 
-interface InvoiceStatisticsDetailPageProps extends RouteComponentProps {
+interface InvoiceStatisticsDetailPageProps {
   detailDS: DataSet;
+  location: {
+    state: Object | any;
+  };
 }
 
 @formatterCollections({
-  code: [
-    modelCode,
-    'hivp.bill',
-    'hivp.invoicesLayoutPush',
-    'htc.common',
-    'hcan.invoiceDetail',
-    'hivc.select',
-    'hivp.batchCheck',
-    'hiop.invoiceWorkbench',
-    'hivp.checkCertification',
-    'hiop.invoiceReq',
-    'hivp.invoicesArchiveUpload',
-  ],
+  code: [modelCode, 'htc.common'],
 })
 export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsDetailPageProps> {
   detailDS = new DataSet({
     autoQuery: false,
     ...DetailDS(),
   });
+
+  @Bind()
+  async componentDidMount() {
+    const { queryDataSet } = this.detailDS;
+    if (queryDataSet && queryDataSet.current) {
+      queryDataSet.current.set(this.props.location.state);
+      this.detailDS.query();
+    }
+  }
 
   get columns(): ColumnProps[] {
     return [
@@ -108,9 +108,12 @@ export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsDe
   render() {
     return (
       <>
-        <Header title={intl.get(`${modelCode}.view.title`).d('进销发票统计报表详情')}>
+        <Header
+          title={intl.get(`${modelCode}.view.detailTitle`).d('进销发票统计报表详情')}
+          backPath="/htc-front-ivp/invoice-statistics/list"
+        >
           <ExcelExport
-            requestUrl={`${API_PREFIX}/v1/${tenantId}/invoice-pool-main/export-invoice`}
+            requestUrl={`${API_PREFIX}/v1/${tenantId}/in-out-invoice/export-detail`}
             queryParams={() => this.handleGetQueryParams()}
           />
         </Header>

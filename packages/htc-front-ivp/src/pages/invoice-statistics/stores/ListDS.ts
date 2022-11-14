@@ -2,7 +2,7 @@
  * @Description: 进销发票统计报表
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-11-03 16:14:01
- * @LastEditTime: 2022-11-08 10:47:06
+ * @LastEditTime: 2022-11-14 13:58:23
  * @Copyright: Copyright (c) 2020, Hand
  */
 
@@ -11,20 +11,21 @@ import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { DataSet } from 'choerodon-ui/pro';
 import intl from 'utils/intl';
+import moment from 'moment';
 import { getCurrentOrganizationId, getCurrentTenant } from 'utils/utils';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 
 const modelCode = 'hivp.invoiceStatistics';
 
 export default (): DataSetProps => {
-  const API_PREFIX = commonConfig.IOP_API || '';
+  const API_PREFIX = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
   const tenantInfo = getCurrentTenant();
 
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
-        const url = `${API_PREFIX}/v1/${tenantId}/in_out_invoice/all`;
+        const url = `${API_PREFIX}/v1/${tenantId}/in-out-invoice/all`;
         const axiosConfig: AxiosRequestConfig = {
           ...config,
           url,
@@ -36,14 +37,29 @@ export default (): DataSetProps => {
         };
         return axiosConfig;
       },
+      submit: ({ data, dataSet }) => {
+        const { queryDataSet } = dataSet!;
+        const serchData = queryDataSet && queryDataSet.current?.toData();
+        return {
+          url: `${API_PREFIX}/v1/${tenantId}/invoice-analysis-infos`,
+          data: [
+            {
+              ...data[0],
+              ...serchData,
+            },
+          ],
+          method: 'POST',
+        };
+      },
     },
-    pageSize: 10,
+    // pageSize: 10,
+    paging: false,
     selection: false,
     fields: [
       {
         name: 'year',
         type: FieldType.string,
-        label: intl.get(`${modelCode}.view.month`).d('所属月度'),
+        label: intl.get(`${modelCode}.view.month`).d('所属年度'),
       },
       {
         name: 'mouth',
@@ -184,6 +200,7 @@ export default (): DataSetProps => {
           lovCode: 'HIOP.CURRENT_EMPLOYEE_OUT',
           lovPara: { tenantId },
           ignore: FieldIgnore.always,
+          required: true,
         },
         {
           name: 'companyId',
@@ -216,11 +233,19 @@ export default (): DataSetProps => {
           name: 'year',
           label: intl.get(`${modelCode}.view.year`).d('所属年度'),
           type: FieldType.year,
+          transformRequest(value) {
+            return moment(value).format('YYYY');
+          },
           required: true,
         },
         {
           name: 'mouth',
           label: intl.get(`${modelCode}.view.month`).d('所属月度'),
+          format: 'MM',
+          defaultValue: '',
+          transformRequest(value) {
+            return value ? moment(value).format('MM') : '';
+          },
           type: FieldType.month,
         },
       ],

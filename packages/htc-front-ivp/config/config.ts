@@ -346,7 +346,7 @@ const deductionStatement = [
       },
     ],
   },
-]
+];
 const invoiceStatistics = [
   {
     path: '/htc-front-ivp/invoice-statistics',
@@ -361,7 +361,7 @@ const invoiceStatistics = [
       },
     ],
   },
-]
+];
 export default extendParentConfig({
   webpack5: {},
   devServer: {
