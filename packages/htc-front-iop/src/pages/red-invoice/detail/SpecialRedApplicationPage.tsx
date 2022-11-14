@@ -420,7 +420,7 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
       for (const item of lineList) {
         totalAmount += Math.abs(item.detailAmount);
       }
-      if (totalAmount > Math.abs(originalAmount)) {
+      if (Number(totalAmount.toFixed(2)) > Math.abs(originalAmount)) {
         notification.error({
           description: '',
           message: intl
