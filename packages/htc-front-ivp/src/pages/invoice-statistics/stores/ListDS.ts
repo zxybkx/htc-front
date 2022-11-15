@@ -2,7 +2,7 @@
  * @Description: 进销发票统计报表
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-11-03 16:14:01
- * @LastEditTime: 2022-11-15 11:11:13
+ * @LastEditTime: 2022-11-15 16:50:06
  * @Copyright: Copyright (c) 2020, Hand
  */
 
@@ -59,7 +59,7 @@ export default (): DataSetProps => {
       {
         name: 'year',
         type: FieldType.string,
-        label: intl.get(`${modelCode}.view.month`).d('所属年度'),
+        label: intl.get(`${modelCode}.view.year`).d('所属年度'),
       },
       {
         name: 'mouth',
