@@ -99,6 +99,7 @@ interface InvoiceWorkbenchPageProps extends RouteComponentProps {
     'hiop.tobeInvoice',
     'hiop.invoiceReq',
     'hivp.invoices',
+    'hiop.redInvoiceInfo',
   ],
 })
 export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPageProps> {
@@ -1361,16 +1362,27 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       len: 6,
       title: intl.get('hiop.invoiceWorkbench.button.download').d('电票下载'),
     };
+    const exportBtn = {
+      key: 'export',
+      ele: renderPermissionButton({
+        onClick: () => this.handleBatchDownload(record),
+        permissionCode: 'export',
+        permissionMeaning: '按钮-导出文件',
+        title: intl.get('hiop.redInvoiceInfo.button.download').d('导出文件'),
+      }),
+      len: 6,
+      title: intl.get('hiop.redInvoiceInfo.button.download').d('导出文件'),
+    };
     // 新建、取消
-    if (orderStatus === 'N' || orderStatus === 'Q') {
+    if (['N', 'Q'].includes(orderStatus)) {
       operators.push(submitInvoiceBtn, deleteInvoiceBtn);
     }
+    // 新建、取消、完成
+    if (['N', 'Q', 'F'].includes(orderStatus)) {
+      operators.push(exportBtn);
+    }
     // 提交、异常
-    if (
-      (orderStatus === 'C' && orderProgress === '1000') ||
-      orderStatus === 'E' ||
-      orderStatus === 'I'
-    ) {
+    if ((orderStatus === 'C' && orderProgress === '1000') || ['E', 'I'].includes(orderStatus)) {
       operators.push(cancelInvoiceBtn);
     }
     // 完成
@@ -1399,7 +1411,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       operators.push(invoiceDeliverBtn);
     }
     // 提交
-    if (orderStatus === 'C' || orderStatus === 'I') {
+    if (['C', 'I'].includes(orderStatus)) {
       operators.push(freshStateBtn);
     }
     // 批量下载

@@ -32,6 +32,7 @@ import {
   Table,
   TextArea,
   TextField,
+  DatePicker,
 } from 'choerodon-ui/pro';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { Bind } from 'lodash-decorators';
@@ -102,6 +103,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     addDisabled: false,
     employeeInfo: {} as any,
     invoiceVariety: '',
+    purchaseInvoiceFlag: '',
   };
 
   /**
@@ -195,8 +197,14 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         this.invoiceOrderHeaderDS.current!.set('billingType', billingType === 5 ? '2' : '1');
       }
       // 判断页面是否可编辑
-      const { orderStatus, invoiceSourceType, invoiceVariety, hasPermission } = res;
-      this.setState({ orderStatus, billingType, invoiceVariety });
+      const {
+        orderStatus,
+        invoiceSourceType,
+        invoiceVariety,
+        hasPermission,
+        purchaseInvoiceFlag,
+      } = res;
+      this.setState({ orderStatus, billingType, invoiceVariety, purchaseInvoiceFlag });
       this.judgeIsEdit(orderStatus, billingType, sourceType, invoiceSourceType, hasPermission);
       if (sourceType === 'issues') {
         this.issueModal(
@@ -254,9 +262,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         };
         const newData = getResponse(await orderNew(params));
         if (newData) {
-          const { billingType, invoiceVariety } = newData;
+          const { billingType, invoiceVariety, purchaseInvoiceFlag } = newData;
           this.invoiceOrderHeaderDS.create(newData, 0);
-          this.setState({ billingType, invoiceVariety, orderStatus: 'N' });
+          this.setState({ billingType, invoiceVariety, purchaseInvoiceFlag, orderStatus: 'N' });
         }
       } else {
         // 编辑/查看订单
@@ -946,6 +954,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         this.invoiceOrderHeaderDS.current!.set('buyerObj', {});
       }
     }
+    this.setState({ purchaseInvoiceFlag });
   }
 
   /**
@@ -1055,6 +1064,27 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         <TextField name="paperTicketReceiverPhone" />,
         <TextField name="paperTicketReceiverAddress" />,
       ];
+    }
+  }
+
+  /**
+   * 业务类型切换UI切换
+   */
+  proformaInvoiceTag() {
+    const { purchaseInvoiceFlag } = this.state;
+    if (purchaseInvoiceFlag === '5') {
+      return [
+        <TextField name="loadingPort" />,
+        <TextField name="destinationPort" />,
+        <TextField name="bankAddress" />,
+        <TextField name="swiftCode" />,
+        <Select name="termsOfTrade" />,
+        <Select name="typeOfShapping" />,
+        <Select name="paymentMethod" />,
+        <DatePicker name="shippingDateObj" />,
+      ];
+    } else {
+      return [];
     }
   }
 
@@ -1374,6 +1404,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
               labelTooltip={Tooltip.overflow}
               style={{ background: '#fff', paddingRight: '16px' }}
             >
+              {this.proformaInvoiceTag()}
               <TextArea name="userRemark" rows={1} colSpan={2} resize={ResizeType.both} />
 
               <Select name="orderProgress" />
