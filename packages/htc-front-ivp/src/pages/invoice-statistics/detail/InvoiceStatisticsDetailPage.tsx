@@ -2,7 +2,7 @@
  * @Description: 进销发票统计报表
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-11-03 16:12:58
- * @LastEditTime: 2022-11-14 17:27:43
+ * @LastEditTime: 2022-11-15 11:18:02
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -30,7 +30,7 @@ interface InvoiceStatisticsDetailPageProps {
 }
 
 @formatterCollections({
-  code: [modelCode, 'htc.common'],
+  code: [modelCode, 'htc.common', 'hivp.invoicesLayoutPush', 'hivp.batchCheck'],
 })
 export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsDetailPageProps> {
   detailDS = new DataSet({
@@ -51,6 +51,7 @@ export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsDe
     return [
       {
         name: 'invoiceType',
+        width: 140,
       },
       {
         name: 'invoiceCode',
@@ -60,9 +61,11 @@ export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsDe
       },
       {
         name: 'buyerName',
+        width: 140,
       },
       {
         name: 'sellerName',
+        width: 140,
       },
       {
         name: 'invoiceState',
