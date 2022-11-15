@@ -2,7 +2,7 @@
  * @Description: 进销发票统计报表
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-11-03 16:14:01
- * @LastEditTime: 2022-11-14 13:58:23
+ * @LastEditTime: 2022-11-15 11:11:13
  * @Copyright: Copyright (c) 2020, Hand
  */
 
@@ -42,12 +42,12 @@ export default (): DataSetProps => {
         const serchData = queryDataSet && queryDataSet.current?.toData();
         return {
           url: `${API_PREFIX}/v1/${tenantId}/invoice-analysis-infos`,
-          data: [
-            {
-              ...data[0],
+          data: data.map(item => {
+            return {
               ...serchData,
-            },
-          ],
+              ...item,
+            };
+          }),
           method: 'POST',
         };
       },
@@ -68,82 +68,82 @@ export default (): DataSetProps => {
       },
       {
         name: 'trueInvoiceAmount',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.trueInvoiceAmount`).d('实际开票金额'),
       },
       {
         name: 'trueTaxAmount',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.trueTaxAmount`).d('实际开票税额'),
       },
       {
         name: 'unInvoiceIncomeAmount',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.unInvoiceIncomeAmount`).d('未开票收入金额'),
       },
       {
         name: 'unInvoiceIncomeTaxAmount',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.unInvoiceIncomeTaxAmount`).d('未开票收入税额'),
       },
       {
         name: 'adjustIncomeAmount',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.adjustIncomeAmount`).d('调整收入金额'),
       },
       {
         name: 'adjustIncomeTaxAmount',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.adjustIncomeTaxAmount`).d('调整收入税额'),
       },
       {
         name: 'checkDeductionAmount',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.checkDeductionAmount`).d('勾选抵扣金额'),
       },
       {
         name: 'checkDeductionTaxAmount',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.checkDeductionTaxAmount`).d('勾选抵扣税额'),
       },
       {
         name: 'fillingDeductionTaxAmount',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.fillingDeductionTaxAmount`).d('填表抵扣税额'),
       },
       {
         name: 'fillingDeductionAmount',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.fillingDeductionAmount`).d('填表抵扣金额'),
       },
       {
         name: 'inputTaxTransferAmount',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.inputTaxTransferAmount`).d('进项税转出金额'),
       },
       {
         name: 'inputTaxTransferTaxAmount',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.inputTaxTransferTaxAmount`).d('进项税转出税额'),
       },
       {
         name: 'totalDeductionAmount',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.totalDeductionAmount`).d('合计抵扣金额'),
       },
       {
         name: 'totalDeductionTaxAmount',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.totalDeductionTaxAmount`).d('合计抵扣税额'),
       },
       {
         name: 'inputAmountDifference',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.inputAmountDifference`).d('进项金额差额'),
       },
       {
         name: 'inputTaxAmountDifference',
-        type: FieldType.string,
+        type: FieldType.currency,
         label: intl.get(`${modelCode}.view.inputTaxAmountDifference`).d('进项税额差额'),
       },
       {

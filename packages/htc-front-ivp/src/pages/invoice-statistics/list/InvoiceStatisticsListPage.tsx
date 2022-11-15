@@ -2,7 +2,7 @@
  * @Description: 进销发票统计报表
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-11-03 16:12:58
- * @LastEditTime: 2022-11-14 17:22:09
+ * @LastEditTime: 2022-11-15 10:03:42
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
@@ -88,11 +88,20 @@ export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsPa
     return `${total || 0}`;
   }
 
+  @Bind()
+  renderAmount(value, text, record, name) {
+    if (value === 0) {
+      return text;
+    } else {
+      return <a onClick={() => this.handleGotoDetailTablePage(record, name)}>{text}</a>;
+    }
+  }
+
   get columns(): ColumnProps[] {
     return [
       {
         name: 'year',
-        footer: () => `${intl.get('hivp.invoices.view.total').d('合计')}：`,
+        footer: () => `${intl.get('hivp.invoices.view.total').d('合计')}`,
       },
       {
         name: 'mouth',
@@ -100,23 +109,13 @@ export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsPa
       {
         name: 'trueInvoiceAmount',
         width: 120,
-        renderer: ({ record, name }) => {
-          const trueInvoiceAmount = record && record.get('trueInvoiceAmount');
-          return (
-            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>{trueInvoiceAmount}</a>
-          );
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'trueTaxAmount',
         width: 120,
-        renderer: ({ record, name }) => {
-          const trueTaxAmount = record && record.get('trueTaxAmount');
-          return (
-            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>{trueTaxAmount}</a>
-          );
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
@@ -146,105 +145,49 @@ export default class InvoiceStatisticsPage extends Component<InvoiceStatisticsPa
       {
         name: 'checkDeductionAmount',
         width: 120,
-        renderer: ({ record, name }) => {
-          const checkDeductionAmount = record && record.get('checkDeductionAmount');
-          return (
-            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
-              {checkDeductionAmount}
-            </a>
-          );
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'checkDeductionTaxAmount',
         width: 120,
-        renderer: ({ record, name }) => {
-          const checkDeductionTaxAmount = record && record.get('checkDeductionTaxAmount');
-          return (
-            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
-              {checkDeductionTaxAmount}
-            </a>
-          );
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'fillingDeductionTaxAmount',
         width: 120,
-        renderer: ({ record, name }) => {
-          const fillingDeductionTaxAmount = record && record.get('fillingDeductionTaxAmount');
-          return (
-            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
-              {fillingDeductionTaxAmount}
-            </a>
-          );
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'fillingDeductionAmount',
         width: 120,
-        renderer: ({ record, name }) => {
-          const fillingDeductionAmount = record && record.get('fillingDeductionAmount');
-          return (
-            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
-              {fillingDeductionAmount}
-            </a>
-          );
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'inputTaxTransferAmount',
         width: 120,
-        renderer: ({ record, name }) => {
-          const inputTaxTransferAmount = record && record.get('inputTaxTransferAmount');
-          return (
-            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
-              {inputTaxTransferAmount}
-            </a>
-          );
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'inputTaxTransferTaxAmount',
         width: 120,
-        renderer: ({ record, name }) => {
-          const inputTaxTransferTaxAmount = record && record.get('inputTaxTransferTaxAmount');
-          return (
-            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
-              {inputTaxTransferTaxAmount}
-            </a>
-          );
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'totalDeductionAmount',
         width: 120,
-        renderer: ({ record, name }) => {
-          const totalDeductionAmount = record && record.get('totalDeductionAmount');
-          return (
-            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
-              {totalDeductionAmount}
-            </a>
-          );
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
         name: 'totalDeductionTaxAmount',
         width: 120,
-        renderer: ({ record, name }) => {
-          const totalDeductionTaxAmount = record && record.get('totalDeductionTaxAmount');
-          return (
-            <a onClick={() => this.handleGotoDetailTablePage(record, name)}>
-              {totalDeductionTaxAmount}
-            </a>
-          );
-        },
+        renderer: ({ value, text, record, name }) => this.renderAmount(value, text, record, name),
         footer: (dataSet, name) => this.renderColumnFooter(dataSet, name),
       },
       {
