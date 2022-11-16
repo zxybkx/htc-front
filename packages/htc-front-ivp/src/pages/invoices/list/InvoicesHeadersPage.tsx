@@ -28,6 +28,7 @@ import {
   TextField,
 } from 'choerodon-ui/pro';
 import { Col, Row, Tag } from 'choerodon-ui';
+import { RouteComponentProps } from 'react-router-dom';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
@@ -65,7 +66,7 @@ const permissionPath = `${getPresentMenu().name}.ps`;
 const sourceCode = 'INVOICE_POOL';
 const { Item: MenuItem } = Menu;
 
-interface InvoicesHeadersPageProps {
+interface InvoicesHeadersPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   invoices: any;
   headerDS: DataSet;
@@ -602,7 +603,8 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
     } else {
       invoiceHeaderId = record.get('invoiceHeaderId');
     }
-    const { dispatch } = this.props;
+
+    const { history } = this.props;
     localStorage.setItem(
       'currentInvoicerecord',
       JSON.stringify({
@@ -610,12 +612,11 @@ export default class InvoicesHeadersPage extends Component<InvoicesHeadersPagePr
         billPoolHeaderId: null,
       })
     ); // 添加跳转record缓存
+    // localStorage.setItem('currentInvoicerecord', JSON.stringify(record.data)); // 添加跳转record缓存
     const pathname = `/htc-front-ivp/invoices/detail/${invoiceHeaderId}/${invoiceType}/${entryPoolSource}/${companyCode}`;
-    dispatch(
-      routerRedux.push({
-        pathname,
-      })
-    );
+    history.push({
+      pathname,
+    });
   }
 
   // 状态更新
