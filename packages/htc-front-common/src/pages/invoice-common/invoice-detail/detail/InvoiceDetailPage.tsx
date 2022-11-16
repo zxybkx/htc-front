@@ -26,6 +26,7 @@ interface InvoiceDetailPageProps {
   backPath: string;
   invoiceHeaderId: any;
   invoiceType: string;
+  entryPoolSource: string;
 }
 
 @formatterCollections({
@@ -40,7 +41,7 @@ export default class InvoiceDetailPage extends Component<InvoiceDetailPageProps>
   // 明细DS
   detailDS = new DataSet({
     autoQuery: true,
-    ...InvoiceDetailHeaderDS(this.props.invoiceHeaderId),
+    ...InvoiceDetailHeaderDS(this.props),
     children: {
       invoiceLinesInfoList: this.linesDS,
     },
