@@ -137,7 +137,7 @@ export default (): DataSetProps => {
           type: FieldType.object,
           lovCode: 'HTC.SOURCE_SYSTEM',
           lovPara: { enabledFlag: 1 },
-          multiple: ',',
+          multiple: true,
           ignore: FieldIgnore.always,
         },
         {
@@ -175,7 +175,7 @@ export default (): DataSetProps => {
               return !record.get('docTypeHeaderId').length;
             },
           },
-          multiple: ',',
+          multiple: true,
           ignore: FieldIgnore.always,
         },
         {
