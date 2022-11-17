@@ -226,6 +226,19 @@ export async function judgeRedFlush(params) {
 }
 
 /**
+ * 行导出文件
+ * @function exportProformalInvoice
+ * @params {object} params
+ */
+export async function exportProformalInvoice(params) {
+  const { tenantId, data } = params;
+  return request(`${HIOP_API}/v1/${tenantId}/requisition-headers/export-proformal-invoice`, {
+    method: 'POST',
+    body: data,
+  });
+}
+
+/**
  * 判断是否可以作废
  * @async
  * @function judgeInvoiceVoid

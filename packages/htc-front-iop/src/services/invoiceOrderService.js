@@ -174,6 +174,19 @@ export async function batchCancelSubmitOrder(params) {
 }
 
 /**
+ * 行导出文件
+ * @function exportProformalInvoice
+ * @params {object} params
+ */
+export async function exportProformalInvoice(params) {
+  const { tenantId, data } = params;
+  return request(`${HIOP_API}/v1/${tenantId}/invoicing-order-headers/export-proformal-invoice`, {
+    method: 'POST',
+    body: data,
+  });
+}
+
+/**
  * 批量删除
  * @async
  * @function batchRemove

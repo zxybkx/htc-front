@@ -52,11 +52,7 @@ const setDefaultInvoiceInfo = (params, record) => {
  * @params {object} record-当前行
  */
 const judgePaperReadonly = record => {
-  return (
-    record.get('readonly') ||
-    record.get('invoiceVariety') === '51' ||
-    record.get('invoiceVariety') === '52'
-  );
+  return record.get('readonly') || ['51', '52'].includes(record.get('invoiceVariety'));
 };
 
 /**
@@ -118,6 +114,13 @@ const judgeSource = record => {
   );
 };
 
+/**
+ * 形式发票必输验证规则
+ */
+const proformaRequiredRule = record => {
+  return record.get('purchaseInvoiceFlag') === '5';
+};
+
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.IOP_API || '';
   return {
@@ -144,8 +147,9 @@ export default (dsParams): DataSetProps => {
         if (name === 'sellerObj' && value) {
           setCustomerInfo(value, oldValue, record, 1, dsParams.companyId);
         }
-        if (name === 'invoiceVariety') {
-          if (value !== '51' && value !== '52') {
+        if (name === 'invoiceTypeObj' && value) {
+          const invoiceVariety = value.value;
+          if (invoiceVariety !== '51' && invoiceVariety !== '52') {
             record.set('deliveryWay', '0');
             record.set('electronicReceiverInfo', '');
           } else {
@@ -211,22 +215,48 @@ export default (dsParams): DataSetProps => {
         required: true,
       },
       {
-        name: 'purchaseInvoiceFlag',
+        name: 'purchaseInvoiceFlagObj',
         label: intl.get('hiop.tobeInvoice.modal.requestTypeObj').d('业务类型'),
-        type: FieldType.string,
+        type: FieldType.object,
+        lovCode: 'HIOP.ACQUISITION_SIGN',
+        cascadeMap: { companyId: 'companyId', employeeId: 'employeeId' },
+        ignore: FieldIgnore.always,
+        required: true,
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
         },
+      },
+      {
+        name: 'purchaseInvoiceFlag',
+        type: FieldType.string,
+        bind: 'purchaseInvoiceFlagObj.value',
+      },
+      {
+        name: 'purchaseInvoiceFlagMeaning',
+        type: FieldType.string,
+        bind: 'purchaseInvoiceFlagObj.meaning',
+      },
+      {
+        name: 'invoiceTypeObj',
+        label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
+        type: FieldType.object,
+        lovCode: 'HIOP.INVOICE_VARIETY',
+        cascadeMap: { companyId: 'companyId', employeeId: 'employeeId' },
+        ignore: FieldIgnore.always,
         required: true,
+        computedProps: {
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
       },
       {
         name: 'invoiceVariety',
-        label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
         type: FieldType.string,
-        computedProps: {
-          readOnly: ({ record }) => headerReadOnlyRule(record),
-        },
-        required: true,
+        bind: 'invoiceTypeObj.value',
+      },
+      {
+        name: 'invoiceVarietyMeaning',
+        type: FieldType.string,
+        bind: 'invoiceTypeObj.meaning',
       },
       {
         name: 'buyerObj',
@@ -274,8 +304,7 @@ export default (dsParams): DataSetProps => {
         computedProps: {
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '0',
-          required: ({ record }) =>
-            record.get('invoiceVariety') === '0' || record.get('invoiceVariety') === '52',
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceVariety')),
         },
         maxLength: 100,
       },
@@ -286,8 +315,7 @@ export default (dsParams): DataSetProps => {
         computedProps: {
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '0',
-          required: ({ record }) =>
-            record.get('invoiceVariety') === '0' || record.get('invoiceVariety') === '52',
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceVariety')),
         },
         maxLength: 100,
       },
@@ -363,6 +391,94 @@ export default (dsParams): DataSetProps => {
         maxLength: 100,
       },
       {
+        name: 'loadingPort',
+        label: intl.get('hiop.invoiceWorkbench.view.loadingPort').d('交货港'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'destinationPort',
+        label: intl.get('hiop.invoiceWorkbench.view.destinationPort').d('目的港'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'bankAddress',
+        label: intl.get('hiop.invoiceWorkbench.view.bankAddress').d('收款账户地址'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'swiftCode',
+        label: intl.get('hiop.invoiceWorkbench.view.swiftCode').d('收款账户银行代码'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'termsOfTrade',
+        label: intl.get('hiop.invoiceWorkbench.view.termsOfTrade').d('贸易条件'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.TERMS_OF_TRADE',
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'typeOfShapping',
+        label: intl.get('hiop.invoiceWorkbench.view.typeOfShapping').d('运输方式'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.TYPE_OF_SHIPPING',
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'paymentMethod',
+        label: intl.get('hiop.invoiceWorkbench.view.paymentMethod').d('付款方式'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.PAYMENT_METHOD',
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'shippingDateObj',
+        label: intl.get('hiop.invoiceWorkbench.view.shippingDateObj').d('装运期'),
+        type: FieldType.date,
+        required: true,
+        range: ['shippingDateFrom', 'shippingDateTo'],
+        ignore: FieldIgnore.always,
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'shippingDateFrom',
+        type: FieldType.date,
+        bind: 'shippingDateObj.shippingDateFrom',
+      },
+      {
+        name: 'shippingDateTo',
+        type: FieldType.date,
+        bind: 'shippingDateObj.shippingDateTo',
+      },
+      {
         name: 'sellerCompanyType',
         label: intl.get('hiop.invoiceWorkbench.modal.companyType').d('企业类型'),
         type: FieldType.string,
@@ -392,10 +508,10 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.paperTicketReceiverName').d('纸票收件人'),
         type: FieldType.string,
         computedProps: {
-          readOnly: ({ record }) =>
-            record.get('readonly') ||
-            record.get('invoiceVariety') === '51' ||
-            record.get('invoiceVariety') === '52',
+          readOnly: ({ record }) => judgePaperReadonly(record),
+          required: ({ record }) =>
+            record.get('purchaseInvoiceFlag') === '5' &&
+            !['51', '52'].includes(record.get('invoiceVariety')),
         },
       },
       {
@@ -405,6 +521,9 @@ export default (dsParams): DataSetProps => {
         pattern: phoneReg,
         computedProps: {
           readOnly: ({ record }) => judgePaperReadonly(record),
+          required: ({ record }) =>
+            record.get('purchaseInvoiceFlag') === '5' &&
+            !['51', '52'].includes(record.get('invoiceVariety')),
           pattern: ({ record }) => {
             if (record.get('paperTicketReceiverPhone')) {
               if (record.get('paperTicketReceiverPhone').indexOf('-') > -1) {
