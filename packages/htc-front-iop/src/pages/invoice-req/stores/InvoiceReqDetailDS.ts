@@ -30,14 +30,14 @@ const receiptRequiredRule = (record, name) => {
   const invoiceType = record.get('invoiceType');
   const receiptType = record.get('receiptType');
   if (
-    ['SALES_INVOICE', 'PURCHASE_INVOICE'].includes(requestType) &&
+    ['SALES_INVOICE', 'PURCHASE_INVOICE', 'PROFORMA_INVOICE'].includes(requestType) &&
     ['0', '52'].includes(invoiceType)
   ) {
     return true;
   } else if (['2', '41', '51'].includes(invoiceType)) {
     if (requestType === 'PURCHASE_INVOICE') {
       return name !== 'receiptAccount';
-    } else if (requestType === 'SALES_INVOICE') {
+    } else if (['PROFORMA_INVOICE', 'SALES_INVOICE'].includes(requestType)) {
       return (
         name === 'receiptName' || (name === 'receiptTaxNo' && ['01', '02'].includes(receiptType))
       );
