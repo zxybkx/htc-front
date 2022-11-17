@@ -1083,7 +1083,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         <TextField name="bankAddress" />,
         <TextField name="swiftCode" />,
         <Select name="termsOfTrade" />,
-        <Select name="typeOfShapping" />,
+        <Select name="typeOfShipping" />,
         <Select name="paymentMethod" />,
         <DatePicker name="shippingDateObj" />,
       ];
