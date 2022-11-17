@@ -421,6 +421,11 @@ export default (): DataSetProps => {
           required: true,
         },
         {
+          name: 'endTime',
+          label: intl.get(`${modelCode}.view.endTime`).d('勾选数据更新时间'),
+          type: FieldType.string,
+        },
+        {
           name: 'invoiceCode',
           label: intl.get('htc.common.view.invoiceCode').d('发票代码'),
           type: FieldType.string,
