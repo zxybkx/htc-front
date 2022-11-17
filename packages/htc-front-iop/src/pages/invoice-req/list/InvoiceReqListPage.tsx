@@ -60,6 +60,7 @@ import {
   reqSubmit,
   runReport,
   sendQrCode,
+  exportProformalInvoice,
 } from '@src/services/invoiceReqService';
 import { getPresentMenu, downLoadFiles } from '@htccommon/utils/utils';
 import InvoiceReqListDS from '../stores/InvoiceReqListDS';
@@ -842,6 +843,25 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
   }
 
   /**
+   * 导出文件
+   * @params {object} record-行记录
+   */
+  @Bind()
+  async handleSingleExport(record) {
+    const data = record.toData();
+    const res = getResponse(await exportProformalInvoice({ tenantId, data }));
+    if (res && res.data) {
+      const fileList = [
+        {
+          data: res.data,
+          fileName: '形式发票.pdf',
+        },
+      ];
+      downLoadFiles(fileList, 0);
+    }
+  }
+
+  /**
    * 操作渲染
    * @params {object} record-行记录
    */
@@ -968,7 +988,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
     const exportBtn = {
       key: 'export',
       ele: renderPermissionButton({
-        onClick: () => this.handleSendQrCode(),
+        onClick: () => this.handleSingleExport(record),
         permissionCode: 'export',
         permissionMeaning: '按钮-导出文件',
         title: intl.get('hiop.redInvoiceInfo.button.download').d('导出文件'),
@@ -1018,7 +1038,7 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
     ) {
       operators.push(invoiceInvalidBtn);
     }
-    if (['F', 'N', 'Q'].includes(requestStatus)) {
+    if (['F', 'N', 'Q'].includes(requestStatus) && requestType === 'PROFORMA_INVOICE') {
       operators.push(exportBtn);
     }
     // 发票红冲

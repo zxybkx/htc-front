@@ -1072,7 +1072,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    */
   proformaInvoiceTag() {
     const { purchaseInvoiceFlag } = this.state;
-    if (purchaseInvoiceFlag === '5') {
+    if (purchaseInvoiceFlag.toString() === '5') {
       return [
         <TextField name="loadingPort" />,
         <TextField name="destinationPort" />,
