@@ -272,7 +272,7 @@ export default (): DataSetProps => {
           type: FieldType.object,
           lovCode: 'HTC.SOURCE_SYSTEM',
           lovPara: { enabledFlag: 1 },
-          multiple: ',',
+          multiple: true,
           ignore: FieldIgnore.always,
         },
         {
@@ -309,7 +309,7 @@ export default (): DataSetProps => {
               return !record.get('docTypeHeaderId').length;
             },
           },
-          multiple: ',',
+          multiple: true,
           ignore: FieldIgnore.always,
         },
         {
@@ -337,7 +337,7 @@ export default (): DataSetProps => {
           label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
           type: FieldType.object,
           lovCode: 'HTC.DOCUMENT_CODE_LOV',
-          multiple: ',',
+          multiple: true,
           computedProps: {
             lovPara: ({ record }) => {
               return {

@@ -21,6 +21,7 @@ import {
   getResponse,
   getAccessToken,
 } from 'utils/utils';
+import { RouteComponentProps } from 'react-router-dom';
 import { openTab } from 'utils/menuTab';
 import withProps from 'utils/withProps';
 import { downloadFile, DownloadFileParams } from 'hzero-front/lib/services/api';
@@ -35,7 +36,7 @@ const bucketName = 'hivp';
 const HIVP_API = commonConfig.IVP_API || '';
 const acceptType = ['.pdf', '.jpg', '.png', '.ofd'];
 
-interface MyInvoicePageProps {
+interface MyInvoicePageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
   invoiceDS: DataSet;
 }
@@ -115,7 +116,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
   // 查看发票明细
   @Bind()
   handleGotoDetailPage(record) {
-    const { dispatch } = this.props;
+    const { history } = this.props;
     const { sourceCode, poolHeaderId, invoiceType, entryPoolSource, companyCode } = record.toData();
     let invoiceHeaderId;
     if (sourceCode === 'INVOICE_POOL') {
@@ -132,21 +133,17 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
         return;
       }
     }
-    dispatch(
-      routerRedux.push({
-        pathname: `/htc-front-ivp/my-invoice/detail/${sourceCode}/${poolHeaderId}`,
-        search: queryString.stringify({
-          invoiceInfo: encodeURIComponent(
-            JSON.stringify({
-              invoiceType,
-              invoiceHeaderId,
-              entryPoolSource,
-              companyCode,
-            })
-          ),
-        }),
-      })
-    );
+    history.push({
+      pathname: `/htc-front-ivp/my-invoice/detail/${sourceCode}/${poolHeaderId}`,
+      state: {
+        invoiceInfo: {
+          invoiceType,
+          invoiceHeaderId,
+          entryPoolSource,
+          companyCode,
+        },
+      },
+    });
   }
 
   // 查看档案
@@ -354,7 +351,7 @@ export default class MyInvoicePage extends Component<MyInvoicePageProps> {
             title: '',
             renderer: ({ record }) => {
               const invoiceTypeMeaning = record && record.get('invoiceTypeMeaning');
-              return <span>{invoiceTypeMeaning}</span>;
+              return <a onClick={() => this.handleGotoDetailPage(record)}>{invoiceTypeMeaning}</a>;
             },
           },
         ],

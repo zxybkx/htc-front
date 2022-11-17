@@ -99,6 +99,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     billingType: undefined,
     isDisabled: false,
     submitDisabled: false,
+    submitLoading: false,
     orderStatus: undefined,
     addDisabled: false,
     employeeInfo: {} as any,
@@ -693,6 +694,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       });
     }
     const res = getResponse(await review(params));
+    this.setState({
+      submitLoading: false,
+    });
     let pathname;
     let pathSearch;
     if (['issues', 'invoiceOrder'].includes(sourceType)) {
@@ -1173,15 +1177,21 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    * 返回header按钮
    */
   renderHeaderBts = () => {
-    const { isDisabled, orderStatus, invoiceVariety, submitDisabled } = this.state;
+    const { isDisabled, orderStatus, invoiceVariety, submitDisabled, submitLoading } = this.state;
     const invoiceSourceType = this.invoiceOrderHeaderDS.getField('invoiceSourceType')?.getValue();
     return (
       <>
         <PermissionButton
           type="c7n-pro"
           color={ButtonColor.primary}
+          loading={submitLoading}
           disabled={!submitDisabled}
-          onClick={() => this.batchSave(1, null)}
+          onClick={() => {
+            this.setState({
+              submitLoading: true,
+            });
+            this.batchSave(1, null);
+          }}
           permissionList={[
             {
               code: `${permissionPath}.detail-submit`,

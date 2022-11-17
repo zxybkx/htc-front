@@ -15,14 +15,17 @@ import intl from 'utils/intl';
 
 const modelCode = 'hcan.invoiceDetail';
 
-export default (invoiceHeaderId): DataSetProps => {
+export default (propsData): DataSetProps => {
   const API_PREFIX = commonConfig.CHAN_API || '';
   const IVP_API = commonConfig.IVP_API || '';
   const tenantId = getCurrentOrganizationId();
   const apiCondition = process.env.EMPLOYEE_API;
-  const OPurl = `${IVP_API}/v1/${tenantId}/invoice-header-infos/query-invoice-all-info/${invoiceHeaderId}`;
-  const SAASurl = `${API_PREFIX}/v1/${tenantId}/invoice-header-infos/query-invoice-all-info/${invoiceHeaderId}`;
-  const url = apiCondition === 'OP' ? OPurl : SAASurl;
+  const OPurl = `${IVP_API}/v1/${tenantId}/invoice-header-infos/query-invoice-all-info/${propsData.invoiceHeaderId}`;
+  const SAASurl = `${API_PREFIX}/v1/${tenantId}/invoice-header-infos/query-invoice-all-info/${propsData.invoiceHeaderId}`;
+  let url = apiCondition === 'OP' ? OPurl : SAASurl;
+  if (propsData.entryPoolSource && propsData.entryPoolSource === 'EXTERNAL_IMPORT') {
+    url = `${IVP_API}/v1/${tenantId}/invoice-pool-header-infos`;
+  }
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -32,6 +35,7 @@ export default (invoiceHeaderId): DataSetProps => {
           params: {
             ...config.params,
           },
+          data: { invoicePoolHeaderId: propsData.invoiceHeaderId },
           method: 'GET',
         };
         return axiosConfig;
