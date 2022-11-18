@@ -30,14 +30,14 @@ const receiptRequiredRule = (record, name) => {
   const invoiceType = record.get('invoiceType');
   const receiptType = record.get('receiptType');
   if (
-    ['SALES_INVOICE', 'PURCHASE_INVOICE'].includes(requestType) &&
+    ['SALES_INVOICE', 'PURCHASE_INVOICE', 'PROFORMA_INVOICE'].includes(requestType) &&
     ['0', '52'].includes(invoiceType)
   ) {
     return true;
   } else if (['2', '41', '51'].includes(invoiceType)) {
     if (requestType === 'PURCHASE_INVOICE') {
       return name !== 'receiptAccount';
-    } else if (requestType === 'SALES_INVOICE') {
+    } else if (['PROFORMA_INVOICE', 'SALES_INVOICE'].includes(requestType)) {
       return (
         name === 'receiptName' || (name === 'receiptTaxNo' && ['01', '02'].includes(receiptType))
       );
@@ -364,7 +364,7 @@ export default (dsParams): DataSetProps => {
         },
       },
       {
-        name: 'typeOfShapping',
+        name: 'typeOfShipping',
         label: intl.get('hiop.invoiceWorkbench.view.typeOfShapping').d('运输方式'),
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.TYPE_OF_SHIPPING',
@@ -414,7 +414,7 @@ export default (dsParams): DataSetProps => {
             headerReadOnlyRule(record) || record.get('invoiceTypeTag') !== 'D',
           disabled: ({ record }) => record.get('invoiceTypeTag') !== 'D',
           required: ({ record }) =>
-            record.get('invoiceTypeTag') !== 'D' &&
+            record.get('invoiceTypeTag') === 'D' &&
             record.get('requestType') === 'PROFORMA_INVOICE',
         },
       },
@@ -428,7 +428,7 @@ export default (dsParams): DataSetProps => {
             headerReadOnlyRule(record) || record.get('invoiceTypeTag') !== 'D',
           disabled: ({ record }) => record.get('invoiceTypeTag') !== 'D',
           required: ({ record }) =>
-            record.get('invoiceTypeTag') !== 'D' &&
+            record.get('invoiceTypeTag') === 'D' &&
             record.get('requestType') === 'PROFORMA_INVOICE',
           pattern: ({ record }) => {
             if (record.get('paperPhone')) {

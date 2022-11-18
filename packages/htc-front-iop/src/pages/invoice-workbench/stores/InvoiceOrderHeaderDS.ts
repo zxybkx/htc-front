@@ -437,7 +437,7 @@ export default (dsParams): DataSetProps => {
         },
       },
       {
-        name: 'typeOfShapping',
+        name: 'typeOfShipping',
         label: intl.get('hiop.invoiceWorkbench.view.typeOfShapping').d('运输方式'),
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.TYPE_OF_SHIPPING',
