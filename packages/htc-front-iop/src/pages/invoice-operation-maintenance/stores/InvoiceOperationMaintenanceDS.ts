@@ -81,7 +81,6 @@ export default (): DataSetProps => {
         name: 'invoicingOrderHeaderId',
         label: intl.get('hiop.invoiceOptMain.modal.orderId').d('订单ID'),
         type: FieldType.string,
-        required: true,
       },
       {
         name: 'orderNumber',
