@@ -62,8 +62,9 @@ export default class SynchronizeRedInfoPage extends Component<RedInvoiceRequisit
     const redInfoStr = new URLSearchParams(search).get('redInfo');
     if (redInfoStr) {
       const redInfo = JSON.parse(decodeURIComponent(redInfoStr));
-      const { companyCode } = redInfo;
+      const { companyCode, extensionNumber } = redInfo;
       this.synchronizeRedInfoDS.setQueryParameter('companyCode', companyCode);
+      this.synchronizeRedInfoDS.setQueryParameter('extensionNumber', extensionNumber);
       this.synchronizeRedInfoDS.query();
     }
   }
