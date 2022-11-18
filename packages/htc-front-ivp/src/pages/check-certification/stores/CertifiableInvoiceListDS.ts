@@ -422,7 +422,7 @@ export default (): DataSetProps => {
         },
         {
           name: 'endTime',
-          label: intl.get(`${modelCode}.view.endTime`).d('勾选数据更新时间'),
+          label: intl.get(`${modelCode}.view.endTime`).d('最新发票获取日期'),
           type: FieldType.string,
         },
         {
