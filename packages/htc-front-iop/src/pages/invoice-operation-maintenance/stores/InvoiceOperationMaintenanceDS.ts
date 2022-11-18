@@ -96,8 +96,7 @@ export default (): DataSetProps => {
         required: true,
         cascadeMap: { organizationId: 'tenantId', companyId: 'companyId' },
         computedProps: {
-          readOnly: ({ record }) =>
-            !record.get('invoicingOrderHeaderId') || !record.get('orderNumber'),
+          readOnly: ({ record }) => !record.get('orderNumber'),
         },
         ignore: FieldIgnore.always,
       },

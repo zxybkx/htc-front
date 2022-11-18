@@ -68,19 +68,19 @@ export default (): DataSetProps => {
         type: FieldType.date,
       },
       {
-        name: 'invoiceTotalPriceTaxAmount',
+        name: 'hxTotalAmount',
         label: intl
           .get('hiop.taxRateStatistic.modal.invoiceTotalPriceTaxAmount')
           .d('发票价税合计金额'),
         type: FieldType.currency,
       },
       {
-        name: 'invoiceTotalTax',
+        name: 'hxTaxAmount',
         label: intl.get('hiop.taxRateStatistic.modal.invoiceTotalTax').d('发票合计税额'),
         type: FieldType.currency,
       },
       {
-        name: 'invoiceExcludeTaxAmount',
+        name: 'hxProjectAmount',
         label: intl
           .get('hiop.taxRateStatistic.modal.invoiceExcludeTaxAmount')
           .d('发票合计不含税金额'),
