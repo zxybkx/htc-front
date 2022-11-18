@@ -1022,7 +1022,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
         <TextField name="loadingPort" />,
         <TextField name="destinationPort" />,
         <Select name="termsOfTrade" />,
-        <Select name="typeOfShapping" />,
+        <Select name="typeOfShipping" />,
         <Select name="paymentMethod" />,
         <DatePicker name="shippingDateObj" />,
         <TextField name="bankAddress" />,

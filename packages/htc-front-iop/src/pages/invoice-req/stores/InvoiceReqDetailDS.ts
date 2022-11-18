@@ -364,7 +364,7 @@ export default (dsParams): DataSetProps => {
         },
       },
       {
-        name: 'typeOfShapping',
+        name: 'typeOfShipping',
         label: intl.get('hiop.invoiceWorkbench.view.typeOfShapping').d('运输方式'),
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.TYPE_OF_SHIPPING',
@@ -414,7 +414,7 @@ export default (dsParams): DataSetProps => {
             headerReadOnlyRule(record) || record.get('invoiceTypeTag') !== 'D',
           disabled: ({ record }) => record.get('invoiceTypeTag') !== 'D',
           required: ({ record }) =>
-            record.get('invoiceTypeTag') !== 'D' &&
+            record.get('invoiceTypeTag') === 'D' &&
             record.get('requestType') === 'PROFORMA_INVOICE',
         },
       },
@@ -428,7 +428,7 @@ export default (dsParams): DataSetProps => {
             headerReadOnlyRule(record) || record.get('invoiceTypeTag') !== 'D',
           disabled: ({ record }) => record.get('invoiceTypeTag') !== 'D',
           required: ({ record }) =>
-            record.get('invoiceTypeTag') !== 'D' &&
+            record.get('invoiceTypeTag') === 'D' &&
             record.get('requestType') === 'PROFORMA_INVOICE',
           pattern: ({ record }) => {
             if (record.get('paperPhone')) {
