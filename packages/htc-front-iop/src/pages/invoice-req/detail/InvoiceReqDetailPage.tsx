@@ -13,6 +13,7 @@ import {
   CheckBox,
   Currency,
   DataSet,
+  DatePicker,
   Form,
   Lov,
   Modal,
@@ -87,6 +88,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     empInfo: {} as any,
     invoiceType: '',
     sourceType: '',
+    requestType: '',
   };
 
   reqLinesDS = new DataSet({
@@ -189,6 +191,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       requestStatus: this.reqHeaderDS.current!.get('requestStatus'),
       deleteFlag: this.reqHeaderDS.current!.get('deleteFlag'),
       invoiceType: this.reqHeaderDS.current!.get('invoiceType'),
+      requestType: this.reqHeaderDS.current!.get('requestType'),
       sourceType: this.reqHeaderDS.current!.get('sourceType'),
       empInfo,
     });
@@ -388,17 +391,18 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     if (this.reqLinesDS.length > 0) {
       this.reqLinesDS.forEach(line => line.set(field, value.value));
     }
-    this.setState({ invoiceType: value.value });
   }
 
   /**
    * 购买方/销售方受控于发票种类
    * @params {object} value-发票种类
    */
+  @Bind()
   async invoiceVarietyChange(value) {
     const receiptName = this.reqHeaderDS.current!.get('receiptName');
     const invoiceType = this.reqHeaderDS.current!.get('invoiceType');
     const invoiceTypeTag = (value && value.tag) || '';
+    this.setState({ invoiceType: value.value });
     if (receiptName && invoiceType) {
       const params = {
         tenantId,
@@ -430,6 +434,12 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       }
     }
     this.handleTaxRateLovChange('invoiceType', value);
+  }
+
+  @Bind()
+  requestTypeChange(value) {
+    const requestType = (value && value.value) || '';
+    this.setState({ requestType });
   }
 
   /**
@@ -1002,6 +1012,27 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
     );
   }
 
+  /**
+   * 业务类型切换UI切换
+   */
+  proformaInvoiceTag() {
+    const { requestType } = this.state;
+    if (requestType === 'PROFORMA_INVOICE') {
+      return [
+        <TextField name="loadingPort" />,
+        <TextField name="destinationPort" />,
+        <Select name="termsOfTrade" />,
+        <Select name="typeOfShipping" />,
+        <Select name="paymentMethod" />,
+        <DatePicker name="shippingDateObj" />,
+        <TextField name="bankAddress" />,
+        <TextField name="swiftCode" />,
+      ];
+    } else {
+      return [];
+    }
+  }
+
   render() {
     const { search } = this.props.location;
     const { companyId, headerId, billFlag } = this.props.match.params;
@@ -1058,7 +1089,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
                 <Select name="receiptType" />
                 <Lov name="invoiceTypeObj" onChange={value => this.invoiceVarietyChange(value)} />
                 <Select name="billFlag" />
-                <Lov name="requestTypeObj" />
+                <Lov name="requestTypeObj" onChange={this.requestTypeChange} />
                 {/*---*/}
                 <Select
                   name="receiptName"
@@ -1083,6 +1114,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
                 <Select name="requestStatus" />
                 <TextField name="reviewerName" />
                 <TextField name="reviewDate" />
+                {this.proformaInvoiceTag()}
                 {/*---*/}
                 <TextField name="progress" />
                 <Select name="sourceType" />

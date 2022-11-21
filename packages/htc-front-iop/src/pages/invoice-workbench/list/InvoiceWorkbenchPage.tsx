@@ -55,6 +55,7 @@ import {
   refresh,
   updatePrintNum,
   electronicDownload,
+  exportProformalInvoice,
 } from '@src/services/invoiceOrderService';
 import { judgeRedFlush } from '@src/services/invoiceReqService';
 import {
@@ -99,6 +100,7 @@ interface InvoiceWorkbenchPageProps extends RouteComponentProps {
     'hiop.tobeInvoice',
     'hiop.invoiceReq',
     'hivp.invoices',
+    'hiop.redInvoiceInfo',
   ],
 })
 export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPageProps> {
@@ -1108,26 +1110,6 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         fileList.push(file);
       });
       downLoadFiles(fileList, 0);
-      // names.forEach(item => {
-      //   const blob = new Blob([base64toBlob(res.data)]);
-      //   if (window.navigator.msSaveBlob) {
-      //     try {
-      //       window.navigator.msSaveBlob(blob, item);
-      //     } catch (e) {
-      //       notification.error({
-      //         description: '',
-      //         message: intl.get('hzero.common.notification.error').d('操作失败'),
-      //       });
-      //     }
-      //   } else {
-      //     const aElement = document.createElement('a');
-      //     const blobUrl = window.URL.createObjectURL(blob);
-      //     aElement.href = blobUrl; // 设置a标签路径
-      //     aElement.download = item;
-      //     aElement.click();
-      //     window.URL.revokeObjectURL(blobUrl);
-      //   }
-      // });
       const printElement = document.createElement('a');
       printElement.href = 'Webshell://'; // 设置a标签路径
       printElement.click();
@@ -1220,6 +1202,25 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
   }
 
   /**
+   * 导出文件
+   * @params {object} record-行记录
+   */
+  @Bind()
+  async handleSingleExport(record) {
+    const data = record.toData();
+    const res = getResponse(await exportProformalInvoice({ tenantId, data }));
+    if (res && res.data) {
+      const fileList = [
+        {
+          data: res.data,
+          fileName: '形式发票.pdf',
+        },
+      ];
+      downLoadFiles(fileList, 0);
+    }
+  }
+
+  /**
    * 返回操作列按钮
    * @params {object} record-行记录
    */
@@ -1231,6 +1232,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     const invoiceState = record.get('invoiceState');
     const billingType = record.get('billingType');
     const invoiceDate = record.get('invoiceDate');
+    const purchaseInvoiceFlag = record.get('purchaseInvoiceFlag');
     const invoiceMonth = invoiceDate && invoiceDate.substring(0, 7);
     const nowMonth = moment().format('YYYY-MM');
     const renderPermissionButton = params => (
@@ -1361,16 +1363,27 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       len: 6,
       title: intl.get('hiop.invoiceWorkbench.button.download').d('电票下载'),
     };
+    const exportBtn = {
+      key: 'export',
+      ele: renderPermissionButton({
+        onClick: () => this.handleSingleExport(record),
+        permissionCode: 'export',
+        permissionMeaning: '按钮-导出文件',
+        title: intl.get('hiop.redInvoiceInfo.button.download').d('导出文件'),
+      }),
+      len: 6,
+      title: intl.get('hiop.redInvoiceInfo.button.download').d('导出文件'),
+    };
     // 新建、取消
-    if (orderStatus === 'N' || orderStatus === 'Q') {
+    if (['N', 'Q'].includes(orderStatus)) {
       operators.push(submitInvoiceBtn, deleteInvoiceBtn);
     }
+    // 新建、取消、完成
+    if (['N', 'Q', 'F'].includes(orderStatus) && purchaseInvoiceFlag === '5') {
+      operators.push(exportBtn);
+    }
     // 提交、异常
-    if (
-      (orderStatus === 'C' && orderProgress === '1000') ||
-      orderStatus === 'E' ||
-      orderStatus === 'I'
-    ) {
+    if ((orderStatus === 'C' && orderProgress === '1000') || ['E', 'I'].includes(orderStatus)) {
       operators.push(cancelInvoiceBtn);
     }
     // 完成
@@ -1399,7 +1412,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       operators.push(invoiceDeliverBtn);
     }
     // 提交
-    if (orderStatus === 'C' || orderStatus === 'I') {
+    if (['C', 'I'].includes(orderStatus)) {
       operators.push(freshStateBtn);
     }
     // 批量下载

@@ -60,6 +60,7 @@ import {
   reqSubmit,
   runReport,
   sendQrCode,
+  exportProformalInvoice,
 } from '@src/services/invoiceReqService';
 import { getPresentMenu, downLoadFiles } from '@htccommon/utils/utils';
 import InvoiceReqListDS from '../stores/InvoiceReqListDS';
@@ -80,6 +81,7 @@ interface InvoiceReqListPageProps extends RouteComponentProps {
     'hiop.invoiceReq',
     'hiop.tobeInvoice',
     'hivp.invoices',
+    'hiop.redInvoiceInfo',
   ],
 })
 @withProps(
@@ -841,6 +843,25 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
   }
 
   /**
+   * 导出文件
+   * @params {object} record-行记录
+   */
+  @Bind()
+  async handleSingleExport(record) {
+    const data = record.toData();
+    const res = getResponse(await exportProformalInvoice({ tenantId, data }));
+    if (res && res.data) {
+      const fileList = [
+        {
+          data: res.data,
+          fileName: '形式发票.pdf',
+        },
+      ];
+      downLoadFiles(fileList, 0);
+    }
+  }
+
+  /**
    * 操作渲染
    * @params {object} record-行记录
    */
@@ -964,6 +985,17 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       len: 6,
       title: intl.get('hiop.invoiceReq.button.sendQrCode').d('发送二维码'),
     };
+    const exportBtn = {
+      key: 'export',
+      ele: renderPermissionButton({
+        onClick: () => this.handleSingleExport(record),
+        permissionCode: 'export',
+        permissionMeaning: '按钮-导出文件',
+        title: intl.get('hiop.redInvoiceInfo.button.download').d('导出文件'),
+      }),
+      len: 6,
+      title: intl.get('hiop.redInvoiceInfo.button.download').d('导出文件'),
+    };
     const requestStatus = record.get('requestStatus');
     const deleteFlag = record.get('deleteFlag');
     const orderCount = record.get('orderCount');
@@ -1005,6 +1037,9 @@ export default class InvoiceReqListPage extends Component<InvoiceReqListPageProp
       deleteFlag === 'N'
     ) {
       operators.push(invoiceInvalidBtn);
+    }
+    if (['F', 'N', 'Q'].includes(requestStatus) && requestType === 'PROFORMA_INVOICE') {
+      operators.push(exportBtn);
     }
     // 发票红冲
     if (
