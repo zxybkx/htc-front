@@ -286,7 +286,7 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         lookupCode: 'HIOP.SPECIAL_VAT_INVOICE_TYPE',
         computedProps: {
-          readOnly: ({ record }) => record.get('deductionStatus') !== '01',
+          // readOnly: ({ record }) => record.get('deductionStatus') !== '01',
           required: ({ record }) => record.get('deductionStatus') === '01',
         },
       },
