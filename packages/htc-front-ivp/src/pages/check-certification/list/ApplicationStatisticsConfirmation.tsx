@@ -106,13 +106,21 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
       if (queryDataSet && queryDataSet.current) {
         const companyId = queryDataSet.current.get('companyId');
         if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
-          const period = immediatePeriod || currentPeriodData;
-          const { currentPeriod, currentCertState, currentOperationalDeadline } = period;
-          queryDataSet.current!.set({
-            currentPeriod,
-            currentOperationalDeadline,
-            currentCertState,
-          });
+          if (immediatePeriod) {
+            const { currentCertState } = immediatePeriod;
+            queryDataSet.current!.set({ currentCertState });
+          } else {
+            const {
+              currentPeriod,
+              currentCertState,
+              currentOperationalDeadline,
+            } = currentPeriodData;
+            queryDataSet.current!.set({
+              currentPeriod,
+              currentOperationalDeadline,
+              currentCertState,
+            });
+          }
         }
       }
     }

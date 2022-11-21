@@ -103,23 +103,27 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       if (queryDataSet && queryDataSet.current) {
         const companyId = queryDataSet.current.get('companyId');
         if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
-          const period = immediatePeriod || currentPeriodData;
-          const {
-            currentPeriod,
-            currentOperationalDeadline,
-            checkableTimeRange,
-            currentCertState,
-          } = period;
-          const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
-          const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
-          queryDataSet.current!.set({
-            currentPeriod,
-            currentOperationalDeadline,
-            checkableTimeRange,
-            currentCertState,
-            invoiceDateFrom: dateFrom,
-            invoiceDateTo: dateTo,
-          });
+          if (immediatePeriod) {
+            const { currentCertState } = immediatePeriod;
+            queryDataSet.current!.set({ currentCertState });
+          } else {
+            const {
+              currentPeriod,
+              currentOperationalDeadline,
+              checkableTimeRange,
+              currentCertState,
+            } = currentPeriodData;
+            const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
+            const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
+            queryDataSet.current!.set({
+              currentPeriod,
+              currentOperationalDeadline,
+              checkableTimeRange,
+              currentCertState,
+              invoiceDateFrom: dateFrom,
+              invoiceDateTo: dateTo,
+            });
+          }
         }
       }
     }
