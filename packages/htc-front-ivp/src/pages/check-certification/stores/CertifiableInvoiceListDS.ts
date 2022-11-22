@@ -470,17 +470,19 @@ export default (): DataSetProps => {
           type: FieldType.object,
           lovCode: 'HTC.SOURCE_SYSTEM',
           lovPara: { enabledFlag: 1 },
-          multiple: ',',
+          multiple: true,
           ignore: FieldIgnore.always,
         },
         {
           name: 'systemCode',
           type: FieldType.string,
+          multiple: ',',
           bind: 'systemCodeObj.systemCode',
         },
         {
           name: 'docTypeHeaderId',
           type: FieldType.string,
+          multiple: ',',
           bind: 'systemCodeObj.docTypeHeaderId',
         },
         {
@@ -502,22 +504,25 @@ export default (): DataSetProps => {
               return !record.get('docTypeHeaderId').length;
             },
           },
-          multiple: ',',
+          multiple: 'true',
           ignore: FieldIgnore.always,
         },
         {
           name: 'documentTypeCode',
           type: FieldType.string,
+          multiple: ',',
           bind: 'documentTypeCodeObj.documentTypeCode',
         },
         {
           name: 'docTypeLineId',
           type: FieldType.string,
+          multiple: ',',
           bind: 'documentTypeCodeObj.docTypeLineId',
         },
         {
           name: 'docuTypeHeaderId',
           type: FieldType.string,
+          multiple: ',',
           bind: 'documentTypeCodeObj.docTypeHeaderId',
           ignore: FieldIgnore.always,
         },
@@ -531,7 +536,7 @@ export default (): DataSetProps => {
           label: intl.get('hivp.invoicesArchiveUpload.view.documentNumber').d('单据编号'),
           type: FieldType.object,
           lovCode: 'HTC.DOCUMENT_CODE_LOV',
-          multiple: ',',
+          multiple: true,
           computedProps: {
             lovPara: ({ record }) => {
               return {
@@ -548,11 +553,13 @@ export default (): DataSetProps => {
         {
           name: 'documentNumber',
           type: FieldType.string,
+          multiple: ',',
           bind: 'documentNumberObj.documentNumber',
         },
         {
           name: 'detailId',
           type: FieldType.string,
+          multiple: ',',
           bind: 'documentNumberObj.detailId',
         },
         {
