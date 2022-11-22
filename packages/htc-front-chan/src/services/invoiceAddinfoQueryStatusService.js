@@ -19,10 +19,10 @@ const IOP_API = commonConfig.IOP_API || '';
  * @returns {object} fetch Promise
  */
 export async function invoicePreviewApi(params) {
-  const { tenantId, ...otherParams } = params;
+  const { tenantId, invoiceHeadIds } = params;
   return request(`${IOP_API}/v1/${tenantId}/operation/invoice-preview`, {
     method: 'POST',
-    query: otherParams,
+    body: invoiceHeadIds,
   });
 }
 /**
@@ -33,10 +33,10 @@ export async function invoicePreviewApi(params) {
  * @returns {object} fetch Promise
  */
 export async function invoicePrintApi(params) {
-  const { tenantId, ...otherParams } = params;
+  const { tenantId, invoiceHeadIds } = params;
   return request(`${IOP_API}/v1/${tenantId}/operation/invoice-print`, {
     method: 'POST',
-    query: otherParams,
+    body: invoiceHeadIds,
   });
 }
 
@@ -48,10 +48,10 @@ export async function invoicePrintApi(params) {
  * @returns {object} fetch Promise
  */
 export async function electronicUploadApi(params) {
-  const { tenantId, ...otherParams } = params;
+  const { tenantId, invoiceHeadIds } = params;
   return request(`${IOP_API}/v1/${tenantId}/operation/electronic-upload`, {
     method: 'POST',
-    query: otherParams,
+    body: invoiceHeadIds,
   });
 }
 
@@ -63,10 +63,10 @@ export async function electronicUploadApi(params) {
  * @returns {object} fetch Promise
  */
 export async function updateInvoicePoolApi(params) {
-  const { tenantId, ...otherParams } = params;
+  const { tenantId, invoiceHeadIds } = params;
   return request(`${IOP_API}/v1/${tenantId}/operation/update-invoicePool`, {
     method: 'POST',
-    query: otherParams,
+    body: invoiceHeadIds,
   });
 }
 
@@ -78,10 +78,10 @@ export async function updateInvoicePoolApi(params) {
  * @returns {object} fetch Promise
  */
 export async function pushInvoicePoolApi(params) {
-  const { tenantId, ...otherParams } = params;
+  const { tenantId, invoiceHeadIds } = params;
   return request(`${IOP_API}/v1/${tenantId}/operation/push-invoicePool`, {
     method: 'POST',
-    query: otherParams,
+    body: invoiceHeadIds,
   });
 }
 
@@ -93,24 +93,9 @@ export async function pushInvoicePoolApi(params) {
  * @returns {object} fetch Promise
  */
 export async function notifyMessageApi(params) {
-  const { tenantId, ...otherParams } = params;
+  const { tenantId, invoiceHeadIds } = params;
   return request(`${IOP_API}/v1/${tenantId}/operation/notify-Message`, {
     method: 'POST',
-    query: otherParams,
-  });
-}
-/**
- * 取消订单
- * @async
- * @function cancelOrder
- * @param {object} param - 查询条件
- * @returns {object} fetch Promise
- */
-export async function cancelOrderApi(params) {
-  const { tenantId, body, ...otherParams } = params;
-  return request(`${IOP_API}/v1/${tenantId}/operation/operation-batch-cancel-order`, {
-    method: 'POST',
-    query: otherParams,
-    body,
+    body: invoiceHeadIds,
   });
 }
