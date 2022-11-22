@@ -151,6 +151,14 @@ export default (tenantId, agreementId): DataSetProps => {
         lookupCode: 'HMDM.IN_CHANNEL',
       },
       {
+        name: 'originalDocFlag',
+        label: intl.get('hmdm.companyList.view.originalDocFlag').d('校验原文档通道'),
+        type: FieldType.string,
+        defaultValue: '0',
+        required: true,
+        lookupCode: 'HTC.HIVP.VERIFY_FILE_FLAG',
+      },
+      {
         name: 'outChannelCode',
         label: intl.get('hmdm.companyList.view.outChannelCode').d('销项通道'),
         type: FieldType.string,
