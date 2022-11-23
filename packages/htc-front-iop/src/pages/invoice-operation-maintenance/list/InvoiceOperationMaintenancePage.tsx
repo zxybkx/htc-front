@@ -232,7 +232,7 @@ export default class InvoiceOperationMaintenancePage extends Component<
       <>
         <Header title={intl.get('hiop.invoiceOptMain.title.invoiceOptMain').d('开票订单运维平台')}>
           <ExcelExport
-            requestUrl={`${API_PREFIX}/maintenance-operation/export`}
+            requestUrl={`${API_PREFIX}/v1/maintenance-operation/export`}
             queryParams={() => this.exportParams()}
           />
           <Button onClick={() => this.handleImport()}>
