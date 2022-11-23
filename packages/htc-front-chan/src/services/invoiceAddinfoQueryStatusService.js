@@ -15,8 +15,8 @@ const IOP_API = commonConfig.IOP_API || '';
  * 票面预览
  * @async
  * @function invoicePreviewApi
- * @param {object} param - 票面预览
  * @returns {object} fetch Promise
+ * @param params
  */
 export async function invoicePreviewApi(params) {
   const { tenantId, invoiceHeadIds } = params;
@@ -29,8 +29,8 @@ export async function invoicePreviewApi(params) {
  * 打印文件
  * @async
  * @function invoicePrintApi
- * @param {object} param - 查询条件
  * @returns {object} fetch Promise
+ * @param params
  */
 export async function invoicePrintApi(params) {
   const { tenantId, invoiceHeadIds } = params;
@@ -44,8 +44,8 @@ export async function invoicePrintApi(params) {
  * 电票上传
  * @async
  * @function electronicUploadApi
- * @param {object} param - 查询条件
  * @returns {object} fetch Promise
+ * @param params
  */
 export async function electronicUploadApi(params) {
   const { tenantId, invoiceHeadIds } = params;
@@ -59,8 +59,8 @@ export async function electronicUploadApi(params) {
  * 更新发票池
  * @async
  * @function updateInvoicePoolApi
- * @param {object} param - 查询条件
  * @returns {object} fetch Promise
+ * @param params
  */
 export async function updateInvoicePoolApi(params) {
   const { tenantId, invoiceHeadIds } = params;
@@ -74,8 +74,8 @@ export async function updateInvoicePoolApi(params) {
  * 推送发票池
  * @async
  * @function pushInvoicePoolApi
- * @param {object} param - 查询条件
  * @returns {object} fetch Promise
+ * @param params
  */
 export async function pushInvoicePoolApi(params) {
   const { tenantId, invoiceHeadIds } = params;
@@ -89,8 +89,8 @@ export async function pushInvoicePoolApi(params) {
  * 短信/邮件通知
  * @async
  * @function notifyMessageApi
- * @param {object} param - 查询条件
  * @returns {object} fetch Promise
+ * @param params
  */
 export async function notifyMessageApi(params) {
   const { tenantId, invoiceHeadIds } = params;
