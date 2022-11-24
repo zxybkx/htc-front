@@ -208,9 +208,11 @@ export default class InvoiceOperationMaintenancePage extends Component<
     const { queryDataSet } = this.tableDS;
     const companyCode = queryDataSet && queryDataSet.current?.get('companyCode');
     const tenantId = queryDataSet && queryDataSet.current?.get('tenantId');
+    const tenantName = queryDataSet && queryDataSet.current?.get('tenantName');
     const params = {
       companyCode,
       tenantId,
+      tenantName,
     };
     if (tenantId && companyCode) {
       const argsParam = JSON.stringify(params);
