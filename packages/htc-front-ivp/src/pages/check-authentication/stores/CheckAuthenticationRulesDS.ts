@@ -73,12 +73,9 @@ export default (): DataSetProps => {
         label: intl.get('hivp.checkRule.view.autoStatisticsSign').d('每月自动统计'),
         type: FieldType.boolean,
         labelWidth: '150',
-        transformRequest: value => {
-          return value ? 1 : 0;
-        },
-        transformResponse(value) {
-          return value === 1;
-        },
+        trueValue: 1,
+        falseValue: 0,
+        defaultValue: 0,
       },
       {
         name: 'mailbox',
@@ -103,12 +100,9 @@ export default (): DataSetProps => {
         label: intl.get('hivp.checkCertification.modal.autoStatisticsSign').d('每月自动确签'),
         type: FieldType.boolean,
         labelWidth: '150',
-        transformRequest: value => {
-          return value ? 1 : 0;
-        },
-        transformResponse(value) {
-          return value === 1;
-        },
+        trueValue: 1,
+        falseValue: 0,
+        defaultValue: 0,
       },
       {
         name: 'confirmPassword',
@@ -168,8 +162,6 @@ export default (): DataSetProps => {
         label: intl.get('hivp.invoicesArchiveUpload.view.documentTypeMeaning').d('单据类型'),
         type: FieldType.object,
         lovCode: 'HTC.DOCUMENT_TYPE_LOV',
-        disabled: true,
-        // cascadeMap: { docTypeHeaderId: 'sysTypeHeaderId' },
         computedProps: {
           lovPara: ({ record }) => {
             return { enabledFlag: 1, docTypeHeaderId: record.get('docTypeHeaderId').join(',') };
@@ -214,6 +206,24 @@ export default (): DataSetProps => {
         type: FieldType.string,
         multiple: ',',
         lookupCode: 'HIVP.ACCOUNT_STATE',
+      },
+      {
+        name: 'relationConFlag',
+        label: intl.get('hivp.checkRule.modal.relationConFlag').d('单据关联不允许变动收票员工'),
+        type: FieldType.boolean,
+        trueValue: 1,
+        falseValue: 0,
+        defaultValue: 0,
+        labelWidth: '180',
+      },
+      {
+        name: 'accountConFlag',
+        label: intl.get('hivp.checkRule.modal.accountConFlag').d('已入账不允许变动收票员工'),
+        type: FieldType.boolean,
+        trueValue: 1,
+        falseValue: 0,
+        defaultValue: 0,
+        labelWidth: '180',
       },
       {
         name: 'employeeId',
