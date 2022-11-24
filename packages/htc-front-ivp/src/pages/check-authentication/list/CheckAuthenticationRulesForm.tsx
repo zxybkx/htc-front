@@ -161,6 +161,14 @@ const InvoiceRuleHeaderForm: FunctionComponent<Props> = (props: Props) => {
           <Select name="invoiceType" maxTagCount={2} maxTagTextLength={2} />
         </Form>
       </Card>
+      <Card
+        title={intl.get('hivp.checkRule.panelTitle.incomingInvoiceRules').d('进项发票规则维护')}
+      >
+        <Form dataSet={dataSet} columns={3}>
+          <CheckBox name="relationConFlag" />
+          <CheckBox name="accountConFlag" />
+        </Form>
+      </Card>
     </>
   );
 };

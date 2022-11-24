@@ -504,7 +504,7 @@ export default (): DataSetProps => {
               return !record.get('docTypeHeaderId').length;
             },
           },
-          multiple: 'true',
+          multiple: true,
           ignore: FieldIgnore.always,
         },
         {
