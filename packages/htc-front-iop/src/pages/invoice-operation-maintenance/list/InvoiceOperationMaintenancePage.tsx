@@ -12,15 +12,20 @@ import { Dispatch } from 'redux';
 import intl from 'utils/intl';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { Bind } from 'lodash-decorators';
+import ExcelExport from 'components/ExcelExport';
+import queryString from 'query-string';
 import { getCurrentUser, getResponse } from 'utils/utils';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { observer } from 'mobx-react-lite';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { updateTax } from '@src/services/invoiceOperationMaintenanceService';
+import commonConfig from '@htccommon/config/commonConfig';
+import { openTab } from 'utils/menuTab';
 import InvoiceOperationMaintenanceDS from '../stores/InvoiceOperationMaintenanceDS';
 
 const loginInfo = getCurrentUser();
+const API_PREFIX = commonConfig.IOP_API || '';
 
 interface InvoiceOperationMaintenancePageProps {
   dispatch: Dispatch<any>;
@@ -180,12 +185,62 @@ export default class InvoiceOperationMaintenancePage extends Component<
     ];
   }
 
+  /**
+   * 导出
+   */
+  @Bind()
+  exportParams() {
+    const queryParams = this.tableDS.queryDataSet!.map(data => data.toData()) || {};
+    const { companyObj, ...otherData } = queryParams[0];
+    const _queryParams = {
+      ...companyObj,
+      ...otherData,
+    };
+    return { ..._queryParams } || {};
+  }
+
+  /**
+   * 导入
+   */
+  @Bind()
+  async handleImport() {
+    const code = 'HIOP.MODIFY_INVOICE_INFO';
+    const { queryDataSet } = this.tableDS;
+    const companyCode = queryDataSet && queryDataSet.current?.get('companyCode');
+    const tenantId = queryDataSet && queryDataSet.current?.get('tenantId');
+    const tenantName = queryDataSet && queryDataSet.current?.get('tenantName');
+    const params = {
+      companyCode,
+      tenantId,
+      tenantName,
+    };
+    if (tenantId && companyCode) {
+      const argsParam = JSON.stringify(params);
+      openTab({
+        key: `/himp/commentImport/${code}`,
+        title: intl.get('hzero.common.title.import').d('导入'),
+        search: queryString.stringify({
+          prefixPath: API_PREFIX,
+          action: intl.get('hiop.invoiceOptMain.title.import').d('开票订单运维平台导入'),
+          tenantId,
+          args: argsParam,
+        }),
+      });
+    }
+  }
+
   render() {
     return (
       <>
-        <Header
-          title={intl.get('hiop.invoiceOptMain.title.invoiceOptMain').d('开票订单运维平台')}
-        />
+        <Header title={intl.get('hiop.invoiceOptMain.title.invoiceOptMain').d('开票订单运维平台')}>
+          <ExcelExport
+            requestUrl={`${API_PREFIX}/v1/maintenance-operation/export`}
+            queryParams={() => this.exportParams()}
+          />
+          <Button onClick={() => this.handleImport()}>
+            {intl.get('hzero.common.button.import').d('导入')}
+          </Button>
+        </Header>
         <Content>
           <Table
             buttons={this.buttons}

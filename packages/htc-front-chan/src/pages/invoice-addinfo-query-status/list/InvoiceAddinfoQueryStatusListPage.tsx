@@ -15,20 +15,12 @@ import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { Button as PermissionButton } from 'components/Permission';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { Dispatch } from 'redux';
-import {
-  DataSet,
-  Dropdown,
-  Icon,
-  Menu,
-  Modal,
-  notification,
-  Table,
-  TextField,
-} from 'choerodon-ui/pro';
+import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
+import { DataSet, Dropdown, Icon, Menu, notification, Table, Button } from 'choerodon-ui/pro';
 import intl from 'utils/intl';
+import { observer } from 'mobx-react-lite';
 import { getPresentMenu } from '@htccommon/utils/utils';
 import {
-  cancelOrderApi,
   electronicUploadApi,
   invoicePreviewApi,
   invoicePrintApi,
@@ -45,9 +37,9 @@ interface InvoiceAddinfoQueryStatusListPageProps {
   dispatch: Dispatch<any>;
 }
 
-export default class InvoiceAddinfoQueryStatusListPage extends Component<InvoiceAddinfoQueryStatusListPageProps> {
-  state = { employeeNumber: '' };
-
+export default class InvoiceAddinfoQueryStatusListPage extends Component<
+  InvoiceAddinfoQueryStatusListPageProps
+> {
   tableDS = new DataSet({
     autoQuery: false,
     ...InvoiceAddinfoQueryStatusListDS(),
@@ -57,78 +49,51 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
    * 操作列按钮回调
    */
   @Bind()
-  async handleOperation(type) {
-    const companyCode = this.tableDS.current!.get('companyCode');
-    const invoiceHeadId = this.tableDS.current!.get('invoicingOrderHeaderId');
-    const tenantId = this.tableDS.current!.get('tenantId');
-    const toggleOkDisabled = (e, modal) => {
-      const { value } = e.currentTarget;
-      if (value.trim()) {
-        this.setState({ employeeNumber: value });
-        modal.update({
-          okProps: { disabled: false },
-        });
-      }
+  async handleOperation(type, record) {
+    const { queryDataSet } = this.tableDS;
+    const invoiceHeadIds = record.map(item => item.invoicingOrderHeaderId);
+    const tenantId = queryDataSet && queryDataSet.current!.get('tenantId');
+    const params = {
+      tenantId,
+      invoiceHeadIds,
     };
-    const myModal = Modal.open({
-      key: Modal.key(),
-      okText: '确定',
-      title: intl.get(`${modelCode}.modal.title`).d('输入employeeNumber：'),
-      children: <TextField onInput={(e) => toggleOkDisabled(e, myModal)} />,
-      okProps: { disabled: true },
-      onOk: async () => {
-        const params = {
-          tenantId,
-          companyCode,
-          employeeNumber: this.state.employeeNumber,
-          invoiceHeadId,
-        };
-        let res;
-        switch (type) {
-          case 0:
-            res = getResponse(await invoicePreviewApi(params));
-            break;
-          case 1:
-            res = getResponse(await electronicUploadApi(params));
-            break;
-          case 2:
-            res = getResponse(await invoicePrintApi(params));
-            break;
-          case 3:
-            res = getResponse(await notifyMessageApi(params));
-            break;
-          case 4:
-            res = getResponse(await pushInvoicePoolApi(params));
-            break;
-          case 5:
-            res = getResponse(await updateInvoicePoolApi(params));
-            break;
-          default: {
-            const transformParams = {
-              tenantId,
-              companyCode,
-              employeeNumber: this.state.employeeNumber,
-              body: [invoiceHeadId],
-            };
-            res = getResponse(await cancelOrderApi(transformParams));
-          }
-        }
-        if (res) {
-          notification.success({
-            description: '',
-            message: intl.get('invoiceOpration.message.success').d('操作成功'),
-          });
-        }
-      },
-    });
+    let res;
+    switch (type) {
+      case 0:
+        res = getResponse(await invoicePreviewApi(params));
+        break;
+      case 1:
+        res = getResponse(await electronicUploadApi(params));
+        break;
+      case 2:
+        res = getResponse(await invoicePrintApi(params));
+        break;
+      case 3:
+        res = getResponse(await notifyMessageApi(params));
+        break;
+      case 4:
+        res = getResponse(await pushInvoicePoolApi(params));
+        break;
+      case 5:
+        res = getResponse(await updateInvoicePoolApi(params));
+        break;
+      default:
+    }
+    if (res) {
+      notification.success({
+        description: '',
+        message: intl.get('invoiceOpration.message.success').d('操作成功'),
+      });
+    }
   }
 
   /**
    * 返回操作列
    */
   @Bind()
-  optionsRender() {
-    const renderPermissionButton = (params) => (
+  optionsRender(record) {
+    const data = record.toData();
+    const renderPermissionButton = params => (
       <PermissionButton
         type="c7n-pro"
         funcType={FuncType.flat}
@@ -148,7 +113,7 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
     const previewBtn = {
       key: 'preview',
       ele: renderPermissionButton({
-        onClick: () => this.handleOperation(0),
+        onClick: () => this.handleOperation(0, [data]),
         permissionCode: 'preview',
         permissionMeaning: '按钮-纸票票面预览',
         title: intl.get(`${modelCode}.button.preview`).d('纸票票面预览'),
@@ -159,7 +124,7 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
     const uploadBtn = {
       key: 'upload',
       ele: renderPermissionButton({
-        onClick: () => this.handleOperation(1),
+        onClick: () => this.handleOperation(1, [data]),
         permissionCode: 'upload',
         permissionMeaning: '按钮-电子发票上传',
         title: intl.get(`${modelCode}.button.upload`).d('电子发票上传'),
@@ -170,7 +135,7 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
     const printBtn = {
       key: 'print',
       ele: renderPermissionButton({
-        onClick: () => this.handleOperation(2),
+        onClick: () => this.handleOperation(2, [data]),
         permissionCode: 'print',
         permissionMeaning: '按钮-纸票打印文件',
         title: intl.get(`${modelCode}.button.print`).d('纸票打印文件'),
@@ -181,7 +146,7 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
     const noticeBtn = {
       key: 'notice',
       ele: renderPermissionButton({
-        onClick: () => this.handleOperation(3),
+        onClick: () => this.handleOperation(3, [data]),
         permissionCode: 'notice',
         permissionMeaning: '按钮-短信邮件通知',
         title: intl.get(`${modelCode}.button.notice`).d('短信邮件通知'),
@@ -189,11 +154,10 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
       len: 6,
       title: intl.get(`${modelCode}.button.notice`).d('短信邮件通知'),
     };
-
     const pushInvoicePoolBtn = {
       key: 'pushInvoicePool',
       ele: renderPermissionButton({
-        onClick: () => this.handleOperation(4),
+        onClick: () => this.handleOperation(4, [data]),
         permissionCode: 'push-invoice-pool',
         permissionMeaning: '按钮-推送发票池',
         title: intl.get(`${modelCode}.button.pushInvoicePool`).d('推送发票池'),
@@ -204,24 +168,13 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
     const updateInvoicePoolBtn = {
       key: 'updateInvoicePool',
       ele: renderPermissionButton({
-        onClick: () => this.handleOperation(5),
+        onClick: () => this.handleOperation(5, [data]),
         permissionCode: 'update-invoice-pool',
         permissionMeaning: '按钮-推送发票池',
         title: intl.get(`${modelCode}.button.updateInvoicePool`).d('更新发票池'),
       }),
       len: 6,
       title: intl.get(`${modelCode}.button.updateInvoicePool`).d('更新发票池'),
-    };
-    const cancelOrderBtn = {
-      key: 'cancelOrder',
-      ele: renderPermissionButton({
-        onClick: () => this.handleOperation(6),
-        permissionCode: 'cancel-order',
-        permissionMeaning: '按钮-取消订单',
-        title: intl.get(`${modelCode}.button.cancelOrder`).d('取消订单'),
-      }),
-      len: 6,
-      title: intl.get(`${modelCode}.button.cancelOrder`).d('取消订单'),
     };
     const operators: any = [
       previewBtn,
@@ -230,12 +183,11 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
       noticeBtn,
       pushInvoicePoolBtn,
       updateInvoicePoolBtn,
-      cancelOrderBtn,
     ];
 
     const btnMenu = (
       <Menu>
-        {operators.map((action) => {
+        {operators.map(action => {
           const { key } = action;
           return <Menu.Item key={key}>{action.ele}</Menu.Item>;
         })}
@@ -295,10 +247,72 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
         width: 180,
-        renderer: () => this.optionsRender(),
+        renderer: ({ record }) => this.optionsRender(record),
         lock: ColumnLock.right,
         align: ColumnAlign.center,
       },
+    ];
+  }
+
+  /**
+   * 批量操作表格行
+   */
+  @Bind()
+  batchProcess(type) {
+    const list = this.tableDS.selected.map(record => record.toData());
+    this.handleOperation(type, list);
+  }
+
+  get buttons(): Buttons[] {
+    const ObserverButtons = observer((props: any) => {
+      return (
+        <Button
+          key={props.key}
+          onClick={props.onClick}
+          disabled={props.dataSet.selected.length === 0}
+          funcType={FuncType.flat}
+        >
+          {props.title}
+        </Button>
+      );
+    });
+    return [
+      <ObserverButtons
+        key="bpreview"
+        onClick={() => this.batchProcess(0)}
+        dataSet={this.tableDS}
+        title={intl.get(`${modelCode}.button.preview`).d('纸票票面预览')}
+      />,
+      <ObserverButtons
+        key="bupload"
+        onClick={() => this.batchProcess(1)}
+        dataSet={this.tableDS}
+        title={intl.get(`${modelCode}.button.upload`).d('电子发票上传')}
+      />,
+      <ObserverButtons
+        key="bpreview"
+        onClick={() => this.batchProcess(2)}
+        dataSet={this.tableDS}
+        title={intl.get(`${modelCode}.button.print`).d('纸票打印文件')}
+      />,
+      <ObserverButtons
+        key="bnotice"
+        onClick={() => this.batchProcess(3)}
+        dataSet={this.tableDS}
+        title={intl.get(`${modelCode}.button.notice`).d('短信邮件通知')}
+      />,
+      <ObserverButtons
+        key="bpushInvoicePool"
+        onClick={() => this.batchProcess(4)}
+        dataSet={this.tableDS}
+        title={intl.get(`${modelCode}.button.pushInvoicePool`).d('推送发票池')}
+      />,
+      <ObserverButtons
+        key="bupdateInvoicePool"
+        onClick={() => this.batchProcess(5)}
+        dataSet={this.tableDS}
+        title={intl.get(`${modelCode}.button.updateInvoicePool`).d('更新发票池')}
+      />,
     ];
   }
 
@@ -308,6 +322,7 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<Invoice
         <Header title={intl.get(`${modelCode}.title`).d('开票附加信息状态查询')} />
         <Content>
           <Table
+            buttons={this.buttons}
             queryFieldsLimit={3}
             dataSet={this.tableDS}
             columns={this.columns}
