@@ -143,6 +143,8 @@ export default (): DataSetProps => {
     queryDataSet: new DataSet({
       events: {
         update: async ({ record, name, value }) => {
+          console.log(name);
+
           if (value && name === 'companyObj') {
             const {
               companyCode,
@@ -162,6 +164,10 @@ export default (): DataSetProps => {
               record.set('taxDiskNumberObj', taxNumberInfo);
               record.set('extensionNumber', taxNumberInfo.extNumber);
             }
+          }
+          if (value && name === 'taxDiskNumberObj') {
+            const { extNumber } = value;
+            record.set('extensionNumberView', extNumber);
           }
         },
       },
@@ -274,17 +280,17 @@ export default (): DataSetProps => {
           bind: 'taxDiskNumberObj.taxDiskNumber',
         },
         {
+          name: 'extensionNumberView',
+          label: intl.get(`hiop.invoiceWorkbench.modal.extNumber`).d('分机号'),
+          type: FieldType.string,
+          readOnly: true,
+          ignore: FieldIgnore.always,
+        },
+        {
           name: 'extensionNumber',
           label: intl.get('hiop.invoiceWorkbench.modal.extNumber').d('分机号'),
           type: FieldType.string,
           bind: 'taxDiskNumberObj.extNumber',
-          readOnly: true,
-          required: true,
-        },
-        {
-          name: 'extensionNumber',
-          label: intl.get(`hiop.invoiceWorkbench.modal.extNumber`).d('分机号'),
-          type: FieldType.string,
           readOnly: true,
           required: true,
         },

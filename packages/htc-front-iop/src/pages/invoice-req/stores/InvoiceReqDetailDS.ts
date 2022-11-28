@@ -30,14 +30,14 @@ const receiptRequiredRule = (record, name) => {
   const invoiceType = record.get('invoiceType');
   const receiptType = record.get('receiptType');
   if (
-    ['SALES_INVOICE', 'PURCHASE_INVOICE'].includes(requestType) &&
+    ['SALES_INVOICE', 'PURCHASE_INVOICE', 'PROFORMA_INVOICE'].includes(requestType) &&
     ['0', '52'].includes(invoiceType)
   ) {
     return true;
   } else if (['2', '41', '51'].includes(invoiceType)) {
     if (requestType === 'PURCHASE_INVOICE') {
       return name !== 'receiptAccount';
-    } else if (requestType === 'SALES_INVOICE') {
+    } else if (['PROFORMA_INVOICE', 'SALES_INVOICE'].includes(requestType)) {
       return (
         name === 'receiptName' || (name === 'receiptTaxNo' && ['01', '02'].includes(receiptType))
       );
@@ -116,6 +116,13 @@ const handleInvoiceTypeObjChange = (name, value, record) => {
       });
     }
   }
+};
+
+/**
+ * 形式发票必输验证规则
+ */
+const proformaRequiredRule = record => {
+  return record.get('requestType') === 'PROFORMA_INVOICE';
 };
 
 export default (dsParams): DataSetProps => {
@@ -311,6 +318,94 @@ export default (dsParams): DataSetProps => {
         maxLength: 200,
       },
       {
+        name: 'loadingPort',
+        label: intl.get('hiop.invoiceWorkbench.view.loadingPort').d('交货港'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'destinationPort',
+        label: intl.get('hiop.invoiceWorkbench.view.destinationPort').d('目的港'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'bankAddress',
+        label: intl.get('hiop.invoiceWorkbench.view.bankAddress').d('收款账户地址'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'swiftCode',
+        label: intl.get('hiop.invoiceWorkbench.view.swiftCode').d('收款账户银行代码'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'termsOfTrade',
+        label: intl.get('hiop.invoiceWorkbench.view.termsOfTrade').d('贸易条件'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.TERMS_OF_TRADE',
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'typeOfShipping',
+        label: intl.get('hiop.invoiceWorkbench.view.typeOfShapping').d('运输方式'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.TYPE_OF_SHIPPING',
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'paymentMethod',
+        label: intl.get('hiop.invoiceWorkbench.view.paymentMethod').d('付款方式'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.PAYMENT_METHOD',
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'shippingDateObj',
+        label: intl.get('hiop.invoiceWorkbench.view.shippingDateObj').d('装运期'),
+        type: FieldType.date,
+        required: true,
+        range: ['shippingDateFrom', 'shippingDateTo'],
+        ignore: FieldIgnore.always,
+        computedProps: {
+          required: ({ record }) => proformaRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'shippingDateFrom',
+        type: FieldType.date,
+        bind: 'shippingDateObj.shippingDateFrom',
+      },
+      {
+        name: 'shippingDateTo',
+        type: FieldType.date,
+        bind: 'shippingDateObj.shippingDateTo',
+      },
+      {
         name: 'paperRecipient',
         label: intl.get('hiop.invoiceWorkbench.modal.paperTicketReceiverName').d('纸票收件人'),
         type: FieldType.string,
@@ -318,6 +413,9 @@ export default (dsParams): DataSetProps => {
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('invoiceTypeTag') !== 'D',
           disabled: ({ record }) => record.get('invoiceTypeTag') !== 'D',
+          required: ({ record }) =>
+            record.get('invoiceTypeTag') === 'D' &&
+            record.get('requestType') === 'PROFORMA_INVOICE',
         },
       },
       {
@@ -329,6 +427,9 @@ export default (dsParams): DataSetProps => {
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('invoiceTypeTag') !== 'D',
           disabled: ({ record }) => record.get('invoiceTypeTag') !== 'D',
+          required: ({ record }) =>
+            record.get('invoiceTypeTag') === 'D' &&
+            record.get('requestType') === 'PROFORMA_INVOICE',
           pattern: ({ record }) => {
             if (record.get('paperPhone')) {
               if (record.get('paperPhone').indexOf('-') > -1) {
@@ -370,16 +471,6 @@ export default (dsParams): DataSetProps => {
         lookupCode: 'HIOP.DELIVERY_WAY',
         readOnly: true,
       },
-      // {
-      //   name: 'electronicType',
-      //   // label: intl.get(`${modelCode}.view.electronicType`).d('不交付'),
-      //   type: FieldType.string,
-      //   lookupCode: 'HIOP.DELIVERY_WAY',
-      //   readOnly: true,
-      //   computedProps: {
-      //     disabled: ({ record }) => record.get('invoiceTypeTag') !== 'E',
-      //   },
-      // },
       {
         name: 'emailPhone',
         label: intl.get('hiop.invoiceReq.modal.emailPhone').d('手机邮件交付'),

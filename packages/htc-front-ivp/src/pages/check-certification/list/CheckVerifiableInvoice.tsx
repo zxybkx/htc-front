@@ -357,34 +357,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     }
   };
 
-  /**
-   * 勾选回调
-   * @param {number} type 0-取消 1-勾选
-   */
-  const handleSubmit = type => {
-    if (certifiableInvoiceListDS) {
-      const selectedList = certifiableInvoiceListDS.selected.map(rec => rec.toData());
-      if (selectedList?.some(item => item.entryAccountState === '0')) {
-        Modal.confirm({
-          title: intl
-            .get('hivp.checkCertification.validate.submit')
-            .d('当前勾选发票存在未入账发票，确认是否提交勾选？'),
-          onOk: async () => {
-            if (type === 0) {
-              handleSubmitCancelTickRequest();
-            } else {
-              handleSubmitTickRequest();
-            }
-          },
-        });
-      } else if (type === 0) {
-        handleSubmitCancelTickRequest();
-      } else {
-        handleSubmitTickRequest();
-      }
-    }
-  };
-
   // 提交勾选请求
   const handleSubmitTickRequest = () => {
     if (certifiableInvoiceListDS) {
@@ -456,6 +428,12 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     const { queryDataSet } = certifiableInvoiceListDS!;
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
+    // if (!taxDiskPassword) {
+    //   return notification.warning({
+    //     description: '',
+    //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
+    //   });
+    // }
     if (queryDataSet) {
       const certifiableQueryData = queryDataSet.current!.toData();
       const {
@@ -608,12 +586,28 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     );
   });
 
+  // const Tooltips = () => {
+  //   const title =
+  //     checkInvoiceCount === 0
+  //       ? ''
+  //       : '当前系统中存在请求中的发票，可在当期勾选可认证发票查看，请请求完成后再重新获取';
+  //   return (
+  //     <Tooltip title={title} placement="top">
+  //       <Icon
+  //         type="help_outline"
+  //         className={styles.icon}
+  //         style={{ display: checkInvoiceCount === 0 ? 'none' : 'inline' }}
+  //       />
+  //     </Tooltip>
+  //   );
+  // };
+
   const btnMenu = (
     <Menu>
       <MenuItem>
         <TickButton
           key="submitTickRequest"
-          onClick={() => handleSubmit(1)}
+          onClick={() => handleSubmitTickRequest()}
           dataSet={certifiableInvoiceListDS}
           title={intl.get(`${modelCode}.button.submitTickRequest`).d('提交勾选')}
         />
@@ -621,7 +615,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       <MenuItem>
         <TickButton
           key="submitCancelTickRequest"
-          onClick={() => handleSubmit(0)}
+          onClick={() => handleSubmitCancelTickRequest()}
           dataSet={certifiableInvoiceListDS}
           title={intl.get(`${modelCode}.button.submitCancelTickRequest`).d('取消勾选')}
         />
@@ -630,8 +624,10 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   );
 
   const VerifiableButton = observer((btnProps: any) => {
+    // const { currentPeriod } = currentPeriodData;
     const { queryDataSet } = btnProps.dataSet;
     const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
+    // const isDisabled = !currentPeriod;
     return (
       <Button
         key={btnProps.key}
@@ -645,6 +641,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   });
 
   const CertifiedDetail = observer((btnProps: any) => {
+    // const { currentPeriod } = currentPeriodData;
     const { queryDataSet } = btnProps.dataSet;
     const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
     const isDisabled = !currentPeriod;
@@ -740,14 +737,11 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     queryMoreArray.push(
       <Select name="invoiceCategory" onChange={value => setInvoiceCategory(value)} />
     );
-    queryMoreArray.push(<TextField name="endTime" />);
-    queryMoreArray.push(<Select name="checkState" />);
-    queryMoreArray.push(<DatePicker name="invoiceDate" colSpan={2} />);
-    queryMoreArray.push(<Select name="entryAccountState" />);
-    queryMoreArray.push(<DatePicker name="entryAccountDate" colSpan={2} />);
     queryMoreArray.push(<TextField name="invoiceCode" />);
     queryMoreArray.push(<TextField name="invoiceNumber" />);
-    queryMoreArray.push(<Select name="isPoolFlag" />);
+    queryMoreArray.push(<DatePicker name="invoiceDate" colSpan={2} />);
+    queryMoreArray.push(<Select name="checkState" />);
+    queryMoreArray.push(<DatePicker name="entryAccountDate" colSpan={2} />);
     if (apiCondition === 'OP') {
       queryMoreArray.push(<Select name="systemCodeShare" />);
       queryMoreArray.push(<Select name="documentTypeCodeShare" />);
@@ -778,6 +772,9 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         />
       );
     }
+    queryMoreArray.push(<Select name="isPoolFlag" />);
+    queryMoreArray.push(<Select name="entryAccountState" />);
+    queryMoreArray.push(<TextField name="salerName" />);
     queryMoreArray.push(
       <TextField
         name="number"
@@ -786,7 +783,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         }
       />
     );
-    queryMoreArray.push(<TextField name="salerName" />);
     queryMoreArray.push(<Select name="invoiceState" />);
     queryMoreArray.push(<Currency name="taxAmount" />);
     queryMoreArray.push(<Currency name="validTaxAmount" />);

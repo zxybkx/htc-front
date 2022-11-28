@@ -231,6 +231,7 @@ export default class TenantAgreementDetailPage extends Component<Props, State> {
       { name: 'enterpriseAlipayAccount', width: 150, editor: true },
       { name: 'checkChannelCode', width: 150, editor: true },
       { name: 'inChannelCode', width: 150, editor: true },
+      { name: 'originalDocFlag', width: 150, editor: true },
       { name: 'preferOcrChannelCode', width: 160, editor: true },
       { name: 'retryOcrChannelCode', width: 160, editor: true },
       { name: 'accountNumber', width: 300, editor: true },

@@ -329,9 +329,9 @@ const checkRules = [
       {
         path: '/htc-front-ivp/check-authentication/list',
         component: '@/pages/check-authentication/list/CheckAuthenticationRulesPage',
-      }
-    ]
-  }]
+      },
+    ],
+  }];
 const deductionStatement = [
   {
     path: '/htc-front-ivp/deduction-statement',
@@ -346,7 +346,22 @@ const deductionStatement = [
       },
     ],
   },
-]
+];
+const invoiceStatistics = [
+  {
+    path: '/htc-front-ivp/invoice-statistics',
+    routes: [
+      {
+        path: '/htc-front-ivp/invoice-statistics/list',
+        component: '@/pages/invoice-statistics/list/InvoiceStatisticsListPage',
+      },
+      {
+        path: '/htc-front-ivp/invoice-statistics/detail',
+        component: '@/pages/invoice-statistics/detail/InvoiceStatisticsDetailPage',
+      },
+    ],
+  },
+];
 export default extendParentConfig({
   webpack5: {},
   devServer: {
@@ -364,6 +379,7 @@ export default extendParentConfig({
     ...invoiceCheck,
     ...checkRules,
     ...deductionStatement,
+    ...invoiceStatistics,
   ],
 
   extraBabelPlugins: [       //原/packages/xxx/.babelrc.js--plugins

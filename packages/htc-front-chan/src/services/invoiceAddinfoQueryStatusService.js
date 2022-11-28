@@ -15,28 +15,28 @@ const IOP_API = commonConfig.IOP_API || '';
  * 票面预览
  * @async
  * @function invoicePreviewApi
- * @param {object} param - 票面预览
  * @returns {object} fetch Promise
+ * @param params
  */
 export async function invoicePreviewApi(params) {
-  const { tenantId, ...otherParams } = params;
+  const { tenantId, invoiceHeadIds } = params;
   return request(`${IOP_API}/v1/${tenantId}/operation/invoice-preview`, {
     method: 'POST',
-    query: otherParams,
+    body: invoiceHeadIds,
   });
 }
 /**
  * 打印文件
  * @async
  * @function invoicePrintApi
- * @param {object} param - 查询条件
  * @returns {object} fetch Promise
+ * @param params
  */
 export async function invoicePrintApi(params) {
-  const { tenantId, ...otherParams } = params;
+  const { tenantId, invoiceHeadIds } = params;
   return request(`${IOP_API}/v1/${tenantId}/operation/invoice-print`, {
     method: 'POST',
-    query: otherParams,
+    body: invoiceHeadIds,
   });
 }
 
@@ -44,14 +44,14 @@ export async function invoicePrintApi(params) {
  * 电票上传
  * @async
  * @function electronicUploadApi
- * @param {object} param - 查询条件
  * @returns {object} fetch Promise
+ * @param params
  */
 export async function electronicUploadApi(params) {
-  const { tenantId, ...otherParams } = params;
+  const { tenantId, invoiceHeadIds } = params;
   return request(`${IOP_API}/v1/${tenantId}/operation/electronic-upload`, {
     method: 'POST',
-    query: otherParams,
+    body: invoiceHeadIds,
   });
 }
 
@@ -59,14 +59,14 @@ export async function electronicUploadApi(params) {
  * 更新发票池
  * @async
  * @function updateInvoicePoolApi
- * @param {object} param - 查询条件
  * @returns {object} fetch Promise
+ * @param params
  */
 export async function updateInvoicePoolApi(params) {
-  const { tenantId, ...otherParams } = params;
+  const { tenantId, invoiceHeadIds } = params;
   return request(`${IOP_API}/v1/${tenantId}/operation/update-invoicePool`, {
     method: 'POST',
-    query: otherParams,
+    body: invoiceHeadIds,
   });
 }
 
@@ -74,14 +74,14 @@ export async function updateInvoicePoolApi(params) {
  * 推送发票池
  * @async
  * @function pushInvoicePoolApi
- * @param {object} param - 查询条件
  * @returns {object} fetch Promise
+ * @param params
  */
 export async function pushInvoicePoolApi(params) {
-  const { tenantId, ...otherParams } = params;
+  const { tenantId, invoiceHeadIds } = params;
   return request(`${IOP_API}/v1/${tenantId}/operation/push-invoicePool`, {
     method: 'POST',
-    query: otherParams,
+    body: invoiceHeadIds,
   });
 }
 
@@ -89,28 +89,13 @@ export async function pushInvoicePoolApi(params) {
  * 短信/邮件通知
  * @async
  * @function notifyMessageApi
- * @param {object} param - 查询条件
  * @returns {object} fetch Promise
+ * @param params
  */
 export async function notifyMessageApi(params) {
-  const { tenantId, ...otherParams } = params;
+  const { tenantId, invoiceHeadIds } = params;
   return request(`${IOP_API}/v1/${tenantId}/operation/notify-Message`, {
     method: 'POST',
-    query: otherParams,
-  });
-}
-/**
- * 取消订单
- * @async
- * @function cancelOrder
- * @param {object} param - 查询条件
- * @returns {object} fetch Promise
- */
-export async function cancelOrderApi(params) {
-  const { tenantId, body, ...otherParams } = params;
-  return request(`${IOP_API}/v1/${tenantId}/operation/operation-batch-cancel-order`, {
-    method: 'POST',
-    query: otherParams,
-    body,
+    body: invoiceHeadIds,
   });
 }
