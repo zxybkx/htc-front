@@ -20,6 +20,7 @@ import {
   Table,
   TextField,
   Lov,
+  Modal as ProModal,
 } from 'choerodon-ui/pro';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
@@ -30,6 +31,7 @@ import {
   findVerifiableInvoice,
   handlecheckRequest,
   getCurPeriod,
+  businessTimeEndTime,
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import moment from 'moment';
@@ -45,7 +47,6 @@ import { Col, Icon, Modal, Row, Tag } from 'choerodon-ui';
 import formatterCollections from 'utils/intl/formatterCollections';
 import CertifiableInvoiceListDS from '../stores/CertifiableInvoiceListDS';
 import InvoiceCategoryContext from './CommonStore';
-// import styles from '../checkcertification.less';
 
 const { Item: MenuItem } = Menu;
 
@@ -97,12 +98,21 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     }
   };
 
-  const setCurrentPeriodFromProps = () => {
+  const setCurrentPeriodFromProps = async () => {
     if (certifiableInvoiceListDS) {
       const { queryDataSet } = certifiableInvoiceListDS;
       if (queryDataSet && queryDataSet.current) {
         const companyId = queryDataSet.current.get('companyId');
         if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
+          const period = immediatePeriod || currentPeriodData;
+          const { currentPeriod: ssq } = period;
+          const businessEndTime = getResponse(
+            await businessTimeEndTime({ tenantId, companyId, currentPeriod: ssq })
+          );
+          if (businessEndTime) {
+            const { endTime } = businessEndTime;
+            queryDataSet.current!.set({ endTime });
+          }
           if (immediatePeriod) {
             const { currentCertState } = immediatePeriod;
             queryDataSet.current!.set({ currentCertState });
@@ -266,8 +276,8 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     },
   ];
 
-  // 发票勾选
-  const checkRequest = async isTick => {
+  // 勾选认证调接口
+  const debugInterface = async isTick => {
     const {
       companyId,
       companyCode,
@@ -351,6 +361,29 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       // 更新所属期
       const periodRes = getResponse(await getCurPeriod({ tenantId, companyId, currentPeriod }));
       if (periodRes) setImmediatePeriod(periodRes);
+    }
+  };
+
+  // 发票勾选
+  const checkRequest = isTick => {
+    if (certifiableInvoiceListDS) {
+      if (
+        certifiableInvoiceListDS.selected.some(record => record.get('entryAccountState') === '0')
+      ) {
+        const title = intl
+          .get('hivp.checkCertification.validate.submit')
+          .d('当前勾选发票存在未入账发票，确认是否提交勾选？');
+        ProModal.confirm({
+          key: ProModal.key,
+          title,
+        }).then(button => {
+          if (button === 'ok') {
+            debugInterface(isTick);
+          }
+        });
+      } else {
+        debugInterface(isTick);
+      }
     }
   };
 
@@ -734,11 +767,14 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     queryMoreArray.push(
       <Select name="invoiceCategory" onChange={value => setInvoiceCategory(value)} />
     );
+    queryMoreArray.push(<TextField name="endTime" />);
+    queryMoreArray.push(<Select name="checkState" />);
+    queryMoreArray.push(<DatePicker name="invoiceDate" colSpan={2} />);
+    queryMoreArray.push(<Select name="entryAccountState" />);
+    queryMoreArray.push(<DatePicker name="entryAccountDate" colSpan={2} />);
     queryMoreArray.push(<TextField name="invoiceCode" />);
     queryMoreArray.push(<TextField name="invoiceNumber" />);
-    queryMoreArray.push(<DatePicker name="invoiceDate" colSpan={2} />);
-    queryMoreArray.push(<Select name="checkState" />);
-    queryMoreArray.push(<DatePicker name="entryAccountDate" colSpan={2} />);
+    queryMoreArray.push(<Select name="isPoolFlag" />);
     if (apiCondition === 'OP') {
       queryMoreArray.push(<Select name="systemCodeShare" />);
       queryMoreArray.push(<Select name="documentTypeCodeShare" />);
@@ -769,9 +805,9 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         />
       );
     }
-    queryMoreArray.push(<Select name="isPoolFlag" />);
-    queryMoreArray.push(<Select name="entryAccountState" />);
+    queryMoreArray.push(<Select name="authenticationState" />);
     queryMoreArray.push(<TextField name="salerName" />);
+    queryMoreArray.push(<Select name="invoiceState" />);
     queryMoreArray.push(
       <TextField
         name="number"
@@ -780,7 +816,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         }
       />
     );
-    queryMoreArray.push(<Select name="invoiceState" />);
     queryMoreArray.push(<Currency name="taxAmount" />);
     queryMoreArray.push(<Currency name="validTaxAmount" />);
     queryMoreArray.push(<Currency name="amount" />);

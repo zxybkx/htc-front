@@ -421,6 +421,11 @@ export default (): DataSetProps => {
           required: true,
         },
         {
+          name: 'endTime',
+          label: intl.get(`${modelCode}.view.endTime`).d('最新发票获取日期'),
+          type: FieldType.string,
+        },
+        {
           name: 'invoiceCode',
           label: intl.get('htc.common.view.invoiceCode').d('发票代码'),
           type: FieldType.string,
@@ -588,6 +593,12 @@ export default (): DataSetProps => {
           type: FieldType.date,
           bind: 'entryAccountDate.entryAccountDateTo',
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'authenticationState',
+          label: intl.get('htc.common.view.authenticationState').d('认证状态'),
+          type: FieldType.string,
+          lookupCode: 'HIVP.CERTIFICATION_STATE',
         },
         {
           name: 'salerName',
