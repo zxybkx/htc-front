@@ -69,6 +69,14 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
         case '2':
           this.batchCheckDetailDS.setQueryParameter('batchNo', batchNo);
           break;
+        case '3':
+          this.batchCheckDetailDS.setQueryParameter('batchNo', batchNo);
+          this.batchCheckDetailDS.setQueryParameter('isMatch', 0);
+          break;
+        case '4':
+          this.batchCheckDetailDS.setQueryParameter('batchNo', batchNo);
+          this.batchCheckDetailDS.setQueryParameter('entryAccountState', 0);
+          break;
         default:
           break;
       }
@@ -101,10 +109,11 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
       },
       { name: 'invoiceType', width: 150 },
       { name: 'checkState' },
-      { name: 'invoiceCode', width: 150 },
+      { name: 'invoiceCode', width: 150, editor: true },
       {
         name: 'invoiceNo',
         width: 180,
+        editor: true,
         renderer: ({ value, record }) => {
           const checkState = record?.get('checkState');
           const checkStateTxt = record?.getField('checkState')?.getText(checkState);
@@ -150,6 +159,7 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
       },
       { name: 'reasonsForNonDeduction', editor: true, width: 150 },
       { name: 'isMatch' },
+      { name: 'notMatchReason', width: 200 },
       { name: 'invoiceState' },
       {
         name: 'isPoolFlag',

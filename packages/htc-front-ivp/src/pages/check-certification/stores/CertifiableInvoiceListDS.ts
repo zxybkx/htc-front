@@ -595,6 +595,12 @@ export default (): DataSetProps => {
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
+          name: 'authenticationState',
+          label: intl.get('htc.common.view.authenticationState').d('认证状态'),
+          type: FieldType.string,
+          lookupCode: 'HIVP.CERTIFICATION_STATE',
+        },
+        {
           name: 'salerName',
           label: intl.get('htc.common.view.salerName').d('销方名称'),
           type: FieldType.string,

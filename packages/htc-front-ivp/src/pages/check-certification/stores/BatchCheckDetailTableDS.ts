@@ -30,6 +30,10 @@ export default (dsParams): DataSetProps => {
     case '2':
       url = `${API_PREFIX}/v1/${tenantId}/batch-check/abnormal-detail`;
       break;
+    case '3':
+    case '4':
+      url = `${API_PREFIX}/v1/${tenantId}/batch-check/not-match-entry-detail`;
+      break;
     default:
       break;
   }
@@ -128,6 +132,12 @@ export default (dsParams): DataSetProps => {
       {
         name: 'isMatch',
         label: intl.get('hivp.checkCertification.view.isMatch').d('发票匹配'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIVP.MATCH_STATUS',
+      },
+      {
+        name: 'notMatchReason',
+        label: intl.get('hivp.checkCertification.view.notMatchReason').d('未匹配原因'),
         type: FieldType.string,
       },
       {
@@ -250,6 +260,18 @@ export default (dsParams): DataSetProps => {
         name: 'failedDetail',
         label: intl.get('hivp.taxRefund.view.message.sync.cause').d('失败原因'),
         type: FieldType.string,
+      },
+      {
+        name: 'entryAccountState',
+        label: intl.get('hivp.bill.view.entryAccountState').d('入账状态'),
+        type: FieldType.string,
+        lookupCode: 'HIVP.ACCOUNT_STATE',
+      },
+      {
+        name: 'isMatch',
+        label: intl.get('hivp.checkCertification.view.match').d('是否匹配'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIVP.MATCH_STATUS',
       },
     ],
   };
