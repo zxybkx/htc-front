@@ -22,6 +22,7 @@ import {
   TextField,
   Upload,
   Modal,
+  Spin,
 } from 'choerodon-ui/pro';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
@@ -82,6 +83,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   const [showMore, setShowMore] = useState<boolean>(false);
   const [checkLoading, setCheckLoading] = useState<boolean>(false);
   const [noDeductLoading, setNoDeductLoading] = useState<boolean>(false);
+  const [spinning, setSpinning] = useState<boolean>(false);
   const { immediatePeriod, setImmediatePeriod } = useContext(InvoiceCategoryContext);
 
   let singleUpload;
@@ -159,6 +161,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
           message: err.message,
         });
       }
+      setSpinning(false);
     }
   };
 
@@ -167,6 +170,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       description: '',
       message: response,
     });
+    setSpinning(false);
   };
 
   const uploadProps = {
@@ -735,6 +739,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   };
 
   const handleUpload = async () => {
+    setSpinning(true);
     singleUpload.startUpload();
   };
 
@@ -1148,13 +1153,15 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   return (
     <>
       {batchInvoiceHeaderDS && (
-        <Table
-          buttons={batchButtons}
-          dataSet={batchInvoiceHeaderDS}
-          columns={columns}
-          queryBar={renderQueryBar}
-          style={{ height: 320 }}
-        />
+        <Spin spinning={spinning}>
+          <Table
+            buttons={batchButtons}
+            dataSet={batchInvoiceHeaderDS}
+            columns={columns}
+            queryBar={renderQueryBar}
+            style={{ height: 320 }}
+          />
+        </Spin>
       )}
     </>
   );
