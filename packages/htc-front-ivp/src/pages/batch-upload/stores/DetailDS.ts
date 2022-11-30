@@ -1,22 +1,37 @@
 /**
- * @Description:票据池-批量上传
+ * @Description:发票池-批量上传详情
  * @version: 1.0
- * @Author: yang.wang04@hand-china.com
- * @Date: 2020-09-14 09:10:12
- * @LastEditTime: 2020-10-19 15:54:08
+ * @Author: xinyan.zhou@hand-china.com
+ * @Date: 2022-11-29
+ * @LastEditTime:
  * @Copyright: Copyright (c) 2020, Hand
  */
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
-import { FieldType, DataSetSelection } from 'choerodon-ui/pro/lib/data-set/enum';
+import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
+import { AxiosRequestConfig } from 'axios';
+import commonConfig from '@htccommon/config/commonConfig';
+import { getCurrentOrganizationId } from 'utils/utils';
 
 const modelCode = 'hivp.invoicesArchiveUpload';
 
 export default (): DataSetProps => {
+  const API_PREFIX = commonConfig.IVP_API || '';
+  const tenantId = getCurrentOrganizationId();
   return {
+    transport: {
+      read: (config): AxiosRequestConfig => {
+        const url = `${API_PREFIX}/v1/${tenantId}/archives-update/query-invoice-upload-file`;
+        const axiosConfig: AxiosRequestConfig = {
+          ...config,
+          url,
+          method: 'GET',
+        };
+        return axiosConfig;
+      },
+    },
     pageSize: 10,
-    selection: DataSetSelection.multiple,
-    primaryKey: 'invoiceUploadFileId',
+    primaryKey: 'detailId',
     fields: [
       {
         name: 'invoiceUploadFileId',
@@ -43,6 +58,11 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.dataCheckState`).d('数据校验状态'),
         type: FieldType.string,
         lookupCode: 'HIVP.DATA_CHECK_STATE',
+      },
+      {
+        name: 'uploadStatus',
+        label: intl.get(`${modelCode}.view.uploadStatus`).d('档案上传状态'),
+        type: FieldType.string,
       },
       {
         name: 'fileType',
