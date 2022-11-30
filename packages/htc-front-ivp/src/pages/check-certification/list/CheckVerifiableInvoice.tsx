@@ -480,7 +480,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
           message: intl.get(`${modelCode}.message.verifiableModal`).d('请选择时间范围'),
           description: '',
         });
-        return;
+        return false;
       }
       const findParams = {
         tenantId,
