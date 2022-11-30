@@ -108,7 +108,7 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
         roleOptions.forEach(record => {
           const node = {
             title: record.name,
-            key: `${item.companyId}-${record.id}`,
+            key: `${item.companyId}+${record.id}`,
             ...record,
             parent: item,
           };
@@ -611,7 +611,7 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
     if (!isEmpty(selectedKeys)) {
       const { queryDataSet } = this.tableDS;
       // 子节点
-      if (selectedKeys[0].indexOf('-') > -1) {
+      if (selectedKeys[0].indexOf('+') > -1) {
         const companyNameObject = info.node.data.parent;
         const roleIdObject = info.node.data;
         if (queryDataSet) {
