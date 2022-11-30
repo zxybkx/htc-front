@@ -57,25 +57,16 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
       const { batchNo, batchNumber, requestTime, completeTime } = batchInvoiceInfo;
       if (queryDataSet) {
         queryDataSet.create({ batchNo, requestTime, completeTime }, 0);
+        if (type === '3') queryDataSet.current!.set({ isMatch: 0 });
+        if (type === '4') queryDataSet.current!.set({ entryAccountState: 0 });
       }
+      // 0-本次失败份数/1-查看明细/2-异常发票预警/3-未匹配发票/4-未入账发票
       switch (type) {
         case '0':
           this.batchCheckDetailDS.setQueryParameter('batchNumber', batchNumber);
           break;
         case '1':
-          this.batchCheckDetailDS.setQueryParameter('batchNumber', batchNumber);
           this.batchCheckDetailDS.setQueryParameter('invoiceCheckCollectId', invoiceCheckCollectId);
-          break;
-        case '2':
-          this.batchCheckDetailDS.setQueryParameter('batchNo', batchNo);
-          break;
-        case '3':
-          this.batchCheckDetailDS.setQueryParameter('batchNo', batchNo);
-          this.batchCheckDetailDS.setQueryParameter('isMatch', 0);
-          break;
-        case '4':
-          this.batchCheckDetailDS.setQueryParameter('batchNo', batchNo);
-          this.batchCheckDetailDS.setQueryParameter('entryAccountState', 0);
           break;
         default:
           break;
