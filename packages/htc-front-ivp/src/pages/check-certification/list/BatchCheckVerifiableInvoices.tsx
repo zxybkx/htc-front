@@ -441,14 +441,14 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   const downLoad = async () => {
     if (batchInvoiceHeaderDS) {
       const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
-      const needDownloadKey = batchInvoiceHeaderDS.selected[0].get('redisKey');
+      const invoiceCheckCollectId = batchInvoiceHeaderDS.selected[0].get('invoiceCheckCollectId');
       const params = {
         tenantId,
         companyId,
         companyCode,
         employeeId,
         employeeNumber: employeeNum,
-        needDownloadKey,
+        invoiceCheckCollectId,
       };
       if (batchInvoiceHeaderDS.selected.length > 1) {
         notification.warning({

@@ -205,11 +205,10 @@ export async function certifiableInvoiceRefresh(params) {
  * 下载发票文件
  */
 export async function downloadFile(params) {
-  const { tenantId, needDownloadKey, ...otherParams } = params;
+  const { tenantId, ...otherParams } = params;
   return request(`${HIVP_API}/v1/${tenantId}/batch-check/download-certified-file`, {
     method: 'POST',
     query: otherParams,
-    body: { needDownloadKey },
     responseType: 'blob',
   });
 }
