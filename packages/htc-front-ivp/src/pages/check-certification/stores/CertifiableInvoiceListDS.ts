@@ -396,7 +396,18 @@ export default (): DataSetProps => {
           label: intl.get(`${modelCode}.view.checkableTimeRange`).d('可勾选时间范围'),
           type: FieldType.string,
           readOnly: true,
-          // ignore: FieldIgnore.always,
+        },
+        {
+          name: 'rqq',
+          label: intl.get(`${modelCode}.view.checkableeqwewTimeRange`).d('开票时间起'),
+          type: FieldType.string,
+          required: true,
+        },
+        {
+          name: 'rqz',
+          label: intl.get(`${modelCode}.view.ewqewqeweq`).d('开票时间止'),
+          type: FieldType.string,
+          required: true,
         },
         {
           name: 'currentCertState',
