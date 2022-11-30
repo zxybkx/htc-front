@@ -26,7 +26,7 @@ import SubPageBillHeadersDS from '@src/pages/bill-pool/stores/SubPageBillHeaders
 import SubPageInvoicesHeadersDS from '@src/pages/invoices/stores/SubPageInvoicesHeadersDS';
 import formatterCollections from 'utils/intl/formatterCollections';
 import BatchUploadDS from '../stores/BatchUploadDS';
-import styles from './batchUpload.less';
+import styles from '../batchUpload.less';
 
 const modelCode = 'hivp.invoicesArchiveUpload';
 const tenantId = getCurrentOrganizationId();
@@ -35,7 +35,7 @@ const HIVP_API = commonConfig.IVP_API;
 interface RouterInfo {
   sourceCode: string;
   sourceHeaderId: any;
-  companyId: any;
+  companyId: string;
 }
 interface ArchiveUploadPageProps extends RouteComponentProps<RouterInfo> {
   dispatch: Dispatch<any>;
@@ -244,7 +244,6 @@ export default class BatchUploadPage extends Component<ArchiveUploadPageProps> {
       path: pathname,
       title: intl.get(`${modelCode}.path.viewArchives`).d('查看档案'),
       closable: true,
-      type: 'menu',
     });
   }
 
