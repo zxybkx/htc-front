@@ -401,13 +401,11 @@ export default (): DataSetProps => {
           name: 'rqq',
           label: intl.get(`${modelCode}.view.checkableeqwewTimeRange`).d('开票时间起'),
           type: FieldType.string,
-          required: true,
         },
         {
           name: 'rqz',
           label: intl.get(`${modelCode}.view.ewqewqeweq`).d('开票时间止'),
           type: FieldType.string,
-          required: true,
         },
         {
           name: 'currentCertState',
