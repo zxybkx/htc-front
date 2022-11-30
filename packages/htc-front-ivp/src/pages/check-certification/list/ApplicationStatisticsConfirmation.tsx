@@ -498,8 +498,6 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
       const { queryDataSet } = statisticalConfirmDS;
       const { companyId } = empInfo;
       const currentPeriod = queryDataSet?.current?.get('currentPeriod');
-      // const invoiceDateFrom = moment(currentPeriod).startOf('month');
-      // const invoiceDateTo = moment(currentPeriod).endOf('month');
       const record = timeRangeDS.create({ companyId, authenticationDateObj: { currentPeriod } }, 0);
       const modal = ModalPro.open({
         title: intl.get(`${modelCode}.view.invoiceDateRange`).d('选择时间范围'),

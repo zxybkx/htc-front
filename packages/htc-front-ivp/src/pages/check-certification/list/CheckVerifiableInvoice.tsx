@@ -125,6 +125,9 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
             } = currentPeriodData;
             const dateFrom = currentPeriod && moment(currentPeriod).startOf('month');
             const dateTo = currentPeriod && moment(currentPeriod).endOf('month');
+            const timeRange = checkableTimeRange.split('-');
+            const rqq = timeRange[0] && moment(timeRange[0]);
+            const rqz = timeRange[1] && moment(timeRange[1]);
             queryDataSet.current!.set({
               currentPeriod,
               currentOperationalDeadline,
@@ -132,6 +135,8 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
               currentCertState,
               invoiceDateFrom: dateFrom,
               invoiceDateTo: dateTo,
+              rqq,
+              rqz,
             });
           }
         }
@@ -458,12 +463,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     const { queryDataSet } = certifiableInvoiceListDS!;
     const { companyId, companyCode, employeeNum: employeeNumber, employeeId } = empInfo;
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-    // if (!taxDiskPassword) {
-    //   return notification.warning({
-    //     description: '',
-    //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-    //   });
-    // }
     if (queryDataSet) {
       const certifiableQueryData = queryDataSet.current!.toData();
       const {
@@ -473,8 +472,16 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         invoiceDateTo,
         currentPeriod,
         checkableTimeRange,
+        rqq,
+        rqz,
       } = certifiableQueryData;
-      // const { currentPeriod, checkableTimeRange } = currentPeriodData;
+      if (!rqq || !rqz) {
+        notification.warning({
+          message: intl.get(`${modelCode}.message.verifiableModal`).d('请选择时间范围'),
+          description: '',
+        });
+        return false;
+      }
       const findParams = {
         tenantId,
         companyId,
@@ -483,6 +490,8 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         employeeNumber,
         spmm: taxDiskPassword,
         checkableTimeRange,
+        rqq,
+        rqz,
         authorityCode: empInfo.authorityCode,
         invoiceCategory,
         qt: 'dq',
@@ -522,6 +531,25 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     }
   };
 
+  // 实时查找可认证发票弹窗
+  const renderVerifiableModal = () => {
+    if (certifiableInvoiceListDS) {
+      const { queryDataSet } = certifiableInvoiceListDS;
+      ProModal.open({
+        key: ProModal.key(),
+        title: intl.get(`${modelCode}.title.verifiableModal`).d('选择时间范围'),
+        closable: true,
+        children: (
+          <Form dataSet={queryDataSet}>
+            <DatePicker name="rqq" />
+            <DatePicker name="rqz" />
+          </Form>
+        ),
+        onOk: () => handleFindVerifiableInvoice(),
+      });
+    }
+  };
+
   // 已认证详情
   const handleGoToDetail = () => {
     const pathname = '/htc-front-ivp/check-certification/certifiableInvoice/detail';
@@ -534,12 +562,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       employeeId,
     } = empInfo;
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
-    // if (!taxDiskPassword) {
-    //   return notification.warning({
-    //     description: '',
-    //     message: intl.get('hivp.checkCertification.notice.taxDiskPassword').d('请输入税盘密码！'),
-    //   });
-    // }
     if (queryDataSet) {
       const companyDesc = `${companyCode}-${companyName}`;
       const currentPeriod = queryDataSet.current!.get('currentPeriod');
@@ -717,7 +739,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     <VerifiableButton
       key="verifiableInvoices"
       dataSet={certifiableInvoiceListDS}
-      onClick={() => handleFindVerifiableInvoice()}
+      onClick={() => renderVerifiableModal()}
       title={intl.get(`${modelCode}.button.verifiableInvoices`).d('实时查找可认证发票')}
     />,
     // <Tooltips />,

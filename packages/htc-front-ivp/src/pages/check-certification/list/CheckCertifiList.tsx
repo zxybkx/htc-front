@@ -31,7 +31,6 @@ import {
 } from '@htccommon/services/commonService';
 import {
   businessTimeQuery,
-  checkInvoiceCount,
   enterpriseSave,
   getTaskPassword,
   getTaxAuthorityCode,
@@ -68,7 +67,6 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
   const [empInfo, setEmpInfo] = useState({} as EmployeeInterface);
   const [currentPeriod, setCurrentPeriod] = useState<object>({});
   const [activeKey, setActiveKey] = useState<string>('certifiableInvoice');
-  // const [invoiceCount, setInvoiceCount] = useState<number>(0);
 
   // 获取初始值
   const getInitialValue = async () => {
@@ -88,13 +86,9 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
     if (queryDataSet) {
       const curCompanyId = queryDataSet.current?.get('companyId');
       const _currentPeriod = queryDataSet.current?.get('currentPeriod');
-      // const _invoiceCount = queryDataSet.current?.get('invoiceCount');
       if (_currentPeriod) {
         setCurrentPeriod(_currentPeriod);
       }
-      // if (_invoiceCount || _invoiceCount === 0) {
-      // setInvoiceCount(_invoiceCount);
-      // }
       if (curCompanyId) {
         const curInfo = await getCurrentEmployeeInfo({ tenantId, companyId: curCompanyId });
         if (curInfo && curInfo.content) getEmpInfoAndAuthorityCode(curInfo.content[0]);
@@ -102,10 +96,6 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
         const res = await getCurrentEmployeeInfo({ tenantId });
         if (res && res.content && res.content[0]) {
           companyAndPassword.loadData(res.content);
-          // 获取是否有勾选请求中的发票
-          const checkInvoiceCountRes = await checkInvoiceCount({ tenantId });
-          // setInvoiceCount(checkInvoiceCountRes);
-          queryDataSet.current!.set({ invoiceCount: checkInvoiceCountRes });
           getEmpInfoAndAuthorityCode(res.content[0]);
         }
       }
@@ -127,14 +117,6 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
   // 获取基础数据（主管架构代码、员工信息、通道编码、税盘密码）
   const getEmpInfoAndAuthorityCode = async curEmpInfo => {
     const { queryDataSet } = checkCertificationListDS;
-    // const apiCondition = process.env.EMPLOYEE_API;
-    // let inChannelCode: string;
-    // if (apiCondition === 'OP') {
-    //   inChannelCode = 'UNAISINO_IN_CHANNEL';
-    // } else {
-    //   const resCop = await getTenantAgreementCompany({ companyId: curEmpInfo.companyId, tenantId });
-    //   ({ inChannelCode } = resCop);
-    // }
     const resCop = await getTenantAgreementCompany({ companyId: curEmpInfo.companyId, tenantId });
     const { inChannelCode } = resCop;
     companyAndPassword.current!.set({ inChannelCode });
@@ -457,7 +439,6 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
                     companyAndPassword={companyAndPassword}
                     empInfo={empInfo}
                     currentPeriodData={currentPeriod}
-                    // checkInvoiceCount={invoiceCount}
                     history={history}
                   />
                 </TabPane>
