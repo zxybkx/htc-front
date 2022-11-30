@@ -57,17 +57,16 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
       const { batchNo, batchNumber, requestTime, completeTime } = batchInvoiceInfo;
       if (queryDataSet) {
         queryDataSet.create({ batchNo, requestTime, completeTime }, 0);
+        if (type === '3') queryDataSet.current!.set({ isMatch: 0 });
+        if (type === '4') queryDataSet.current!.set({ entryAccountState: 0 });
       }
+      // 0-本次失败份数/1-查看明细/2-异常发票预警/3-未匹配发票/4-未入账发票
       switch (type) {
         case '0':
           this.batchCheckDetailDS.setQueryParameter('batchNumber', batchNumber);
           break;
         case '1':
-          this.batchCheckDetailDS.setQueryParameter('batchNumber', batchNumber);
           this.batchCheckDetailDS.setQueryParameter('invoiceCheckCollectId', invoiceCheckCollectId);
-          break;
-        case '2':
-          this.batchCheckDetailDS.setQueryParameter('batchNo', batchNo);
           break;
         default:
           break;
@@ -101,10 +100,11 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
       },
       { name: 'invoiceType', width: 150 },
       { name: 'checkState' },
-      { name: 'invoiceCode', width: 150 },
+      { name: 'invoiceCode', width: 150, editor: true },
       {
         name: 'invoiceNo',
         width: 180,
+        editor: true,
         renderer: ({ value, record }) => {
           const checkState = record?.get('checkState');
           const checkStateTxt = record?.getField('checkState')?.getText(checkState);
@@ -150,6 +150,7 @@ export default class BatchCheckDetailTable extends Component<ApplyDeductionPageP
       },
       { name: 'reasonsForNonDeduction', editor: true, width: 150 },
       { name: 'isMatch' },
+      { name: 'notMatchReason', width: 200 },
       { name: 'invoiceState' },
       {
         name: 'isPoolFlag',

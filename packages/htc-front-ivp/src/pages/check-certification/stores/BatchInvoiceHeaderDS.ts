@@ -1,5 +1,5 @@
 /**
- * @Description: 批量退税勾选(取消)可确认发票
+ * @Description: 批量勾选发票
  * @version: 1.0
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2021-03-26 11:01:10
@@ -74,6 +74,16 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.modal.lylx`).d('来源类型'),
         lookupCode: 'HTC.IVP.CHECK_RESOURCE',
         type: FieldType.string,
+      },
+      {
+        name: 'notMatchCount',
+        label: intl.get(`${modelCode}.view.notMatchCount`).d('未匹配发票'),
+        type: FieldType.number,
+      },
+      {
+        name: 'notEntryCount',
+        label: intl.get(`${modelCode}.view.notEntryCount`).d('未入账发票'),
+        type: FieldType.number,
       },
       {
         name: 'abnormalInvoiceCount',

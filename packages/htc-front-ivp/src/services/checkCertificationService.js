@@ -41,6 +41,20 @@ export async function businessTimeQuery(params) {
 }
 
 /**
+ * 勾选数据更新时间查询
+ * @async
+ * @function businessTimeEndTime
+ * @returns {object} fetch Promise
+ */
+export async function businessTimeEndTime(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/invoice-operation/business-time-end-time`, {
+    method: 'GET',
+    query: otherParams,
+  });
+}
+
+/**
  * 实时查找可认证发票
  * @async
  * @function findVerifiableInvoice
@@ -191,11 +205,10 @@ export async function certifiableInvoiceRefresh(params) {
  * 下载发票文件
  */
 export async function downloadFile(params) {
-  const { tenantId, needDownloadKey, ...otherParams } = params;
+  const { tenantId, ...otherParams } = params;
   return request(`${HIVP_API}/v1/${tenantId}/batch-check/download-certified-file`, {
     method: 'POST',
     query: otherParams,
-    body: { needDownloadKey },
     responseType: 'blob',
   });
 }

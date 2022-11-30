@@ -322,15 +322,31 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       const { queryDataSet } = batchInvoiceHeaderDS;
       if (queryDataSet) {
         const currentCertState = queryDataSet.current!.get('currentCertState');
-        if (!['0', '1'].includes(currentCertState)) {
+        const notMatchCount = batchInvoiceHeaderDS.selected[0].get('notMatchCount');
+        if (!['0', '1'].includes(currentCertState) || notMatchCount > 0) {
           notification.warning({
             message: intl
               .get(`${modelCode}.validate.batchCheck`)
-              .d('当前认证状态为“已统计/已确签"，不允许勾选'),
+              .d('当前认证状态为“已统计/已确签或存在未匹配发票"，不允许勾选'),
             description: '',
           });
+          return;
         }
-        checkCall(0);
+        if (batchInvoiceHeaderDS.selected.some(record => record.get('notEntryCount') > 0)) {
+          const title = intl
+            .get('hivp.checkCertification.validate.submit')
+            .d('当前勾选发票存在未入账发票，确认是否提交勾选？');
+          Modal.confirm({
+            key: Modal.key,
+            title,
+          }).then(button => {
+            if (button === 'ok') {
+              checkCall(0);
+            }
+          });
+        } else {
+          checkCall(0);
+        }
       }
     }
   };
@@ -425,14 +441,14 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
   const downLoad = async () => {
     if (batchInvoiceHeaderDS) {
       const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
-      const needDownloadKey = batchInvoiceHeaderDS.selected[0].get('redisKey');
+      const invoiceCheckCollectId = batchInvoiceHeaderDS.selected[0].get('invoiceCheckCollectId');
       const params = {
         tenantId,
         companyId,
         companyCode,
         employeeId,
         employeeNumber: employeeNum,
-        needDownloadKey,
+        invoiceCheckCollectId,
       };
       if (batchInvoiceHeaderDS.selected.length > 1) {
         notification.warning({
@@ -900,6 +916,38 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     { name: 'totalInvoiceAmountGross', width: 120 },
     { name: 'totalInvoiceTheAmount', width: 120 },
     { name: 'checkResource' },
+    {
+      name: 'notMatchCount',
+      renderer: ({ value, record }) => {
+        if (value === 0) {
+          return value;
+        } else {
+          return (
+            <div>
+              <span>
+                <a onClick={() => handleBatchInvoiceDetail(record, 3)}>{value}</a>
+              </span>
+            </div>
+          );
+        }
+      },
+    },
+    {
+      name: 'notEntryCount',
+      renderer: ({ value, record }) => {
+        if (value === 0) {
+          return value;
+        } else {
+          return (
+            <div>
+              <span>
+                <a onClick={() => handleBatchInvoiceDetail(record, 4)}>{value}</a>
+              </span>
+            </div>
+          );
+        }
+      },
+    },
     {
       name: 'abnormalInvoiceCount',
       width: 150,
