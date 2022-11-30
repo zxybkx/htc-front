@@ -399,13 +399,15 @@ export default (): DataSetProps => {
         },
         {
           name: 'rqq',
-          label: intl.get(`${modelCode}.view.checkableeqwewTimeRange`).d('开票时间起'),
-          type: FieldType.string,
+          label: intl.get(`${modelCode}.view.fromInvoicingTime`).d('开票时间起'),
+          type: FieldType.date,
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'rqz',
-          label: intl.get(`${modelCode}.view.ewqewqeweq`).d('开票时间止'),
-          type: FieldType.string,
+          label: intl.get(`${modelCode}.view.invoicingTime`).d('开票时间止'),
+          type: FieldType.date,
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
           name: 'currentCertState',

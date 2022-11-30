@@ -537,7 +537,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       const { queryDataSet } = certifiableInvoiceListDS;
       ProModal.open({
         key: ProModal.key(),
-        title: intl.get(`${modelCode}.title.verifiableModal`).d('选择时间范围'),
+        title: intl.get(`${modelCode}.view.invoiceDateRange`).d('选择时间范围'),
         closable: true,
         children: (
           <Form dataSet={queryDataSet}>

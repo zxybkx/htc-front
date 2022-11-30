@@ -51,7 +51,6 @@ export default class VerificationUploadTable extends Component<ArchiveUploadPage
   state = {
     companyCode: '',
     employeeNum: '',
-    backPath: '',
   };
 
   multipleDS = new DataSet({
@@ -61,20 +60,14 @@ export default class VerificationUploadTable extends Component<ArchiveUploadPage
 
   async componentDidMount() {
     const { companyId } = this.props.match.params;
-    const { search } = this.props.location;
     this.multipleDS.setQueryParameter('companyId', companyId);
     this.multipleDS.query();
-    const invoiceInfoStr = new URLSearchParams(search).get('invoiceInfo');
-    if (invoiceInfoStr) {
-      const invoiceInfo = JSON.parse(decodeURIComponent(invoiceInfoStr));
-      const empRes = await getCurrentEmployeeInfo({ tenantId, companyId });
-      const currentEmp = empRes && empRes.content[0];
-      this.setState({
-        companyCode: currentEmp.companyCode,
-        employeeNum: currentEmp && currentEmp.employeeNum,
-        backPath: invoiceInfo.backPath,
-      });
-    }
+    const empRes = await getCurrentEmployeeInfo({ tenantId, companyId });
+    const currentEmp = empRes && empRes.content[0];
+    this.setState({
+      companyCode: currentEmp.companyCode,
+      employeeNum: currentEmp && currentEmp.employeeNum,
+    });
   }
 
   handleUploadSuccess = response => {
@@ -102,6 +95,13 @@ export default class VerificationUploadTable extends Component<ArchiveUploadPage
   @Bind()
   async handleDelete() {
     const list = this.multipleDS.selected;
+    if (this.multipleDS.selected.some(record => record.get('dataStatus') === '2')) {
+      notification.warning({
+        description: '',
+        message: intl.get(`${modelCode}.message.batchDelete`).d('存在非完成状态文件，无法批量删除'),
+      });
+      return;
+    }
     this.multipleDS.delete(list);
   }
 
@@ -113,21 +113,24 @@ export default class VerificationUploadTable extends Component<ArchiveUploadPage
   @Bind()
   commands(record) {
     const btns: any = [];
-    if (['3', '4'].includes(record.get('dataStatus'))) {
-      btns.push(
-        <a onClick={() => this.refresh(record)}>
-          {intl.get('hzero.common.button.refresh').d('刷新')}
-        </a>,
-        <a onClick={() => this.multipleDS.delete(record)}>
-          {intl.get('hzero.common.button.delete').d('删除')}
-        </a>
-      );
-    } else {
-      btns.push(
-        <a onClick={() => this.refresh(record)}>
-          {intl.get('hzero.common.button.refresh').d('刷新')}
-        </a>
-      );
+    const dataStatus = record.get('dataStatus');
+    switch (dataStatus) {
+      case '2':
+        btns.push(
+          <a onClick={() => this.refresh(record)}>
+            {intl.get('hzero.common.button.refresh').d('刷新')}
+          </a>
+        );
+        break;
+      case '3':
+      case '4':
+        btns.push(
+          <a onClick={() => this.multipleDS.delete(record)}>
+            {intl.get('hzero.common.button.delete').d('删除')}
+          </a>
+        );
+        break;
+      default:
     }
     return [
       <span className="action-link" key="action">
@@ -177,6 +180,15 @@ export default class VerificationUploadTable extends Component<ArchiveUploadPage
 
   @Bind()
   async refresh(record) {
+    if (this.multipleDS.selected.some(item => ['3', '4'].includes(item.get('dataStatus')))) {
+      notification.warning({
+        description: '',
+        message: intl
+          .get(`${modelCode}.message.batchRefresh`)
+          .d('存在非上传中状态发票，无法刷新状态'),
+      });
+      return;
+    }
     let batchNos = this.multipleDS.selected.map(_record => _record.get('batchNo'));
     if (record) {
       batchNos = [record.get('batchNo')];
@@ -267,11 +279,10 @@ export default class VerificationUploadTable extends Component<ArchiveUploadPage
   }
 
   render() {
-    const { backPath } = this.state;
     return (
       <>
         <Header
-          backPath={backPath}
+          backPath="/htc-front-ivp/invoices/list"
           title={intl.get(`${modelCode}.title.uploadFile`).d('档案上传')}
         />
         <Content>
