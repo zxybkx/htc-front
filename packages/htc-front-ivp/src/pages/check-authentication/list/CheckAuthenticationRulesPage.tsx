@@ -1,4 +1,4 @@
-/*
+/**
  * @Description: 进项发票规则维护
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2022-10-09 14:51:37
@@ -40,7 +40,7 @@ interface CheckRuleListPageProps {
     'hivp.taxRefund',
   ],
 })
-export default class CheckRuleListPage extends Component<CheckRuleListPageProps> {
+export default class CheckAuthenticationRulesPage extends Component<CheckRuleListPageProps> {
   state = {
     curCompanyId: '',
   };
@@ -130,6 +130,7 @@ export default class CheckRuleListPage extends Component<CheckRuleListPageProps>
           message: intl.get('htc.common.notification.noChange').d('请先修改数据'),
         });
       }
+      if (res && res.content && res.content[0]) this.checkRuleDS.query();
     }
   }
 
