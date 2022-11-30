@@ -241,6 +241,34 @@ export async function confirmFile(params) {
 }
 
 /**
+ * 档案上传-刷新
+ * @async
+ * @function confirmFile
+ * @returns {object} fetch Promise
+ */
+export async function batchUploadRefresh(params) {
+  const { tenantId, batchNos } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/archives-update/refresh`, {
+    method: 'POST',
+    body: batchNos,
+  });
+}
+
+/**
+ * 档案上传-删除
+ * @async
+ * @function confirmFile
+ * @returns {object} fetch Promise
+ */
+export async function batchUploadDelete(params) {
+  const { tenantId, list } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/archives-update/delete-invoice-upload-file`, {
+    method: 'DELETE',
+    body: list,
+  });
+}
+
+/**
  * 档案查看-ofd电子发票识别解析
  * @async
  * @function ofdInvoiceResolver
