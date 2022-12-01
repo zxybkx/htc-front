@@ -20,19 +20,27 @@ export default (dsParams): DataSetProps => {
   const tenantId = getCurrentOrganizationId();
   const { type } = dsParams;
   let url = '';
+  let deleteFlag = '';
   switch (type) {
     case '0':
       url = `${API_PREFIX}/v1/${tenantId}/batch-check/fail-detail`;
+      deleteFlag = '4';
       break;
     case '1':
       url = `${API_PREFIX}/v1/${tenantId}/batch-check/batch-uncertified-invoice`;
+      deleteFlag = '5';
       break;
     case '2':
       url = `${API_PREFIX}/v1/${tenantId}/batch-check/abnormal-detail`;
+      deleteFlag = '3';
       break;
     case '3':
+      url = `${API_PREFIX}/v1/${tenantId}/batch-check/not-match-entry-detail`;
+      deleteFlag = '1';
+      break;
     case '4':
       url = `${API_PREFIX}/v1/${tenantId}/batch-check/not-match-entry-detail`;
+      deleteFlag = '2';
       break;
     default:
       break;
@@ -59,6 +67,7 @@ export default (dsParams): DataSetProps => {
         return {
           url: `${API_PREFIX}/v1/${tenantId}/batch-check/batch-remove-details`,
           data,
+          params: { deleteFlag },
           method: 'DELETE',
         };
       },
