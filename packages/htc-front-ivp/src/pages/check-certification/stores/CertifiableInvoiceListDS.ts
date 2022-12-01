@@ -606,6 +606,25 @@ export default (): DataSetProps => {
           transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
         },
         {
+          name: 'checkDateObj',
+          label: intl.get(`${modelCode}.view.checkDate`).d('勾选日期'),
+          type: FieldType.date,
+          range: ['checkDateFrom', 'checkDateTo'],
+          ignore: FieldIgnore.always,
+        },
+        {
+          name: 'checkDateFrom',
+          type: FieldType.date,
+          bind: 'checkDateObj.checkDateFrom',
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
+          name: 'checkDateTo',
+          type: FieldType.date,
+          bind: 'checkDateObj.checkDateTo',
+          transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        },
+        {
           name: 'authenticationState',
           label: intl.get('htc.common.view.authenticationState').d('认证状态'),
           type: FieldType.string,
