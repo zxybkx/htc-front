@@ -327,11 +327,20 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
       if (queryDataSet) {
         const currentCertState = queryDataSet.current!.get('currentCertState');
         const notMatchCount = batchInvoiceHeaderDS.selected[0].get('notMatchCount');
-        if (!['0', '1'].includes(currentCertState) || notMatchCount > 0) {
+        if (!['0', '1'].includes(currentCertState)) {
           notification.warning({
             message: intl
               .get(`${modelCode}.validate.batchCheck`)
-              .d('当前认证状态为“已统计/已确签或存在未匹配发票"，不允许勾选'),
+              .d('当前认证状态为“已统计/已确签"，不允许勾选'),
+            description: '',
+          });
+          return;
+        }
+        if (notMatchCount > 0) {
+          notification.warning({
+            message: intl
+              .get(`${modelCode}.validate.notMatchCount`)
+              .d('存在未匹配发票，不允许勾选'),
             description: '',
           });
           return;

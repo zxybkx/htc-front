@@ -790,10 +790,12 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       <Select name="invoiceCategory" onChange={value => setInvoiceCategory(value)} />
     );
     queryMoreArray.push(<TextField name="endTime" />);
-    queryMoreArray.push(<Select name="checkState" />);
+    queryMoreArray.push(<Select name="invoiceState" />);
     queryMoreArray.push(<DatePicker name="invoiceDate" colSpan={2} />);
     queryMoreArray.push(<Select name="entryAccountState" />);
     queryMoreArray.push(<DatePicker name="entryAccountDate" colSpan={2} />);
+    queryMoreArray.push(<Select name="checkState" />);
+    queryMoreArray.push(<DatePicker name="checkDateObj" colSpan={2} />);
     queryMoreArray.push(<TextField name="invoiceCode" />);
     queryMoreArray.push(<TextField name="invoiceNumber" />);
     queryMoreArray.push(<Select name="isPoolFlag" />);
@@ -829,7 +831,6 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     }
     queryMoreArray.push(<Select name="authenticationState" />);
     queryMoreArray.push(<TextField name="salerName" />);
-    queryMoreArray.push(<Select name="invoiceState" />);
     queryMoreArray.push(
       <TextField
         name="number"
