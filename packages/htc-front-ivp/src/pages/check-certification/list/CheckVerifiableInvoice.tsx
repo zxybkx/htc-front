@@ -21,6 +21,7 @@ import {
   TextField,
   Lov,
   Modal as ProModal,
+  Tooltip,
 } from 'choerodon-ui/pro';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
@@ -32,6 +33,7 @@ import {
   handlecheckRequest,
   getCurPeriod,
   businessTimeEndTime,
+  getOriginCheckInvoice,
 } from '@src/services/checkCertificationService';
 import withProps from 'utils/withProps';
 import moment from 'moment';
@@ -623,6 +625,24 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     }
   };
 
+  // 当期勾选(取消)可认证发票: 全量同步历史发票
+  const handleFullQuantity = async () => {
+    const { queryDataSet } = certifiableInvoiceListDS!;
+    const { companyId } = empInfo;
+    if (queryDataSet) {
+      const checkableTimeRange = queryDataSet.current!.get('checkableTimeRange');
+      const res = getResponse(
+        await getOriginCheckInvoice({ tenantId, companyId, checkableTimeRange })
+      );
+      if (res) {
+        notification.success({
+          description: '',
+          message: res.message,
+        });
+      }
+    }
+  };
+
   const TickButton = observer((btnProps: any) => {
     const isDisabled = btnProps.dataSet!.selected.length === 0;
     const { condition } = btnProps;
@@ -676,10 +696,8 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
   );
 
   const VerifiableButton = observer((btnProps: any) => {
-    // const { currentPeriod } = currentPeriodData;
     const { queryDataSet } = btnProps.dataSet;
     const currentPeriod = queryDataSet && queryDataSet.current?.get('currentPeriod');
-    // const isDisabled = !currentPeriod;
     return (
       <Button
         key={btnProps.key}
@@ -729,6 +747,12 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
     );
   });
 
+  const toolTipTitle = intl
+    .get(`${modelCode}.message.originCheckInvoice`)
+    .d(
+      '一次性获取可勾选时间范围内全量历史勾选认证发票，并同步发票池相关信息，根据数据量大小可能需要等待一些时间'
+    );
+
   const tableButtons: Buttons[] = [
     <Dropdown overlay={btnMenu}>
       <Button color={ButtonColor.primary} loading={checkLoading}>
@@ -755,6 +779,15 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       dataSet={certifiableInvoiceListDS}
       title={intl.get('hiop.invoiceWorkbench.button.refresh').d('刷新状态')}
     />,
+    <VerifiableButton
+      key="fullQuantity"
+      dataSet={certifiableInvoiceListDS}
+      onClick={() => handleFullQuantity()}
+      title={intl.get(`${modelCode}.button.fullQuantity`).d('全量同步历史发票')}
+    />,
+    <Tooltip title={toolTipTitle} placement="top">
+      <Icon type="help_outline" style={{ color: '#4490ff' }} />
+    </Tooltip>,
   ];
 
   const handleVerifiableQuery = () => {
