@@ -379,3 +379,17 @@ export async function downloadTemplate(params) {
     responseType: 'blob',
   });
 }
+
+/**
+ * 当期勾选(取消)可认证发票: 全量同步历史发票
+ * @async
+ * @function getOriginCheckInvoice
+ * @returns {object} fetch Promise
+ */
+export async function getOriginCheckInvoice(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/invoice-operation-new/get-origin-check-invoice`, {
+    method: 'GET',
+    query: otherParams,
+  });
+}
