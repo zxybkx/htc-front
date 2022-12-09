@@ -41,7 +41,7 @@ const setDefaultInvoiceInfo = (params, record) => {
         paperTicketReceiverPhone: res.paperTicketReceiverPhone,
         paperTicketReceiverAddress: res.paperTicketReceiverAddress,
         electronicReceiverInfo: res.electronicReceiverInfo,
-        nextDefaultFlag: 1,
+        nextDefaultFlag: res.nextDefaultFlag,
       });
     }
   });
