@@ -502,6 +502,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
         jkshm: invoiceNumber,
         kprqq: invoiceDateFrom,
         kprqz: invoiceDateTo,
+        flag: 1,
       };
       if (invoiceCategory === '01') {
         set(findParams, 'gxzt', '0');
