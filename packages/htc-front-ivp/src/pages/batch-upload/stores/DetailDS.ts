@@ -102,5 +102,25 @@ export default (): DataSetProps => {
         type: FieldType.currency,
       },
     ],
+    queryFields: [
+      {
+        name: 'uploadFileName',
+        label: intl.get(`${modelCode}.view.uploadFileName`).d('上传文件名称'),
+        labelWidth: '90',
+        type: FieldType.string,
+      },
+      {
+        name: 'dataCheckState',
+        label: intl.get(`${modelCode}.view.dataCheckState`).d('数据校验状态'),
+        labelWidth: '90',
+        type: FieldType.string,
+        lookupCode: 'HIVP.DATA_CHECK_STATE',
+      },
+      {
+        name: 'invoiceNo',
+        label: intl.get('htc.common.view.invoiceNo').d('发票号码'),
+        type: FieldType.string,
+      },
+    ],
   };
 };
