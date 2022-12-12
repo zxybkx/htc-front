@@ -237,7 +237,12 @@ const billsRouterConfig = [
       {
         //  批量上传
         path: '/htc-front-ivp/bills/batch-upload/:sourceCode/:companyId',
-        component: '@/pages/batch-upload/detail/BatchUploadPage',
+        component: '@/pages/batch-upload/list/VerificationUploadTable',
+      },
+      {
+        //  批量上传-详情
+        path: '/htc-front-ivp/bills/batch-upload/detail/:sourceCode/:uploadArchivesId/:companyId',
+        component: '@/pages/batch-upload/detail/UploadDetail',
       },
       {
         //  档案查看
