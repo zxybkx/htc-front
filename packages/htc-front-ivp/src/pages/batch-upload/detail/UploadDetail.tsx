@@ -119,8 +119,9 @@ export default class UploadDetail extends Component<ArchiveUploadPageProps> {
   render() {
     const { sourceCode, companyId } = this.props.match.params;
     let backPath = `/htc-front-ivp/invoices/batch-upload/${sourceCode}/${companyId}`;
-    if (sourceCode === 'BILL_POOL')
+    if (sourceCode === 'BILL_POOL') {
       backPath = `/htc-front-ivp/bills/batch-upload/${sourceCode}/${companyId}`;
+    }
     return (
       <>
         <Header
