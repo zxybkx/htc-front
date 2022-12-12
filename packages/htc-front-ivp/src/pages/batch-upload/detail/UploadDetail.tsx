@@ -108,7 +108,12 @@ export default class UploadDetail extends Component<ArchiveUploadPageProps> {
   @Bind()
   exportParams() {
     const { uploadArchivesId } = this.props.match.params;
-    return { uploadArchivesId } || {};
+    const queryParams = this.detailDS.queryDataSet!.map(data => data.toData()) || {};
+    const _queryParams = {
+      uploadArchivesId,
+      ...queryParams[0],
+    };
+    return { ..._queryParams } || {};
   }
 
   render() {
