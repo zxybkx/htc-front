@@ -142,6 +142,9 @@ export default {
             {
                 'name': 'hzero-front-hwfp',
             },
+          {
+            "name": "hzero-front-hevt",
+          },
             {
                 "name": "htc-front-iop",
             },
