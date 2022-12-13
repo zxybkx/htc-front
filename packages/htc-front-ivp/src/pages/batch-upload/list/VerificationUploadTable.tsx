@@ -59,8 +59,9 @@ export default class VerificationUploadTable extends Component<ArchiveUploadPage
   });
 
   async componentDidMount() {
-    const { companyId } = this.props.match.params;
+    const { companyId, sourceCode } = this.props.match.params;
     this.multipleDS.setQueryParameter('companyId', companyId);
+    this.multipleDS.setQueryParameter('sourceCode', sourceCode);
     this.multipleDS.query();
     const empRes = await getCurrentEmployeeInfo({ tenantId, companyId });
     const currentEmp = empRes && empRes.content[0];
@@ -144,7 +145,10 @@ export default class VerificationUploadTable extends Component<ArchiveUploadPage
     const { history } = this.props;
     const { sourceCode, companyId } = this.props.match.params;
     const uploadArchivesHeaderId = record.get('uploadArchivesHeaderId');
-    const pathname = `/htc-front-ivp/invoices/batch-upload/detail/${sourceCode}/${uploadArchivesHeaderId}/${companyId}`;
+    let pathname = `/htc-front-ivp/invoices/batch-upload/detail/${sourceCode}/${uploadArchivesHeaderId}/${companyId}`;
+    if (sourceCode === 'BILL_POOL') {
+      pathname = `/htc-front-ivp/bills/batch-upload/detail/${sourceCode}/${uploadArchivesHeaderId}/${companyId}`;
+    }
     history.push(pathname);
   }
 
@@ -279,10 +283,13 @@ export default class VerificationUploadTable extends Component<ArchiveUploadPage
   }
 
   render() {
+    const { sourceCode } = this.props.match.params;
+    let backPath = '/htc-front-ivp/invoices/list';
+    if (sourceCode === 'BILL_POOL') backPath = '/htc-front-ivp/bills/list';
     return (
       <>
         <Header
-          backPath="/htc-front-ivp/invoices/list"
+          backPath={backPath}
           title={intl.get(`${modelCode}.title.uploadFile`).d('档案上传')}
         />
         <Content>

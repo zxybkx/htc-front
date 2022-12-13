@@ -108,12 +108,20 @@ export default class UploadDetail extends Component<ArchiveUploadPageProps> {
   @Bind()
   exportParams() {
     const { uploadArchivesId } = this.props.match.params;
-    return { uploadArchivesId } || {};
+    const queryParams = this.detailDS.queryDataSet!.map(data => data.toData()) || {};
+    const _queryParams = {
+      uploadArchivesId,
+      ...queryParams[0],
+    };
+    return { ..._queryParams } || {};
   }
 
   render() {
     const { sourceCode, companyId } = this.props.match.params;
-    const backPath = `/htc-front-ivp/invoices/batch-upload/${sourceCode}/${companyId}`;
+    let backPath = `/htc-front-ivp/invoices/batch-upload/${sourceCode}/${companyId}`;
+    if (sourceCode === 'BILL_POOL') {
+      backPath = `/htc-front-ivp/bills/batch-upload/${sourceCode}/${companyId}`;
+    }
     return (
       <>
         <Header
