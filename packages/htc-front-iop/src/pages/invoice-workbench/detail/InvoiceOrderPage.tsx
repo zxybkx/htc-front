@@ -688,6 +688,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     const { history } = this.props;
     // 表格行校验空
     if (isEmpty(lineList)) {
+      this.setState({
+        submitLoading: false,
+      });
       return notification.error({
         description: '',
         message: intl.get('hiop.invoiceWorkbench.validation.error.addLine').d(`请新增表格行`),
@@ -804,6 +807,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     const linesValidate = await this.invoiceOrderLinesDS.validate(false, false);
     const { companyType, remark, userRemark, calculateSpin } = headerData;
     if (!validateValue || !linesValidate) {
+      this.setState({
+        submitLoading: false,
+      });
       notification.error({
         description: '',
         message: intl.get('hzero.common.notification.invalid').d('数据校验不通过！'),
@@ -813,6 +819,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     if (!isEmpty(lineList)) {
       const ifRes = this.validateLine(lineList, companyType);
       if (!ifRes) {
+        this.setState({
+          submitLoading: false,
+        });
         return;
       }
     }
