@@ -74,6 +74,8 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
     const commonFn = () => {
       if (sourceFlag === 'H') {
         this.tableHeaderDS.submit();
+        const dataLength = this.tableHeaderDS.toData().length;
+        if (dataLength) this.tableHeaderDS.pageSize = dataLength;
       }
       if (sourceFlag === 'L') this.tableLineDS.submit();
     };
@@ -475,6 +477,9 @@ export default class DocumentTypePage extends Component<DocumentTypePageProps> {
    */
   @Bind()
   tableHeaderScroll() {
+    this.tableHeaderDS.pageSize = 20;
+    // console.log('this.tableHeaderDS.totalPage', this.tableHeaderDS.totalPage);
+    // console.log('this.tableHeaderDS.currentPage', this.tableHeaderDS.currentPage);
     if (this.tableHeaderDS.totalPage > this.tableHeaderDS.currentPage) {
       this.tableHeaderDS.queryMore(this.tableHeaderDS.currentPage + 1);
     } else {
