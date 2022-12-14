@@ -144,6 +144,7 @@
     "codeScan": "hzero codeScan",
     "start": "umi dev",
     "start:mock": "cross-env NODE_PROFILE=mock hzero-cli start",
+    "start:ms": "cross-env UMI_DEV_ENV=TRUE UMI_ENV=dev NODE_OPTIONS='--max_old_space_size=8196' node ./node_modules/umi/bin/umi.js hzero-start",
     "build:dep-all:prod": "cross-env UMI_ENV=prod NODE_OPTIONS='--max_old_space_size=10240' node ./node_modules/umi/bin/umi.js hzero-build-dep --all",
     "build:app:prod": "cross-env UMI_ENV=prod umi hzero-build --only-build-parent",
     "build:ms:prod": "cross-env NODE_OPTIONS='--max_old_space_size=8196' UMI_ENV=prod umi hzero-build --only-build-micro",
