@@ -24,9 +24,10 @@ import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
 import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
-import { getCurrentOrganizationId, getCurrentTenant, getResponse } from 'utils/utils';
+import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { chunk } from 'lodash';
 import ExcelExport from 'components/ExcelExport';
+import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
 import commonConfig from '@htccommon/config/commonConfig';
 import { statisticReportDownload } from '@src/services/checkCertificationService';
 import { downLoadFiles } from '@htccommon/utils/utils';
@@ -47,7 +48,7 @@ interface ApplyDeductionPageProps {
 }
 
 @formatterCollections({
-  code: [modelCode, 'htc.common', 'hiop.invoiceRule', 'hivp.bill'],
+  code: [modelCode, 'htc.common', 'hiop.invoiceRule', 'hivp.bill', 'chan.bill-push-history'],
 })
 export default class CertificationResultsReport extends Component<ApplyDeductionPageProps> {
   state = {
@@ -70,7 +71,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
     ...CertificationResultDetailsDS(),
   });
 
-  componentDidMount() {
+  async componentDidMount() {
     const { search } = this.props.location;
     const statisticalConfirmInfoStr = new URLSearchParams(search).get('statisticalConfirmInfo');
     if (statisticalConfirmInfoStr) {
@@ -79,44 +80,48 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
         currentPeriod,
         currentCertState,
         companyId,
-        companyCode,
-        companyName,
-        employeeId,
-        employeeNum,
-        taxpayerNumber,
-        // invoiceCategory,
         taxDiskPassword,
         invoiceDateFromStr,
         invoiceDateToStr,
       } = statisticalConfirmInfo;
-      this.headerDS.current!.set({
-        tenantName: getCurrentTenant().tenantName,
-        currentCertState,
-        currentPeriod,
-      });
-      this.summaryDS.setQueryParameter('companyId', companyId);
-      this.summaryDS.setQueryParameter('companyCode', companyCode);
-      this.summaryDS.setQueryParameter('companyName', companyName);
-      this.summaryDS.setQueryParameter('employeeId', employeeId);
-      this.summaryDS.setQueryParameter('employeeNumber', employeeNum);
-      this.summaryDS.setQueryParameter('nsrsbh', taxpayerNumber);
-      this.summaryDS.setQueryParameter('tjyf', currentPeriod);
-      this.summaryDS.setQueryParameter('ssq', currentPeriod);
-      this.summaryDS.setQueryParameter('spmm', taxDiskPassword);
-      this.summaryDS.setQueryParameter('rqq', invoiceDateFromStr);
-      this.summaryDS.setQueryParameter('rqz', invoiceDateToStr);
-      this.summaryDS.query().then(res => {
-        if (res) {
-          const { certifiedResultStatisticSummaryDtoList, detailList, queryTime } = res;
-          this.headerDS.current!.set({ queryTime });
-          this.summaryDS.loadData(certifiedResultStatisticSummaryDtoList);
-          this.detailDS.loadData(detailList);
-          this.setState({
-            summaryData: certifiedResultStatisticSummaryDtoList || [],
-            detailData: detailList || [],
-          });
-        }
-      });
+      const curInfo = await getCurrentEmployeeInfo({ tenantId, companyId });
+      if (curInfo && curInfo.content) {
+        const {
+          companyCode,
+          employeeId,
+          employeeNum,
+          taxpayerNumber,
+          companyName,
+        } = curInfo.content[0];
+        this.headerDS.current!.set({
+          companyName,
+          currentCertState,
+          currentPeriod,
+        });
+        this.summaryDS.setQueryParameter('companyId', companyId);
+        this.summaryDS.setQueryParameter('companyCode', companyCode);
+        this.summaryDS.setQueryParameter('companyName', companyName);
+        this.summaryDS.setQueryParameter('employeeId', employeeId);
+        this.summaryDS.setQueryParameter('employeeNumber', employeeNum);
+        this.summaryDS.setQueryParameter('nsrsbh', taxpayerNumber);
+        this.summaryDS.setQueryParameter('tjyf', currentPeriod);
+        this.summaryDS.setQueryParameter('ssq', currentPeriod);
+        this.summaryDS.setQueryParameter('spmm', taxDiskPassword);
+        this.summaryDS.setQueryParameter('rqq', invoiceDateFromStr);
+        this.summaryDS.setQueryParameter('rqz', invoiceDateToStr);
+        this.summaryDS.query().then(res => {
+          if (res) {
+            const { certifiedResultStatisticSummaryDtoList, detailList, queryTime } = res;
+            this.headerDS.current!.set({ queryTime });
+            this.summaryDS.loadData(certifiedResultStatisticSummaryDtoList);
+            this.detailDS.loadData(detailList);
+            this.setState({
+              summaryData: certifiedResultStatisticSummaryDtoList || [],
+              detailData: detailList || [],
+            });
+          }
+        });
+      }
       this.setState({ urlData: statisticalConfirmInfo });
     }
   }
@@ -266,7 +271,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
         </Header>
         <Content>
           <Form dataSet={this.headerDS} columns={3}>
-            <TextField name="tenantName" />
+            <TextField name="companyName" />
             <Select name="currentCertState" />
             <TextField name="currentPeriod" />
             <TextField name="queryTime" />

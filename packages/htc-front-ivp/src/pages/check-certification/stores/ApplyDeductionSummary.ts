@@ -82,8 +82,8 @@ const ApplyDeductionHeader = (): DataSetProps => {
     autoCreate: true,
     fields: [
       {
-        name: 'tenantName',
-        label: intl.get('htc.common.view.tenantName').d('租户名称'),
+        name: 'companyName',
+        label: intl.get('chan.bill-push-history.view.companyName').d('公司名称'),
         type: FieldType.string,
         readOnly: true,
       },

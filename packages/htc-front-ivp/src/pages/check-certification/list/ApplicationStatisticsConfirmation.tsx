@@ -440,14 +440,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
 
   // 统计跳转
   const handleJump = async (record, modal, type) => {
-    const {
-      companyId,
-      companyCode,
-      employeeId,
-      employeeNum,
-      taxpayerNumber,
-      companyName,
-    } = empInfo;
+    const { companyId } = empInfo;
     const taxDiskPassword = companyAndPassword.current?.get('taxDiskPassword');
     const invoiceDateFrom = record.get('invoiceDateFrom');
     const _currentPeriod = record.get('currentPeriod');
@@ -476,15 +469,10 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
               currentPeriod: _currentPeriod,
               currentCertState,
               companyId,
-              companyCode,
-              employeeId,
-              employeeNum,
-              taxpayerNumber,
               invoiceCategory,
               taxDiskPassword,
               invoiceDateFromStr,
               invoiceDateToStr,
-              companyName,
               authorityCode: empInfo.authorityCode,
             })
           ),
