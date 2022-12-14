@@ -44,6 +44,7 @@ export default (): DataSetProps => {
       },
     },
     pageSize: 20,
+    strictPageSize: false,
     selection: false,
     primaryKey: 'docTypeHeaderId',
     fields: [
