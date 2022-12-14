@@ -1,6 +1,9 @@
 {
   "packages": [
     {
+      "name": "hzero-front-hevt"
+    },
+    {
       "name": "hzero-front-hiam",
       "registerRegex": ".*"
     },
