@@ -11,7 +11,7 @@ import { Dispatch } from 'redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { Bind } from 'lodash-decorators';
 import { Content, Header } from 'components/Page';
-import { getCurrentOrganizationId, getCurrentTenant, getResponse } from 'utils/utils';
+import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import {
   Button,
   DataSet,
@@ -32,6 +32,7 @@ import moment from 'moment';
 import ExcelExport from 'components/ExcelExport';
 import commonConfig from '@htccommon/config/commonConfig';
 import { downLoadFiles } from '@htccommon/utils/utils';
+import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
 import { deductionReportDownload } from '@src/services/checkCertificationService';
 import formatterCollections from 'utils/intl/formatterCollections';
 import ApplyDeductionSummaryDS, { ApplyDeductionHeader } from '../stores/ApplyDeductionSummary';
@@ -61,6 +62,7 @@ interface ApplyDeductionPageProps extends RouteComponentProps<RouterInfo> {
     'hiop.invoiceRule',
     'hivp.taxRefund',
     'hivp.bill',
+    'chan.bill-push-history',
   ],
 })
 export default class ApplyDeductionReport extends Component<ApplyDeductionPageProps> {
@@ -84,7 +86,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
     ...ApplyDeductionDetailsDS(),
   });
 
-  componentDidMount() {
+  async componentDidMount() {
     const { search } = this.props.location;
     const statisticalConfirmInfoStr = new URLSearchParams(search).get('statisticalConfirmInfo');
     if (statisticalConfirmInfoStr) {
@@ -93,45 +95,51 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
         currentPeriod,
         currentCertState,
         companyId,
-        companyCode,
-        employeeId,
-        employeeNum,
-        taxpayerNumber,
         invoiceCategory,
         taxDiskPassword,
         invoiceDateFromStr,
         invoiceDateToStr,
         authorityCode,
       } = statisticalConfirmInfo;
-      const date = moment().format(DEFAULT_DATETIME_FORMAT);
-      this.headerDS.current!.set({
-        tenantName: getCurrentTenant().tenantName,
-        currentCertState,
-        currentPeriod,
-        queryTime: date,
-      });
-      this.summaryDS.setQueryParameter('companyId', companyId);
-      this.summaryDS.setQueryParameter('companyCode', companyCode);
-      this.summaryDS.setQueryParameter('employeeId', employeeId);
-      this.summaryDS.setQueryParameter('employeeNumber', employeeNum);
-      this.summaryDS.setQueryParameter('nsrsbh', taxpayerNumber);
-      this.summaryDS.setQueryParameter('ssq', currentPeriod);
-      this.summaryDS.setQueryParameter('invoiceCategory', invoiceCategory);
-      this.summaryDS.setQueryParameter('spmm', taxDiskPassword);
-      this.summaryDS.setQueryParameter('rqq', invoiceDateFromStr);
-      this.summaryDS.setQueryParameter('rqz', invoiceDateToStr);
-      this.summaryDS.setQueryParameter('zgjgdm', authorityCode);
-      this.summaryDS.query().then(res => {
-        if (res) {
-          const { deductionApplySummaryDtoList, detailList } = res;
-          this.summaryDS.loadData(deductionApplySummaryDtoList);
-          this.detailDS.loadData(detailList);
-          this.setState({
-            summaryData: deductionApplySummaryDtoList || [],
-            detailData: detailList || [],
-          });
-        }
-      });
+      const curInfo = await getCurrentEmployeeInfo({ tenantId, companyId });
+      if (curInfo && curInfo.content) {
+        const {
+          companyCode,
+          employeeId,
+          employeeNum,
+          taxpayerNumber,
+          companyName,
+        } = curInfo.content[0];
+        const date = moment().format(DEFAULT_DATETIME_FORMAT);
+        this.headerDS.current!.set({
+          companyName,
+          currentCertState,
+          currentPeriod,
+          queryTime: date,
+        });
+        this.summaryDS.setQueryParameter('companyId', companyId);
+        this.summaryDS.setQueryParameter('companyCode', companyCode);
+        this.summaryDS.setQueryParameter('employeeId', employeeId);
+        this.summaryDS.setQueryParameter('employeeNumber', employeeNum);
+        this.summaryDS.setQueryParameter('nsrsbh', taxpayerNumber);
+        this.summaryDS.setQueryParameter('ssq', currentPeriod);
+        this.summaryDS.setQueryParameter('invoiceCategory', invoiceCategory);
+        this.summaryDS.setQueryParameter('spmm', taxDiskPassword);
+        this.summaryDS.setQueryParameter('rqq', invoiceDateFromStr);
+        this.summaryDS.setQueryParameter('rqz', invoiceDateToStr);
+        this.summaryDS.setQueryParameter('zgjgdm', authorityCode);
+        this.summaryDS.query().then(res => {
+          if (res) {
+            const { deductionApplySummaryDtoList, detailList } = res;
+            this.summaryDS.loadData(deductionApplySummaryDtoList);
+            this.detailDS.loadData(detailList);
+            this.setState({
+              summaryData: deductionApplySummaryDtoList || [],
+              detailData: detailList || [],
+            });
+          }
+        });
+      }
       this.setState({ urlData: statisticalConfirmInfo });
     }
   }
@@ -365,7 +373,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
         </Header>
         <Content>
           <Form dataSet={this.headerDS} columns={3}>
-            <TextField name="tenantName" />
+            <TextField name="companyName" />
             <Select name="currentCertState" />
             <TextField name="currentPeriod" />
             <TextField name="queryTime" />
