@@ -62,7 +62,7 @@ const API_PREFIX = commonConfig.IVP_API || '';
 const { Option } = Select;
 const { TabPane } = Tabs;
 const { Item: MenuItem } = Menu;
-const acceptType = ['.pdf', '.jpg', '.png', '.ofd', '.zip', '.rar', '.7z', 'image/jpeg'];
+const acceptType = ['.ofd', '.zip', '.rar', '.7z', 'image/*'];
 
 interface BatchCheckPageProps extends RouteComponentProps {
   dispatch: Dispatch<any>;
