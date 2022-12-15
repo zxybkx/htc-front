@@ -354,7 +354,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
         const { projectObj, ...otherItem } = record;
         return {
           ...otherItem,
-          ...projectObj,
+          // ...projectObj,
           projectName: projectObj.invoiceProjectName,
         };
       });
