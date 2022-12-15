@@ -180,6 +180,10 @@ export default (dsParams): DataSetProps => {
         if (name === 'projectUnitPrice' && value) {
           record.set('amount', (value * quantity).toFixed(2));
         }
+        // 零税率标识(zeroTaxRateFlag)、税率（taxRate）、优惠政策标识（preferentialPolicyFlag）
+        if (name === 'taxRateObj' && (!value || Number(value.value) !== 0)) {
+          record.set('zeroTaxRateFlag', '');
+        }
         handleTaxRate(name, value, record, projectUnitPrice);
         // 商品自行编码
         handleProjectObjChange(name, value, record);
