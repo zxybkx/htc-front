@@ -56,6 +56,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
     detailData: [],
     urlData: {} as any,
     empInfo: {} as any,
+    queryTime: '',
   };
 
   headerDS = new DataSet({
@@ -119,6 +120,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
             this.setState({
               summaryData: certifiedResultStatisticSummaryDtoList || [],
               detailData: detailList || [],
+              queryTime,
             });
           }
         });
@@ -156,7 +158,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
 
   @Bind()
   async handlePrint() {
-    const { summaryData, detailData, empInfo, urlData } = this.state;
+    const { summaryData, detailData, empInfo, urlData, queryTime } = this.state;
     const { currentPeriod, taxDiskPassword, invoiceDateFromStr, invoiceDateToStr } = urlData;
     const {
       companyId,
@@ -165,7 +167,9 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
       employeeNum,
       taxpayerNumber,
       companyName,
+      employeeName,
     } = empInfo;
+    const createDate = queryTime.slice(0, 10);
     const params = {
       tenantId,
       companyId,
@@ -179,7 +183,18 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
       spmm: taxDiskPassword,
       rqq: invoiceDateFromStr,
       rqz: invoiceDateToStr,
-      dto: { certifiedResultStatisticSummaryDtoList: summaryData, detailList: detailData },
+      dto: {
+        certifiedResultStatisticSummaryDtoList: summaryData,
+        detailList: detailData,
+        ssq: currentPeriod,
+        companyName,
+        buyerTaxNo: taxpayerNumber,
+        queryTime,
+        createBy: employeeName,
+        receiver: employeeName,
+        createDate,
+        receiveDate: createDate,
+      },
     };
     const res = getResponse(await statisticReportDownload(params));
     if (res) {
