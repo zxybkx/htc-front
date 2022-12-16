@@ -70,6 +70,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
     summaryData: [],
     detailData: [],
     urlData: {} as any,
+    empInfo: {} as any,
   };
 
   headerDS = new DataSet({
@@ -140,7 +141,7 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
           }
         });
       }
-      this.setState({ urlData: statisticalConfirmInfo });
+      this.setState({ urlData: statisticalConfirmInfo, empInfo: curInfo.content[0] });
     }
   }
 
@@ -255,49 +256,40 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
 
   @Bind()
   async handlePrint() {
-    const { search } = this.props.location;
-    const { summaryData, detailData } = this.state;
-    const statisticalConfirmInfoStr = new URLSearchParams(search).get('statisticalConfirmInfo');
-    if (statisticalConfirmInfoStr) {
-      const statisticalConfirmInfo = JSON.parse(decodeURIComponent(statisticalConfirmInfoStr));
-      const {
-        currentPeriod,
-        companyId,
-        companyCode,
-        employeeId,
-        employeeNum,
-        taxpayerNumber,
-        invoiceCategory,
-        taxDiskPassword,
-        invoiceDateFromStr,
-        invoiceDateToStr,
-        authorityCode,
-      } = statisticalConfirmInfo;
-      const params = {
-        tenantId,
-        companyId,
-        companyCode,
-        employeeId,
-        employeeNumber: employeeNum,
-        nsrsbh: taxpayerNumber,
-        ssq: currentPeriod,
-        invoiceCategory,
-        spmm: taxDiskPassword,
-        rqq: invoiceDateFromStr,
-        rqz: invoiceDateToStr,
-        zgjgdm: authorityCode,
-        dto: { deductionApplySummaryDtoList: summaryData, detailList: detailData },
-      };
-      const res = getResponse(await deductionReportDownload(params));
-      if (res) {
-        const fileList = [
-          {
-            data: res,
-            fileName: '申报抵扣统计表.pdf',
-          },
-        ];
-        downLoadFiles(fileList, 0);
-      }
+    const { summaryData, detailData, empInfo, urlData } = this.state;
+    const {
+      currentPeriod,
+      invoiceCategory,
+      taxDiskPassword,
+      invoiceDateFromStr,
+      invoiceDateToStr,
+      authorityCode,
+    } = urlData;
+    const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
+    const params = {
+      tenantId,
+      companyId,
+      companyCode,
+      employeeId,
+      employeeNumber: employeeNum,
+      nsrsbh: taxpayerNumber,
+      ssq: currentPeriod,
+      invoiceCategory,
+      spmm: taxDiskPassword,
+      rqq: invoiceDateFromStr,
+      rqz: invoiceDateToStr,
+      zgjgdm: authorityCode,
+      dto: { deductionApplySummaryDtoList: summaryData, detailList: detailData },
+    };
+    const res = getResponse(await deductionReportDownload(params));
+    if (res) {
+      const fileList = [
+        {
+          data: res,
+          fileName: '申报抵扣统计表.pdf',
+        },
+      ];
+      downLoadFiles(fileList, 0);
     }
   }
 
@@ -324,20 +316,16 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
    */
   @Bind()
   handleGetQueryParams() {
-    const { urlData } = this.state;
+    const { urlData, empInfo } = this.state;
     const {
       currentPeriod,
-      companyId,
-      companyCode,
-      employeeId,
-      employeeNum,
-      taxpayerNumber,
       invoiceCategory,
       taxDiskPassword,
       invoiceDateFromStr,
       invoiceDateToStr,
       authorityCode,
     } = urlData;
+    const { companyId, companyCode, employeeId, employeeNum, taxpayerNumber } = empInfo;
     const queryParams = {
       tenantId,
       companyId,
