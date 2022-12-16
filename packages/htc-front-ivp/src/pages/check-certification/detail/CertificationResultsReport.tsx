@@ -55,6 +55,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
     summaryData: [],
     detailData: [],
     urlData: {} as any,
+    empInfo: {} as any,
   };
 
   headerDS = new DataSet({
@@ -122,7 +123,7 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
           }
         });
       }
-      this.setState({ urlData: statisticalConfirmInfo });
+      this.setState({ urlData: statisticalConfirmInfo, empInfo: curInfo.content[0] });
     }
   }
 
@@ -155,48 +156,40 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
 
   @Bind()
   async handlePrint() {
-    const { search } = this.props.location;
-    const { summaryData, detailData } = this.state;
-    const statisticalConfirmInfoStr = new URLSearchParams(search).get('statisticalConfirmInfo');
-    if (statisticalConfirmInfoStr) {
-      const statisticalConfirmInfo = JSON.parse(decodeURIComponent(statisticalConfirmInfoStr));
-      const {
-        currentPeriod,
-        companyId,
-        companyCode,
-        companyName,
-        employeeId,
-        employeeNum,
-        taxpayerNumber,
-        taxDiskPassword,
-        invoiceDateFromStr,
-        invoiceDateToStr,
-      } = statisticalConfirmInfo;
-      const params = {
-        tenantId,
-        companyId,
-        companyCode,
-        companyName,
-        employeeId,
-        employeeNumber: employeeNum,
-        nsrsbh: taxpayerNumber,
-        ssq: currentPeriod,
-        tjyf: currentPeriod,
-        spmm: taxDiskPassword,
-        rqq: invoiceDateFromStr,
-        rqz: invoiceDateToStr,
-        dto: { certifiedResultStatisticSummaryDtoList: summaryData, detailList: detailData },
-      };
-      const res = getResponse(await statisticReportDownload(params));
-      if (res) {
-        const fileList = [
-          {
-            data: res,
-            fileName: '认证结果通知书.pdf',
-          },
-        ];
-        downLoadFiles(fileList, 0);
-      }
+    const { summaryData, detailData, empInfo, urlData } = this.state;
+    const { currentPeriod, taxDiskPassword, invoiceDateFromStr, invoiceDateToStr } = urlData;
+    const {
+      companyId,
+      companyCode,
+      employeeId,
+      employeeNum,
+      taxpayerNumber,
+      companyName,
+    } = empInfo;
+    const params = {
+      tenantId,
+      companyId,
+      companyCode,
+      companyName,
+      employeeId,
+      employeeNumber: employeeNum,
+      nsrsbh: taxpayerNumber,
+      ssq: currentPeriod,
+      tjyf: currentPeriod,
+      spmm: taxDiskPassword,
+      rqq: invoiceDateFromStr,
+      rqz: invoiceDateToStr,
+      dto: { certifiedResultStatisticSummaryDtoList: summaryData, detailList: detailData },
+    };
+    const res = getResponse(await statisticReportDownload(params));
+    if (res) {
+      const fileList = [
+        {
+          data: res,
+          fileName: '认证结果通知书.pdf',
+        },
+      ];
+      downLoadFiles(fileList, 0);
     }
   }
 
@@ -223,19 +216,16 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
    */
   @Bind()
   handleGetQueryParams() {
-    const { urlData } = this.state;
+    const { urlData, empInfo } = this.state;
+    const { currentPeriod, taxDiskPassword, invoiceDateFromStr, invoiceDateToStr } = urlData;
     const {
-      currentPeriod,
       companyId,
       companyCode,
-      companyName,
       employeeId,
       employeeNum,
       taxpayerNumber,
-      taxDiskPassword,
-      invoiceDateFromStr,
-      invoiceDateToStr,
-    } = urlData;
+      companyName,
+    } = empInfo;
     const queryParams = {
       tenantId,
       companyId,
