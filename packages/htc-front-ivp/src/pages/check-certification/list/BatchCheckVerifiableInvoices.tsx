@@ -1127,7 +1127,7 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
               <Form dataSet={queryDataSet} columns={3}>
                 <Select name="checkState" />
                 <TextField name="batchNo" />
-                <Select name="lylx" />
+                <Select name="checkResource" />
               </Form>
             )}
           </Col>
