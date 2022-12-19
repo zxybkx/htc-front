@@ -26,7 +26,7 @@ import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
 import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
-import { chunk } from 'lodash';
+import { chunk, slice } from 'lodash';
 import { DEFAULT_DATETIME_FORMAT } from 'utils/constants';
 import moment from 'moment';
 import ExcelExport from 'components/ExcelExport';
@@ -132,8 +132,8 @@ export default class ApplyDeductionReport extends Component<ApplyDeductionPagePr
         this.summaryDS.query().then(res => {
           if (res) {
             const { deductionApplySummaryDtoList, detailList } = res;
-            this.summaryDS.loadData(deductionApplySummaryDtoList);
-            this.detailDS.loadData(detailList);
+            this.summaryDS.loadData(slice(deductionApplySummaryDtoList, 0, 10));
+            this.detailDS.loadData(slice(detailList, 0, 10));
             this.setState({
               summaryData: deductionApplySummaryDtoList || [],
               detailData: detailList || [],

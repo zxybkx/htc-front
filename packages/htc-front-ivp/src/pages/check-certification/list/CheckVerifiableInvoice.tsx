@@ -105,9 +105,10 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
       const { queryDataSet } = certifiableInvoiceListDS;
       if (queryDataSet && queryDataSet.current) {
         const companyId = queryDataSet.current.get('companyId');
-        if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
-          const period = immediatePeriod || currentPeriodData;
-          const { currentPeriod: ssq } = period;
+        // if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
+        // const period = immediatePeriod || currentPeriodData;
+        if (!isEmpty(currentPeriodData)) {
+          const { currentPeriod: ssq } = currentPeriodData;
           const businessEndTime = getResponse(
             await businessTimeEndTime({ tenantId, companyId, currentPeriod: ssq })
           );
@@ -142,6 +143,7 @@ const CheckVerifiableInvoice: React.FC<CheckCertificationPageProps> = props => {
             });
           }
         }
+        // }
       }
     }
   };

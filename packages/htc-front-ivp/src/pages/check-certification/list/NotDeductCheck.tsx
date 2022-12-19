@@ -79,8 +79,8 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
     if (noDeductCheckDS) {
       const { queryDataSet } = noDeductCheckDS;
       if (queryDataSet && queryDataSet.current) {
-        const companyId = queryDataSet.current.get('companyId');
-        if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
+        // const companyId = queryDataSet.current.get('companyId');
+        if (!isEmpty(currentPeriodData)) {
           if (immediatePeriod) {
             const { currentCertState } = immediatePeriod;
             queryDataSet.current!.set({ currentCertState });
@@ -103,6 +103,8 @@ const NotDeductCheck: React.FC<CheckCertificationPageProps> = props => {
             });
           }
         }
+        // if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
+        // }
       }
     }
   };

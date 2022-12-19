@@ -135,6 +135,7 @@ const CheckCertifiList: React.FC<CheckCertificationPageProps> = props => {
     checkCertificationListDS.setQueryParameter('companyId', curEmpInfo.companyId);
     checkCertificationListDS.query();
     setEmpInfo({ authorityCode: competentTaxAuthorities, inChannelCode, ...curEmpInfo });
+    setCurrentPeriod({});
   };
 
   // 改变所属公司

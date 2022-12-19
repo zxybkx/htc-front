@@ -116,8 +116,8 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
     if (batchInvoiceHeaderDS) {
       const { queryDataSet } = batchInvoiceHeaderDS;
       if (queryDataSet && queryDataSet.current) {
-        const companyId = queryDataSet.current.get('companyId');
-        if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
+        // const companyId = queryDataSet.current.get('companyId');
+        if (!isEmpty(currentPeriodData)) {
           if (immediatePeriod) {
             const { currentCertState } = immediatePeriod;
             queryDataSet.current!.set({ currentCertState });
@@ -136,6 +136,8 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
             });
           }
         }
+        // if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
+        // }
       }
     }
   };
