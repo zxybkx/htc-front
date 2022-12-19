@@ -25,7 +25,7 @@ import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import intl from 'utils/intl';
 import { ColumnAlign } from 'choerodon-ui/pro/lib/table/enum';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
-import { chunk } from 'lodash';
+import { chunk, slice } from 'lodash';
 import ExcelExport from 'components/ExcelExport';
 import { getCurrentEmployeeInfo } from '@htccommon/services/commonService';
 import commonConfig from '@htccommon/config/commonConfig';
@@ -115,8 +115,8 @@ export default class CertificationResultsReport extends Component<ApplyDeduction
           if (res) {
             const { certifiedResultStatisticSummaryDtoList, detailList, queryTime } = res;
             this.headerDS.current!.set({ queryTime });
-            this.summaryDS.loadData(certifiedResultStatisticSummaryDtoList);
-            this.detailDS.loadData(detailList);
+            this.summaryDS.loadData(slice(certifiedResultStatisticSummaryDtoList, 0, 10));
+            this.detailDS.loadData(slice(detailList, 0, 10));
             this.setState({
               summaryData: certifiedResultStatisticSummaryDtoList || [],
               detailData: detailList || [],

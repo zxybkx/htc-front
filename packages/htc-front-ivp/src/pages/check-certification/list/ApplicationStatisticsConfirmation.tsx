@@ -104,8 +104,8 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
       if (queryDataSet && queryDataSet.current) {
-        const companyId = queryDataSet.current.get('companyId');
-        if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
+        // const companyId = queryDataSet.current.get('companyId');
+        if (!isEmpty(currentPeriodData)) {
           if (immediatePeriod) {
             const { currentCertState } = immediatePeriod;
             queryDataSet.current!.set({ currentCertState });
@@ -122,6 +122,8 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
             });
           }
         }
+        // if (!isEmpty(empInfo) && empInfo.companyId === companyId) {
+        // }
       }
     }
   };
