@@ -27,13 +27,18 @@ import {
   Select,
   Switch,
   TextField,
+  Password,
 } from 'choerodon-ui/pro';
 import { Breadcrumb, Col, Row, Tag, Tree } from 'choerodon-ui';
 import { closeTab, openTab } from 'utils/menuTab';
 import { getTenantAgreementCompany } from '@htccommon/services/commonService';
-import { batchForbiddenEmployee, saveAndCreateAccount } from '@src/services/employeeDefineService';
+import {
+  batchForbiddenEmployee,
+  saveAndCreateAccount,
+  loginVerification,
+  userRegistration,
+} from '@src/services/employeeDefineService';
 import { queryUnifyIdpValue } from 'hzero-front/lib/services/api';
-// import { Commands } from 'choerodon-ui/pro/lib/table/Table';
 import intl from 'utils/intl';
 import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import { isEmpty } from 'lodash';
@@ -44,7 +49,7 @@ import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import { observer } from 'mobx-react-lite';
 import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
-import employeeDefendDS from '../stores/EmployeeDefineDS';
+import employeeDefendDS, { ElectricInfo } from '../stores/EmployeeDefineDS';
 import styles from '../table.module.less';
 import EmployeePhoneModify from './EmployeePhoneModifyPage';
 
@@ -85,6 +90,10 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
   tableDS = new DataSet({
     autoQuery: false,
     ...employeeDefendDS(),
+  });
+
+  electricInfoDS = new DataSet({
+    ...ElectricInfo(),
   });
 
   async componentDidMount() {
@@ -349,11 +358,80 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
   }
 
   /**
+   * 登记信息/登录电局
+   * @params {number} type 0-登记信息 1-登录电局
+   */
+  @Bind()
+  async registerInformation(modal, type) {
+    const validateValue = await this.electricInfoDS.validate(false, false);
+    if (!validateValue) {
+      notification.error({
+        description: '',
+        message: intl.get('hzero.common.notification.invalid').d('数据校验不通过！'),
+      });
+      return;
+    }
+    const data = this.electricInfoDS.current!.toData();
+    const companyId = this.tableDS.current?.get('companyId');
+    const employeeId = this.tableDS.current?.get('employeeId');
+    const params = {
+      tenantId,
+      companyId,
+      employeeId,
+      ...data,
+    };
+    let res;
+    if (type === 0) {
+      res = getResponse(await userRegistration(params));
+    } else {
+      res = getResponse(await loginVerification(params));
+    }
+    if (res) {
+      notification.success({
+        description: '',
+        message: res.message,
+      });
+    }
+    modal.close();
+  }
+
+  /**
    * 电局登录信息按钮回调
    * @params {object} record-行记录
    */
   @Bind()
-  handlePowerLoginInfo() {}
+  handlePowerLoginInfo() {
+    const modal = Modal.open({
+      title: intl.get('hmdm.employeeInfo.modal.title.electricInfo').d('编辑电局登录信息'),
+      drawer: true,
+      children: (
+        <Form dataSet={this.electricInfoDS}>
+          <TextField name="employeeName" />
+          <Select name="loginMethod" />
+          <Select name="loginType" />
+          <Select name="loginIdentity" />
+          <Password name="loginIdentityPassword" />
+          <TextField name="idNumber" />
+          <TextField name="mobile" />
+          <TextField name="loginAccount" />
+          <Password name="loginPassword" />
+          <Lov name="regionCodeObj" />
+          <TextField name="middleNumber" />
+        </Form>
+      ),
+      footer: (_, cancelBtn) => (
+        <div>
+          <Button color={ButtonColor.primary} onClick={() => this.registerInformation(modal, 0)}>
+            {intl.get('hmdm.employeeInfo.modal.button.registrationInformation').d('登记信息')}
+          </Button>
+          <Button color={ButtonColor.primary} onClick={() => this.registerInformation(modal, 1)}>
+            {intl.get('hmdm.employeeInfo.modal.button.logToPowerBureau').d('登录电局')}
+          </Button>
+          {cancelBtn}
+        </div>
+      ),
+    });
+  }
 
   /**
    * 操作列按钮
