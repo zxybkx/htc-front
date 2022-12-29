@@ -318,6 +318,7 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) => record.get('deductionStatus') !== '01',
+          required: ({ record }) => record.get('deductionStatus') === '01',
         },
       },
       {
@@ -326,6 +327,7 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) => record.get('deductionStatus') !== '01',
+          required: ({ record }) => record.get('deductionStatus') === '01',
         },
       },
       {

@@ -267,7 +267,7 @@ export default (dsParams): DataSetProps => {
         lookupCode: 'HTC.HIOP.REDREASON',
         computedProps: {
           readOnly: ({ record }) => record.get('readonly'),
-          required: ({ record }) => ['2', '41', '52'].includes(record.get('invoiceVariety')),
+          required: ({ record }) => ['2', '41', '51'].includes(record.get('invoiceVariety')),
         },
       },
       {
