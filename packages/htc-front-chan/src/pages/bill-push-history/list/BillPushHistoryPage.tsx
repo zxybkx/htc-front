@@ -43,7 +43,7 @@ export default class BillPushHistoryPage extends Component<BillPushHistoryPagePr
   @Bind()
   handleGotoBillPage(fileUrl) {
     const { history } = this.props;
-    const pathname = '/htc-front-chan/bill-push-history/billViewPage';
+    const pathname = '/htc-front-chan/bill-push-history/bill-view-page';
     history.push({
       pathname,
       search: queryString.stringify({
