@@ -367,7 +367,7 @@ const RedInvoiceCreateDS = (): DataSetProps => {
         type: FieldType.string,
         lookupCode: 'HIOP.TAX_TYPE',
         defaultValue: '1',
-        readOnly: true,
+        // readOnly: true,
       },
       {
         name: 'invoiceObj',
