@@ -1027,8 +1027,31 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   renderQueryBar(props) {
     const { buttons } = props;
     const { current } = this.invoiceOrderHeaderDS;
+    const { invoiceVariety } = this.state;
     return (
       <>
+        {['85', '86', '81', '82', '61', '51'].includes(invoiceVariety) ? (
+          <div style={{ paddingTop: '10px' }}>
+            <div style={{ background: 'rgb(0,0,0,0.02)' }}>
+              <h3 style={{ marginLeft: '5px' }}>
+                <b>{intl.get('hiop.invoiceWorkbench.label.jbrxx').d('经办人信息')}</b>
+              </h3>
+              <Form
+                columns={4}
+                dataSet={this.invoiceOrderHeaderDS}
+                excludeUseColonTagList={['Radio']}
+                labelTooltip={Tooltip.overflow}
+              >
+                <TextField name="jbrxm" />
+                <TextField name="jbrzjhm" />
+                <Select name="jbrzjzldm" />
+                <TextField name="jrznsrsbh" />
+              </Form>
+            </div>
+          </div>
+        ) : (
+          undefined
+        )}
         <div className={styles.containTable}>
           <div className={styles.containTable}>
             <h3 className={styles.title}>
@@ -1066,7 +1089,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    */
   invoiceTypeTag() {
     const { invoiceVariety } = this.state;
-    if (['51', '52'].includes(invoiceVariety)) {
+    if (['51', '52', '61', '81', '82'].includes(invoiceVariety)) {
       return [
         <Select name="deliveryWay" />,
         <TextField name="electronicReceiverInfo" colSpan={2} />,
@@ -1095,6 +1118,26 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         <Select name="typeOfShipping" />,
         <Select name="paymentMethod" />,
         <DatePicker name="shippingDateObj" />,
+      ];
+    } else if (purchaseInvoiceFlag === '06') {
+      // 不动产经营租赁
+      return [
+        <TextField name="fwcqzshm" />,
+        <TextField name="bdcdz" labelWidth={140} />,
+        <TextField name="bdcxxdz" labelWidth={140} />,
+        <CheckBox name="kdsbz" />,
+        <DatePicker name="zlqq" />,
+        <DatePicker name="zlqz" />,
+        <Select name="mjdw" />,
+      ];
+    } else if (purchaseInvoiceFlag === '22') {
+      // 建筑服务
+      return [
+        <TextField name="jzfwfsd" />,
+        <TextField name="fsdxxdz" labelWidth={140} />,
+        <TextField name="jzxmmc" labelWidth={140} />,
+        <CheckBox name="kdsbz" />,
+        <TextField name="tdzzsxmbh" />,
       ];
     } else {
       return [];
@@ -1317,6 +1360,9 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
 
   render() {
     const { sourceType } = this.props.match.params;
+    const { invoiceVariety } = this.state;
+    // console.log('this.invoiceOrderHeaderDS', invoiceVariety);
+
     let pathname;
     if (['issues', 'invoiceOrder', 'likeOrder'].includes(sourceType)) {
       pathname = '/htc-front-iop/invoice-workbench/list';
@@ -1385,8 +1431,19 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
                   />
                   <TextField name="buyerTaxpayerNumber" labelWidth={140} />
                   <Select name="buyerCompanyType" />
-                  <TextField name="buyerCompanyAddressPhone" colSpan={2} />
-                  <TextField name="buyerBankNumber" colSpan={2} />
+                  {['61', '81', '82', '85', '86'].includes(invoiceVariety) ? (
+                    <>
+                      <TextField name="gmfdz" />
+                      <TextField name="gmflxdh" />
+                      <TextField name="gmfkhh" />
+                      <TextField name="gmfyhzh" />
+                    </>
+                  ) : (
+                    <>
+                      <TextField name="buyerCompanyAddressPhone" colSpan={2} />
+                      <TextField name="buyerBankNumber" colSpan={2} />
+                    </>
+                  )}
                 </Form>
               </div>
               <div style={{ background: 'rgb(0,0,0,0.02)' }}>
@@ -1411,8 +1468,19 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
                   />
                   <TextField name="sellerTaxpayerNumber" labelWidth={140} />
                   <Select name="sellerCompanyType" />
-                  <TextField name="sellerCompanyAddressPhone" colSpan={2} />
-                  <TextField name="sellerBankNumber" colSpan={2} />
+                  {['61', '81', '82', '85', '86'].includes(invoiceVariety) ? (
+                    <>
+                      <TextField name="xsfdz" />
+                      <TextField name="xsflxdh" />
+                      <TextField name="xsfkhh" />
+                      <TextField name="xsfyhzh" />
+                    </>
+                  ) : (
+                    <>
+                      <TextField name="sellerCompanyAddressPhone" colSpan={2} />
+                      <TextField name="sellerBankNumber" colSpan={2} />
+                    </>
+                  )}
                 </Form>
               </div>
             </div>
@@ -1424,6 +1492,14 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
               style={{ background: '#fff', paddingRight: '16px' }}
             >
               {this.proformaInvoiceTag()}
+            </Form>
+            <Form
+              dataSet={this.invoiceOrderHeaderDS}
+              columns={4}
+              excludeUseColonTagList={['Radio']}
+              labelTooltip={Tooltip.overflow}
+              style={{ background: '#fff', paddingRight: '16px' }}
+            >
               <TextArea name="userRemark" rows={1} colSpan={2} resize={ResizeType.both} />
 
               <Select name="orderProgress" />

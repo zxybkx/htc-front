@@ -72,7 +72,12 @@ enum ModalType {
   electronic,
   paper,
 }
-
+enum DownloadType {
+  PDF,
+  OFD,
+  XML,
+  Code,
+}
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.IOP_API || '';
 const permissionPath = `${getPresentMenu().name}.ps`;
@@ -580,10 +585,18 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     const lineData = record.toData();
     const { invoiceVariety } = lineData;
     let dataSet;
-    if (invoiceVariety === '51' || invoiceVariety === '52') {
+    if (
+      invoiceVariety === '51' ||
+      invoiceVariety === '52' ||
+      invoiceVariety.includes('61') ||
+      invoiceVariety.includes('81') ||
+      invoiceVariety.includes('82')
+    ) {
       dataSet = this.deliverInfoDS({
         invoiceOrderHeaderIds: String(lineData.invoicingOrderHeaderId),
-        invoiceInformation: `${lineData.invoiceCode} - ${lineData.invoiceNo}`,
+        invoiceInformation: lineData.invoiceCode
+          ? `${lineData.invoiceCode} - ${lineData.invoiceNo}`
+          : lineData.invoiceNo,
         type: ModalType.electronic,
       });
       // 电子
@@ -707,8 +720,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     );
     const invoiceVarietys = invoicingOrderHeaderList.map(item => item.invoiceVariety);
     const invoiceOrderHeaderIds = invoicingOrderHeaderList.map(item => item.invoicingOrderHeaderId);
-    const invoiceInfos = invoicingOrderHeaderList.map(
-      item => `${item.invoiceCode}-${item.invoiceNo}`
+    const invoiceInfos = invoicingOrderHeaderList.map(item =>
+      item.invoiceCode ? `${item.invoiceCode}-${item.invoiceNo}` : item.invoiceNo
     );
     if (invoicingOrderHeaderList.some(item => item.orderStatus !== 'F')) {
       Modal.warning(
@@ -718,7 +731,11 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     }
 
     if (
-      (invoiceVarietys.includes('51') || invoiceVarietys.includes('52')) &&
+      (invoiceVarietys.includes('51') ||
+        invoiceVarietys.includes('52') ||
+        invoiceVarietys.includes('61') ||
+        invoiceVarietys.includes('81') ||
+        invoiceVarietys.includes('82')) &&
       (invoiceVarietys.includes('0') ||
         invoiceVarietys.includes('2') ||
         invoiceVarietys.includes('41'))
@@ -730,7 +747,13 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       );
       return;
     }
-    if (invoiceVarietys.includes('51') || invoiceVarietys.includes('52')) {
+    if (
+      invoiceVarietys.includes('51') ||
+      invoiceVarietys.includes('52') ||
+      invoiceVarietys.includes('61') ||
+      invoiceVarietys.includes('81') ||
+      invoiceVarietys.includes('82')
+    ) {
       const dataSet = this.deliverInfoDS({
         invoiceOrderHeaderIds: invoiceOrderHeaderIds.join(','),
         invoiceInformation: invoiceInfos.join(','),
@@ -1219,11 +1242,20 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       downLoadFiles(fileList, 0);
     }
   }
+  /**
+   * 电票相关下载
+   * @params {object} record-行记录
+   */
 
+  @Bind()
+  async handleDownloadType(record, type) {
+    console.log(record, type);
+  }
   /**
    * 返回操作列按钮
    * @params {object} record-行记录
    */
+
   @Bind()
   operationsRender(record) {
     const orderStatus = record.get('orderStatus');
@@ -1387,7 +1419,55 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       operators.push(cancelInvoiceBtn);
     }
     // 完成
-    if (
+    if (['61', '81', '82'].includes(invoiceVariety)) {
+      // 全电发票 全电专票 全电普票不展示发票作废按钮
+      // 新增 下载PDF 下载ofd 下载XML 下载二维码4个按钮
+      const pdfBtn = {
+        key: 'pdf',
+        ele: renderPermissionButton({
+          onClick: () => this.handleDownloadType(record, DownloadType.PDF),
+          permissionCode: 'pdf',
+          permissionMeaning: '按钮-下载PDF',
+          title: intl.get('hiop.redInvoiceInfo.button.download').d('下载PDF'),
+        }),
+        len: 6,
+        title: intl.get('hiop.redInvoiceInfo.button.download').d('下载PDF'),
+      };
+      const XmlBtn = {
+        key: 'XML',
+        ele: renderPermissionButton({
+          onClick: () => this.handleDownloadType(record, DownloadType.XML),
+          permissionCode: 'XML',
+          permissionMeaning: '按钮-下载XML',
+          title: intl.get('hiop.redInvoiceInfo.button.download').d('下载XML'),
+        }),
+        len: 6,
+        title: intl.get('hiop.redInvoiceInfo.button.download').d('下载XML'),
+      };
+      const ofdBtn = {
+        key: 'ofd',
+        ele: renderPermissionButton({
+          onClick: () => this.handleDownloadType(record, DownloadType.OFD),
+          permissionCode: 'pdf',
+          permissionMeaning: '按钮-下载OFD',
+          title: intl.get('hiop.redInvoiceInfo.button.download').d('下载OFD'),
+        }),
+        len: 6,
+        title: intl.get('hiop.redInvoiceInfo.button.download').d('下载OFD'),
+      };
+      const codeBtn = {
+        key: 'code',
+        ele: renderPermissionButton({
+          onClick: () => this.handleDownloadType(record, DownloadType.Code),
+          permissionCode: 'code',
+          permissionMeaning: '按钮-下载二维码',
+          title: intl.get('hiop.redInvoiceInfo.button.download').d('下载二维码'),
+        }),
+        len: 6,
+        title: intl.get('hiop.redInvoiceInfo.button.download').d('下载二维码'),
+      };
+      operators.push(pdfBtn, ofdBtn, XmlBtn, codeBtn);
+    } else if (
       ['0', '2', '41'].includes(invoiceVariety) &&
       ['1', '2'].includes(billingType) &&
       ['0', '1', '4', '5'].includes(invoiceState) &&

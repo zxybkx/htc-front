@@ -120,7 +120,12 @@ const judgeSource = record => {
 const proformaRequiredRule = record => {
   return record.get('purchaseInvoiceFlag') === '5';
 };
-
+/**
+ * 不动产经营租赁
+ */
+// const realestateRequiredRule = record => {
+//   return record.get('purchaseInvoiceFlag') === '06';
+// };
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.IOP_API || '';
   return {
@@ -309,8 +314,52 @@ export default (dsParams): DataSetProps => {
         maxLength: 100,
       },
       {
+        name: 'gmfdz',
+        label: intl.get('htc.common.modal.gmfdz').d('地址'),
+        type: FieldType.string,
+        computedProps: {
+          readOnly: ({ record }) =>
+            headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '0',
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceVariety')),
+        },
+        maxLength: 100,
+      },
+      {
+        name: 'gmflxdh',
+        label: intl.get('htc.common.modal.gmflxdh').d('电话'),
+        type: FieldType.string,
+        computedProps: {
+          readOnly: ({ record }) =>
+            headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '0',
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceVariety')),
+        },
+        maxLength: 100,
+      },
+      {
         name: 'buyerBankNumber',
         label: intl.get('htc.common.modal.bankNumber').d('开户行及账号'),
+        type: FieldType.string,
+        computedProps: {
+          readOnly: ({ record }) =>
+            headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '0',
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceVariety')),
+        },
+        maxLength: 100,
+      },
+      {
+        name: 'gmfkhh',
+        label: intl.get('htc.common.modal.gmfkhh').d('开户行'),
+        type: FieldType.string,
+        computedProps: {
+          readOnly: ({ record }) =>
+            headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '0',
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceVariety')),
+        },
+        maxLength: 100,
+      },
+      {
+        name: 'gmfyhzh',
+        label: intl.get('htc.common.modal.gmfyhzh').d('银行账号'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -381,8 +430,48 @@ export default (dsParams): DataSetProps => {
         maxLength: 100,
       },
       {
+        name: 'xsfdz',
+        label: intl.get('htc.common.modal.xsfdz').d('地址'),
+        type: FieldType.string,
+        computedProps: {
+          readOnly: ({ record }) =>
+            headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '1',
+        },
+        maxLength: 100,
+      },
+      {
+        name: 'xsflxdh',
+        label: intl.get('htc.common.modal.xsflxdh').d('电话'),
+        type: FieldType.string,
+        computedProps: {
+          readOnly: ({ record }) =>
+            headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '1',
+        },
+        maxLength: 100,
+      },
+      {
         name: 'sellerBankNumber',
         label: intl.get('htc.common.modal.bankNumber').d('开户行及账号'),
+        type: FieldType.string,
+        computedProps: {
+          readOnly: ({ record }) =>
+            headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '1',
+        },
+        maxLength: 100,
+      },
+      {
+        name: 'xsfkhh',
+        label: intl.get('htc.common.modal.xsfkhh').d('开户行'),
+        type: FieldType.string,
+        computedProps: {
+          readOnly: ({ record }) =>
+            headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '1',
+        },
+        maxLength: 100,
+      },
+      {
+        name: 'xsfyhzh',
+        label: intl.get('htc.common.modal.xsfyhzh').d('银行账号'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -468,6 +557,90 @@ export default (dsParams): DataSetProps => {
           readOnly: ({ record }) => headerReadOnlyRule(record),
         },
       },
+
+      {
+        name: 'fwcqzshm',
+        label: intl.get('hiop.invoiceWorkbench.view.fwcqzshm').d('房屋产权证书/不动产权证号码'),
+        type: FieldType.string,
+        computedProps: {
+          // required: ({ record }) => realestateRequiredRule(record),
+        },
+      },
+      {
+        name: 'bdcdz',
+        label: intl.get('hiop.invoiceWorkbench.view.fwcqzshm').d('不动产地址'),
+        type: FieldType.string,
+      },
+      {
+        name: 'bdcxxdz',
+        label: intl.get('hiop.invoiceWorkbench.view.bdcxxdz').d('不动产详细地址'),
+        type: FieldType.string,
+      },
+      {
+        name: 'zlqq',
+        label: intl.get('hiop.invoiceWorkbench.view.zlqq').d('租赁期起'),
+        type: FieldType.date,
+      },
+      {
+        name: 'zlqz',
+        label: intl.get('hiop.invoiceWorkbench.view.zlqz').d('租赁期止'),
+        type: FieldType.date,
+      },
+      {
+        name: 'kdsbz',
+        label: intl.get('hiop.invoiceWorkbench.view.kdsbz').d('跨地市标志'),
+        type: FieldType.boolean,
+        trueValue: 'Y',
+        falseValue: 'N',
+      },
+      {
+        name: 'mjdw',
+        label: intl.get('hiop.invoiceWorkbench.view.mjdw').d('面积单位'),
+        type: FieldType.string,
+      },
+
+      {
+        name: 'jzfwfsd',
+        label: intl.get('hiop.invoiceWorkbench.view.jzfwfsd').d('建筑服务发生地'),
+        type: FieldType.string,
+      },
+      {
+        name: 'fsdxxdz',
+        label: intl.get('hiop.invoiceWorkbench.view.fsdxxdz').d('发生地详细地址'),
+        type: FieldType.string,
+      },
+      {
+        name: 'jzxmmc',
+        label: intl.get('hiop.invoiceWorkbench.view.mjdw').d('建筑项目名称'),
+        type: FieldType.string,
+      },
+      {
+        name: 'tdzzsxmbh',
+        label: intl.get('hiop.invoiceWorkbench.view.tdzzsxmbh').d('土地增值税项目编号'),
+        type: FieldType.string,
+      },
+
+      {
+        name: 'jbrxm',
+        label: intl.get('hiop.invoiceWorkbench.view.jbrxm').d('经办人姓名'),
+        type: FieldType.string,
+      },
+      {
+        name: 'jbrzjhm',
+        label: intl.get('hiop.invoiceWorkbench.view.jbrzjhm').d('经办人证件号码'),
+        type: FieldType.string,
+      },
+      {
+        name: 'jbrzjzldm',
+        label: intl.get('hiop.invoiceWorkbench.view.jbrzjzldm').d('经办人证件种类代码'),
+        type: FieldType.string,
+      },
+      {
+        name: 'jrznsrsbh',
+        label: intl.get('hiop.invoiceWorkbench.view.jrznsrsbh').d('经办人纳税人识别号'),
+        type: FieldType.string,
+      },
+
       {
         name: 'shippingDateFrom',
         type: FieldType.date,
