@@ -41,10 +41,6 @@ interface CheckRuleListPageProps {
   ],
 })
 export default class CheckAuthenticationRulesPage extends Component<CheckRuleListPageProps> {
-  state = {
-    curCompanyId: '',
-  };
-
   checkRuleDS = new DataSet({
     autoQuery: false,
     autoCreate: true,
@@ -89,7 +85,6 @@ export default class CheckAuthenticationRulesPage extends Component<CheckRuleLis
         currentOperationalDeadline: timeRes.currentOperationalDeadline,
         checkableTimeRange: timeRes.checkableTimeRange,
       });
-      this.setState({ curCompanyId: companyId });
     }
   }
 
@@ -165,7 +160,6 @@ export default class CheckAuthenticationRulesPage extends Component<CheckRuleLis
   }
 
   render() {
-    const { curCompanyId } = this.state;
     return (
       <>
         <Header title={intl.get('hivp.checkRule.title.invoiceRule').d('进项发票规则维护')} />
@@ -187,11 +181,7 @@ export default class CheckAuthenticationRulesPage extends Component<CheckRuleLis
               </Form>
             </Col>
             <Col span={4} style={{ textAlign: 'end' }}>
-              <Button
-                onClick={() => this.handleSaveRule()}
-                color={ButtonColor.primary}
-                disabled={!curCompanyId}
-              >
+              <Button onClick={() => this.handleSaveRule()} color={ButtonColor.primary}>
                 {intl.get('hzero.common.button.save').d('保存')}
               </Button>
             </Col>
