@@ -16,10 +16,9 @@ import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import moment from 'moment';
 import commonConfig from '@htccommon/config/commonConfig';
 
+const API_PREFIX = commonConfig.MDM_API || '';
+const tenantId = getCurrentOrganizationId();
 export default (): DataSetProps => {
-  const API_PREFIX = commonConfig.MDM_API || '';
-  const tenantId = getCurrentOrganizationId();
-
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -316,6 +315,18 @@ export default (): DataSetProps => {
 
 const ElectricInfo = (): DataSetProps => {
   return {
+    transport: {
+      read: (config): AxiosRequestConfig => {
+        const url = `${API_PREFIX}/v1/${tenantId}/employee-infos`;
+        const axiosConfig: AxiosRequestConfig = {
+          ...config,
+          url,
+          method: 'GET',
+        };
+        return axiosConfig;
+      },
+    },
+    paging: false,
     fields: [
       {
         name: 'employeeName',
