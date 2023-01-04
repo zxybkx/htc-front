@@ -52,3 +52,31 @@ export async function batchForbiddenEmployee(params) {
     body: employeeInfosList,
   });
 }
+
+/**
+ * 登录电局
+ * @async
+ * @function loginVerification
+ * @returns {object} fetch Promise
+ */
+export async function loginVerification(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HMDM_API}/v1/${tenantId}/employee-infos/login-verification`, {
+    method: 'POST',
+    body: { ...otherParams },
+  });
+}
+
+/**
+ * 登记信息
+ * @async
+ * @function userRegistration
+ * @returns {object} fetch Promise
+ */
+export async function userRegistration(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HMDM_API}/v1/${tenantId}/employee-infos/user-registration`, {
+    method: 'POST',
+    body: { ...otherParams },
+  });
+}
