@@ -401,6 +401,9 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
    */
   @Bind()
   handlePowerLoginInfo() {
+    const employeeId = this.tableDS.current?.get('employeeId');
+    this.electricInfoDS.setQueryParameter('employeeId', employeeId);
+    this.electricInfoDS.query();
     const modal = Modal.open({
       title: intl.get('hmdm.employeeInfo.modal.title.electricInfo').d('编辑电局登录信息'),
       drawer: true,
