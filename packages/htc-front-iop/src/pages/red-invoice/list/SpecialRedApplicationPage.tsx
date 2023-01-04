@@ -219,8 +219,8 @@ export default class SpecialRedApplicationPage extends Component<
             <Select name="applicantType" />
             <Select name="deductionStatus" onChange={this.handleDeductionChange} />
             <Select name="taxType" />
+            <TextField name="invoiceCode" />
             <Lov name="invoiceObj" />
-            <TextField name="invoiceNo" />
           </Form>
         ),
         footer: (
