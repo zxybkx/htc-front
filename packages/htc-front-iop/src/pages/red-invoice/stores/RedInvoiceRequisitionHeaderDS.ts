@@ -125,6 +125,7 @@ export default (dsParams): DataSetProps => {
         name: 'invoiceCode',
         label: intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码'),
         type: FieldType.string,
+        readOnly: true,
         bind: 'invoiceObj.invoiceCode',
       },
       {
@@ -132,6 +133,13 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码'),
         type: FieldType.string,
         bind: 'invoiceObj.invoiceNo',
+        readOnly: true,
+      },
+      {
+        name: 'invoiceNo',
+        label: intl.get('hiop.invoiceWorkbench.modal.fullElectricInvoiceNo').d('全电发票号码'),
+        type: FieldType.string,
+        // bind: 'invoiceObj.invoiceNo',
         readOnly: true,
       },
       {
@@ -167,6 +175,15 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         bind: 'requisitionReasonObj.description',
         readOnly: true,
+      },
+      {
+        name: 'redMarkReason',
+        label: intl.get('hiop.invoiceWorkbench.modal.redMarkReason').d('红冲原因'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.REDREASON',
+        computedProps: {
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
       },
       {
         name: 'requisitionDescription',

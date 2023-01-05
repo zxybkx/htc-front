@@ -46,6 +46,10 @@ interface RedInvoiceRequisitionListPageProps extends RouteComponentProps {
   code: ['hiop.redInvoiceInfo', 'hiop.invoiceWorkbench', 'htc.common', 'hiop.customerInfo'],
 })
 export default class SynchronizeRedInfoPage extends Component<RedInvoiceRequisitionListPageProps> {
+  state = {
+    outChannelCode: undefined,
+  };
+
   synchronizeRedInfoDS = new DataSet({
     autoQuery: false,
     ...SynchronizeRedInfoDS(),
@@ -62,10 +66,12 @@ export default class SynchronizeRedInfoPage extends Component<RedInvoiceRequisit
     const redInfoStr = new URLSearchParams(search).get('redInfo');
     if (redInfoStr) {
       const redInfo = JSON.parse(decodeURIComponent(redInfoStr));
-      const { companyCode, extensionNumber } = redInfo;
+      const { companyCode, extensionNumber, outChannelCode } = redInfo;
       this.synchronizeRedInfoDS.setQueryParameter('companyCode', companyCode);
       this.synchronizeRedInfoDS.setQueryParameter('extensionNumber', extensionNumber);
+      this.headerDS.current!.set({ outChannelCode });
       this.synchronizeRedInfoDS.query();
+      this.setState({ outChannelCode });
     }
   }
 
@@ -350,6 +356,7 @@ export default class SynchronizeRedInfoPage extends Component<RedInvoiceRequisit
   }
 
   render() {
+    const { outChannelCode } = this.state;
     return (
       <>
         <Header
@@ -365,6 +372,7 @@ export default class SynchronizeRedInfoPage extends Component<RedInvoiceRequisit
             <TextField name="salesTaxNumber" />
             <Select name="invoiceType" />
             <Select name="informationSheetDownloadRange" />
+            {outChannelCode === 'DOUBLE_CHANNEL' && <Select name="applicantType" />}
           </Form>
           <Table
             buttons={this.buttons}

@@ -18,12 +18,11 @@ import {
   Form,
   Lov,
   notification,
-  Output,
   Select,
   Table,
   TextField,
 } from 'choerodon-ui/pro';
-import { Col, Row, Tag } from 'choerodon-ui';
+import { Col, Icon, Row, Tag } from 'choerodon-ui';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import formatterCollections from 'utils/intl/formatterCollections';
@@ -33,12 +32,16 @@ import queryString from 'query-string';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import { observer } from 'mobx-react-lite';
 import { operatorRender } from 'utils/renderer';
-import { getCurrentEmployeeInfoOut } from '@htccommon/services/commonService';
+import {
+  getCurrentEmployeeInfoOut,
+  getTenantAgreementCompany,
+} from '@htccommon/services/commonService';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import {
   downloadPrintPdfFiles,
   redInvoiceCreateRedOrder,
   redInvoiceCreateRequisition,
+  examine,
 } from '@src/services/redInvoiceService';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import RedInvoiceInfoTableListDS from '../stores/RedInvoiceInfoTableListDS';
@@ -67,25 +70,44 @@ interface RedInvoiceRequisitionListPageProps extends RouteComponentProps {
 export default class SpecialRedInformationPage extends Component<
   RedInvoiceRequisitionListPageProps
 > {
+  state = {
+    outChannelCode: undefined,
+    showMore: false,
+  };
+
   async componentDidMount() {
     const { queryDataSet } = this.props.headerDS;
-    if (queryDataSet && !queryDataSet.current) {
-      const res = await getCurrentEmployeeInfoOut({ tenantId: organizationId });
-      if (res && res.content) {
-        const empInfo = res.content[0];
-        if (empInfo) {
-          queryDataSet.current!.set({ companyObj: empInfo });
+    if (queryDataSet) {
+      const outChannelCode = queryDataSet.current?.get('outChannelCode');
+      if (outChannelCode) {
+        this.setState({ outChannelCode });
+      } else {
+        const res = await getCurrentEmployeeInfoOut({ tenantId: organizationId });
+        if (res && res.content) {
+          const empInfo = res.content[0];
+          if (empInfo) {
+            queryDataSet.current!.set({ companyObj: empInfo });
+            this.getChannelCode(empInfo);
+          }
         }
       }
     }
   }
 
   /**
-   * 发票类型下拉值筛选
+   * 获取销项通道
    */
-  invoiceTypeFilter = record => {
-    return ['0', '52'].includes(record.get('value'));
-  };
+  @Bind()
+  async getChannelCode(companyInfo) {
+    if (companyInfo) {
+      const { companyId } = companyInfo;
+      const resCop = await getTenantAgreementCompany({ companyId, tenantId: organizationId });
+      const { outChannelCode } = resCop;
+      const { queryDataSet } = this.props.headerDS;
+      if (queryDataSet) queryDataSet.current!.set({ outChannelCode });
+      this.setState({ outChannelCode });
+    }
+  }
 
   /**
    * 自定义查询
@@ -93,23 +115,35 @@ export default class SpecialRedInformationPage extends Component<
   @Bind()
   renderQueryBar(props) {
     const { queryDataSet, dataSet, buttons } = props;
+    const { showMore } = this.state;
     if (queryDataSet) {
+      const queryMoreArray: JSX.Element[] = [];
+      queryMoreArray.push(<DateTimePicker name="redInvoiceDate" />);
+      queryMoreArray.push(<Lov name="taxDiskNumberObj" />);
+      queryMoreArray.push(<TextField name="extensionNumber" />);
+      queryMoreArray.push(<Select name="invoiceTypeCode" />);
+      queryMoreArray.push(<Select name="overdueStatus" />);
       return (
         <>
-          <Form columns={6} dataSet={queryDataSet}>
-            <Lov name="companyObj" colSpan={2} />
-            <Output name="employeeDesc" colSpan={2} />
-            <Output name="taxpayerNumber" colSpan={2} />
-            <DateTimePicker name="redInvoiceDateFrom" newLine colSpan={1} />
-            <DateTimePicker name="redInvoiceDateTo" colSpan={1} />
-            <Lov name="taxDiskNumberObj" colSpan={2} />
-            <TextField name="extensionNumber" colSpan={2} />
-            <Select name="invoiceType" newLine colSpan={1} optionsFilter={this.invoiceTypeFilter} />
-            <Select name="overdueStatus" colSpan={1} />
-          </Form>
-          <Row type="flex" justify="space-between">
-            <Col span={18}>{buttons}</Col>
-            <Col span={6} style={{ textAlign: 'end', marginBottom: '2px' }}>
+          <Row type="flex" style={{ flexWrap: 'nowrap' }}>
+            <Col span={20}>
+              <Form columns={3} dataSet={queryDataSet}>
+                <Lov name="companyObj" onChange={this.getChannelCode} />
+                <TextField name="employeeDesc" />
+                <TextField name="taxpayerNumber" />
+                {showMore && queryMoreArray}
+              </Form>
+            </Col>
+            <Col>
+              <Button
+                funcType={FuncType.link}
+                onClick={() => this.setState({ showMore: !showMore })}
+              >
+                <span>
+                  {intl.get('hzero.common.button.option').d('更多')}
+                  {showMore ? <Icon type="expand_more" /> : <Icon type="expand_less" />}
+                </span>
+              </Button>
               <Button
                 onClick={() => {
                   queryDataSet.reset();
@@ -127,6 +161,9 @@ export default class SpecialRedInformationPage extends Component<
                 {intl.get('hzero.common.button.search').d('查询')}
               </Button>
             </Col>
+          </Row>
+          <Row type="flex" justify="space-between">
+            <Col span={18}>{buttons}</Col>
           </Row>
         </>
       );
@@ -149,6 +186,7 @@ export default class SpecialRedInformationPage extends Component<
         taxpayerNumber,
         taxDiskNumber,
         extensionNumber,
+        outChannelCode,
       } = queryData;
       if (!taxDiskNumber) {
         notification.warning({
@@ -165,6 +203,7 @@ export default class SpecialRedInformationPage extends Component<
         taxpayerNumber,
         goldenTaxDiskNumber: taxDiskNumber,
         extensionNumber,
+        outChannelCode,
       };
       history.push({
         pathname: '/htc-front-iop/red-invoice-info/synchronize-red-info-list',
@@ -294,12 +333,44 @@ export default class SpecialRedInformationPage extends Component<
   }
 
   /**
+   * 行操作（同意/拒绝)
+   * @params {object} record-行记录
+   * @params {number} type 0-同意/1-拒绝
+   */
+  async handleAgreeOrRefuse(record, type) {
+    const recordData = record.toData();
+    const { queryDataSet } = this.props.headerDS;
+    if (queryDataSet) {
+      const companyCode = queryDataSet.current!.get('companyCode');
+      const employeeNumber = queryDataSet.current!.get('employeeNum');
+      const params = {
+        organizationId,
+        companyCode,
+        employeeNumber,
+        recordData,
+        confirmType: type === 0 ? 1 : 0,
+      };
+      const res = getResponse(await examine(params));
+      if (res && res.status === '200') {
+        notification.success({
+          description: '',
+          message: res.message,
+        });
+        this.props.headerDS.query();
+      }
+    }
+  }
+
+  /**
    * 返回行操作列按钮
    * @params {object} record-行记录
    * @return {ReactNode}
    */
   @Bind()
   optionsRender(record) {
+    const { outChannelCode } = this.state;
+    const invoiceTypeCode = record.get('invoiceTypeCode');
+    const redInvoiceConfirmationStatus = record.get('redInvoiceConfirmationStatus');
     const operators = [
       {
         key: 'download',
@@ -312,7 +383,33 @@ export default class SpecialRedInformationPage extends Component<
         title: intl.get('hiop.redInvoiceInfo.button.download').d('导出文件'),
       },
     ];
-    return operatorRender(operators, record);
+    if (
+      outChannelCode === 'DOUBLE_CHANNEL' &&
+      ['61', '81', '82'].includes(invoiceTypeCode) &&
+      !['04', '05', '06', '07'].includes(redInvoiceConfirmationStatus)
+    ) {
+      operators.push({
+        key: 'agree',
+        ele: (
+          <a onClick={() => this.handleAgreeOrRefuse(record, 0)}>
+            {intl.get('hzero.common.status.agree').d('同意')}
+          </a>
+        ),
+        len: 2,
+        title: intl.get('hzero.common.status.agree').d('同意'),
+      });
+      operators.push({
+        key: 'refuse',
+        ele: (
+          <a onClick={() => this.handleAgreeOrRefuse(record, 1)}>
+            {intl.get('hzero.common.button.refuse').d('拒绝')}
+          </a>
+        ),
+        len: 2,
+        title: intl.get('hzero.common.button.refuse').d('拒绝'),
+      });
+    }
+    return operatorRender(operators, record, { limit: 2 });
   }
 
   /**
@@ -367,21 +464,14 @@ export default class SpecialRedInformationPage extends Component<
           );
         },
       },
+      { name: 'redInvoiceConfirmationStatus' },
       { name: 'redInvoiceDate', width: 150 },
       { name: 'taxDiskNumber', width: 150 },
       { name: 'extensionNumber', width: 150 },
       { name: 'blueInvoiceCode', width: 180 },
       { name: 'blueInvoiceNo', width: 180 },
-      {
-        name: 'invoiceAmount',
-        width: 180,
-        align: ColumnAlign.right,
-      },
-      {
-        name: 'taxAmount',
-        width: 180,
-        align: ColumnAlign.right,
-      },
+      { name: 'invoiceAmount', width: 180 },
+      { name: 'taxAmount', width: 180 },
       { name: 'buyerName', width: 180 },
       { name: 'buyerTaxNo', width: 180 },
       { name: 'sellerName', width: 150 },
@@ -459,6 +549,7 @@ export default class SpecialRedInformationPage extends Component<
             dataSet={this.props.headerDS}
             columns={this.columns}
             className={styles.table}
+            queryBar={this.renderQueryBar}
             style={{ height: 400 }}
           />
         </Content>
