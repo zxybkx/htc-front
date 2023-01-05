@@ -41,6 +41,7 @@ import {
   downloadPrintPdfFiles,
   redInvoiceCreateRedOrder,
   redInvoiceCreateRequisition,
+  examine,
 } from '@src/services/redInvoiceService';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import RedInvoiceInfoTableListDS from '../stores/RedInvoiceInfoTableListDS';
@@ -107,13 +108,6 @@ export default class SpecialRedInformationPage extends Component<
       this.setState({ outChannelCode });
     }
   }
-
-  /**
-   * 发票类型下拉值筛选
-   */
-  invoiceTypeFilter = record => {
-    return ['0', '52'].includes(record.get('value'));
-  };
 
   /**
    * 自定义查询
@@ -341,9 +335,30 @@ export default class SpecialRedInformationPage extends Component<
   /**
    * 行操作（同意/拒绝)
    * @params {object} record-行记录
+   * @params {number} type 0-同意/1-拒绝
    */
-  handleAgreeOrRefuse(record) {
-    console.log(record);
+  async handleAgreeOrRefuse(record, type) {
+    const recordData = record.toData();
+    const { queryDataSet } = this.props.headerDS;
+    if (queryDataSet) {
+      const companyCode = queryDataSet.current!.get('companyCode');
+      const employeeNumber = queryDataSet.current!.get('employeeNum');
+      const params = {
+        organizationId,
+        companyCode,
+        employeeNumber,
+        recordData,
+        confirmType: type === 0 ? 1 : 0,
+      };
+      const res = getResponse(await examine(params));
+      if (res && res.status === '200') {
+        notification.success({
+          description: '',
+          message: res.message,
+        });
+        this.props.headerDS.query();
+      }
+    }
   }
 
   /**
@@ -354,6 +369,8 @@ export default class SpecialRedInformationPage extends Component<
   @Bind()
   optionsRender(record) {
     const { outChannelCode } = this.state;
+    const invoiceTypeCode = record.get('invoiceTypeCode');
+    const redInvoiceConfirmationStatus = record.get('redInvoiceConfirmationStatus');
     const operators = [
       {
         key: 'download',
@@ -366,11 +383,15 @@ export default class SpecialRedInformationPage extends Component<
         title: intl.get('hiop.redInvoiceInfo.button.download').d('导出文件'),
       },
     ];
-    if (outChannelCode === 'DOUBLE_CHANNEL') {
+    if (
+      outChannelCode === 'DOUBLE_CHANNEL' &&
+      ['61', '81', '82'].includes(invoiceTypeCode) &&
+      !['04', '05', '06', '07'].includes(redInvoiceConfirmationStatus)
+    ) {
       operators.push({
         key: 'agree',
         ele: (
-          <a onClick={() => this.handleAgreeOrRefuse(record)}>
+          <a onClick={() => this.handleAgreeOrRefuse(record, 0)}>
             {intl.get('hzero.common.status.agree').d('同意')}
           </a>
         ),
@@ -380,7 +401,7 @@ export default class SpecialRedInformationPage extends Component<
       operators.push({
         key: 'refuse',
         ele: (
-          <a onClick={() => this.handleAgreeOrRefuse(record)}>
+          <a onClick={() => this.handleAgreeOrRefuse(record, 1)}>
             {intl.get('hzero.common.button.refuse').d('拒绝')}
           </a>
         ),
@@ -396,165 +417,76 @@ export default class SpecialRedInformationPage extends Component<
    * @return {*[]}
    */
   get columns(): ColumnProps[] {
-    const { outChannelCode } = this.state;
-    if (outChannelCode === 'DOUBLE_CHANNEL') {
-      return [
-        {
-          name: 'redInfoSerialNumber',
-          width: 240,
-          renderer: ({ text, record }) => {
-            let orderStatus;
+    return [
+      {
+        name: 'redInfoSerialNumber',
+        width: 240,
+        renderer: ({ text, record }) => {
+          let orderStatus;
 
-            switch (record?.get('orderStatus')) {
-              case 'D':
-                orderStatus = (
-                  <Tag color="#D6FFD7" style={{ color: '#19A633' }}>
-                    {intl.get('hiop.redInvoiceInfo.view.downloaded').d('已下载')}
-                  </Tag>
-                );
-                break;
-              case 'S':
-                orderStatus = (
-                  <Tag color="#FFECC4" style={{ color: '#FF8F07' }}>
-                    {intl.get('hiop.redInvoiceInfo.view.submitted').d('已提交')}
-                  </Tag>
-                );
-                break;
-              case 'R':
-                orderStatus = (
-                  <Tag color="#F0F0F0" style={{ color: '#6C6C6C' }}>
-                    {intl.get('hiop.redInvoiceInfo.view.revoked').d('已撤销')}
-                  </Tag>
-                );
-                break;
-              case 'I':
-                orderStatus = (
-                  <Tag color="#DBEEFF" style={{ color: '#3889FF' }}>
-                    {intl.get('hiop.redInvoiceInfo.view.issued').d('已开具')}
-                  </Tag>
-                );
-                break;
-              default:
-                break;
-            }
-            return (
-              <>
-                {orderStatus}
-                <a onClick={() => this.gotoDetail(record)}>{text}</a>
-              </>
-            );
-          },
+          switch (record?.get('orderStatus')) {
+            case 'D':
+              orderStatus = (
+                <Tag color="#D6FFD7" style={{ color: '#19A633' }}>
+                  {intl.get('hiop.redInvoiceInfo.view.downloaded').d('已下载')}
+                </Tag>
+              );
+              break;
+            case 'S':
+              orderStatus = (
+                <Tag color="#FFECC4" style={{ color: '#FF8F07' }}>
+                  {intl.get('hiop.redInvoiceInfo.view.submitted').d('已提交')}
+                </Tag>
+              );
+              break;
+            case 'R':
+              orderStatus = (
+                <Tag color="#F0F0F0" style={{ color: '#6C6C6C' }}>
+                  {intl.get('hiop.redInvoiceInfo.view.revoked').d('已撤销')}
+                </Tag>
+              );
+              break;
+            case 'I':
+              orderStatus = (
+                <Tag color="#DBEEFF" style={{ color: '#3889FF' }}>
+                  {intl.get('hiop.redInvoiceInfo.view.issued').d('已开具')}
+                </Tag>
+              );
+              break;
+            default:
+              break;
+          }
+          return (
+            <>
+              {orderStatus}
+              <a onClick={() => this.gotoDetail(record)}>{text}</a>
+            </>
+          );
         },
-        { name: 'redInvoiceConfirmationStatus' },
-        { name: 'redInvoiceDate', width: 150 },
-        { name: 'taxDiskNumber', width: 150 },
-        { name: 'extensionNumber', width: 150 },
-        { name: 'blueInvoiceCode', width: 180 },
-        { name: 'blueInvoiceNo', width: 180 },
-        {
-          name: 'invoiceAmount',
-          width: 180,
-          align: ColumnAlign.right,
-        },
-        {
-          name: 'taxAmount',
-          width: 180,
-          align: ColumnAlign.right,
-        },
-        { name: 'buyerName', width: 180 },
-        { name: 'buyerTaxNo', width: 180 },
-        { name: 'sellerName', width: 150 },
-        { name: 'sellerTaxNo', width: 150 },
-        { name: 'overdueStatus', width: 110 },
-        { name: 'invoiceTypeCode', width: 150 },
-        {
-          name: 'operation',
-          header: intl.get('hzero.common.action').d('操作'),
-          width: 150,
-          renderer: ({ record }) => this.optionsRender(record),
-          lock: ColumnLock.right,
-          align: ColumnAlign.center,
-        },
-      ];
-    } else {
-      return [
-        {
-          name: 'redInfoSerialNumber',
-          width: 240,
-          renderer: ({ text, record }) => {
-            let orderStatus;
-
-            switch (record?.get('orderStatus')) {
-              case 'D':
-                orderStatus = (
-                  <Tag color="#D6FFD7" style={{ color: '#19A633' }}>
-                    {intl.get('hiop.redInvoiceInfo.view.downloaded').d('已下载')}
-                  </Tag>
-                );
-                break;
-              case 'S':
-                orderStatus = (
-                  <Tag color="#FFECC4" style={{ color: '#FF8F07' }}>
-                    {intl.get('hiop.redInvoiceInfo.view.submitted').d('已提交')}
-                  </Tag>
-                );
-                break;
-              case 'R':
-                orderStatus = (
-                  <Tag color="#F0F0F0" style={{ color: '#6C6C6C' }}>
-                    {intl.get('hiop.redInvoiceInfo.view.revoked').d('已撤销')}
-                  </Tag>
-                );
-                break;
-              case 'I':
-                orderStatus = (
-                  <Tag color="#DBEEFF" style={{ color: '#3889FF' }}>
-                    {intl.get('hiop.redInvoiceInfo.view.issued').d('已开具')}
-                  </Tag>
-                );
-                break;
-              default:
-                break;
-            }
-            return (
-              <>
-                {orderStatus}
-                <a onClick={() => this.gotoDetail(record)}>{text}</a>
-              </>
-            );
-          },
-        },
-        { name: 'redInvoiceDate', width: 150 },
-        { name: 'taxDiskNumber', width: 150 },
-        { name: 'extensionNumber', width: 150 },
-        { name: 'blueInvoiceCode', width: 180 },
-        { name: 'blueInvoiceNo', width: 180 },
-        {
-          name: 'invoiceAmount',
-          width: 180,
-          align: ColumnAlign.right,
-        },
-        {
-          name: 'taxAmount',
-          width: 180,
-          align: ColumnAlign.right,
-        },
-        { name: 'buyerName', width: 180 },
-        { name: 'buyerTaxNo', width: 180 },
-        { name: 'sellerName', width: 150 },
-        { name: 'sellerTaxNo', width: 150 },
-        { name: 'overdueStatus', width: 110 },
-        { name: 'invoiceTypeCode', width: 150 },
-        {
-          name: 'operation',
-          header: intl.get('hzero.common.action').d('操作'),
-          width: 150,
-          renderer: ({ record }) => this.optionsRender(record),
-          lock: ColumnLock.right,
-          align: ColumnAlign.center,
-        },
-      ];
-    }
+      },
+      { name: 'redInvoiceConfirmationStatus' },
+      { name: 'redInvoiceDate', width: 150 },
+      { name: 'taxDiskNumber', width: 150 },
+      { name: 'extensionNumber', width: 150 },
+      { name: 'blueInvoiceCode', width: 180 },
+      { name: 'blueInvoiceNo', width: 180 },
+      { name: 'invoiceAmount', width: 180 },
+      { name: 'taxAmount', width: 180 },
+      { name: 'buyerName', width: 180 },
+      { name: 'buyerTaxNo', width: 180 },
+      { name: 'sellerName', width: 150 },
+      { name: 'sellerTaxNo', width: 150 },
+      { name: 'overdueStatus', width: 110 },
+      { name: 'invoiceTypeCode', width: 150 },
+      {
+        name: 'operation',
+        header: intl.get('hzero.common.action').d('操作'),
+        width: 150,
+        renderer: ({ record }) => this.optionsRender(record),
+        lock: ColumnLock.right,
+        align: ColumnAlign.center,
+      },
+    ];
   }
 
   /**

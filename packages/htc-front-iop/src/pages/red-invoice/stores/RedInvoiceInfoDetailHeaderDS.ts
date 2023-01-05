@@ -50,6 +50,62 @@ export default (dsParams): DataSetProps => {
         readOnly: true,
       },
       {
+        name: 'applicantType',
+        label: intl.get('hiop.redInvoiceInfo.modal.sourceOfApplication').d('申请来源'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.APPLICANT_FOR_RED_REQUISITION',
+        readOnly: true,
+      },
+      {
+        name: 'redInvoiceConfirmationStatus',
+        label: intl
+          .get('hiop.invoiceReq.modal.redInvoiceConfirmationStatus')
+          .d('红字发票确认单状态'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.RED_APPLY_STATUS',
+        readOnly: true,
+      },
+      {
+        name: 'redMarkReason',
+        label: intl.get('hiop.invoiceWorkbench.modal.redMarkReason').d('红冲原因'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.REDREASON',
+        readOnly: true,
+      },
+      {
+        name: 'issueRedInvoiceFlag',
+        label: intl.get('hiop.redInvoiceInfo.modal.issueRedInvoiceFlag').d('是否开具红字发票'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.RED_INVOICE_FLAG',
+        readOnly: true,
+      },
+      {
+        name: 'redInvoiceConfirmationNo',
+        label: intl
+          .get('hiop.redInvoiceInfo.modal.redInvoiceConfirmationNo')
+          .d('红字发票信息确认单编号'),
+        type: FieldType.string,
+        readOnly: true,
+      },
+      {
+        name: 'redInvoiceNo',
+        label: intl.get('hiop.redInvoiceInfo.modal.redInvoiceNo').d('红票号码'),
+        type: FieldType.string,
+        readOnly: true,
+      },
+      {
+        name: 'blueInvoiceNo',
+        label: intl.get('hiop.redInvoiceInfo.modal.blueNumber').d('蓝票号码'),
+        type: FieldType.string,
+        readOnly: true,
+      },
+      {
+        name: 'blueInvoiceDate',
+        label: intl.get('hiop.redInvoiceInfo.modal.blueInvoiceDate').d('蓝字发票开票日期'),
+        type: FieldType.string,
+        readOnly: true,
+      },
+      {
         name: 'redInvoiceDate',
         label: intl.get('hiop.redInvoiceInfo.modal.redInvoiceDate').d('填开时间'),
         type: FieldType.string,
