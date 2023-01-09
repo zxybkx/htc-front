@@ -756,14 +756,14 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
     const bottomNoLabel = ['61', '81', '82'].includes(invoiceTypeCode)
       ? fullElectricLabel
       : blueInvoiceNoLabel;
-    const dateLabel = ['61', '81', '82'].includes(invoiceTypeCode)
+    const dateLabel = ['61', '81', '82', '85', '86'].includes(invoiceTypeCode)
       ? fullElectricDateLabel
       : invoiceDateLabel;
     return (
       <>
         <Header
           backPath="/htc-front-iop/red-invoice-requisition/list"
-          title={intl.get('hiop.redInvoiceInfo.title.specialAppliaction').d('专票红字申请单')}
+          title={intl.get('hiop.redInvoiceInfo.title.specialAppliaction').d('发票红字申请单')}
         >
           <Button
             key="save"
@@ -788,7 +788,7 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
                 value={empInfo && empInfo.taxpayerNumber}
               />
               <Select name="applicantType" onChange={this.handleApplicantTypeChange} />
-              {!['61', '81', '82'].includes(invoiceTypeCode) && (
+              {!['61', '81', '82', '85', '86'].includes(invoiceTypeCode) && (
                 <Select name="deductionStatus" onChange={this.handleDeductionChange} />
               )}
               <Select name="taxType" />
@@ -800,12 +800,12 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
             <Spin dataSet={this.headerDS}>
               <Form columns={4} dataSet={this.headerDS} labelTooltip={Tooltip.overflow}>
                 <Lov name="uploadEmployeeNameObj" />
-                {['61', '81', '82'].includes(invoiceTypeCode) ? (
+                {['61', '81', '82', '85', '86'].includes(invoiceTypeCode) ? (
                   <Select name="redMarkReason" />
                 ) : (
                   <Select name="requisitionReasonObj" />
                 )}
-                {!['61', '81', '82'].includes(invoiceTypeCode) && (
+                {!['61', '81', '82', '85', '86'].includes(invoiceTypeCode) && (
                   <TextField name="requisitionDescription" />
                 )}
                 <Select name="status" />
@@ -815,11 +815,11 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
                 <TextField name="serialNumber" />
                 <Select name="infoType" />
                 {/*---*/}
-                {!['61', '81', '82'].includes(invoiceTypeCode) && (
+                {!['61', '81', '82', '85', '86'].includes(invoiceTypeCode) && (
                   <Select name="businessTaxMarkCode" />
                 )}
                 <Select name="operateType" />
-                {!['61', '81', '82'].includes(invoiceTypeCode) && (
+                {!['61', '81', '82', '85', '86'].includes(invoiceTypeCode) && (
                   <>
                     <TextField name="taxDiskNumber" />
                     <Lov

@@ -161,7 +161,7 @@ export default class SpecialRedInformationPage extends Component<RedInvoiceRequi
           backPath="/htc-front-iop/red-invoice-info/list"
           title={intl
             .get('hiop.redInvoiceInfo.title.redInvoiceDetail')
-            .d('专票红字信息表列表-详情')}
+            .d('发票红字信息表列表-详情')}
         />
         <Content style={{ background: '#f4f5f7', padding: '0' }}>
           <Spin dataSet={this.headerDS}>
