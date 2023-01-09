@@ -39,6 +39,7 @@ interface RedInvoiceRequisitionPageProps extends RouteComponentProps<RouterInfo>
 export default class SpecialRedInformationPage extends Component<RedInvoiceRequisitionPageProps> {
   state = {
     empInfo: undefined as any,
+    invoiceTypeCode: undefined as any,
   };
 
   get isCreatePage() {
@@ -53,7 +54,7 @@ export default class SpecialRedInformationPage extends Component<RedInvoiceRequi
   });
 
   headerDS = new DataSet({
-    autoQuery: true,
+    autoQuery: false,
     ...RedInvoiceInfoDetailHeaderDS(this.props.match.params),
     children: {
       lines: this.linesDS,
@@ -69,6 +70,10 @@ export default class SpecialRedInformationPage extends Component<RedInvoiceRequi
     if (empInfo) {
       this.setState({ empInfo });
     }
+    this.headerDS.query().then(res => {
+      const { invoiceTypeCode } = res;
+      this.setState({ invoiceTypeCode });
+    });
   }
 
   /**
@@ -146,7 +151,10 @@ export default class SpecialRedInformationPage extends Component<RedInvoiceRequi
   }
 
   render() {
-    const { empInfo } = this.state;
+    const { empInfo, invoiceTypeCode } = this.state;
+    const hzfpkprqLabel = intl
+      .get('hiop.redInvoiceInfo.modal.invoicingTimeOfRedInkInvoice')
+      .d('红字发票开票日期');
     return (
       <>
         <Header
@@ -167,26 +175,53 @@ export default class SpecialRedInformationPage extends Component<RedInvoiceRequi
                   label={intl.get('htc.common.modal.taxpayerNumber').d('纳税人识别号')}
                   value={empInfo && empInfo.taxpayerNumber}
                 />
-                <Select name="taxType" />
+                {['61', '81', '82'].includes(invoiceTypeCode) ? (
+                  <Select name="applicantType" />
+                ) : (
+                  <Select name="taxType" />
+                )}
                 <TextField name="redInvoiceDate" />
                 <TextField name="redInfoSerialNumber" />
-                <Select name="overdueStatus" />
-                <TextField name="infoStatusName" />
-                <Select name="multiTaxFlag" />
-                <TextField name="requisitionDescription" />
-                <TextField name="requisitionReason" />
-                <TextField name="goodsVersion" labelWidth={130} />
+                {['61', '81', '82'].includes(invoiceTypeCode) && (
+                  <>
+                    <Select name="redInvoiceConfirmationStatus" />
+                    <Select name="redMarkReason" />
+                    <Select name="issueRedInvoiceFlag" />
+                  </>
+                )}
+                {!['61', '81', '82'].includes(invoiceTypeCode) && (
+                  <>
+                    <Select name="overdueStatus" />
+                    <TextField name="infoStatusName" />
+                    <Select name="multiTaxFlag" />
+                    <TextField name="requisitionDescription" />
+                    <TextField name="requisitionReason" />
+                    <TextField name="goodsVersion" labelWidth={130} />
+                  </>
+                )}
               </Form>
             </Card>
             <Card bordered style={{ marginBottom: '8px' }}>
-              <Form columns={3} dataSet={this.headerDS}>
-                <TextField name="taxDiskNumber" />
-                <TextField name="extensionNumber" />
-                <TextField name="invoiceDate" />
-                <Select name="invoiceTypeCode" />
-                <TextField name="blueInvoiceCode" />
-                <TextField name="blueInvoiceNo" />
-              </Form>
+              {['61', '81', '82'].includes(invoiceTypeCode) && (
+                <Form columns={3} dataSet={this.headerDS}>
+                  <TextField name="redInvoiceConfirmationNo" />
+                  <TextField name="redInvoiceNo" />
+                  <TextField name="redInvoiceDate" label={hzfpkprqLabel} />
+                  <Select name="invoiceTypeCode" />
+                  <TextField name="blueInvoiceNo" />
+                  <TextField name="blueInvoiceDate" />
+                </Form>
+              )}
+              {!['61', '81', '82'].includes(invoiceTypeCode) && (
+                <Form columns={3} dataSet={this.headerDS}>
+                  <TextField name="taxDiskNumber" />
+                  <TextField name="extensionNumber" />
+                  <TextField name="invoiceDate" />
+                  <Select name="invoiceTypeCode" />
+                  <TextField name="blueInvoiceCode" />
+                  <TextField name="blueInvoiceNo" />
+                </Form>
+              )}
               <div style={{ background: '#fff', display: 'flex' }}>
                 <div
                   style={{

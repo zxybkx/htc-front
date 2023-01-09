@@ -329,3 +329,18 @@ export async function saveReqInvoice(params) {
     body: dsData,
   });
 }
+
+/**
+ * 专票红字申请单-行操作（同意/拒绝)
+ * @function saveReqInvoice
+ * @params {object} params
+ * @returns {object} fetch Promise
+ */
+export async function examine(params) {
+  const { organizationId, recordData, ...otherParams } = params;
+  return request(`${HIOP_API}/v1/${organizationId}/red-invoice-infos/examine`, {
+    method: 'POST',
+    query: otherParams,
+    body: recordData,
+  });
+}
