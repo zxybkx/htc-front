@@ -621,7 +621,7 @@ export default class SpecialRedApplicationPage extends Component<
     return (
       <>
         <Header
-          title={intl.get('hiop.redInvoiceInfo.title.applicationList').d('专票红字申请单列表')}
+          title={intl.get('hiop.redInvoiceInfo.title.applicationList').d('发票红字申请单列表')}
         />
         <Content>
           <Table

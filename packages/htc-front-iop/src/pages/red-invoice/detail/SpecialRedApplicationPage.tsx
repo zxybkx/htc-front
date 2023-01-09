@@ -763,7 +763,7 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
       <>
         <Header
           backPath="/htc-front-iop/red-invoice-requisition/list"
-          title={intl.get('hiop.redInvoiceInfo.title.specialAppliaction').d('专票红字申请单')}
+          title={intl.get('hiop.redInvoiceInfo.title.specialAppliaction').d('发票红字申请单')}
         >
           <Button
             key="save"
