@@ -46,7 +46,7 @@ export default (): DataSetProps => {
         required: true,
       },
       {
-        name: 'redInvoiceConfirmationStatus',
+        name: 'redInvoiceConfirmStatus',
         label: intl.get('hiop.redInvoiceInfo.modal.confirmationSheetStatus').d('确认单状态'),
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.RED_APPLY_STATUS',
@@ -61,6 +61,11 @@ export default (): DataSetProps => {
         type: FieldType.string,
         lookupCode: 'HIOP.RED_INFO_STATUS',
         required: true,
+      },
+      {
+        name: 'confirmType',
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.CONFIRM_TYPE',
       },
       {
         name: 'redInvoiceDate',

@@ -57,7 +57,7 @@ export default (dsParams): DataSetProps => {
         readOnly: true,
       },
       {
-        name: 'redInvoiceConfirmationStatus',
+        name: 'redInvoiceConfirmStatus',
         label: intl
           .get('hiop.invoiceReq.modal.redInvoiceConfirmationStatus')
           .d('红字发票确认单状态'),
@@ -81,16 +81,21 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'redInvoiceConfirmationNo',
-        label: intl
-          .get('hiop.redInvoiceInfo.modal.redInvoiceConfirmationNo')
-          .d('红字发票信息确认单编号'),
+        label: intl.get('hiop.redInvoiceInfo.modal.redInvoiceConfirmationNo').d('红字确认单编号'),
         type: FieldType.string,
         readOnly: true,
       },
       {
         name: 'redInvoiceNo',
-        label: intl.get('hiop.redInvoiceInfo.modal.redInvoiceNo').d('红票号码'),
+        label: intl.get('hiop.redInvoiceInfo.modal.redInvoiceNo').d('红字发票号码'),
         type: FieldType.string,
+        readOnly: true,
+      },
+      {
+        name: 'invoiceSource',
+        label: intl.get('hivp.myInvoice.view.sourceCode').d('发票来源'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.RED_INVOICE_SOURCE',
         readOnly: true,
       },
       {
@@ -101,7 +106,19 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'blueInvoiceDate',
-        label: intl.get('hiop.redInvoiceInfo.modal.blueInvoiceDate').d('蓝字发票开票日期'),
+        label: intl.get('hiop.redInvoiceInfo.modal.blueInvoiceDate').d('蓝字开票日期'),
+        type: FieldType.string,
+        readOnly: true,
+      },
+      {
+        name: 'blueExcludeTaxAmount',
+        label: intl.get('hiop.redInvoiceInfo.modal.blueExcludeTaxAmount').d('蓝字合计不含税金额'),
+        type: FieldType.string,
+        readOnly: true,
+      },
+      {
+        name: 'blueTotalTaxAmount',
+        label: intl.get('hiop.redInvoiceInfo.modal.blueTotalTaxAmount').d('蓝字合计税额'),
         type: FieldType.string,
         readOnly: true,
       },
