@@ -42,6 +42,7 @@ import {
   redInvoiceCreateRedOrder,
   redInvoiceCreateRequisition,
   examine,
+  redInfoRefresh,
 } from '@src/services/redInvoiceService';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import RedInvoiceInfoTableListDS from '../stores/RedInvoiceInfoTableListDS';
@@ -350,7 +351,12 @@ export default class SpecialRedInformationPage extends Component<
         recordData,
         confirmType: type === 0 ? 1 : 0,
       };
-      const res = getResponse(await examine(params));
+      let res;
+      if (type === 2) {
+        res = getResponse(await redInfoRefresh(params));
+      } else {
+        res = getResponse(await examine(params));
+      }
       if (res && res.status === '200') {
         notification.success({
           description: '',
@@ -370,9 +376,50 @@ export default class SpecialRedInformationPage extends Component<
   optionsRender(record) {
     const { outChannelCode } = this.state;
     const invoiceTypeCode = record.get('invoiceTypeCode');
-    const redInvoiceConfirmationStatus = record.get('redInvoiceConfirmationStatus');
-    const operators = [
-      {
+    const redInvoiceConfirmStatus = record.get('redInvoiceConfirmStatus');
+    const confirmType = record.get('confirmType');
+    const operators: any = [];
+    if (
+      outChannelCode === 'DOUBLE_CHANNEL' &&
+      ['61', '81', '82'].includes(invoiceTypeCode) &&
+      !['04', '05', '06', '07'].includes(redInvoiceConfirmStatus)
+    ) {
+      if (!confirmType) {
+        operators.push({
+          key: 'agree',
+          ele: (
+            <a onClick={() => this.handleAgreeOrRefuse(record, 0)}>
+              {intl.get('hzero.common.status.agree').d('同意')}
+            </a>
+          ),
+          len: 2,
+          title: intl.get('hzero.common.status.agree').d('同意'),
+        });
+        operators.push({
+          key: 'refuse',
+          ele: (
+            <a onClick={() => this.handleAgreeOrRefuse(record, 1)}>
+              {intl.get('hzero.common.button.refuse').d('拒绝')}
+            </a>
+          ),
+          len: 2,
+          title: intl.get('hzero.common.button.refuse').d('拒绝'),
+        });
+      } else if (['0', '1'].includes(confirmType)) {
+        operators.push({
+          key: 'refresh',
+          ele: (
+            <a onClick={() => this.handleAgreeOrRefuse(record, 2)}>
+              {intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态')}
+            </a>
+          ),
+          len: 4,
+          title: intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态'),
+        });
+      }
+    }
+    if (confirmType === '2') {
+      operators.push({
         key: 'download',
         ele: (
           <a onClick={() => this.handleDownloadPdfFile(record)}>
@@ -381,32 +428,6 @@ export default class SpecialRedInformationPage extends Component<
         ),
         len: 4,
         title: intl.get('hiop.redInvoiceInfo.button.download').d('导出文件'),
-      },
-    ];
-    if (
-      outChannelCode === 'DOUBLE_CHANNEL' &&
-      ['61', '81', '82'].includes(invoiceTypeCode) &&
-      !['04', '05', '06', '07'].includes(redInvoiceConfirmationStatus)
-    ) {
-      operators.push({
-        key: 'agree',
-        ele: (
-          <a onClick={() => this.handleAgreeOrRefuse(record, 0)}>
-            {intl.get('hzero.common.status.agree').d('同意')}
-          </a>
-        ),
-        len: 2,
-        title: intl.get('hzero.common.status.agree').d('同意'),
-      });
-      operators.push({
-        key: 'refuse',
-        ele: (
-          <a onClick={() => this.handleAgreeOrRefuse(record, 1)}>
-            {intl.get('hzero.common.button.refuse').d('拒绝')}
-          </a>
-        ),
-        len: 2,
-        title: intl.get('hzero.common.button.refuse').d('拒绝'),
       });
     }
     return operatorRender(operators, record, { limit: 2 });
@@ -464,7 +485,7 @@ export default class SpecialRedInformationPage extends Component<
           );
         },
       },
-      { name: 'redInvoiceConfirmationStatus' },
+      { name: 'redInvoiceConfirmStatus' },
       { name: 'redInvoiceDate', width: 150 },
       { name: 'taxDiskNumber', width: 150 },
       { name: 'extensionNumber', width: 150 },
