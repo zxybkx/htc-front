@@ -126,13 +126,13 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码'),
         type: FieldType.string,
         readOnly: true,
-        bind: 'invoiceObj.invoiceCode',
+        // bind: 'invoiceObj.invoiceCode',
       },
       {
         name: 'invoiceNo',
         label: intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码'),
         type: FieldType.string,
-        bind: 'invoiceObj.invoiceNo',
+        // bind: 'invoiceObj.invoiceNo',
         readOnly: true,
       },
       {
@@ -166,8 +166,8 @@ export default (dsParams): DataSetProps => {
         ignore: FieldIgnore.always,
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceTypeCode')),
         },
-        required: true,
       },
       {
         name: 'requisitionReason',
@@ -183,6 +183,8 @@ export default (dsParams): DataSetProps => {
         lookupCode: 'HTC.HIOP.REDREASON',
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
+          required: ({ record }) =>
+            ['61', '81', '82', '85', '86'].includes(record.get('invoiceTypeCode')),
         },
       },
       {
@@ -255,8 +257,8 @@ export default (dsParams): DataSetProps => {
         lookupCode: 'HIOP.SALES_TAX_MARK',
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceTypeCode')),
         },
-        required: true,
       },
       {
         name: 'operateType',
@@ -287,8 +289,8 @@ export default (dsParams): DataSetProps => {
         lovPara: { companyId: dsParams.companyId, employeeId: dsParams.employeeId },
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceTypeCode')),
         },
-        required: true,
         ignore: FieldIgnore.always,
       },
       {
