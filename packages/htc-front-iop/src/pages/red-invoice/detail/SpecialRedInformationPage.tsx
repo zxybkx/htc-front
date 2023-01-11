@@ -9,7 +9,7 @@
 import React, { Component } from 'react';
 import { Dispatch } from 'redux';
 import { Content, Header } from 'components/Page';
-import { DataSet, Form, Select, Spin, Table, TextField } from 'choerodon-ui/pro';
+import { DataSet, Form, Select, Spin, Table, TextField, Currency } from 'choerodon-ui/pro';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
@@ -34,7 +34,13 @@ interface RedInvoiceRequisitionPageProps extends RouteComponentProps<RouterInfo>
 }
 
 @formatterCollections({
-  code: ['hiop.redInvoiceInfo', 'hiop.invoiceWorkbench', 'htc.common', 'hiop.customerInfo'],
+  code: [
+    'hiop.redInvoiceInfo',
+    'hiop.invoiceWorkbench',
+    'htc.common',
+    'hiop.customerInfo',
+    'hivp.myInvoice',
+  ],
 })
 export default class SpecialRedInformationPage extends Component<RedInvoiceRequisitionPageProps> {
   state = {
@@ -72,6 +78,7 @@ export default class SpecialRedInformationPage extends Component<RedInvoiceRequi
     }
     this.headerDS.query().then(res => {
       const { invoiceTypeCode } = res;
+      console.log(invoiceTypeCode);
       this.setState({ invoiceTypeCode });
     });
   }
@@ -81,7 +88,8 @@ export default class SpecialRedInformationPage extends Component<RedInvoiceRequi
    * @return {*[]}
    */
   get columns(): ColumnProps[] {
-    return [
+    const { invoiceTypeCode } = this.state;
+    const lineArray: ColumnProps[] = [
       {
         header: intl.get('htc.common.orderSeq').d('序号'),
         width: 60,
@@ -99,9 +107,15 @@ export default class SpecialRedInformationPage extends Component<RedInvoiceRequi
       { name: 'taxAmount' },
       { name: 'goodsCode' },
       { name: 'selfCode' },
-      { name: 'preferentialPolicyFlag', width: 110 },
-      { name: 'zeroTaxRateFlag', width: 150 },
     ];
+    if (['0', '52'].includes(invoiceTypeCode)) {
+      lineArray.push({ name: 'preferentialPolicyFlag', width: 110 });
+      lineArray.push({ name: 'zeroTaxRateFlag', width: 150 });
+    } else {
+      lineArray.push({ name: 'taxPreferPolicyTypeCode', width: 110 });
+      lineArray.push({ name: 'specialTaxationMethod', width: 150 });
+    }
+    return lineArray;
   }
 
   /**
@@ -152,9 +166,11 @@ export default class SpecialRedInformationPage extends Component<RedInvoiceRequi
 
   render() {
     const { empInfo, invoiceTypeCode } = this.state;
+    const tksjLabel = intl.get('hiop.redInvoiceInfo.modal.redInvoiceDate').d('填开时间');
     const hzfpkprqLabel = intl
       .get('hiop.redInvoiceInfo.modal.invoicingTimeOfRedInkInvoice')
-      .d('红字发票开票日期');
+      .d('红字开票日期');
+    const dateLabel = ['0', '52'].includes(invoiceTypeCode) ? tksjLabel : hzfpkprqLabel;
     return (
       <>
         <Header
@@ -175,21 +191,22 @@ export default class SpecialRedInformationPage extends Component<RedInvoiceRequi
                   label={intl.get('htc.common.modal.taxpayerNumber').d('纳税人识别号')}
                   value={empInfo && empInfo.taxpayerNumber}
                 />
-                {['61', '81', '82'].includes(invoiceTypeCode) ? (
+                {['61', '81', '82', '85', '86'].includes(invoiceTypeCode) ? (
                   <Select name="applicantType" />
                 ) : (
                   <Select name="taxType" />
                 )}
-                <TextField name="redInvoiceDate" />
+                <TextField name="redInvoiceDate" label={dateLabel} />
                 <TextField name="redInfoSerialNumber" />
-                {['61', '81', '82'].includes(invoiceTypeCode) && (
+                {['61', '81', '82', '85', '86'].includes(invoiceTypeCode) && (
                   <>
-                    <Select name="redInvoiceConfirmationStatus" />
+                    <TextField name="redInvoiceConfirmationNo" />
+                    <Select name="redInvoiceConfirmStatus" />
                     <Select name="redMarkReason" />
-                    <Select name="issueRedInvoiceFlag" />
+                    <TextField name="redInvoiceNo" />
                   </>
                 )}
-                {!['61', '81', '82'].includes(invoiceTypeCode) && (
+                {['0', '52'].includes(invoiceTypeCode) && (
                   <>
                     <Select name="overdueStatus" />
                     <TextField name="infoStatusName" />
@@ -202,17 +219,17 @@ export default class SpecialRedInformationPage extends Component<RedInvoiceRequi
               </Form>
             </Card>
             <Card bordered style={{ marginBottom: '8px' }}>
-              {['61', '81', '82'].includes(invoiceTypeCode) && (
+              {['61', '81', '82', '85', '86'].includes(invoiceTypeCode) && (
                 <Form columns={3} dataSet={this.headerDS}>
-                  <TextField name="redInvoiceConfirmationNo" />
-                  <TextField name="redInvoiceNo" />
-                  <TextField name="redInvoiceDate" label={hzfpkprqLabel} />
-                  <Select name="invoiceTypeCode" />
+                  <Select name="invoiceSource" />
                   <TextField name="blueInvoiceNo" />
                   <TextField name="blueInvoiceDate" />
+                  <Select name="invoiceTypeCode" />
+                  <Currency name="blueExcludeTaxAmount" />
+                  <Currency name="blueTotalTaxAmount" />
                 </Form>
               )}
-              {!['61', '81', '82'].includes(invoiceTypeCode) && (
+              {['0', '52'].includes(invoiceTypeCode) && (
                 <Form columns={3} dataSet={this.headerDS}>
                   <TextField name="taxDiskNumber" />
                   <TextField name="extensionNumber" />
