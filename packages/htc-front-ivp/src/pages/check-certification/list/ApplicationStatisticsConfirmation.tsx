@@ -253,7 +253,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
   });
 
   // 当期已勾选发票统计确签: 申请/取消统计
-  const handleStatistics = async () => {
+  const handleStatistics = async type => {
     if (statisticalConfirmDS) {
       const { queryDataSet } = statisticalConfirmDS;
       const currentCertState = queryDataSet && queryDataSet.current?.get('currentCertState');
@@ -283,9 +283,9 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
       const employeeDesc = `${companyCode}-${employeeNumber}-${employeeName}-${mobile}`;
       const companyDesc = `${companyCode}-${companyName}`;
       const currentPeriod = queryDataSet && queryDataSet.current!.get('currentPeriod');
-      let statisticalFlag;
-      if (['0', '1'].includes(currentCertState)) statisticalFlag = 1;
-      if (['2', '3'].includes(currentCertState)) statisticalFlag = 0;
+      // let statisticalFlag;
+      // if (['0', '1'].includes(currentCertState)) statisticalFlag = 1;
+      // if (['2', '3'].includes(currentCertState)) statisticalFlag = 0;
       const params = {
         tenantId,
         companyId,
@@ -297,7 +297,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
         taxDiskPassword,
         taxpayerNumber,
         statisticalPeriod: currentPeriod,
-        statisticalFlag,
+        statisticalFlag: type,
       };
       setStatisticsLoading(true);
       const res = getResponse(await applyStatistics(params));
@@ -320,7 +320,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
       <MenuItem>
         <MenuButton
           key="applyStatistics"
-          onClick={() => handleStatistics()}
+          onClick={() => handleStatistics(1)}
           dataSet={statisticalConfirmDS}
           title={intl.get(`${modelCode}.button.applyStatistics`).d('申请统计')}
         />
@@ -328,7 +328,7 @@ const ApplicationStatisticsConfirmation: React.FC<ApplicationStatisticsConfirmat
       <MenuItem>
         <MenuButton
           key="cancelStatistics"
-          onClick={() => handleStatistics()}
+          onClick={() => handleStatistics(0)}
           dataSet={statisticalConfirmDS}
           title={intl.get(`${modelCode}.button.cancelStatistics`).d('取消统计')}
         />
