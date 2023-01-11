@@ -36,6 +36,7 @@ import {
 import { Card, Col, Row } from 'choerodon-ui';
 import TaxHeadersDS from '../stores/TaxHeadersDS';
 import TaxLinesDS from '../stores/TaxLinesDS';
+import BluInvoiceDS from '../stores/BluInvoiceDS';
 import IdAuthentication from '../../idAuthentication-modal/IdAuthentication';
 import styles from '../taxInfo.module.less';
 
@@ -47,7 +48,13 @@ const tenantId = getCurrentOrganizationId();
 const permissionPath = `${getPresentMenu().name}.ps`;
 
 @formatterCollections({
-  code: ['hiop.taxInfo', 'hiop.invoiceWorkbench', 'htc.common', 'hiop.redInvoiceInfo'],
+  code: [
+    'hiop.taxInfo',
+    'hiop.invoiceWorkbench',
+    'htc.common',
+    'hiop.redInvoiceInfo',
+    'hiop.taxRateStatistic',
+  ],
 })
 export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
   state = {
@@ -65,6 +72,11 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
     children: {
       lines: this.tableLineDS,
     },
+  });
+
+  bluInvoiceDS = new DataSet({
+    autoQuery: false,
+    ...BluInvoiceDS(),
   });
 
   async componentDidMount() {
@@ -313,6 +325,14 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
     ];
   }
 
+  /**
+   * 返回蓝字发票统计信息行
+   * @returns {*[]}
+   */
+  get bluInvoiceColumns(): ColumnProps[] {
+    return [];
+  }
+
   @Bind()
   handleContinue(modal) {
     modal.close();
@@ -480,6 +500,7 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
   }
 
   render() {
+    const { outChannelCode } = this.state;
     return (
       <>
         <Header title={intl.get('hiop.taxInfo.title.invoiceInfo').d('税控信息')} />
@@ -506,6 +527,19 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
               style={{ height: 200 }}
             />
           </Card>
+          {outChannelCode !== 'DOUBLE_CHANNEL' && (
+            <Card>
+              <Table
+                key="blueInkInvoice"
+                header={intl
+                  .get('hiop.taxInfo.view.blueInkInvoiceStatistics')
+                  .d('蓝字发票统计信息')}
+                dataSet={this.bluInvoiceDS}
+                columns={this.bluInvoiceColumns}
+                style={{ height: 200 }}
+              />
+            </Card>
+          )}
         </Content>
       </>
     );
