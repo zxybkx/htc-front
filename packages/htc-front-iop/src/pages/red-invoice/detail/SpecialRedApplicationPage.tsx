@@ -788,11 +788,11 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
                 value={empInfo && empInfo.taxpayerNumber}
               />
               <Select name="applicantType" onChange={this.handleApplicantTypeChange} />
-              {!['61', '81', '82', '85', '86'].includes(invoiceTypeCode) && (
+              {['0', '52'].includes(invoiceTypeCode) && (
                 <Select name="deductionStatus" onChange={this.handleDeductionChange} />
               )}
               <Select name="taxType" />
-              {!['61', '81', '82'].includes(invoiceTypeCode) && <Lov name="invoiceObj" />}
+              {!['61', '81', '82'].includes(invoiceTypeCode) && <TextField name="invoiceCode" />}
               <TextField name="invoiceNo" label={topNoLabel} />
             </Form>
           </Card>
@@ -815,11 +815,9 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
                 <TextField name="serialNumber" />
                 <Select name="infoType" />
                 {/*---*/}
-                {!['61', '81', '82', '85', '86'].includes(invoiceTypeCode) && (
-                  <Select name="businessTaxMarkCode" />
-                )}
+                {['0', '52'].includes(invoiceTypeCode) && <Select name="businessTaxMarkCode" />}
                 <Select name="operateType" />
-                {!['61', '81', '82', '85', '86'].includes(invoiceTypeCode) && (
+                {['0', '52'].includes(invoiceTypeCode) && (
                   <>
                     <TextField name="taxDiskNumber" />
                     <Lov
