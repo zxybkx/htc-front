@@ -27,12 +27,18 @@ import {
   Select,
   Switch,
   TextField,
+  Password,
 } from 'choerodon-ui/pro';
 import { Breadcrumb, Col, Row, Tag, Tree } from 'choerodon-ui';
 import { closeTab, openTab } from 'utils/menuTab';
-import { batchForbiddenEmployee, saveAndCreateAccount } from '@src/services/employeeDefineService';
+import { getTenantAgreementCompany } from '@htccommon/services/commonService';
+import {
+  batchForbiddenEmployee,
+  saveAndCreateAccount,
+  loginVerification,
+  userRegistration,
+} from '@src/services/employeeDefineService';
 import { queryUnifyIdpValue } from 'hzero-front/lib/services/api';
-import { Commands } from 'choerodon-ui/pro/lib/table/Table';
 import intl from 'utils/intl';
 import { Tooltip } from 'choerodon-ui/pro/lib/core/enum';
 import { isEmpty } from 'lodash';
@@ -43,7 +49,7 @@ import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import { observer } from 'mobx-react-lite';
 import AggregationTable from '@htccommon/pages/invoice-common/aggregation-table/detail/AggregationTablePage';
-import employeeDefendDS from '../stores/EmployeeDefineDS';
+import employeeDefendDS, { ElectricInfo } from '../stores/EmployeeDefineDS';
 import styles from '../table.module.less';
 import EmployeePhoneModify from './EmployeePhoneModifyPage';
 
@@ -78,11 +84,16 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
     autoExpandParent: true,
     companyName: undefined,
     roleName: undefined,
+    outChannelCode: undefined,
   };
 
   tableDS = new DataSet({
     autoQuery: false,
     ...employeeDefendDS(),
+  });
+
+  electricInfoDS = new DataSet({
+    ...ElectricInfo(),
   });
 
   async componentDidMount() {
@@ -347,6 +358,160 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
   }
 
   /**
+   * 登记信息/登录电局
+   * @params {number} type 0-登记信息 1-登录电局
+   */
+  @Bind()
+  async registerInformation(modal, type) {
+    const validateValue = await this.electricInfoDS.validate(false, false);
+    if (!validateValue) {
+      notification.error({
+        description: '',
+        message: intl.get('hzero.common.notification.invalid').d('数据校验不通过！'),
+      });
+      return;
+    }
+    const data = this.electricInfoDS.current!.toData();
+    const companyId = this.tableDS.current?.get('companyId');
+    const employeeId = this.tableDS.current?.get('employeeId');
+    const params = {
+      tenantId,
+      companyId,
+      employeeId,
+      ...data,
+    };
+    let res;
+    if (type === 0) {
+      res = getResponse(await userRegistration(params));
+    } else {
+      res = getResponse(await loginVerification(params));
+    }
+    if (res) {
+      notification.success({
+        description: '',
+        message: res.message,
+      });
+    }
+    modal.close();
+  }
+
+  /**
+   * 电局登录信息按钮回调
+   * @params {object} record-行记录
+   */
+  @Bind()
+  handlePowerLoginInfo() {
+    const employeeId = this.tableDS.current?.get('employeeId');
+    this.electricInfoDS.setQueryParameter('employeeId', employeeId);
+    this.electricInfoDS.query();
+    const modal = Modal.open({
+      title: intl.get('hmdm.employeeInfo.modal.title.electricInfo').d('编辑电局登录信息'),
+      drawer: true,
+      children: (
+        <Form dataSet={this.electricInfoDS}>
+          <TextField name="employeeName" />
+          <Select name="loginMethod" />
+          <Select name="loginType" />
+          <Select name="loginIdentity" />
+          <Password name="loginIdentityPassword" />
+          <TextField name="idNumber" />
+          <TextField name="mobile" />
+          <TextField name="loginAccount" />
+          <Password name="loginPassword" />
+          <Lov name="regionCodeObj" />
+          <TextField name="middleNumber" />
+        </Form>
+      ),
+      footer: (_, cancelBtn) => (
+        <div>
+          <Button color={ButtonColor.primary} onClick={() => this.registerInformation(modal, 0)}>
+            {intl.get('hmdm.employeeInfo.modal.button.registrationInformation').d('登记信息')}
+          </Button>
+          <Button color={ButtonColor.primary} onClick={() => this.registerInformation(modal, 1)}>
+            {intl.get('hmdm.employeeInfo.modal.button.logToPowerBureau').d('登录电局')}
+          </Button>
+          {cancelBtn}
+        </div>
+      ),
+    });
+  }
+
+  /**
+   * 操作列按钮
+   * @params {object} record-行记录
+   * @returns {*[]}
+   */
+  @Bind()
+  commands(record) {
+    const { outChannelCode } = this.state;
+    const curFlag = record.get('enabledFlag');
+    const records = record.toData();
+    const operators = [
+      {
+        key: 'saveAndCreate',
+        ele: (
+          <a onClick={() => this.handleSaveAndCreateAccount([records])}>
+            {intl.get('hmdm.employeeInfo.button.saveAndCreate').d('新建账户')}
+          </a>
+        ),
+        len: 6,
+        title: intl.get('hmdm.employeeInfo.button.saveAndCreate').d('新建账户'),
+      },
+      {
+        key: 'phoneModify',
+        ele: (
+          <a onClick={() => this.handlePhoneModify(record)}>
+            {intl.get('hmdm.employeeInfo.button.phoneModify').d('修改手机号')}
+          </a>
+        ),
+        len: 6,
+        title: intl.get('hmdm.employeeInfo.button.phoneModify').d('修改手机号'),
+      },
+    ];
+    if (outChannelCode === 'DOUBLE_CHANNEL') {
+      operators.push({
+        key: 'powerLoginInfo',
+        ele: (
+          <a onClick={() => this.handlePowerLoginInfo()}>
+            {intl.get('hmdm.employeeInfo.button.powerLoginInfo').d('电局登录信息')}
+          </a>
+        ),
+        len: 6,
+        title: intl.get('hmdm.employeeInfo.button.powerLoginInfo').d('电局登录信息'),
+      });
+    }
+    const btnMenu = (
+      <Menu>
+        {operators.map(action => {
+          const { key } = action;
+          return <Menu.Item key={key}>{action.ele}</Menu.Item>;
+        })}
+      </Menu>
+    );
+    return [
+      <span className="action-link" key="action">
+        <a
+          onClick={() => this.handleEnableFlag(records)}
+          style={{ color: curFlag === 0 ? 'green' : 'gray' }}
+        >
+          {curFlag === 0
+            ? intl.get('hzero.common.button.enabled').d('启用')
+            : intl.get('hzero.common.button.unEnabled').d('禁用')}
+        </a>
+        <a onClick={() => this.handleEdit(record)}>
+          {intl.get('hzero.common.button.editor').d('编辑')}
+        </a>
+        <Dropdown overlay={btnMenu}>
+          <a>
+            {intl.get('hzero.common.button.more').d('更多')}
+            <Icon type="arrow_drop_down" />
+          </a>
+        </Dropdown>
+      </span>,
+    ];
+  }
+
+  /**
    * 返回表格行
    * @returns {*[]}
    */
@@ -452,61 +617,9 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
         width: 180,
-        command: ({ record }): Commands[] => {
-          const curFlag = record.get('enabledFlag');
-          const records = record.toData();
-          const operators = [
-            {
-              key: 'saveAndCreate',
-              ele: (
-                <a onClick={() => this.handleSaveAndCreateAccount([records])}>
-                  {intl.get('hmdm.employeeInfo.button.saveAndCreate').d('新建账户')}
-                </a>
-              ),
-              len: 6,
-              title: intl.get('hmdm.employeeInfo.button.saveAndCreate').d('新建账户'),
-            },
-            {
-              key: 'phoneModify',
-              ele: (
-                <a onClick={() => this.handlePhoneModify(record)}>
-                  {intl.get('hmdm.employeeInfo.button.phoneModify').d('修改手机号')}
-                </a>
-              ),
-              len: 6,
-              title: intl.get('hmdm.employeeInfo.button.phoneModify').d('修改手机号'),
-            },
-          ];
-          const btnMenu = (
-            <Menu>
-              {operators.map(action => {
-                const { key } = action;
-                return <Menu.Item key={key}>{action.ele}</Menu.Item>;
-              })}
-            </Menu>
-          );
-          return [
-            <span className="action-link" key="action">
-              <a
-                onClick={() => this.handleEnableFlag(records)}
-                style={{ color: curFlag === 0 ? 'green' : 'gray' }}
-              >
-                {curFlag === 0
-                  ? intl.get('hzero.common.button.enabled').d('启用')
-                  : intl.get('hzero.common.button.unEnabled').d('禁用')}
-              </a>
-              <a onClick={() => this.handleEdit(record)}>
-                {intl.get('hzero.common.button.editor').d('编辑')}
-              </a>
-              <Dropdown overlay={btnMenu}>
-                <a>
-                  {intl.get('hzero.common.button.more').d('更多')}
-                  <Icon type="arrow_drop_down" />
-                </a>
-              </Dropdown>
-            </span>,
-          ];
-        },
+        renderer: ({ record }) => this.commands(record),
+        // command: ({ record }): Commands[] => {
+        // },
         lock: ColumnLock.right,
         align: ColumnAlign.center,
       },
@@ -547,7 +660,7 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
    * 公司值集视图变化回调
    */
   @Bind()
-  handleCompanyChange(value) {
+  async handleCompanyChange(value) {
     const { queryDataSet } = this.tableDS;
     if (queryDataSet) {
       queryDataSet.current!.set({ companyNameObject: value });
@@ -555,7 +668,14 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
         companyName: value && value.companyName,
         roleName: null,
       });
-      if (value) this.tableDS.query();
+      if (value) {
+        const resCop = await getTenantAgreementCompany({ companyId: value.companyId, tenantId });
+        const { outChannelCode } = resCop;
+        this.setState({ outChannelCode });
+        this.tableDS.query();
+      } else {
+        this.setState({ outChannelCode: null });
+      }
     }
   }
 
@@ -607,7 +727,7 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
    * 树选择回调
    */
   @Bind()
-  onTreeSelect(selectedKeys, info) {
+  async onTreeSelect(selectedKeys, info) {
     if (!isEmpty(selectedKeys)) {
       const { queryDataSet } = this.tableDS;
       // 子节点
@@ -618,13 +738,24 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
           queryDataSet.current!.set({ companyNameObject });
           queryDataSet.current!.set({ roleIdObject });
         }
+        const resCop = await getTenantAgreementCompany({
+          companyId: companyNameObject.companyId,
+          tenantId,
+        });
+        const { outChannelCode } = resCop;
         this.setState({
           companyName: companyNameObject.companyName,
           roleName: roleIdObject.name,
+          outChannelCode,
         });
       } else {
         // 父节点
         const companyNameObject = info.node.data;
+        const resCop = await getTenantAgreementCompany({
+          companyId: companyNameObject.companyId,
+          tenantId,
+        });
+        const { outChannelCode } = resCop;
         if (queryDataSet) {
           queryDataSet.current!.set({ companyNameObject });
           queryDataSet.current!.set({ roleIdObject: null });
@@ -632,6 +763,7 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
         this.setState({
           companyName: companyNameObject.companyName,
           roleName: null,
+          outChannelCode,
         });
       }
       this.tableDS.query();

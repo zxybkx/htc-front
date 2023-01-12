@@ -264,6 +264,18 @@ export async function batchCheck(params) {
 }
 
 /**
+ * 不抵扣勾选
+ */
+export async function noDeductCheck(params) {
+  const { tenantId, invoiceCheckCollects, ...otherParams } = params;
+  return request(`${HIVP_API}/v1/${tenantId}/batch-check/partial-no-deduct-check`, {
+    method: 'POST',
+    query: otherParams,
+    body: invoiceCheckCollects,
+  });
+}
+
+/**
  * 全部勾选/全部撤销
  */
 export async function getTaskPassword(params) {

@@ -30,6 +30,7 @@ import notification from 'utils/notification';
 import { getCurrentOrganizationId } from 'hzero-front/lib/utils/utils';
 import {
   batchCheck,
+  noDeductCheck,
   downloadFile,
   refreshStatus,
   creatBatchNumber,
@@ -295,9 +296,14 @@ const BatchCheckVerifiableInvoices: React.FC<BatchCheckVerifiableInvoicesProps> 
         authorityCode,
         invoiceCheckCollects: selectedList,
       };
-      if (type === 0) setCheckLoading(true);
-      if (type === 1) setNoDeductLoading(true);
-      const res = getResponse(await batchCheck(params));
+      let res;
+      if (type === 0) {
+        setCheckLoading(true);
+        res = getResponse(await batchCheck(params));
+      } else {
+        setNoDeductLoading(true);
+        res = getResponse(await noDeductCheck(params));
+      }
       if (res) {
         notification.success({
           description: '',

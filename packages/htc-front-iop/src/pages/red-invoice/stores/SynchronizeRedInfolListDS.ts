@@ -128,6 +128,13 @@ export default (): DataSetProps => {
 
 const HeaderDS = (): DataSetProps => {
   return {
+    events: {
+      update: ({ record, name, value }) => {
+        if (name === 'invoiceType' && ['61', '81', '82'].includes(value)) {
+          record.set('overdueStatus', '');
+        }
+      },
+    },
     fields: [
       {
         name: 'companyId',
@@ -155,6 +162,11 @@ const HeaderDS = (): DataSetProps => {
       {
         name: 'employeeNum',
         type: FieldType.string,
+      },
+      {
+        name: 'outChannelCode',
+        type: FieldType.string,
+        ignore: FieldIgnore.always,
       },
       {
         name: 'fillDate',
@@ -185,7 +197,9 @@ const HeaderDS = (): DataSetProps => {
         type: FieldType.string,
         lookupCode: 'HIOP.LATE_STATUS',
         defaultValue: 'N',
-        required: true,
+        computedProps: {
+          required: ({ record }) => !['61', '81', '82'].includes(record.get('invoiceType')),
+        },
       },
       {
         name: 'informationSheetNumber',
@@ -218,6 +232,17 @@ const HeaderDS = (): DataSetProps => {
         defaultValue: 0,
         required: true,
         labelWidth: '120',
+      },
+      {
+        name: 'applicantType',
+        label: intl.get('hiop.redInvoiceInfo.modal.selectionOfBuyerAndSeller').d('购销方选择'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.APPLICANT_FOR_RED_REQUISITION',
+        computedProps: {
+          required: ({ record }) =>
+            ['61', '81', '82'].includes(record.get('invoiceType')) &&
+            record.get('outChannelCode') === 'DOUBLE_CHANNEL',
+        },
       },
     ],
   };

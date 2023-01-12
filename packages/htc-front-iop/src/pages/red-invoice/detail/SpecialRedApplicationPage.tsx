@@ -68,6 +68,7 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
     status: undefined as any,
     isMultipleTaxRate: null,
     listFlag: null,
+    invoiceTypeCode: undefined as any,
   };
 
   /**
@@ -291,12 +292,13 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
             invoiceNo: blueInvoiceNo,
           });
         }
-        const { status, isMultipleTaxRate, listFlag } = res;
+        const { status, isMultipleTaxRate, listFlag, invoiceTypeCode } = res;
         this.setState({
           status,
           isMultipleTaxRate,
           listFlag,
           editable: ['E', 'R', 'N'].includes(status),
+          invoiceTypeCode,
         });
       });
     } else {
@@ -331,7 +333,14 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
     };
     const headerRes = getResponse(await createRedInvoiceReq(params));
     if (headerRes) {
-      const { status, isMultipleTaxRate, listFlag, blueInvoiceCode, blueInvoiceNo } = headerRes;
+      const {
+        status,
+        isMultipleTaxRate,
+        listFlag,
+        blueInvoiceCode,
+        blueInvoiceNo,
+        invoiceTypeCode,
+      } = headerRes;
       const headerData = {
         ...headerRes,
         invoiceCode: blueInvoiceCode,
@@ -339,7 +348,7 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
       };
       this.headerDS.reset();
       this.headerDS.create({ ...headerData }, 0);
-      this.setState({ status, isMultipleTaxRate, listFlag });
+      this.setState({ status, isMultipleTaxRate, listFlag, invoiceTypeCode });
     }
     if (deductionStatus !== '01') {
       const lineRes = getResponse(await createRedInvoiceReqLines(params));
@@ -727,13 +736,34 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
     );
   }
 
+  @Bind()
+  getInvoiceType(value) {
+    this.setState({ invoiceTypeCode: value });
+  }
+
   render() {
-    const { empInfo } = this.state;
+    const { empInfo, invoiceTypeCode } = this.state;
+    const fullElectricLabel = intl
+      .get('hiop.invoiceWorkbench.modal.fullElectricInvoiceNo')
+      .d('全电发票号码');
+    const invoiceNoLabel = intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码');
+    const blueInvoiceNoLabel = intl.get('hiop.redInvoiceInfo.modal.blueInvoiceNo').d('蓝票号码');
+    const invoiceDateLabel = intl.get('hiop.invoiceWorkbench.modal.invoiceDate').d('开票日期');
+    const fullElectricDateLabel = intl.get('hiop.invoiceWorkbench.modal.dateOfIssue').d('填开日期');
+    const topNoLabel = ['61', '81', '82'].includes(invoiceTypeCode)
+      ? fullElectricLabel
+      : invoiceNoLabel;
+    const bottomNoLabel = ['61', '81', '82'].includes(invoiceTypeCode)
+      ? fullElectricLabel
+      : blueInvoiceNoLabel;
+    const dateLabel = ['61', '81', '82', '85', '86'].includes(invoiceTypeCode)
+      ? fullElectricDateLabel
+      : invoiceDateLabel;
     return (
       <>
         <Header
           backPath="/htc-front-iop/red-invoice-requisition/list"
-          title={intl.get('hiop.redInvoiceInfo.title.specialAppliaction').d('专票红字申请单')}
+          title={intl.get('hiop.redInvoiceInfo.title.specialAppliaction').d('发票红字申请单')}
         >
           <Button
             key="save"
@@ -758,18 +788,26 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
                 value={empInfo && empInfo.taxpayerNumber}
               />
               <Select name="applicantType" onChange={this.handleApplicantTypeChange} />
-              <Select name="deductionStatus" onChange={this.handleDeductionChange} />
+              {['0', '52'].includes(invoiceTypeCode) && (
+                <Select name="deductionStatus" onChange={this.handleDeductionChange} />
+              )}
               <Select name="taxType" />
-              <Lov name="invoiceObj" />
-              <TextField name="invoiceNo" />
+              {!['61', '81', '82'].includes(invoiceTypeCode) && <TextField name="invoiceCode" />}
+              <TextField name="invoiceNo" label={topNoLabel} />
             </Form>
           </Card>
           <Card style={{ marginTop: 10 }}>
             <Spin dataSet={this.headerDS}>
               <Form columns={4} dataSet={this.headerDS} labelTooltip={Tooltip.overflow}>
                 <Lov name="uploadEmployeeNameObj" />
-                <Select name="requisitionReasonObj" />
-                <TextField name="requisitionDescription" />
+                {['61', '81', '82', '85', '86'].includes(invoiceTypeCode) ? (
+                  <Select name="redMarkReason" />
+                ) : (
+                  <Select name="requisitionReasonObj" />
+                )}
+                {!['61', '81', '82', '85', '86'].includes(invoiceTypeCode) && (
+                  <TextField name="requisitionDescription" />
+                )}
                 <Select name="status" />
                 {/*---*/}
                 <TextField name="goodsVersion" />
@@ -777,13 +815,17 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
                 <TextField name="serialNumber" />
                 <Select name="infoType" />
                 {/*---*/}
-                <Select name="businessTaxMarkCode" />
+                {['0', '52'].includes(invoiceTypeCode) && <Select name="businessTaxMarkCode" />}
                 <Select name="operateType" />
-                <TextField name="taxDiskNumber" />
-                <Lov
-                  name="extensionNumberObj"
-                  onChange={value => this.handleTaxRateLovChange('extNumber', value.value)}
-                />
+                {['0', '52'].includes(invoiceTypeCode) && (
+                  <>
+                    <TextField name="taxDiskNumber" />
+                    <Lov
+                      name="extensionNumberObj"
+                      onChange={value => this.handleTaxRateLovChange('extNumber', value.value)}
+                    />
+                  </>
+                )}
               </Form>
               <Row gutter={8}>
                 <Col span={12}>
@@ -810,10 +852,12 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
                 </Col>
               </Row>
               <Form columns={4} dataSet={this.headerDS} style={{ marginTop: 10 }}>
-                <Select name="invoiceTypeCode" />
-                <TextField name="blueInvoiceCode" />
-                <TextField name="blueInvoiceNo" />
-                <DatePicker name="invoiceDate" />
+                <Select name="invoiceTypeCode" onChange={this.getInvoiceType} />
+                {!['61', '81', '82'].includes(invoiceTypeCode) && (
+                  <TextField name="blueInvoiceCode" />
+                )}
+                <TextField name="blueInvoiceNo" label={bottomNoLabel} />
+                <DatePicker name="invoiceDate" label={dateLabel} />
               </Form>
             </Spin>
           </Card>

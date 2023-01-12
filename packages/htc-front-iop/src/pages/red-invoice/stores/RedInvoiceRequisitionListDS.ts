@@ -357,7 +357,7 @@ const RedInvoiceCreateDS = (): DataSetProps => {
         type: FieldType.string,
         lookupCode: 'HTC.HIOP.DEDUCTION_STATUS_OF_PURCHASE',
         computedProps: {
-          required: ({ record }) => record.get('applicantType') === '01',
+          // required: ({ record }) => record.get('applicantType') === '01',
           readOnly: ({ record }) => record.get('applicantType') === '02',
         },
       },
@@ -367,11 +367,11 @@ const RedInvoiceCreateDS = (): DataSetProps => {
         type: FieldType.string,
         lookupCode: 'HIOP.TAX_TYPE',
         defaultValue: '1',
-        readOnly: true,
+        // readOnly: true,
       },
       {
         name: 'invoiceObj',
-        label: intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码'),
+        label: intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码'),
         type: FieldType.object,
         lovCode: 'HIOP.SPECIAL_INVOICE',
         cascadeMap: { companyId: 'companyId', companyCode: 'companyCode' },
@@ -398,10 +398,10 @@ const RedInvoiceCreateDS = (): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码'),
         type: FieldType.string,
         bind: 'invoiceObj.invoiceNo',
-        readOnly: true,
-        computedProps: {
-          required: ({ record }) => record.get('deductionStatus') !== '01',
-        },
+        // readOnly: true,
+        // computedProps: {
+        //   required: ({ record }) => record.get('deductionStatus') !== '01',
+        // },
       },
     ],
   };

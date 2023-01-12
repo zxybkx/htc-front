@@ -125,13 +125,21 @@ export default (dsParams): DataSetProps => {
         name: 'invoiceCode',
         label: intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码'),
         type: FieldType.string,
-        bind: 'invoiceObj.invoiceCode',
+        readOnly: true,
+        // bind: 'invoiceObj.invoiceCode',
       },
       {
         name: 'invoiceNo',
         label: intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码'),
         type: FieldType.string,
-        bind: 'invoiceObj.invoiceNo',
+        // bind: 'invoiceObj.invoiceNo',
+        readOnly: true,
+      },
+      {
+        name: 'invoiceNo',
+        label: intl.get('hiop.invoiceWorkbench.modal.fullElectricInvoiceNo').d('全电发票号码'),
+        type: FieldType.string,
+        // bind: 'invoiceObj.invoiceNo',
         readOnly: true,
       },
       {
@@ -158,8 +166,8 @@ export default (dsParams): DataSetProps => {
         ignore: FieldIgnore.always,
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceTypeCode')),
         },
-        required: true,
       },
       {
         name: 'requisitionReason',
@@ -167,6 +175,17 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         bind: 'requisitionReasonObj.description',
         readOnly: true,
+      },
+      {
+        name: 'redMarkReason',
+        label: intl.get('hiop.invoiceWorkbench.modal.redMarkReason').d('红冲原因'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.REDREASON',
+        computedProps: {
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+          required: ({ record }) =>
+            ['61', '81', '82', '85', '86'].includes(record.get('invoiceTypeCode')),
+        },
       },
       {
         name: 'requisitionDescription',
@@ -238,8 +257,8 @@ export default (dsParams): DataSetProps => {
         lookupCode: 'HIOP.SALES_TAX_MARK',
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceTypeCode')),
         },
-        required: true,
       },
       {
         name: 'operateType',
@@ -270,8 +289,8 @@ export default (dsParams): DataSetProps => {
         lovPara: { companyId: dsParams.companyId, employeeId: dsParams.employeeId },
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceTypeCode')),
         },
-        required: true,
         ignore: FieldIgnore.always,
       },
       {
@@ -318,6 +337,7 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) => record.get('deductionStatus') !== '01',
+          required: ({ record }) => record.get('deductionStatus') === '01',
         },
       },
       {
@@ -326,6 +346,7 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) => record.get('deductionStatus') !== '01',
+          required: ({ record }) => record.get('deductionStatus') === '01',
         },
       },
       {

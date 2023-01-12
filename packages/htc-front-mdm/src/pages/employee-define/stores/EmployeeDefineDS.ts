@@ -16,10 +16,9 @@ import { DEFAULT_DATE_FORMAT } from 'utils/constants';
 import moment from 'moment';
 import commonConfig from '@htccommon/config/commonConfig';
 
+const API_PREFIX = commonConfig.MDM_API || '';
+const tenantId = getCurrentOrganizationId();
 export default (): DataSetProps => {
-  const API_PREFIX = commonConfig.MDM_API || '';
-  const tenantId = getCurrentOrganizationId();
-
   return {
     transport: {
       read: (config): AxiosRequestConfig => {
@@ -258,6 +257,11 @@ export default (): DataSetProps => {
         bind: `companyNameObject.companyCode`,
       },
       {
+        name: 'employeeId',
+        type: FieldType.string,
+        bind: `companyNameObject.employeeId`,
+      },
+      {
         name: 'roleIdObject',
         label: intl.get('hmdm.employeeInfo.view.roleId').d('员工角色'),
         type: FieldType.object,
@@ -308,3 +312,99 @@ export default (): DataSetProps => {
     ],
   };
 };
+
+const ElectricInfo = (): DataSetProps => {
+  return {
+    transport: {
+      read: (config): AxiosRequestConfig => {
+        const url = `${API_PREFIX}/v1/${tenantId}/employee-infos`;
+        const axiosConfig: AxiosRequestConfig = {
+          ...config,
+          url,
+          method: 'GET',
+        };
+        return axiosConfig;
+      },
+    },
+    paging: false,
+    fields: [
+      {
+        name: 'employeeName',
+        label: intl.get('hmdm.employeeInfo.view.employeeName').d('办税人员姓名'),
+        type: FieldType.string,
+        required: true,
+      },
+      {
+        name: 'loginMethod',
+        label: intl.get('hmdm.employeeInfo.view.loginMethod').d('电局登录方式'),
+        lookupCode: 'HTC.HMDM_JC_LOGIN_METHOD',
+        type: FieldType.string,
+        required: true,
+      },
+      {
+        name: 'loginType',
+        label: intl.get('hmdm.employeeInfo.view.loginType').d('电局登录类型'),
+        lookupCode: 'HTC.HMDM_JC_LOGIN_TYPE',
+        type: FieldType.string,
+        required: true,
+      },
+      {
+        name: 'loginIdentity',
+        label: intl.get('hmdm.employeeInfo.view.loginIdentity').d('电局登录身份'),
+        lookupCode: 'HTC.HMDM_JC_LOGIN_AS',
+        type: FieldType.string,
+        required: true,
+      },
+      {
+        name: 'loginIdentityPassword',
+        label: intl.get('hmdm.employeeInfo.view.loginIdentityPassword').d('电局登录身份密码'),
+        type: FieldType.string,
+        required: true,
+      },
+      {
+        name: 'idNumber',
+        label: intl.get('hmdm.employeeInfo.view.idNumber').d('办税人员身份证号'),
+        type: FieldType.string,
+        required: true,
+        labelWidth: '130',
+      },
+      {
+        name: 'mobile',
+        label: intl.get('hmdm.employeeInfo.view.mobile').d('办税人员手机号'),
+        type: FieldType.string,
+        required: true,
+        pattern: phoneReg,
+      },
+      {
+        name: 'loginAccount',
+        label: intl.get('hmdm.employeeInfo.view.loginAccount').d('电局登录账号'),
+        type: FieldType.string,
+        required: true,
+      },
+      {
+        name: 'loginPassword',
+        label: intl.get('hmdm.employeeInfo.view.loginPassword').d('电局登录密码'),
+        type: FieldType.string,
+        required: true,
+      },
+      {
+        name: 'regionCodeObj',
+        label: intl.get('hmdm.employeeInfo.view.regionCode').d('地区编码'),
+        type: FieldType.object,
+        lovCode: 'HTC.HMDM_JC_REGION_CODE',
+        required: true,
+      },
+      {
+        name: 'regionCode',
+        type: FieldType.string,
+        bind: 'regionCodeObj.value',
+      },
+      {
+        name: 'middleNumber',
+        label: intl.get('hmdm.employeeInfo.view.middleNumber').d('中间号'),
+        type: FieldType.string,
+      },
+    ],
+  };
+};
+export { ElectricInfo };

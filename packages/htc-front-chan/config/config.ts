@@ -113,7 +113,7 @@ const billPushHistoryRouterConfig = [
                 component: '@/pages/bill-push-history/list/BillPushHistoryPage',
             },
             {
-                path: '/htc-front-chan/bill-push-history/billViewPage',
+                path: '/htc-front-chan/bill-push-history/bill-view-page',
                 component: '@/pages/bill-push-history/detail/BillViewPage',
             },
         ],

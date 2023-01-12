@@ -78,6 +78,19 @@ export default (): DataSetProps => {
         type: FieldType.string,
         lookupCode: 'HIOP.ZERO_TAX_RATE_MARK',
       },
+
+      {
+        name: 'taxPreferPolicyTypeCode',
+        label: intl.get('hiop.redInvoiceInfo.modal.taxPreferPolicyTypeCode').d('税收优惠政策'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.TAX_PREFER_POLICY_TYPE_CODE',
+      },
+      {
+        name: 'specialTaxationMethod',
+        label: intl.get('hiop.redInvoiceInfo.modal.specialTaxationMethod').d('特定征税方式'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.SPECIAL_TAXATION_METHOD',
+      },
     ],
   };
 };

@@ -46,6 +46,12 @@ export default (): DataSetProps => {
         required: true,
       },
       {
+        name: 'redInvoiceConfirmStatus',
+        label: intl.get('hiop.redInvoiceInfo.modal.confirmationSheetStatus').d('确认单状态'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.RED_APPLY_STATUS',
+      },
+      {
         name: 'redInvoiceInfoHeaderId',
         type: FieldType.string,
       },
@@ -55,6 +61,11 @@ export default (): DataSetProps => {
         type: FieldType.string,
         lookupCode: 'HIOP.RED_INFO_STATUS',
         required: true,
+      },
+      {
+        name: 'confirmType',
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.CONFIRM_TYPE',
       },
       {
         name: 'redInvoiceDate',
@@ -143,8 +154,6 @@ export default (): DataSetProps => {
     queryDataSet: new DataSet({
       events: {
         update: async ({ record, name, value }) => {
-          console.log(name);
-
           if (value && name === 'companyObj') {
             const {
               companyCode,
@@ -210,6 +219,11 @@ export default (): DataSetProps => {
           ignore: FieldIgnore.always,
         },
         {
+          name: 'outChannelCode',
+          type: FieldType.string,
+          ignore: FieldIgnore.always,
+        },
+        {
           name: 'email',
           label: intl.get('hiop.redInvoiceInfo.modal.email').d('邮箱'),
           type: FieldType.string,
@@ -249,16 +263,12 @@ export default (): DataSetProps => {
           label: intl.get('hiop.redInvoiceInfo.modal.redInvoiceDateFrom').d('填开时间从'),
           type: FieldType.dateTime,
           bind: 'redInvoiceDate.redInvoiceDateFrom',
-          // defaultValue: yesterdayStart,
-          // transformRequest: (value) => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
         },
         {
           name: 'redInvoiceDateTo',
           label: intl.get('hiop.redInvoiceInfo.modal.redInvoiceDateTo').d('填开时间至'),
           type: FieldType.dateTime,
           bind: 'redInvoiceDate.redInvoiceDateTo',
-          // defaultValue: moment().format(DEFAULT_DATETIME_FORMAT),
-          // transformRequest: (value) => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
         },
         {
           name: 'taxDiskNumberObj',

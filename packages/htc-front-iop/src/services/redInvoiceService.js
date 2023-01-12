@@ -329,3 +329,33 @@ export async function saveReqInvoice(params) {
     body: dsData,
   });
 }
+
+/**
+ * 专票红字申请单-行操作（同意/拒绝)
+ * @function examine
+ * @params {object} params
+ * @returns {object} fetch Promise
+ */
+export async function examine(params) {
+  const { organizationId, recordData, ...otherParams } = params;
+  return request(`${HIOP_API}/v1/${organizationId}/red-invoice-infos/examine`, {
+    method: 'POST',
+    query: otherParams,
+    body: recordData,
+  });
+}
+
+/**
+ * 专票红字申请单-行操作（刷新状态)
+ * @function redInfoRefresh
+ * @params {object} params
+ * @returns {object} fetch Promise
+ */
+export async function redInfoRefresh(params) {
+  const { organizationId, recordData, companyCode, employeeNumber } = params;
+  return request(`${HIOP_API}/v1/${organizationId}/red-invoice-infos/refresh`, {
+    method: 'POST',
+    query: { companyCode, employeeNumber },
+    body: recordData,
+  });
+}
