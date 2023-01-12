@@ -63,6 +63,12 @@ export default (): DataSetProps => {
         lookupCode: 'HMDM.INVOICE_TYPE',
       },
       {
+        name: 'fullElectricInvoiceNo',
+        label: intl.get('hiop.invoiceWorkbench.modal.fullElectricInvoiceNo').d('全电发票号码'),
+        type: FieldType.string,
+        lookupCode: 'HMDM.INVOICE_TYPE',
+      },
+      {
         name: 'invoiceCode',
         label: intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码'),
         type: FieldType.string,
