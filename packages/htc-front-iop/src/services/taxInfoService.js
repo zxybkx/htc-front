@@ -102,3 +102,18 @@ export async function getAgreementCompanyInfo(params) {
     query: { companyCode },
   });
 }
+
+/**
+ * 蓝字发票统计信息查询
+ * @async
+ * @function getAgreementCompanyInfo
+ * @params {object} params
+ * @returns {object} fetch Promise
+ */
+export async function invoiceStatisticsInBlue(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIOP_API}/v1/${tenantId}/tax-header-infos/invoice-statistics-in-blue`, {
+    method: 'POST',
+    query: otherParams,
+  });
+}

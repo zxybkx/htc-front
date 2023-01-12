@@ -32,13 +32,13 @@ import {
   deviceStatusQuery,
   updateInvoice,
   updateTax,
+  invoiceStatisticsInBlue,
 } from '@src/services/taxInfoService';
 import { Card, Col, Row } from 'choerodon-ui';
 import TaxHeadersDS from '../stores/TaxHeadersDS';
 import TaxLinesDS from '../stores/TaxLinesDS';
 import BluInvoiceDS from '../stores/BluInvoiceDS';
 import IdAuthentication from '../../idAuthentication-modal/IdAuthentication';
-import styles from '../taxInfo.module.less';
 
 interface TaxInfoPageProps {
   dispatch: Dispatch<any>;
@@ -330,7 +330,16 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
    * @returns {*[]}
    */
   get bluInvoiceColumns(): ColumnProps[] {
-    return [];
+    return [
+      { name: 'syzzfpzs' },
+      { name: 'ysyfpzs' },
+      { name: 'ykjlpzs' },
+      { name: 'ysyfpsxed' },
+      { name: 'zsxed' },
+      { name: 'fphjje' },
+      { name: 'sysxed' },
+      { name: 'fphjse' },
+    ];
   }
 
   @Bind()
@@ -450,10 +459,22 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
   @Bind()
   async getChannelCode(companyInfo) {
     if (companyInfo) {
-      const { companyId } = companyInfo;
+      const { companyId, companyCode, employeeId, taxpayerNumber } = companyInfo;
       const resCop = await getTenantAgreementCompany({ companyId, tenantId });
       const { outChannelCode } = resCop;
       this.setState({ outChannelCode });
+      if (outChannelCode === 'DOUBLE_CHANNEL') {
+        const params = {
+          tenantId,
+          companyCode,
+          employeeId,
+          taxpayerNumber,
+        };
+        const res = getResponse(await invoiceStatisticsInBlue(params));
+        if (res) {
+          this.bluInvoiceDS.loadData([res]);
+        }
+      }
     }
   }
 
@@ -512,7 +533,6 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
               columns={this.headerColumns}
               buttons={this.buttons}
               queryBar={this.renderQueryBar}
-              className={styles.table}
               style={{ height: 200 }}
             />
           </Card>
@@ -523,11 +543,10 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
               dataSet={this.tableLineDS}
               buttons={this.lineButtons}
               columns={this.lineColumns}
-              className={styles.table}
               style={{ height: 200 }}
             />
           </Card>
-          {outChannelCode !== 'DOUBLE_CHANNEL' && (
+          {outChannelCode === 'DOUBLE_CHANNEL' && (
             <Card>
               <Table
                 key="blueInkInvoice"
@@ -536,7 +555,6 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
                   .d('蓝字发票统计信息')}
                 dataSet={this.bluInvoiceDS}
                 columns={this.bluInvoiceColumns}
-                style={{ height: 200 }}
               />
             </Card>
           )}
