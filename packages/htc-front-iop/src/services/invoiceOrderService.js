@@ -399,8 +399,10 @@ export async function batchInvalid(params) {
  */
 export async function electronicDownload(params) {
   const tenantId = getCurrentOrganizationId();
+  const { listData, ...otherParams } = params;
   return request(`${HIOP_API}/v1/${tenantId}/invoicing-order-headers/electricity-ticket-download`, {
     method: 'POST',
-    body: params,
+    query: otherParams,
+    body: listData,
   });
 }

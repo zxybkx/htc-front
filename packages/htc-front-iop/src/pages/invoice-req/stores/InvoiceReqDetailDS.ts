@@ -57,7 +57,18 @@ const headerReadOnlyRule = record => {
     record.get('readonly')
   );
 };
-
+/**
+ * 不动产经营租赁必输验证规则
+ */
+const realestateRequiredRule = record => {
+  return record.get('purchaseInvoiceFlag') === '06';
+};
+/**
+ * 建筑服务必输验证规则
+ */
+const ctnServicesRequiredRule = record => {
+  return record.get('purchaseInvoiceFlag') === '22';
+};
 const sourceReadOnlyRule = record => {
   return (
     headerReadOnlyRule(record) || !['1', '3', '4', '5', '6'].includes(record.get('sourceType'))
@@ -308,6 +319,25 @@ export default (dsParams): DataSetProps => {
         maxLength: 200,
       },
       {
+        name: 'fullElectricAddress',
+        label: intl.get('htc.common.modal.fullElectricAddress').d('地址'),
+        type: FieldType.string,
+        computedProps: {
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+        maxLength: 200,
+      },
+      {
+        name: 'fullElectricPhone',
+        label: intl.get('htc.common.modal.fullElectricPhone').d('电话'),
+        type: FieldType.string,
+        computedProps: {
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+        maxLength: 200,
+      },
+
+      {
         name: 'receiptAccount',
         label: intl.get('htc.common.modal.bankNumber').d('开户行及账号'),
         type: FieldType.string,
@@ -317,6 +347,25 @@ export default (dsParams): DataSetProps => {
         },
         maxLength: 200,
       },
+      {
+        name: 'fullElectricOpeanBank',
+        label: intl.get('htc.common.modal.fullElectricOpeanBank').d('开户行'),
+        type: FieldType.string,
+        computedProps: {
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+        maxLength: 200,
+      },
+      {
+        name: 'fullElectricBankAccount',
+        label: intl.get('htc.common.modal.fullElectricBankAccount').d('账号'),
+        type: FieldType.string,
+        computedProps: {
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+        maxLength: 200,
+      },
+
       {
         name: 'loadingPort',
         label: intl.get('hiop.invoiceWorkbench.view.loadingPort').d('交货港'),
@@ -764,6 +813,142 @@ export default (dsParams): DataSetProps => {
         name: 'documentTypeCode',
         type: FieldType.string,
         bind: 'documentTypeCodeObj.documentTypeCode',
+      },
+
+      {
+        name: 'houseOrRealEstate',
+        label: intl
+          .get('hiop.invoiceWorkbench.view.houseOrRealEstate')
+          .d('房屋产权证书/不动产权证号码'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => realestateRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'realEstateAddress',
+        label: intl.get('hiop.invoiceWorkbench.view.realEstateAddress').d('不动产地址'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => realestateRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'realEstateDetailAddress',
+        label: intl.get('hiop.invoiceWorkbench.view.realEstateDetailAddress').d('不动产详细地址'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => realestateRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'leaseTermFrom',
+        label: intl.get('hiop.invoiceWorkbench.view.leaseTermFrom').d('租赁期起'),
+        type: FieldType.date,
+        computedProps: {
+          required: ({ record }) => realestateRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'leaseTermTo',
+        label: intl.get('hiop.invoiceWorkbench.view.leaseTermTo').d('租赁期止'),
+        type: FieldType.date,
+        computedProps: {
+          required: ({ record }) => realestateRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'leaseCrossCitySign',
+        label: intl.get('hiop.invoiceWorkbench.view.leaseCrossCitySign').d('跨地市标志'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => realestateRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'areaUnit',
+        label: intl.get('hiop.invoiceWorkbench.view.areaUnit').d('面积单位'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => realestateRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+
+      {
+        name: 'buildingServicePlace',
+        label: intl.get('hiop.invoiceWorkbench.view.buildingServicePlace').d('建筑服务发生地'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => ctnServicesRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'occurDetailAddress',
+        label: intl.get('hiop.invoiceWorkbench.view.occurDetailAddress').d('发生地详细地址'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => ctnServicesRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'buildingProjectName',
+        label: intl.get('hiop.invoiceWorkbench.view.buildingProjectName').d('建筑项目名称'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => ctnServicesRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'landVatItemNo',
+        label: intl.get('hiop.invoiceWorkbench.view.landVatItemNo').d('土地增值税项目编号'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => ctnServicesRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'buildingCrossCitySign',
+        label: intl.get('hiop.invoiceWorkbench.view.buildingCrossCitySign').d('跨地市标志'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => realestateRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+
+      {
+        name: 'attentionLine',
+        label: intl.get('hiop.invoiceWorkbench.view.attentionLine').d('经办人姓名'),
+        type: FieldType.string,
+      },
+      {
+        name: 'operatorIdNumber',
+        label: intl.get('hiop.invoiceWorkbench.view.operatorIdNumber').d('经办人证件号码'),
+        type: FieldType.string,
+      },
+      {
+        name: 'operatorIdTypeCode',
+        label: intl.get('hiop.invoiceWorkbench.view.operatorIdTypeCode').d('经办人证件种类代码'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP_OPERATOR_ID_TYPE_CODE',
+      },
+      {
+        name: 'operatorTaxpayerNumber',
+        label: intl
+          .get('hiop.invoiceWorkbench.view.operatorTaxpayerNumber')
+          .d('经办人纳税人识别号'),
+        type: FieldType.string,
       },
     ],
   };

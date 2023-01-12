@@ -542,6 +542,18 @@ export default (): DataSetProps => {
         label: intl.get('hiop.invoiceReq.modal.adjustLineId').d('调整来源行ID'),
         type: FieldType.string,
       },
+      {
+        name: 'specialTaxationMethod',
+        label: intl.get('hiop.invoiceWorkbench.view.specialTaxationMethod').d('特定征税方式'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.SPECIAL_TAXATION_METHOD',
+      },
+      {
+        name: 'taxPreferPolicyTypeCode',
+        label: intl.get('hiop.invoiceWorkbench.view.taxPreferPolicyTypeCode').d('税收优惠政策类型'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.TAX_PREFER_POLICY_TYPE_CODE',
+      },
     ],
   };
 };

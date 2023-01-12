@@ -16,6 +16,8 @@ import { EMAIL } from 'utils/regExp';
 import { phoneReg } from '@htccommon/utils/utils';
 import { isEmpty } from 'lodash';
 import { getCurrentOrganizationId } from 'utils/utils';
+import { DEFAULT_DATE_FORMAT } from 'utils/constants';
+import moment from 'moment';
 
 const tenantId = getCurrentOrganizationId();
 /**
@@ -121,11 +123,17 @@ const proformaRequiredRule = record => {
   return record.get('purchaseInvoiceFlag') === '5';
 };
 /**
- * 不动产经营租赁
+ * 不动产经营租赁必输验证规则
  */
-// const realestateRequiredRule = record => {
-//   return record.get('purchaseInvoiceFlag') === '06';
-// };
+const realestateRequiredRule = record => {
+  return record.get('purchaseInvoiceFlag') === '06';
+};
+/**
+ * 建筑服务必输验证规则
+ */
+const ctnServicesRequiredRule = record => {
+  return record.get('purchaseInvoiceFlag') === '22';
+};
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.IOP_API || '';
   return {
@@ -314,24 +322,22 @@ export default (dsParams): DataSetProps => {
         maxLength: 100,
       },
       {
-        name: 'gmfdz',
+        name: 'buyerAddress',
         label: intl.get('htc.common.modal.gmfdz').d('地址'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '0',
-          required: ({ record }) => ['0', '52'].includes(record.get('invoiceVariety')),
         },
         maxLength: 100,
       },
       {
-        name: 'gmflxdh',
+        name: 'buyerPhone',
         label: intl.get('htc.common.modal.gmflxdh').d('电话'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '0',
-          required: ({ record }) => ['0', '52'].includes(record.get('invoiceVariety')),
         },
         maxLength: 100,
       },
@@ -347,24 +353,22 @@ export default (dsParams): DataSetProps => {
         maxLength: 100,
       },
       {
-        name: 'gmfkhh',
+        name: 'buyerOpeanBank',
         label: intl.get('htc.common.modal.gmfkhh').d('开户行'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '0',
-          required: ({ record }) => ['0', '52'].includes(record.get('invoiceVariety')),
         },
         maxLength: 100,
       },
       {
-        name: 'gmfyhzh',
+        name: 'buyerBankAccount',
         label: intl.get('htc.common.modal.gmfyhzh').d('银行账号'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
             headerReadOnlyRule(record) || record.get('purchaseInvoiceFlag') === '0',
-          required: ({ record }) => ['0', '52'].includes(record.get('invoiceVariety')),
         },
         maxLength: 100,
       },
@@ -430,7 +434,7 @@ export default (dsParams): DataSetProps => {
         maxLength: 100,
       },
       {
-        name: 'xsfdz',
+        name: 'sellerAddress',
         label: intl.get('htc.common.modal.xsfdz').d('地址'),
         type: FieldType.string,
         computedProps: {
@@ -440,7 +444,7 @@ export default (dsParams): DataSetProps => {
         maxLength: 100,
       },
       {
-        name: 'xsflxdh',
+        name: 'sellerPhone',
         label: intl.get('htc.common.modal.xsflxdh').d('电话'),
         type: FieldType.string,
         computedProps: {
@@ -460,7 +464,7 @@ export default (dsParams): DataSetProps => {
         maxLength: 100,
       },
       {
-        name: 'xsfkhh',
+        name: 'sellerOpeanBank',
         label: intl.get('htc.common.modal.xsfkhh').d('开户行'),
         type: FieldType.string,
         computedProps: {
@@ -470,7 +474,7 @@ export default (dsParams): DataSetProps => {
         maxLength: 100,
       },
       {
-        name: 'xsfyhzh',
+        name: 'sellerBankAccount',
         label: intl.get('htc.common.modal.xsfyhzh').d('银行账号'),
         type: FieldType.string,
         computedProps: {
@@ -549,7 +553,6 @@ export default (dsParams): DataSetProps => {
         name: 'shippingDateObj',
         label: intl.get('hiop.invoiceWorkbench.view.shippingDateObj').d('装运期'),
         type: FieldType.date,
-        required: true,
         range: ['shippingDateFrom', 'shippingDateTo'],
         ignore: FieldIgnore.always,
         computedProps: {
@@ -559,85 +562,143 @@ export default (dsParams): DataSetProps => {
       },
 
       {
-        name: 'fwcqzshm',
-        label: intl.get('hiop.invoiceWorkbench.view.fwcqzshm').d('房屋产权证书/不动产权证号码'),
+        name: 'houseOrRealEstate',
+        label: intl
+          .get('hiop.invoiceWorkbench.view.houseOrRealEstate')
+          .d('房屋产权证书/不动产权证号码'),
         type: FieldType.string,
         computedProps: {
-          // required: ({ record }) => realestateRequiredRule(record),
+          required: ({ record }) => realestateRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
         },
       },
       {
-        name: 'bdcdz',
-        label: intl.get('hiop.invoiceWorkbench.view.fwcqzshm').d('不动产地址'),
+        name: 'realEstateAddress',
+        label: intl.get('hiop.invoiceWorkbench.view.realEstateAddress').d('不动产地址'),
         type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => realestateRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
       },
       {
-        name: 'bdcxxdz',
-        label: intl.get('hiop.invoiceWorkbench.view.bdcxxdz').d('不动产详细地址'),
+        name: 'realEstateDetailAddress',
+        label: intl.get('hiop.invoiceWorkbench.view.realEstateDetailAddress').d('不动产详细地址'),
         type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => realestateRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
       },
       {
-        name: 'zlqq',
-        label: intl.get('hiop.invoiceWorkbench.view.zlqq').d('租赁期起'),
+        name: 'leaseTermFrom',
+        label: intl.get('hiop.invoiceWorkbench.view.leaseTermFrom').d('租赁期起'),
         type: FieldType.date,
+        computedProps: {
+          required: ({ record }) => realestateRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformResponse: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
-        name: 'zlqz',
-        label: intl.get('hiop.invoiceWorkbench.view.zlqz').d('租赁期止'),
+        name: 'leaseTermTo',
+        label: intl.get('hiop.invoiceWorkbench.view.leaseTermTo').d('租赁期止'),
         type: FieldType.date,
+        computedProps: {
+          required: ({ record }) => realestateRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformResponse: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
       },
       {
-        name: 'kdsbz',
-        label: intl.get('hiop.invoiceWorkbench.view.kdsbz').d('跨地市标志'),
-        type: FieldType.boolean,
-        trueValue: 'Y',
-        falseValue: 'N',
-      },
-      {
-        name: 'mjdw',
-        label: intl.get('hiop.invoiceWorkbench.view.mjdw').d('面积单位'),
+        name: 'leaseCrossCitySign',
+        label: intl.get('hiop.invoiceWorkbench.view.leaseCrossCitySign').d('跨地市标志'),
         type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => realestateRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'areaUnit',
+        label: intl.get('hiop.invoiceWorkbench.view.areaUnit').d('面积单位'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.AREA_UNIT',
+        computedProps: {
+          required: ({ record }) => realestateRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
       },
 
       {
-        name: 'jzfwfsd',
-        label: intl.get('hiop.invoiceWorkbench.view.jzfwfsd').d('建筑服务发生地'),
+        name: 'buildingServicePlace',
+        label: intl.get('hiop.invoiceWorkbench.view.buildingServicePlace').d('建筑服务发生地'),
         type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => ctnServicesRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
       },
       {
-        name: 'fsdxxdz',
-        label: intl.get('hiop.invoiceWorkbench.view.fsdxxdz').d('发生地详细地址'),
+        name: 'occurDetailAddress',
+        label: intl.get('hiop.invoiceWorkbench.view.occurDetailAddress').d('发生地详细地址'),
         type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => ctnServicesRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
       },
       {
-        name: 'jzxmmc',
-        label: intl.get('hiop.invoiceWorkbench.view.mjdw').d('建筑项目名称'),
+        name: 'buildingProjectName',
+        label: intl.get('hiop.invoiceWorkbench.view.buildingProjectName').d('建筑项目名称'),
         type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => ctnServicesRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
       },
       {
-        name: 'tdzzsxmbh',
-        label: intl.get('hiop.invoiceWorkbench.view.tdzzsxmbh').d('土地增值税项目编号'),
+        name: 'landVatItemNo',
+        label: intl.get('hiop.invoiceWorkbench.view.landVatItemNo').d('土地增值税项目编号'),
         type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => ctnServicesRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
+      },
+      {
+        name: 'buildingCrossCitySign',
+        label: intl.get('hiop.invoiceWorkbench.view.buildingCrossCitySign').d('跨地市标志'),
+        type: FieldType.string,
+        computedProps: {
+          required: ({ record }) => ctnServicesRequiredRule(record),
+          readOnly: ({ record }) => headerReadOnlyRule(record),
+        },
       },
 
       {
-        name: 'jbrxm',
-        label: intl.get('hiop.invoiceWorkbench.view.jbrxm').d('经办人姓名'),
+        name: 'attentionLine',
+        label: intl.get('hiop.invoiceWorkbench.view.attentionLine').d('经办人姓名'),
         type: FieldType.string,
       },
       {
-        name: 'jbrzjhm',
-        label: intl.get('hiop.invoiceWorkbench.view.jbrzjhm').d('经办人证件号码'),
+        name: 'operatorIdNumber',
+        label: intl.get('hiop.invoiceWorkbench.view.operatorIdNumber').d('经办人证件号码'),
         type: FieldType.string,
       },
       {
-        name: 'jbrzjzldm',
-        label: intl.get('hiop.invoiceWorkbench.view.jbrzjzldm').d('经办人证件种类代码'),
+        name: 'operatorIdTypeCode',
+        label: intl.get('hiop.invoiceWorkbench.view.operatorIdTypeCode').d('经办人证件种类代码'),
         type: FieldType.string,
+        lookupCode: 'HTC.HIOP_OPERATOR_ID_TYPE_CODE',
       },
       {
-        name: 'jrznsrsbh',
-        label: intl.get('hiop.invoiceWorkbench.view.jrznsrsbh').d('经办人纳税人识别号'),
+        name: 'operatorTaxpayerNumber',
+        label: intl
+          .get('hiop.invoiceWorkbench.view.operatorTaxpayerNumber')
+          .d('经办人纳税人识别号'),
         type: FieldType.string,
       },
 

@@ -176,6 +176,39 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<
       len: 6,
       title: intl.get(`${modelCode}.button.updateInvoicePool`).d('更新发票池'),
     };
+    const eticketUploadBtn = {
+      key: 'eticketUpload',
+      ele: renderPermissionButton({
+        onClick: () => this.handleOperation(6, [data]),
+        permissionCode: 'eticket-upload',
+        permissionMeaning: '按钮-全电发票文件上传',
+        title: intl.get(`${modelCode}.button.eticketUpload`).d('全电发票文件上传'),
+      }),
+      len: 6,
+      title: intl.get(`${modelCode}.button.eticketUpload`).d('全电发票文件上传'),
+    };
+    const eticketSearchBtn = {
+      key: 'eticketSearch',
+      ele: renderPermissionButton({
+        onClick: () => this.handleOperation(7, [data]),
+        permissionCode: 'eticket-search',
+        permissionMeaning: '按钮-全电发票查询',
+        title: intl.get(`${modelCode}.button.eticketSearch`).d('全电发票查询'),
+      }),
+      len: 6,
+      title: intl.get(`${modelCode}.button.eticketSearch`).d('全电发票查询'),
+    };
+    const eticketDeliverBtn = {
+      key: 'eticketDeliver',
+      ele: renderPermissionButton({
+        onClick: () => this.handleOperation(8, [data]),
+        permissionCode: 'eticket-deliver',
+        permissionMeaning: '按钮-全电发票交付',
+        title: intl.get(`${modelCode}.button.eticketDeliver`).d('全电发票交付'),
+      }),
+      len: 6,
+      title: intl.get(`${modelCode}.button.eticketDeliver`).d('全电发票交付'),
+    };
     const operators: any = [
       previewBtn,
       uploadBtn,
@@ -183,6 +216,9 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<
       noticeBtn,
       pushInvoicePoolBtn,
       updateInvoicePoolBtn,
+      eticketUploadBtn,
+      eticketSearchBtn,
+      eticketDeliverBtn,
     ];
 
     const btnMenu = (
@@ -243,6 +279,12 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<
       { name: 'notifyStatus', width: 140 },
       { name: 'notifyNum', width: 150 },
       { name: 'lastUpdateDate', width: 150 },
+      { name: 'invoiceQueryStatus', width: 150 },
+      { name: 'invoiceQueryNum', width: 150 },
+      { name: 'fullElectUploadStatus', width: 150 },
+      { name: 'fullElectUploadNum', width: 150 },
+      { name: 'fullElectDeliverStatus', width: 150 },
+      { name: 'fullElectDeliverNum', width: 150 },
       {
         name: 'operation',
         header: intl.get('hzero.common.action').d('操作'),
@@ -312,6 +354,24 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<
         onClick={() => this.batchProcess(5)}
         dataSet={this.tableDS}
         title={intl.get(`${modelCode}.button.updateInvoicePool`).d('更新发票池')}
+      />,
+      <ObserverButtons
+        key="bEticketUpload"
+        onClick={() => this.batchProcess(6)}
+        dataSet={this.tableDS}
+        title={intl.get(`${modelCode}.button.eticketUpload`).d('全电发票文件上传')}
+      />,
+      <ObserverButtons
+        key="bEticketSearch"
+        onClick={() => this.batchProcess(7)}
+        dataSet={this.tableDS}
+        title={intl.get(`${modelCode}.button.eticketSearch`).d('全电发票查询')}
+      />,
+      <ObserverButtons
+        key="bEticketDeliver"
+        onClick={() => this.batchProcess(8)}
+        dataSet={this.tableDS}
+        title={intl.get(`${modelCode}.button.eticketDeliver`).d('全电发票交付')}
       />,
     ];
   }

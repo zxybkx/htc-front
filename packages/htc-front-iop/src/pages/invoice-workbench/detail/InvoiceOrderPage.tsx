@@ -60,8 +60,10 @@ import { FormLayout } from 'choerodon-ui/pro/lib/form/enum';
 import InvoiceOrderHeaderDS from '../stores/InvoiceOrderHeaderDS';
 import InvoiceOrderLinesDS from '../stores/InvoiceOrderLinesDS';
 import IssuePreview from './IssuesPreview';
+import FullElectricInvoice from '../invoice-preview/FullElectricInvoice';
 import styles from '../invoiceWorkbench.module.less';
 
+const { Option } = Select;
 const tenantId = getCurrentOrganizationId();
 const permissionPath = `${getPresentMenu().name}.ps`;
 
@@ -365,13 +367,23 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    * @return {*[]}
    */
   get columns(): ColumnProps[] {
-    const { isDisabled } = this.state;
+    const { isDisabled, invoiceVariety } = this.state;
     const adjustEditAble = () => !isDisabled;
     const toNonExponential = num => {
       const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
       return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
     };
     const regExp = /(^\d*.0*$)/;
+    const typeRes = ['61', '81', '82', '83', '84', '85', '86', '87', '88'].includes(invoiceVariety)
+      ? [
+          { name: 'specialTaxationMethod', width: 140 },
+          { name: 'taxPreferPolicyTypeCode', width: 140 },
+        ]
+      : [
+          { name: 'zeroTaxRateFlag', editor: !isDisabled, width: 180 },
+          { name: 'preferentialPolicyFlag' },
+          { name: 'specialVatManagement', width: 140 },
+        ];
     return [
       {
         name: 'operation',
@@ -465,9 +477,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         width: 150,
         align: ColumnAlign.right,
       },
-      { name: 'zeroTaxRateFlag', editor: !isDisabled, width: 180 },
-      { name: 'preferentialPolicyFlag' },
-      { name: 'specialVatManagement', width: 140 },
+      ...typeRes,
     ];
   }
 
@@ -1030,27 +1040,20 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     const { invoiceVariety } = this.state;
     return (
       <>
-        {['85', '86', '81', '82', '61', '51'].includes(invoiceVariety) ? (
+        {['85', '86', '81', '82', '61'].includes(invoiceVariety) && (
           <div style={{ paddingTop: '10px' }}>
             <div style={{ background: 'rgb(0,0,0,0.02)' }}>
               <h3 style={{ marginLeft: '5px' }}>
                 <b>{intl.get('hiop.invoiceWorkbench.label.jbrxx').d('经办人信息')}</b>
               </h3>
-              <Form
-                columns={4}
-                dataSet={this.invoiceOrderHeaderDS}
-                excludeUseColonTagList={['Radio']}
-                labelTooltip={Tooltip.overflow}
-              >
-                <TextField name="jbrxm" />
-                <TextField name="jbrzjhm" />
-                <Select name="jbrzjzldm" />
-                <TextField name="jrznsrsbh" />
+              <Form columns={4} dataSet={this.invoiceOrderHeaderDS} labelTooltip={Tooltip.overflow}>
+                <TextField name="attentionLine" />
+                <TextField name="operatorIdNumber" />
+                <Select name="operatorIdTypeCode" />
+                <TextField name="operatorTaxpayerNumber" />
               </Form>
             </div>
           </div>
-        ) : (
-          undefined
         )}
         <div className={styles.containTable}>
           <div className={styles.containTable}>
@@ -1108,7 +1111,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    */
   proformaInvoiceTag() {
     const { purchaseInvoiceFlag } = this.state;
-    if (purchaseInvoiceFlag && purchaseInvoiceFlag.toString() === '5') {
+    if (purchaseInvoiceFlag === '5') {
       return [
         <TextField name="loadingPort" />,
         <TextField name="destinationPort" />,
@@ -1122,22 +1125,28 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     } else if (purchaseInvoiceFlag === '06') {
       // 不动产经营租赁
       return [
-        <TextField name="fwcqzshm" />,
-        <TextField name="bdcdz" labelWidth={140} />,
-        <TextField name="bdcxxdz" labelWidth={140} />,
-        <CheckBox name="kdsbz" />,
-        <DatePicker name="zlqq" />,
-        <DatePicker name="zlqz" />,
-        <Select name="mjdw" />,
+        <TextField name="houseOrRealEstate" />,
+        <TextField name="realEstateAddress" labelWidth={140} />,
+        <TextField name="realEstateDetailAddress" labelWidth={140} />,
+        <Select name="leaseCrossCitySign">
+          <Option value="Y">是</Option>
+          <Option value="N">否</Option>
+        </Select>,
+        <DatePicker name="leaseTermFrom" />,
+        <DatePicker name="leaseTermTo" />,
+        <Select name="areaUnit" />,
       ];
     } else if (purchaseInvoiceFlag === '22') {
       // 建筑服务
       return [
-        <TextField name="jzfwfsd" />,
-        <TextField name="fsdxxdz" labelWidth={140} />,
-        <TextField name="jzxmmc" labelWidth={140} />,
-        <CheckBox name="kdsbz" />,
-        <TextField name="tdzzsxmbh" />,
+        <TextField name="buildingServicePlace" />,
+        <TextField name="occurDetailAddress" labelWidth={140} />,
+        <TextField name="buildingProjectName" labelWidth={140} />,
+        <Select name="buildingCrossCitySign">
+          <Option value="Y">是</Option>
+          <Option value="N">否</Option>
+        </Select>,
+        <TextField name="landVatItemNo" />,
       ];
     } else {
       return [];
@@ -1188,9 +1197,15 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
    */
   @Bind()
   issueModal(pageData, type) {
+    const { invoiceVariety } = this.state;
+    const test = ['61', '81', '82'].includes(invoiceVariety) ? (
+      <FullElectricInvoice invoiceData={pageData} />
+    ) : (
+      <IssuePreview invoiceData={pageData} />
+    );
     const modal = Modal.open({
       title: intl.get('hzero.invoiceWorkbench.title.issuePreview').d('发票预览'),
-      children: <IssuePreview invoiceData={pageData} />,
+      children: test,
       closable: true,
       bodyStyle: { width: 'calc(63vw)', height: 'calc(60vh)', padding: '16px 26px' },
       contentStyle: { width: 'calc(65vw)' },
@@ -1433,10 +1448,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
                   <Select name="buyerCompanyType" />
                   {['61', '81', '82', '85', '86'].includes(invoiceVariety) ? (
                     <>
-                      <TextField name="gmfdz" />
-                      <TextField name="gmflxdh" />
-                      <TextField name="gmfkhh" />
-                      <TextField name="gmfyhzh" />
+                      <TextField name="buyerAddress" />
+                      <TextField name="buyerPhone" />
+                      <TextField name="buyerOpeanBank" />
+                      <TextField name="buyerBankAccount" />
                     </>
                   ) : (
                     <>
@@ -1470,10 +1485,10 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
                   <Select name="sellerCompanyType" />
                   {['61', '81', '82', '85', '86'].includes(invoiceVariety) ? (
                     <>
-                      <TextField name="xsfdz" />
-                      <TextField name="xsflxdh" />
-                      <TextField name="xsfkhh" />
-                      <TextField name="xsfyhzh" />
+                      <TextField name="sellerAddress" />
+                      <TextField name="sellerPhone" />
+                      <TextField name="sellerOpeanBank" />
+                      <TextField name="sellerBankAccount" />
                     </>
                   ) : (
                     <>

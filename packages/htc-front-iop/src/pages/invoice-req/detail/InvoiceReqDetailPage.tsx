@@ -59,6 +59,7 @@ import InvoiceReqDetailDS from '../stores/InvoiceReqDetailDS';
 import InvoiceReqLinesDS from '../stores/InvoiceReqLinesDS';
 import styles from '../../invoice-workbench/invoiceWorkbench.module.less';
 
+const { Option } = Select;
 const tenantId = getCurrentOrganizationId();
 const permissionPath = `${getPresentMenu().name}.ps`;
 
@@ -551,7 +552,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
    */
   get columns(): ColumnProps[] {
     const { sourceType: urlSourceType } = this.props.match.params;
-    const { requestStatus, deleteFlag, sourceType } = this.state;
+    const { requestStatus, deleteFlag, sourceType, invoiceType } = this.state;
     const toNonExponential = num => {
       const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
       return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
@@ -564,6 +565,22 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       !['Y', 'D'].includes(record.get('adjustFlag')) &&
       sourceType !== '8' &&
       urlSourceType !== 'TOBE';
+    const typeRes = ['61', '81', '82', '83', '84', '85', '86', '87', '88'].includes(invoiceType)
+      ? [
+          { name: 'specialTaxationMethod', width: 140 },
+          { name: 'taxPreferPolicyTypeCode', width: 140 },
+        ]
+      : [
+          {
+            name: 'zeroTaxRateFlag',
+            editor: record =>
+              adjustEditAble(record) &&
+              record.get('taxRate') &&
+              Number(record.get('taxRate')) === 0,
+            width: 150,
+          },
+          { name: 'preferentialPolicyFlag', width: 140 },
+        ];
     return [
       {
         header: intl.get('htc.common.orderSeq').d('序号'),
@@ -622,12 +639,6 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
         width: 120,
         align: ColumnAlign.right,
       },
-      {
-        name: 'zeroTaxRateFlag',
-        editor: record =>
-          adjustEditAble(record) && record.get('taxRate') && Number(record.get('taxRate')) === 0,
-        width: 150,
-      },
       { name: 'taxAmount', width: 150, align: ColumnAlign.right },
       {
         name: 'deductionAmount',
@@ -635,7 +646,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
         width: 150,
         align: ColumnAlign.right,
       },
-      { name: 'preferentialPolicyFlag' },
+      ...typeRes,
       { name: 'sourceLineNum' },
       {
         name: 'sourceNumber3',
@@ -1002,13 +1013,31 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
   @Bind()
   renderQueryBar(props) {
     const { buttons } = props;
+    const { invoiceType } = this.state;
     return (
-      <div style={{ marginBottom: 20 }}>
-        <h3 style={{ display: 'inline' }}>
-          <b>{intl.get('hiop.invoiceWorkbench.title.commodityInfo').d('商品信息')}</b>
-        </h3>
-        {buttons}
-      </div>
+      <>
+        {['85', '86', '81', '82', '61'].includes(invoiceType) && (
+          <div style={{ paddingTop: '10px' }}>
+            <div style={{ background: 'rgb(0,0,0,0.02)' }}>
+              <h3 style={{ marginLeft: '5px' }}>
+                <b>{intl.get('hiop.invoiceWorkbench.label.jbrxx').d('经办人信息')}</b>
+              </h3>
+              <Form columns={4} dataSet={this.reqHeaderDS} labelTooltip={Tooltip.overflow}>
+                <TextField name="attentionLine" />
+                <TextField name="operatorIdNumber" />
+                <Select name="operatorIdTypeCode" />
+                <TextField name="operatorTaxpayerNumber" />
+              </Form>
+            </div>
+          </div>
+        )}
+        <div style={{ marginBottom: 20 }}>
+          <h3 style={{ display: 'inline' }}>
+            <b>{intl.get('hiop.invoiceWorkbench.title.commodityInfo').d('商品信息')}</b>
+          </h3>
+          {buttons}
+        </div>
+      </>
     );
   }
 
@@ -1027,6 +1056,32 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
         <DatePicker name="shippingDateObj" />,
         <TextField name="bankAddress" />,
         <TextField name="swiftCode" />,
+      ];
+    } else if (requestType === 'ESTATE_OP_LEASE') {
+      // 不动产经营租赁
+      return [
+        <TextField name="houseOrRealEstate" />,
+        <TextField name="realEstateAddress" labelWidth={140} />,
+        <TextField name="realEstateDetailAddress" labelWidth={140} />,
+        <Select name="leaseCrossCitySign">
+          <Option value="Y">是</Option>
+          <Option value="N">否</Option>
+        </Select>,
+        <DatePicker name="leaseTermFrom" />,
+        <DatePicker name="leaseTermTo" />,
+        <Select name="areaUnit" />,
+      ];
+    } else if (requestType === 'BUILDING_SERVICE') {
+      // 建筑服务
+      return [
+        <TextField name="buildingServicePlace" />,
+        <TextField name="occurDetailAddress" labelWidth={140} />,
+        <TextField name="buildingProjectName" labelWidth={140} />,
+        <Select name="buildingCrossCitySign">
+          <Option value="Y">是</Option>
+          <Option value="N">否</Option>
+        </Select>,
+        <TextField name="landVatItemNo" />,
       ];
     } else {
       return [];
@@ -1105,16 +1160,44 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
                 <TextField name="receiptTaxNo" />
                 {['51', '52'].includes(invoiceType) ? electronicInvoice : paperInvoice}
                 {/*----*/}
-                <TextArea name="receiptAccount" rows={1} resize={ResizeType.both} newLine />
+                {['61', '81', '82', '85', '86'].includes(invoiceType) ? (
+                  <TextArea
+                    name="fullElectricOpeanBank"
+                    rows={1}
+                    resize={ResizeType.both}
+                    newLine
+                  />
+                ) : (
+                  <TextArea name="receiptAccount" rows={1} resize={ResizeType.both} newLine />
+                )}
                 <TextField name="applicantName" />
                 <TextField name="creationDate" />
                 <TextField name="requestNumber" />
+                {['61', '81', '82', '85', '86'].includes(invoiceType) && (
+                  <TextArea
+                    name="fullElectricBankAccount"
+                    rows={1}
+                    resize={ResizeType.both}
+                    newLine
+                  />
+                )}
                 {/*---*/}
-                <TextArea name="receiptAddressPhone" rows={1} resize={ResizeType.both} />
+                {['61', '81', '82', '85', '86'].includes(invoiceType) ? (
+                  <TextArea name="fullElectricAddress" rows={1} resize={ResizeType.both} newLine />
+                ) : (
+                  <TextArea name="receiptAddressPhone" rows={1} resize={ResizeType.both} newLine />
+                )}
                 <Select name="requestStatus" />
                 <TextField name="reviewerName" />
                 <TextField name="reviewDate" />
+                {['61', '81', '82', '85', '86'].includes(invoiceType) && (
+                  <TextArea name="fullElectricPhone" rows={1} resize={ResizeType.both} newLine />
+                )}
+              </Form>
+              <Form dataSet={this.reqHeaderDS} columns={4} labelTooltip={Tooltip.overflow}>
                 {this.proformaInvoiceTag()}
+              </Form>
+              <Form dataSet={this.reqHeaderDS} columns={4} labelTooltip={Tooltip.overflow}>
                 {/*---*/}
                 <TextField name="progress" />
                 <Select name="sourceType" />
