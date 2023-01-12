@@ -109,6 +109,7 @@ export default class InvoiceAssociationTable extends Component {
       },
       { name: 'billingType' },
       { name: 'invoiceVariety' },
+      { name: 'fullElectricInvoiceNo', width: 130 },
       { name: 'invoiceCode', width: 130 },
       { name: 'invoiceNo' },
       { name: 'buyerName', width: 210 },
