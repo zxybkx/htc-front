@@ -16,6 +16,8 @@ import styles from '../invoiceWorkbench.module.less';
 const invoiceVarietyConfig: any = {
   '0': intl.get('hzero.invoiceWorkbench.title.issuePreview').d('增值税专用发票'),
   '2': intl.get('hzero.invoiceWorkbench.title.issuePreview').d('增值税普通发票'),
+  '85': intl.get('hzero.invoiceWorkbench.title.issuePreview').d('增值税专用发票'),
+  '86': intl.get('hzero.invoiceWorkbench.title.issuePreview').d('增值税普通发票'),
   '41': intl.get('hzero.invoiceWorkbench.title.issuePreview').d('增值税普通发票（卷票）'),
   '51': intl.get('hzero.invoiceWorkbench.title.issuePreview').d('增值税电子普通发票'),
   '52': intl.get('hzero.invoiceWorkbench.title.issuePreview').d('增值税电子专用发票'),

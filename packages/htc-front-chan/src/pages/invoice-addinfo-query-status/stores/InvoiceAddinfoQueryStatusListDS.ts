@@ -168,6 +168,51 @@ export default (): DataSetProps => {
         label: intl.get(`${modelCode}.view.notifyStatus`).d('最后更新日期'),
         type: FieldType.string,
       },
+      {
+        name: 'invoiceQueryStatus',
+        label: intl.get(`${modelCode}.view.notifyStatus`).d('全电发票查询状态'),
+        type: FieldType.string,
+      },
+      {
+        name: 'invoiceQueryNum',
+        label: intl.get(`${modelCode}.view.invoiceQueryNum`).d('发票查询重试次数'),
+        type: FieldType.string,
+      },
+      {
+        name: 'fullElectUploadStatus',
+        label: intl.get(`${modelCode}.view.fullElectUploadStatus`).d('全电发票文件上传状态'),
+        type: FieldType.string,
+      },
+      {
+        name: 'fullElectUploadNum',
+        label: intl.get(`${modelCode}.view.fullElectUploadNum`).d('全电发票文件上传重试次数'),
+        type: FieldType.string,
+      },
+      {
+        name: 'fullElectDeliverStatus',
+        label: intl.get(`${modelCode}.view.fullElectDeliverStatus`).d('全电发票交付状态'),
+        type: FieldType.string,
+      },
+      {
+        name: 'fullElectDeliverStatus',
+        label: intl.get(`${modelCode}.view.fullElectDeliverStatus`).d('全电发票交付状态'),
+        type: FieldType.string,
+      },
+      {
+        name: 'fullElectDeliverNum',
+        label: intl.get(`${modelCode}.view.fullElectDeliverNum`).d('全电发票交付重试次数'),
+        type: FieldType.string,
+      },
+      {
+        name: 'fullElectPrintStatus',
+        label: intl.get(`${modelCode}.view.fullElectPrintStatus`).d('全电打印状态'),
+        type: FieldType.string,
+      },
+      {
+        name: 'fullElectPrintNum',
+        label: intl.get(`${modelCode}.view.fullElectPrintNum`).d('全电打印重试次数'),
+        type: FieldType.string,
+      },
     ],
     queryFields: [
       {

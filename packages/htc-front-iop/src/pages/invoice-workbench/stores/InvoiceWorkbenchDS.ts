@@ -133,6 +133,11 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
+        name: 'fullElectricInvoiceNo',
+        label: intl.get('hiop.invoiceWorkbench.modal.fullElectricInvoiceNo').d('全电发票号码'),
+        type: FieldType.string,
+      },
+      {
         name: 'invoiceDate',
         label: intl.get('hiop.invoiceWorkbench.modal.invoiceDate').d('开票日期'),
         type: FieldType.string,

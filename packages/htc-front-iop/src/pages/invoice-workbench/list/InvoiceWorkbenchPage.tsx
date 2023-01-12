@@ -43,7 +43,10 @@ import notification from 'utils/notification';
 import { observer } from 'mobx-react-lite';
 import { find, forEach, isEmpty } from 'lodash';
 import moment from 'moment';
-import { getCurrentEmployeeInfoOut } from '@htccommon/services/commonService';
+import {
+  getCurrentEmployeeInfoOut,
+  getTenantAgreementCompany,
+} from '@htccommon/services/commonService';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import {
   batchCancelSubmitOrder,
@@ -72,7 +75,12 @@ enum ModalType {
   electronic,
   paper,
 }
-
+enum DownloadType {
+  PDF,
+  OFD,
+  XML,
+  PNG,
+}
 const tenantId = getCurrentOrganizationId();
 const API_PREFIX = commonConfig.IOP_API || '';
 const permissionPath = `${getPresentMenu().name}.ps`;
@@ -108,6 +116,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     curCompanyId: undefined,
     showMore: false,
     deliverModalTag: true, // true 批量交付 false 单个交付
+    outChannelCode: undefined, // 判断是否双规开票通道 DOUBLE_CHANNEL
   };
 
   deliverInfoDS = dsParams =>
@@ -130,6 +139,11 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           curCompanyId = empInfo.companyId;
         }
       }
+      getTenantAgreementCompany({ companyId: curCompanyId, tenantId }).then(resCop => {
+        const { outChannelCode } = resCop;
+        // console.log('outChannelCode', outChannelCode); DOUBLE_CHANNEL
+        this.setState({ outChannelCode });
+      });
       this.setState({ curCompanyId });
       this.props.invoiceWorkbenchDS.query(this.props.invoiceWorkbenchDS.currentPage || 0);
     }
@@ -580,10 +594,18 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     const lineData = record.toData();
     const { invoiceVariety } = lineData;
     let dataSet;
-    if (invoiceVariety === '51' || invoiceVariety === '52') {
+    if (
+      invoiceVariety === '51' ||
+      invoiceVariety === '52' ||
+      invoiceVariety.includes('61') ||
+      invoiceVariety.includes('81') ||
+      invoiceVariety.includes('82')
+    ) {
       dataSet = this.deliverInfoDS({
         invoiceOrderHeaderIds: String(lineData.invoicingOrderHeaderId),
-        invoiceInformation: `${lineData.invoiceCode} - ${lineData.invoiceNo}`,
+        invoiceInformation: lineData.invoiceCode
+          ? `${lineData.invoiceCode} - ${lineData.invoiceNo}`
+          : lineData.invoiceNo,
         type: ModalType.electronic,
       });
       // 电子
@@ -707,8 +729,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     );
     const invoiceVarietys = invoicingOrderHeaderList.map(item => item.invoiceVariety);
     const invoiceOrderHeaderIds = invoicingOrderHeaderList.map(item => item.invoicingOrderHeaderId);
-    const invoiceInfos = invoicingOrderHeaderList.map(
-      item => `${item.invoiceCode}-${item.invoiceNo}`
+    const invoiceInfos = invoicingOrderHeaderList.map(item =>
+      item.invoiceCode ? `${item.invoiceCode}-${item.invoiceNo}` : item.invoiceNo
     );
     if (invoicingOrderHeaderList.some(item => item.orderStatus !== 'F')) {
       Modal.warning(
@@ -718,7 +740,11 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     }
 
     if (
-      (invoiceVarietys.includes('51') || invoiceVarietys.includes('52')) &&
+      (invoiceVarietys.includes('51') ||
+        invoiceVarietys.includes('52') ||
+        invoiceVarietys.includes('61') ||
+        invoiceVarietys.includes('81') ||
+        invoiceVarietys.includes('82')) &&
       (invoiceVarietys.includes('0') ||
         invoiceVarietys.includes('2') ||
         invoiceVarietys.includes('41'))
@@ -730,7 +756,13 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       );
       return;
     }
-    if (invoiceVarietys.includes('51') || invoiceVarietys.includes('52')) {
+    if (
+      invoiceVarietys.includes('51') ||
+      invoiceVarietys.includes('52') ||
+      invoiceVarietys.includes('61') ||
+      invoiceVarietys.includes('81') ||
+      invoiceVarietys.includes('82')
+    ) {
       const dataSet = this.deliverInfoDS({
         invoiceOrderHeaderIds: invoiceOrderHeaderIds.join(','),
         invoiceInformation: invoiceInfos.join(','),
@@ -786,13 +818,21 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
    * @function: handleBatchDownload
    */
   @Bind()
-  async handleBatchDownload(record?) {
-    let params: any[] = [];
+  async handleBatchDownload(record?, fileType?: DownloadType) {
+    let params: {
+      fileType?;
+      listData;
+    };
     let name = '';
     if (record) {
       // 单个下载
-      params = [record.toData()];
-      name = `${record.get('invoiceCode')}_${record.get('invoiceNo')}`;
+      params = {
+        fileType: DownloadType[fileType!],
+        listData: [record.toData()],
+      };
+      name = record.get('fullElectricInvoiceNo')
+        ? record.get('fullElectricInvoiceNo')
+        : `${record.get('invoiceCode')}_${record.get('invoiceNo')}`;
     } else {
       // 批量下载
       const invoicingOrderHeaderList = this.props.invoiceWorkbenchDS.selected.map(item =>
@@ -810,12 +850,17 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         );
         return;
       }
-      params = [...invoicingOrderHeaderList];
-      if (params.length > 1) {
+      params = {
+        listData: [...invoicingOrderHeaderList],
+      };
+      if (params.listData.length > 1) {
         const date = moment().format('YYYY-MM-DD');
         name = `${date}-电子发票`;
       } else {
-        name = `${params[0].invoiceCode}_${params[0].invoiceNo}`;
+        const { listData } = params;
+        name = listData[0].fullElectricInvoiceNo
+          ? listData[0].fullElectricInvoiceNo
+          : `${listData[0].invoiceCode}_${listData[0].invoiceNo}`;
       }
     }
     const res = getResponse(await electronicDownload(params));
@@ -1219,11 +1264,11 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       downLoadFiles(fileList, 0);
     }
   }
-
   /**
    * 返回操作列按钮
    * @params {object} record-行记录
    */
+
   @Bind()
   operationsRender(record) {
     const orderStatus = record.get('orderStatus');
@@ -1355,7 +1400,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     const downloadBtn = {
       key: 'download',
       ele: renderPermissionButton({
-        onClick: () => this.handleBatchDownload(record),
+        onClick: () => this.handleBatchDownload(record, DownloadType.PDF),
         permissionCode: 'download',
         permissionMeaning: '按钮-电票下载',
         title: intl.get('hiop.invoiceWorkbench.button.download').d('电票下载'),
@@ -1387,14 +1432,63 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       operators.push(cancelInvoiceBtn);
     }
     // 完成
-    if (
-      ['0', '2', '41'].includes(invoiceVariety) &&
-      ['1', '2'].includes(billingType) &&
-      ['0', '1', '4', '5'].includes(invoiceState) &&
-      orderStatus === 'F' &&
-      invoiceMonth === nowMonth
-    ) {
-      operators.push(invoiceInvalidBtn);
+    if (orderStatus === 'F') {
+      if (['61', '81', '82'].includes(invoiceVariety)) {
+        // 全电发票 全电专票 全电普票不展示发票作废按钮
+        // 新增 下载PDF 下载ofd 下载XML 下载二维码4个按钮
+        const pdfBtn = {
+          key: 'pdf',
+          ele: renderPermissionButton({
+            onClick: () => this.handleBatchDownload(record, DownloadType.PDF),
+            permissionCode: 'pdf',
+            permissionMeaning: '按钮-下载PDF',
+            title: intl.get('hiop.redInvoiceInfo.button.download').d('下载PDF'),
+          }),
+          len: 6,
+          title: intl.get('hiop.redInvoiceInfo.button.download').d('下载PDF'),
+        };
+        const XmlBtn = {
+          key: 'XML',
+          ele: renderPermissionButton({
+            onClick: () => this.handleBatchDownload(record, DownloadType.XML),
+            permissionCode: 'XML',
+            permissionMeaning: '按钮-下载XML',
+            title: intl.get('hiop.redInvoiceInfo.button.download').d('下载XML'),
+          }),
+          len: 6,
+          title: intl.get('hiop.redInvoiceInfo.button.download').d('下载XML'),
+        };
+        const ofdBtn = {
+          key: 'ofd',
+          ele: renderPermissionButton({
+            onClick: () => this.handleBatchDownload(record, DownloadType.OFD),
+            permissionCode: 'pdf',
+            permissionMeaning: '按钮-下载OFD',
+            title: intl.get('hiop.redInvoiceInfo.button.download').d('下载OFD'),
+          }),
+          len: 6,
+          title: intl.get('hiop.redInvoiceInfo.button.download').d('下载OFD'),
+        };
+        const codeBtn = {
+          key: 'code',
+          ele: renderPermissionButton({
+            onClick: () => this.handleBatchDownload(record, DownloadType.PNG),
+            permissionCode: 'code',
+            permissionMeaning: '按钮-下载二维码',
+            title: intl.get('hiop.redInvoiceInfo.button.download').d('下载二维码'),
+          }),
+          len: 6,
+          title: intl.get('hiop.redInvoiceInfo.button.download').d('下载二维码'),
+        };
+        operators.push(pdfBtn, ofdBtn, XmlBtn, codeBtn);
+      } else if (
+        ['0', '2', '41'].includes(invoiceVariety) &&
+        ['1', '2'].includes(billingType) &&
+        ['0', '1', '4', '5'].includes(invoiceState) &&
+        invoiceMonth === nowMonth
+      ) {
+        operators.push(invoiceInvalidBtn);
+      }
     }
     if (
       ['0', '2', '41'].includes(invoiceVariety) &&
@@ -1428,6 +1522,9 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
    * @return {*[]}
    */
   get columns(): ColumnProps[] {
+    const { outChannelCode } = this.state;
+    const DOUBLECHANNELRes =
+      outChannelCode === 'DOUBLE_CHANNEL' ? [{ name: 'fullElectricInvoiceNo', width: 120 }] : [];
     return [
       {
         header: intl.get('htc.common.orderSeq').d('序号'),
@@ -1496,6 +1593,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
       { name: 'invoiceType', width: 130 },
       { name: 'invoiceCode', width: 120 },
       { name: 'invoiceNo', width: 120 },
+      ...DOUBLECHANNELRes,
       { name: 'invoiceDate', width: 160 },
       { name: 'checkNumber', width: 190 },
       { name: 'remark', width: 160 },

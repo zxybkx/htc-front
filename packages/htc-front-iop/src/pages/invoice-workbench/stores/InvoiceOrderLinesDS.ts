@@ -238,7 +238,6 @@ const lineNatureValidator = (value, name, record) => {
   }
   return Promise.resolve(true);
 };
-
 /**
  * 扣除额校验规则
  * @params {number} value-当前值
@@ -263,7 +262,21 @@ const toNonExponential = num => {
   const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
   return num.toFixed(Math.max(0, (m[1] || '').length - m[2]));
 };
-
+/**
+ * 含税标志处理
+ * @params {dataSet} dataSet
+ * @params {object} record-行记录
+ * @params {string} name-标签名
+ */
+const handleTaxIncludedFlag = (dataSet, record, name) => {
+  if (name !== 'taxIncludedFlag') return;
+  const firstTaxIncludedFlag = getIndexRecord(dataSet.records, 0).get('taxIncludedFlag');
+  if (record.index === 0) {
+    dataSet.records.forEach(item => {
+      item.set('taxIncludedFlag', firstTaxIncludedFlag);
+    });
+  }
+};
 const handleZeroAndNature = (dataSet, name, value, record) => {
   if (name === 'zeroTaxRateFlag') {
     if (['0', '1', '2'].includes(value)) {
@@ -445,6 +458,8 @@ export default (): DataSetProps => {
         handleZeroAndNature(dataSet, name, value, record);
         // 数量
         handleNUmber(name, value, record);
+        // 是否含税
+        handleTaxIncludedFlag(dataSet, record, name);
         // 单价
         handlePrice(name, value, record);
         // 税额
@@ -644,7 +659,16 @@ export default (): DataSetProps => {
         defaultValue: '1',
         required: true,
         computedProps: {
-          readOnly: ({ record }) => record.get('invoiceLineNature') === '1',
+          defaultValue: ({ record }) => {
+            return getIndexRecord(record.dataSet.records, 0)?.get('taxIncludedFlag') || '1';
+          },
+          readOnly: ({ record }) => {
+            if (record.get('invoiceLineNature') === '1' || record.index !== 0) {
+              return true;
+            } else {
+              return false;
+            }
+          },
         },
       },
       {
@@ -700,6 +724,18 @@ export default (): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.specialVatManagement').d('增值税特殊管理'),
         type: FieldType.string,
         // bind: 'commodityNumberObj.specialVatManagement',
+      },
+      {
+        name: 'specialTaxationMethod',
+        label: intl.get('hiop.invoiceWorkbench.view.specialTaxationMethod').d('特定征税方式'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.SPECIAL_TAXATION_METHOD',
+      },
+      {
+        name: 'taxPreferPolicyTypeCode',
+        label: intl.get('hiop.invoiceWorkbench.view.taxPreferPolicyTypeCode').d('税收优惠政策类型'),
+        type: FieldType.string,
+        lookupCode: 'HTC.HIOP.TAX_PREFER_POLICY_TYPE_CODE',
       },
     ],
   };
