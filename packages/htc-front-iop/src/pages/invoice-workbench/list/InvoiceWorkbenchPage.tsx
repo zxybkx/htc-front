@@ -747,6 +747,8 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         invoiceVarietys.includes('82')) &&
       (invoiceVarietys.includes('0') ||
         invoiceVarietys.includes('2') ||
+        invoiceVarietys.includes('85') ||
+        invoiceVarietys.includes('86') ||
         invoiceVarietys.includes('41'))
     ) {
       Modal.warning(
@@ -1423,6 +1425,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     if (['N', 'Q'].includes(orderStatus)) {
       operators.push(submitInvoiceBtn, deleteInvoiceBtn);
     }
+    // 异常、且发票类型[61,81,82]
+    if (orderStatus === 'E' && ['61', '81', '82'].includes(invoiceVariety)) {
+      operators.push(submitInvoiceBtn);
+    }
     // 新建、取消、完成
     if (['N', 'Q', 'F'].includes(orderStatus) && purchaseInvoiceFlag === '5') {
       operators.push(exportBtn);
@@ -1442,10 +1448,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
             onClick: () => this.handleBatchDownload(record, DownloadType.PDF),
             permissionCode: 'pdf',
             permissionMeaning: '按钮-下载PDF',
-            title: intl.get('hiop.redInvoiceInfo.button.download').d('下载PDF'),
+            title: intl.get('hiop.redInvoiceInfo.button.pdfDownload').d('下载PDF'),
           }),
           len: 6,
-          title: intl.get('hiop.redInvoiceInfo.button.download').d('下载PDF'),
+          title: intl.get('hiop.redInvoiceInfo.button.pdfDownload').d('下载PDF'),
         };
         const XmlBtn = {
           key: 'XML',
@@ -1453,10 +1459,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
             onClick: () => this.handleBatchDownload(record, DownloadType.XML),
             permissionCode: 'XML',
             permissionMeaning: '按钮-下载XML',
-            title: intl.get('hiop.redInvoiceInfo.button.download').d('下载XML'),
+            title: intl.get('hiop.redInvoiceInfo.button.XMLdownload').d('下载XML'),
           }),
           len: 6,
-          title: intl.get('hiop.redInvoiceInfo.button.download').d('下载XML'),
+          title: intl.get('hiop.redInvoiceInfo.button.XMLdownload').d('下载XML'),
         };
         const ofdBtn = {
           key: 'ofd',
@@ -1464,10 +1470,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
             onClick: () => this.handleBatchDownload(record, DownloadType.OFD),
             permissionCode: 'pdf',
             permissionMeaning: '按钮-下载OFD',
-            title: intl.get('hiop.redInvoiceInfo.button.download').d('下载OFD'),
+            title: intl.get('hiop.redInvoiceInfo.button.ofddownload').d('下载OFD'),
           }),
           len: 6,
-          title: intl.get('hiop.redInvoiceInfo.button.download').d('下载OFD'),
+          title: intl.get('hiop.redInvoiceInfo.button.ofddownload').d('下载OFD'),
         };
         const codeBtn = {
           key: 'code',
@@ -1475,10 +1481,10 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
             onClick: () => this.handleBatchDownload(record, DownloadType.PNG),
             permissionCode: 'code',
             permissionMeaning: '按钮-下载二维码',
-            title: intl.get('hiop.redInvoiceInfo.button.download').d('下载二维码'),
+            title: intl.get('hiop.redInvoiceInfo.button.codedownload').d('下载二维码'),
           }),
           len: 6,
-          title: intl.get('hiop.redInvoiceInfo.button.download').d('下载二维码'),
+          title: intl.get('hiop.redInvoiceInfo.button.codedownload').d('下载二维码'),
         };
         operators.push(pdfBtn, ofdBtn, XmlBtn, codeBtn);
       } else if (

@@ -162,7 +162,13 @@ export default (dsParams): DataSetProps => {
         }
         if (name === 'invoiceTypeObj' && value) {
           const invoiceVariety = value.value;
-          if (invoiceVariety !== '51' && invoiceVariety !== '52') {
+          if (
+            invoiceVariety !== '51' &&
+            invoiceVariety !== '52' &&
+            invoiceVariety !== '61' &&
+            invoiceVariety !== '81' &&
+            invoiceVariety !== '82'
+          ) {
             record.set('deliveryWay', '0');
             record.set('electronicReceiverInfo', '');
           } else {
@@ -377,9 +383,9 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.companyType').d('企业类型'),
         type: FieldType.string,
         lookupCode: 'HIOP.BUSINESS_TYPE',
-        required: true,
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
+          required: ({ record }) => !['61', '81', '82'].includes(record.get('invoiceVariety')),
         },
       },
       {
@@ -720,6 +726,7 @@ export default (dsParams): DataSetProps => {
         required: true,
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
+          required: ({ record }) => !['61', '81', '82'].includes(record.get('invoiceVariety')),
         },
       },
       {
@@ -821,7 +828,8 @@ export default (dsParams): DataSetProps => {
         lovCode: 'HMDM.EMPLOYEE_NAME',
         cascadeMap: { companyId: 'companyId' },
         computedProps: {
-          readOnly: ({ record }) => record.get('readonly'),
+          readOnly: ({ record }) =>
+            record.get('readonly') || ['61', '81', '82'].includes(record.get('invoiceVariety')),
         },
         ignore: FieldIgnore.always,
       },
@@ -856,9 +864,10 @@ export default (dsParams): DataSetProps => {
         lovCode: 'HMDM.EMPLOYEE_NAME',
         cascadeMap: { companyId: 'companyId' },
         computedProps: {
-          readOnly: ({ record }) => record.get('readonly'),
+          required: ({ record }) => !['61', '81', '82'].includes(record.get('invoiceVariety')),
+          readOnly: ({ record }) =>
+            record.get('readonly') || ['61', '81', '82'].includes(record.get('invoiceVariety')),
         },
-        required: true,
         ignore: FieldIgnore.always,
       },
       {

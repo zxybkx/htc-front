@@ -27,6 +27,9 @@ import {
   notifyMessageApi,
   pushInvoicePoolApi,
   updateInvoicePoolApi,
+  fullElectronicUploadApi,
+  fullElectronicQueryApi,
+  fullElectronicDeliveryApi,
 } from '@src/services/invoiceAddinfoQueryStatusService';
 import InvoiceAddinfoQueryStatusListDS, {
   modelCode,
@@ -76,6 +79,15 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<
         break;
       case 5:
         res = getResponse(await updateInvoicePoolApi(params));
+        break;
+      case 6:
+        res = getResponse(await fullElectronicUploadApi(params));
+        break;
+      case 7:
+        res = getResponse(await fullElectronicQueryApi(params));
+        break;
+      case 8:
+        res = getResponse(await fullElectronicDeliveryApi(params));
         break;
       default:
     }
@@ -332,7 +344,7 @@ export default class InvoiceAddinfoQueryStatusListPage extends Component<
         title={intl.get(`${modelCode}.button.upload`).d('电子发票上传')}
       />,
       <ObserverButtons
-        key="bpreview"
+        key="bprint"
         onClick={() => this.batchProcess(2)}
         dataSet={this.tableDS}
         title={intl.get(`${modelCode}.button.print`).d('纸票打印文件')}

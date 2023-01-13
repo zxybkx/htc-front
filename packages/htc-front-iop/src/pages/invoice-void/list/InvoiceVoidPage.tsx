@@ -287,7 +287,7 @@ export default class InvoiceVoidPage extends Component<InvoiceVoidPageProps> {
             <Form dataSet={this.invoiceVoidHeaderDS} columns={3}>
               <Select
                 name="invoiceVariety"
-                optionsFilter={record => !['51', '52'].includes(record.get('value'))}
+                optionsFilter={record => ['0', '2', '41'].includes(record.get('value'))}
               />
               <Lov name="extNumberObj" />
             </Form>

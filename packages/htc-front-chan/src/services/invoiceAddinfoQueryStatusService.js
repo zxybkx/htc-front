@@ -99,3 +99,48 @@ export async function notifyMessageApi(params) {
     body: invoiceHeadIds,
   });
 }
+
+/**
+ * 全电发票上传
+ * @async
+ * @function fullElectronicUploadApi
+ * @returns {object} fetch Promise
+ * @param params
+ */
+export async function fullElectronicUploadApi(params) {
+  const { tenantId, invoiceHeadIds } = params;
+  return request(`${IOP_API}/v1/${tenantId}/operation/full-electronic-upload`, {
+    method: 'POST',
+    body: invoiceHeadIds,
+  });
+}
+
+/**
+ * 全电发票查询
+ * @async
+ * @function fullElectronicQueryApi
+ * @returns {object} fetch Promise
+ * @param params
+ */
+export async function fullElectronicQueryApi(params) {
+  const { tenantId, invoiceHeadIds } = params;
+  return request(`${IOP_API}/v1/${tenantId}/operation/full-electronic-query`, {
+    method: 'POST',
+    body: invoiceHeadIds,
+  });
+}
+
+/**
+ * 全电发票交付
+ * @async
+ * @function fullElectronicDeliveryApi
+ * @returns {object} fetch Promise
+ * @param params
+ */
+export async function fullElectronicDeliveryApi(params) {
+  const { tenantId, invoiceHeadIds } = params;
+  return request(`${IOP_API}/v1/${tenantId}/operation/invoice-delivery`, {
+    method: 'POST',
+    body: invoiceHeadIds,
+  });
+}

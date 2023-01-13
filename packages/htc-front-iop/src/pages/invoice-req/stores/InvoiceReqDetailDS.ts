@@ -922,7 +922,7 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.view.buildingCrossCitySign').d('跨地市标志'),
         type: FieldType.string,
         computedProps: {
-          required: ({ record }) => realestateRequiredRule(record),
+          required: ({ record }) => ctnServicesRequiredRule(record),
           readOnly: ({ record }) => headerReadOnlyRule(record),
         },
       },

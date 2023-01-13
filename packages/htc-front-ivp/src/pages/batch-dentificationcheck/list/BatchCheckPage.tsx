@@ -30,6 +30,7 @@ import {
   Menu,
   Modal,
   Select,
+  Spin,
   Table,
   Tabs,
   TextField,
@@ -84,7 +85,7 @@ interface BatchCheckPageProps extends RouteComponentProps {
 export default class BatchCheckPage extends Component<BatchCheckPageProps> {
   state = {
     batchNum: [],
-    // loadingFlag: false,
+    spinning: false,
     companyCode: '',
     employeeNum: '',
     activeKey: 'notAdd',
@@ -757,6 +758,7 @@ export default class BatchCheckPage extends Component<BatchCheckPageProps> {
             ...params,
             uploadFlag: '2',
           };
+          this.setState({ spinning: true });
           const result = type === 0 ? await addInvoicePool(_params) : await addMyInvoice(_params);
           this.addInvoiceFn(result, type, params);
         } else {
@@ -764,6 +766,7 @@ export default class BatchCheckPage extends Component<BatchCheckPageProps> {
             ...params,
             uploadFlag: '1',
           };
+          this.setState({ spinning: true });
           const result = type === 0 ? await addInvoicePool(_params) : await addMyInvoice(_params);
           this.addInvoiceFn(result, type, params);
         }
@@ -788,14 +791,17 @@ export default class BatchCheckPage extends Component<BatchCheckPageProps> {
           ),
         });
       }
+      this.setState({ spinning: false });
       this.props.batchCheckDS.query();
     } else if (res && res.status === 'H1014') {
       notification.success({
         description: '',
         message: res.message,
       });
+      this.setState({ spinning: false });
       this.props.batchCheckDS.query();
     } else {
+      this.setState({ spinning: false });
       notification.warning({
         description: '',
         message: res.message,
@@ -851,7 +857,9 @@ export default class BatchCheckPage extends Component<BatchCheckPageProps> {
         return;
       }
     }
+    this.setState({ spinning: true });
     const res = type === 0 ? await addInvoicePool(params) : await addMyInvoice(params);
+    this.setState({ spinning: false });
     this.addInvoiceFn(res, type, params);
   }
 
@@ -882,7 +890,7 @@ export default class BatchCheckPage extends Component<BatchCheckPageProps> {
   }
 
   render() {
-    const { companyCode, employeeNum } = this.state;
+    const { companyCode, employeeNum, spinning } = this.state;
     const uploadProps = {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -948,12 +956,14 @@ export default class BatchCheckPage extends Component<BatchCheckPageProps> {
           />
         </div>
         <Content>
-          <Table
-            dataSet={this.props.batchCheckDS}
-            columns={this.columns}
-            queryBar={this.renderQueryBar}
-            style={{ height: 350 }}
-          />
+          <Spin spinning={spinning}>
+            <Table
+              dataSet={this.props.batchCheckDS}
+              columns={this.columns}
+              queryBar={this.renderQueryBar}
+              style={{ height: 350 }}
+            />
+          </Spin>
         </Content>
       </>
     );

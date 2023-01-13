@@ -2,7 +2,7 @@
  * @Description: 全电专普票预览
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2023-01-04 15:54:20
- * @LastEditTime: 2023-01-11 15:47:38
+ * @LastEditTime: 2023-01-12 15:38:57
  * @Copyright: Copyright (c) 2020, Hand
  */
 
@@ -40,10 +40,17 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
     landVatItemNo,
     buildingCrossCitySign,
   } = invoiceData;
+  const transLines = lines.map(item => {
+    const tempObj = {
+      ...item,
+      amount: item.amount - item.taxAmount,
+    };
+    return tempObj;
+  });
   let remarkDom: ReactElement | null = null;
   let headerLeftDom: ReactElement | null = null;
-  let tableDom: ReactElement = <SimpleTable lineData={lines} />;
-  if (purchaseInvoiceFlag === 6) {
+  let tableDom: ReactElement = <SimpleTable lineData={transLines} />;
+  if (purchaseInvoiceFlag === '06') {
     remarkDom = (
       <div className={style.remarkAdd}>
         <p>
@@ -64,7 +71,7 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
     headerLeftDom = <div className={style.invoiceInfoHeader__label}>不动产经营租赁服务</div>;
     tableDom = (
       <RealEstateOperatingLeaseTable
-        lineData={lines}
+        lineData={transLines}
         houseOrRealEstate={houseOrRealEstate}
         areaUnitMeaning={areaUnitMeaning}
       />
@@ -84,12 +91,15 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
     headerLeftDom = <div className={style.invoiceInfoHeader__label}>建筑服务</div>;
     tableDom = (
       <ConstructionServicesTable
-        lineData={lines}
+        lineData={transLines}
         buildingProjectName={buildingProjectName}
         buildingServicePlace={buildingServicePlace}
       />
     );
   }
+  const formatNumber = value => {
+    return value && Number(value).toFixed(2);
+  };
   return (
     <div className={style.tDialogBody}>
       <div className={style.tLoading__parent}>
@@ -151,10 +161,10 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
                 <div className={style.invoiceMain__table__footer}>
                   <span style={{ left: '76px' }}>合计</span>
                   <span className={style.color333} style={{ right: '240px' }}>
-                    ¥{invoiceData.totalExcludingTaxAmount.toFixed(2)}
+                    ¥{formatNumber(invoiceData.totalExcludingTaxAmount)}
                   </span>
                   <span className={style.color333} style={{ right: '46px' }}>
-                    ¥{invoiceData.totalTax.toFixed(2)}
+                    ¥{formatNumber(invoiceData.totalTax)}
                   </span>
                 </div>
               </div>
@@ -165,7 +175,7 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
                   <span>
                     （小写）
                     <span className={style.color333}>
-                      {invoiceData.totalPriceTaxAmount.toFixed(2)}
+                      {formatNumber(invoiceData.totalPriceTaxAmount)}
                     </span>
                   </span>
                 </div>
@@ -177,7 +187,7 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
                   <div className={style.invoiceInfoFooter__lab}>备注</div>
                   <div style={{ padding: '16px' }}>
                     {remarkDom}
-                    <div className={style.color333}>{invoiceData.remark}</div>
+                    <div className={style.color333}>{invoiceData.userRemark}</div>
                   </div>
                 </div>
               </div>
