@@ -10,7 +10,7 @@ import commonConfig from '@htccommon/config/commonConfig';
 import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { getCurrentOrganizationId } from 'utils/utils';
-import { FieldType, FieldIgnore } from 'choerodon-ui/pro/lib/data-set/enum';
+import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import moment from 'moment';
 
@@ -44,6 +44,13 @@ export default (dsParams): DataSetProps => {
           params,
           method: 'POST',
         };
+      },
+    },
+    events: {
+      update: ({ record, name, value }) => {
+        if (name === 'allParFlag' && value === 0) {
+          record.set('inOutType', 'IN');
+        }
       },
     },
     paging: false,
@@ -139,6 +146,33 @@ export default (dsParams): DataSetProps => {
         defaultValue: '88888888',
         required: dsParams.inChannelCode === 'AISINO_IN_CHANNEL_PLUG',
         readOnly: dsParams.inChannelCode !== 'AISINO_IN_CHANNEL_PLUG',
+      },
+      {
+        name: 'invoiceCode',
+        label: intl.get('htc.common.view.invoiceCode').d('发票代码'),
+        type: FieldType.string,
+      },
+      {
+        name: 'invoiceNum',
+        label: intl.get('htc.common.view.invoiceNo').d('发票号码'),
+        type: FieldType.string,
+      },
+      {
+        name: 'invoiceType',
+        label: intl.get('htc.common.view.invoiceType').d('发票类型'),
+        type: FieldType.string,
+        lookupCode: 'HIVP.INVOICE_TYPE',
+      },
+      {
+        name: 'inOutType',
+        label: intl.get('hivp.invoicesLayoutPush.view.inOutType').d('进销项类型'),
+        type: FieldType.string,
+        lookupCode: 'HIVP.IN_OUT_TYPE',
+        computedProps: {
+          required: ({ record }) =>
+            ['ZK_IN_CHANNEL_DIGITAL', 'ZK_IN_CHANNEL'].includes(record.get('inChannelCode')),
+          readOnly: ({ record }) => !record.get('allParFlag'),
+        },
       },
     ],
     queryFields: [
