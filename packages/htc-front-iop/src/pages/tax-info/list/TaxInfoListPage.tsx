@@ -32,7 +32,6 @@ import {
   deviceStatusQuery,
   updateInvoice,
   updateTax,
-  invoiceStatisticsInBlue,
 } from '@src/services/taxInfoService';
 import { Card, Col, Row } from 'choerodon-ui';
 import TaxHeadersDS from '../stores/TaxHeadersDS';
@@ -464,16 +463,10 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
       const { outChannelCode } = resCop;
       this.setState({ outChannelCode });
       if (outChannelCode === 'DOUBLE_CHANNEL') {
-        const params = {
-          tenantId,
-          companyCode,
-          employeeId,
-          taxpayerNumber,
-        };
-        const res = getResponse(await invoiceStatisticsInBlue(params));
-        if (res) {
-          this.bluInvoiceDS.loadData([res]);
-        }
+        this.bluInvoiceDS.setQueryParameter('companyCode', companyCode);
+        this.bluInvoiceDS.setQueryParameter('employeeId', employeeId);
+        this.bluInvoiceDS.setQueryParameter('taxpayerNumber', taxpayerNumber);
+        this.bluInvoiceDS.query();
       }
     }
   }

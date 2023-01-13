@@ -1920,12 +1920,12 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
               message={
                 <span>
                   {intl
-                    .get('hiop.taxInfo.modal.notification.safe')
+                    .get('hiop.invoiceWorkbench.modal.alert.aragraphOne')
                     .d('温馨提醒：为防止身份认证失效导致批量开具失败，您可点击')}
                   <a onClick={this.idAuthentication}>
-                    {intl.get('hiop.taxInfo.modal.notification.safe').d('身份认证')}
+                    {intl.get('hiop.taxInfo.modal.title.idAuthentication').d('身份认证')}
                   </a>
-                  {intl.get('hiop.taxInfo.modal.notification.safe').d('补充有效时长。')}
+                  {intl.get('hiop.invoiceWorkbench.modal.alert.aragraphThree').d('补充有效时长。')}
                 </span>
               }
               type="info"
