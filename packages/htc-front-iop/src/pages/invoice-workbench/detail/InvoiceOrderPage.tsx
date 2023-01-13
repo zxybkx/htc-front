@@ -1412,11 +1412,15 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
               <TextField name="invoiceSourceFlag" />
               <Lov name="purchaseInvoiceFlagObj" onChange={this.invoiceFlagChange} />
               <Lov name="invoiceTypeObj" onChange={this.invoiceVarietyChange} />
-              <Select name="listFlag" onChange={this.flagChange} />
-              <Lov
-                name="extNumberObj"
-                onChange={value => this.handleTaxRateLovChange('extNumber', value.value)}
-              />
+              {!['61', '81', '82'].includes(invoiceVariety) && (
+                <>
+                  <Select name="listFlag" onChange={this.flagChange} />
+                  <Lov
+                    name="extNumberObj"
+                    onChange={value => this.handleTaxRateLovChange('extNumber', value.value)}
+                  />
+                </>
+              )}
             </Form>
             <div style={{ background: '#fff', display: 'flex', padding: '16px' }}>
               <div
@@ -1543,12 +1547,15 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
                 <Radio name="billingType" value="1" style={{ color: 'blue' }}>
                   {intl.get('hiop.invoiceWorkbench.label.blueInvoice').d('蓝字发票')}
                 </Radio>
-                <div className={styles.flex}>
-                  <span style={{ color: 'blue' }}>
-                    {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
-                  </span>
-                  <TextField name="blueInvoiceCode" style={{ width: '100px' }} />
-                </div>
+                {!['61', '81', '82'].includes(invoiceVariety) && (
+                  <div className={styles.flex}>
+                    <span style={{ color: 'blue' }}>
+                      {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
+                    </span>
+                    <TextField name="blueInvoiceCode" style={{ width: '100px' }} />
+                  </div>
+                )}
+
                 <div className={styles.flex}>
                   <span style={{ color: 'blue' }}>
                     {intl.get('hiop.invoiceWorkbench.label.invoiceNumber').d('发票号码：')}
@@ -1560,12 +1567,14 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
                 <Radio name="billingType" value="2" style={{ color: 'red' }}>
                   {intl.get('hiop.invoiceWorkbench.label.redInvoice').d('红字发票')}
                 </Radio>
-                <div className={styles.flex}>
-                  <span style={{ color: 'red' }}>
-                    {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
-                  </span>
-                  <TextField style={{ width: '100px' }} name="invoiceCode" />
-                </div>
+                {!['61', '81', '82'].includes(invoiceVariety) && (
+                  <div className={styles.flex}>
+                    <span style={{ color: 'red' }}>
+                      {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
+                    </span>
+                    <TextField style={{ width: '100px' }} name="invoiceCode" />
+                  </div>
+                )}
                 <div className={styles.flex}>
                   <span style={{ color: 'red' }}>
                     {intl.get('hiop.invoiceWorkbench.label.invoiceNumber').d('发票号码：')}
