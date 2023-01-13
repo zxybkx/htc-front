@@ -210,11 +210,13 @@ export default (dsParams): DataSetProps => {
         name: 'extNumberObj',
         label: intl.get('hiop.invoiceWorkbench.modal.extNumber').d('分机号'),
         type: FieldType.object,
-        required: true,
+
         lovCode: 'HIOP.COMPANY_TAX_CONTROL_INFO',
         lovPara: { companyId: dsParams.companyId },
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
+          required: ({ record }) =>
+            !['61', '81', '82', '85', '86'].includes(record.get('invoiceVariety')),
         },
         ignore: FieldIgnore.always,
       },
@@ -230,8 +232,9 @@ export default (dsParams): DataSetProps => {
         lookupCode: 'HIOP.PURCHASE_LIST_MARK',
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
+          required: ({ record }) =>
+            !['61', '81', '82', '85', '86'].includes(record.get('invoiceVariety')),
         },
-        required: true,
       },
       {
         name: 'purchaseInvoiceFlagObj',
