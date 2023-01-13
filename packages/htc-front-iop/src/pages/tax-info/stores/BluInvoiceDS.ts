@@ -9,9 +9,28 @@
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
+import { AxiosRequestConfig } from 'axios';
+import commonConfig from '@htccommon/config/commonConfig';
+import { getCurrentOrganizationId } from 'utils/utils';
 
+const API_PREFIX = commonConfig.IOP_API || '';
+const tenantId = getCurrentOrganizationId();
 export default (): DataSetProps => {
   return {
+    transport: {
+      read: (config): AxiosRequestConfig => {
+        const url = `${API_PREFIX}/v1/${tenantId}/tax-header-infos/invoice-statistics-in-blue`;
+        const axiosConfig: AxiosRequestConfig = {
+          url,
+          params: {
+            ...config.data,
+          },
+          data: null,
+          method: 'GET',
+        };
+        return axiosConfig;
+      },
+    },
     selection: false,
     paging: false,
     primaryKey: 'blueInkInvoice',
