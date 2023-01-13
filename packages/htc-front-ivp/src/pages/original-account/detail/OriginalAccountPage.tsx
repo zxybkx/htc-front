@@ -51,6 +51,7 @@ interface OriginalAccountPageProps extends RouteComponentProps {
     'hivp.checkCertification',
     'hivp.invoicesArchiveUpload',
     'hiop.redInvoiceInfo',
+    'hivp.invoicesLayoutPush',
   ],
 })
 export default class OriginalAccountPage extends Component<OriginalAccountPageProps> {
@@ -98,6 +99,7 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
               0
             );
           }
+          this.headerDS.current!.set({ inOutType: 'IN' });
 
           const autoRefreshFlag = this.headerDS.current!.get('autoRefreshFlag');
 
@@ -236,6 +238,7 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
   }
 
   render() {
+    const { inChannelCode } = this.state;
     const GetOriginalAccount = observer((props: any) => {
       let isDisabled = false;
 
@@ -297,12 +300,19 @@ export default class OriginalAccountPage extends Component<OriginalAccountPagePr
                 <Select.Option value="12">12</Select.Option>
               </Select>
               <CheckBox name="everydayGetOriginalFlag" />
-              <TextField name="taxDiskPassword" />
+              <TextField name="invoiceCode" />
+              <TextField name="invoiceNum" />
               <CheckBox
                 name="autoRefreshFlag"
                 onChange={value => this.handleAutoRefreshChange(value)}
               />
               <CheckBox name="allParFlag" />
+              <Select name="invoiceType" />
+              {['ZK_IN_CHANNEL_DIGITAL', 'ZK_IN_CHANNEL'].includes(inChannelCode) ? (
+                <Select name="inOutType" />
+              ) : (
+                <TextField name="taxDiskPassword" />
+              )}
             </Form>
             <Table dataSet={this.lineDS} columns={this.columns} style={{ height: 400 }} />
           </Spin>

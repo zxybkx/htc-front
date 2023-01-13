@@ -415,7 +415,7 @@ export default class EmployeeDefinePage extends Component<CompanyListPageProps> 
           <Select name="loginIdentity" />
           <Password name="loginIdentityPassword" />
           <TextField name="idNumber" />
-          <TextField name="mobile" />
+          <TextField name="taxpayersPhone" />
           <TextField name="loginAccount" />
           <Password name="loginPassword" />
           <Lov name="regionCodeObj" />
