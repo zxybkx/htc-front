@@ -61,13 +61,13 @@ const headerReadOnlyRule = record => {
  * 不动产经营租赁必输验证规则
  */
 const realestateRequiredRule = record => {
-  return record.get('purchaseInvoiceFlag') === '06';
+  return record.get('requestType') === 'ESTATE_OP_LEASE';
 };
 /**
  * 建筑服务必输验证规则
  */
 const ctnServicesRequiredRule = record => {
-  return record.get('purchaseInvoiceFlag') === '22';
+  return record.get('requestType') === 'BUILDING_SERVICE';
 };
 const sourceReadOnlyRule = record => {
   return (
@@ -602,10 +602,11 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.shopListFlag').d('购货清单标志'),
         type: FieldType.string,
         lookupCode: 'HIOP.PURCHASE_LIST_MARK',
-        required: true,
         defaultValue: '9',
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
+          required: ({ record }) =>
+            !['61', '81', '82', '85', '86'].includes(record.get('invoiceType')),
         },
       },
       {
@@ -762,12 +763,13 @@ export default (dsParams): DataSetProps => {
         name: 'extNumberObj',
         label: intl.get('hiop.invoiceWorkbench.modal.extNumber').d('分机号'),
         type: FieldType.object,
-        required: true,
         lovCode: 'HIOP.RULE_EXTENSION',
         cascadeMap: { companyId: 'companyId', employeeId: 'employeeId' },
         ignore: FieldIgnore.always,
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
+          required: ({ record }) =>
+            !['61', '81', '82', '85', '86'].includes(record.get('invoiceType')),
         },
       },
       {

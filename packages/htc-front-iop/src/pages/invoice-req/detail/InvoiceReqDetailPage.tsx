@@ -146,6 +146,8 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       companyId: this.props.match.params.companyId,
     });
     const { sourceType, billFlag } = this.props.match.params;
+    console.log('empRes', empRes);
+
     const empInfo = empRes && empRes.content[0];
     if (!newFlag) {
       const showAdjustFlag = this.reqHeaderDS.current?.get('showAdjustFlag') || 'N';
@@ -1061,8 +1063,8 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       // 不动产经营租赁
       return [
         <TextField name="houseOrRealEstate" />,
-        <TextField name="realEstateAddress" labelWidth={140} />,
-        <TextField name="realEstateDetailAddress" labelWidth={140} />,
+        <TextField name="realEstateAddress" />,
+        <TextField name="realEstateDetailAddress" />,
         <Select name="leaseCrossCitySign">
           <Option value="Y">是</Option>
           <Option value="N">否</Option>
@@ -1075,8 +1077,8 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       // 建筑服务
       return [
         <TextField name="buildingServicePlace" />,
-        <TextField name="occurDetailAddress" labelWidth={140} />,
-        <TextField name="buildingProjectName" labelWidth={140} />,
+        <TextField name="occurDetailAddress" />,
+        <TextField name="buildingProjectName" />,
         <Select name="buildingCrossCitySign">
           <Option value="Y">是</Option>
           <Option value="N">否</Option>
@@ -1136,14 +1138,16 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
                   label={intl.get('htc.common.modal.employeeDesc').d('登录员工')}
                   value={this.renderEmployeeDesc}
                 />
-                <Lov
-                  name="extNumberObj"
-                  onChange={value => this.handleTaxRateLovChange('extNumber', value)}
-                />
+                {!['61', '81', '82'].includes(invoiceType) && (
+                  <Lov
+                    name="extNumberObj"
+                    onChange={value => this.handleTaxRateLovChange('extNumber', value)}
+                  />
+                )}
                 {/*---*/}
                 <Select name="receiptType" />
                 <Lov name="invoiceTypeObj" onChange={value => this.invoiceVarietyChange(value)} />
-                <Select name="billFlag" />
+                {!['61', '81', '82'].includes(invoiceType) && <Select name="billFlag" />}
                 <Lov name="requestTypeObj" onChange={this.requestTypeChange} />
                 {/*---*/}
                 <Select
@@ -1154,11 +1158,14 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
                   checkValueOnOptionsChange={false}
                   onChange={(value, oldValue) => this.handleReceiptNameChange(value, oldValue)}
                   suffix={<Icon type="search" onClick={() => this.handleInvoiceQuery()} />}
+                  newLine
                 />
                 <TextArea name="remark" colSpan={2} rows={1} resize={ResizeType.both} />
                 <CheckBox name="nextDefaultFlag" />
                 <TextField name="receiptTaxNo" />
-                {['51', '52'].includes(invoiceType) ? electronicInvoice : paperInvoice}
+                {['51', '52', '61', '81', '82'].includes(invoiceType)
+                  ? electronicInvoice
+                  : paperInvoice}
                 {/*----*/}
                 {['61', '81', '82', '85', '86'].includes(invoiceType) ? (
                   <TextArea
@@ -1220,12 +1227,14 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
                   <Radio name="billingType" value="1" style={{ color: 'blue' }}>
                     {intl.get('hiop.invoiceWorkbench.label.blueInvoice').d('蓝字发票')}
                   </Radio>
-                  <div className={styles.flex}>
-                    <span style={{ color: 'blue' }}>
-                      {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
-                    </span>
-                    <TextField name="blueInvoiceCode" style={{ width: '100px' }} />
-                  </div>
+                  {!['61', '81', '82'].includes(invoiceType) && (
+                    <div className={styles.flex}>
+                      <span style={{ color: 'blue' }}>
+                        {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
+                      </span>
+                      <TextField name="blueInvoiceCode" style={{ width: '100px' }} />
+                    </div>
+                  )}
                   <div className={styles.flex}>
                     <span style={{ color: 'blue' }}>
                       {intl.get('hiop.invoiceWorkbench.label.invoiceNumber').d('发票号码：')}
@@ -1237,12 +1246,14 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
                   <Radio name="billingType" value="2" style={{ color: 'red' }}>
                     {intl.get('hiop.invoiceWorkbench.label.redInvoice').d('红字发票')}
                   </Radio>
-                  <div className={styles.flex}>
-                    <span style={{ color: 'red' }}>
-                      {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
-                    </span>
-                    <TextField style={{ width: '100px' }} name="invoiceCode" />
-                  </div>
+                  {!['61', '81', '82'].includes(invoiceType) && (
+                    <div className={styles.flex}>
+                      <span style={{ color: 'red' }}>
+                        {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
+                      </span>
+                      <TextField style={{ width: '100px' }} name="invoiceCode" />
+                    </div>
+                  )}
                   <div className={styles.flex}>
                     <span style={{ color: 'red' }}>
                       {intl.get('hiop.invoiceWorkbench.label.invoiceNumber').d('发票号码：')}
