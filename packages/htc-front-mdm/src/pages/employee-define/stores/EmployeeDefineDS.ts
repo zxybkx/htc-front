@@ -369,7 +369,7 @@ const ElectricInfo = (): DataSetProps => {
         labelWidth: '130',
       },
       {
-        name: 'mobile',
+        name: 'taxpayersPhone',
         label: intl.get('hmdm.employeeInfo.view.mobile').d('办税人员手机号'),
         type: FieldType.string,
         required: true,
