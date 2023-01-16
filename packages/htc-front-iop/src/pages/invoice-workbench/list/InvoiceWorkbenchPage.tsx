@@ -1798,12 +1798,21 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
    */
   @Bind()
   idAuthentication() {
-    const modal = Modal.open({
-      title: intl.get('hiop.taxInfo.modal.title.idAuthentication').d('身份认证'),
-      closable: true,
-      children: <IdAuthentication onCloseModal={() => modal.close()} />,
-      footer: null,
-    });
+    const { queryDataSet } = this.props.invoiceWorkbenchDS;
+    if (queryDataSet) {
+      const employeeId = queryDataSet.current!.get('employeeId');
+      const companyCode = queryDataSet.current!.get('companyCode');
+      const taxpayerNumber = queryDataSet.current!.get('taxpayerNumber');
+      const idAuthenticationProps = { companyCode, employeeId, taxpayerNumber };
+      const modal = Modal.open({
+        title: intl.get('hiop.taxInfo.modal.title.idAuthentication').d('身份认证'),
+        closable: true,
+        children: (
+          <IdAuthentication {...idAuthenticationProps} onCloseModal={() => modal.close()} />
+        ),
+        footer: null,
+      });
+    }
   }
 
   render() {

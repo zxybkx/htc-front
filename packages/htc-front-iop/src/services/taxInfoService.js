@@ -102,3 +102,18 @@ export async function getAgreementCompanyInfo(params) {
     query: { companyCode },
   });
 }
+
+/**
+ * 获取人脸识别二维码
+ * @async
+ * @function avoidLogin
+ * @params {object} params
+ * @returns {object} fetch Promise
+ */
+export async function faceRecognitionQRcode(params) {
+  const { tenantId, ...otherParams } = params;
+  return request(`${HIOP_API}/v1/${tenantId}/tax-header-infos/get-face-recognition-qr-code`, {
+    method: 'POST',
+    query: otherParams,
+  });
+}

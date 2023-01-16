@@ -11,42 +11,44 @@ import formatterCollections from 'utils/intl/formatterCollections';
 import { Bind } from 'lodash-decorators';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import notification from 'utils/notification';
-// import { getCurrentOrganizationId } from 'utils/utils';
+import { getCurrentOrganizationId, getResponse } from 'utils/utils';
 import { Alert, Icon } from 'choerodon-ui';
+import { isEmpty } from 'lodash';
 import { Button } from 'choerodon-ui/pro';
 import intl from 'utils/intl';
 import QRCode from 'qrcode';
+import { faceRecognitionQRcode } from '@src/services/taxInfoService';
 import styles from './idAuthentication.less';
 
 interface IdAuthenticationProps {
   onCloseModal: any;
+  companyCode: string;
+  taxpayerNumber: string;
+  employeeId: string;
 }
 
-// const tenantId = getCurrentOrganizationId();
+const tenantId = getCurrentOrganizationId();
 
 @formatterCollections({
   code: ['hiop.taxInfo', 'hiop.invoiceWorkbench', 'htc.common', 'hiop.redInvoiceInfo'],
 })
 export default class IdAuthentication extends Component<IdAuthenticationProps> {
   state = {
-    qrcode: undefined,
+    loading: true,
     invalid: false,
   };
 
   componentDidMount(): void {
     const img = document.getElementById('qrcode');
     img!.setAttribute('style', 'background: #000; opacity: 0.5');
-    this.getQrCode();
+    this.getQrCode(0);
   }
 
-  // 获取qrcode_id
+  interval;
+
+  // 渲染二维码
   @Bind()
-  getQrCode() {
-    this.setState({
-      qrcode: undefined,
-      invalid: false,
-    });
-    const text = '加载二维码中...';
+  renderOrCode(text) {
     const opts = {
       errorCorrectionLevel: 'H',
       type: 'image/jpeg',
@@ -59,7 +61,34 @@ export default class IdAuthentication extends Component<IdAuthenticationProps> {
       const img: any = document.getElementById('qrcode');
       img.src = url;
     });
-    this.timeFiveMinutes();
+  }
+
+  /**
+   * 获取qrcode_id
+   * @params {number} type 0-初始/1-刷新、重新获取
+   */
+  @Bind()
+  async getQrCode(type) {
+    clearInterval(this.interval);
+    const img = document.getElementById('qrcode');
+    if (type === 1) {
+      img!.setAttribute('style', 'background: #000; opacity: 0.5');
+      this.setState({
+        loading: true,
+        invalid: false,
+      });
+    }
+    const { companyCode, taxpayerNumber, employeeId } = this.props;
+    const params = { tenantId, companyCode, taxpayerNumber, employeeId };
+    const text = '加载二维码中...';
+    this.renderOrCode(text);
+    const res = getResponse(await faceRecognitionQRcode(params));
+    if (res && !isEmpty(res)) {
+      img!.setAttribute('style', 'background: none');
+      this.setState({ loading: false });
+      this.renderOrCode(res);
+      this.timeFiveMinutes();
+    }
   }
 
   // 计时5分钟
@@ -67,12 +96,12 @@ export default class IdAuthentication extends Component<IdAuthenticationProps> {
   timeFiveMinutes() {
     let time = 5 * 60;
     const img = document.getElementById('qrcode');
-    const res = setInterval(() => {
+    this.interval = setInterval(() => {
       time--;
       if (time < 0) {
-        this.setState({ invalid: true, qrcode: 123 });
+        this.setState({ invalid: true });
         img!.setAttribute('style', 'background: #000; opacity: 0.1');
-        clearInterval(res);
+        clearInterval(this.interval);
       }
     }, 1000);
   }
@@ -80,6 +109,7 @@ export default class IdAuthentication extends Component<IdAuthenticationProps> {
   // 认证成功，继续开票
   @Bind()
   handleContinue() {
+    clearInterval(this.interval);
     this.props.onCloseModal();
     notification.success({
       description: '',
@@ -88,7 +118,7 @@ export default class IdAuthentication extends Component<IdAuthenticationProps> {
   }
 
   render() {
-    const { qrcode, invalid } = this.state;
+    const { loading, invalid } = this.state;
     return (
       <>
         <Alert
@@ -112,7 +142,7 @@ export default class IdAuthentication extends Component<IdAuthenticationProps> {
             {intl.get('hiop.taxInfo.modal.notification.scanQRCode').d(' 扫描二维码进行身份认证')}
           </p>
           <div className={styles.qrcode}>
-            {!qrcode && (
+            {loading && (
               <div className={styles.loadInfo}>
                 <Icon type="sync" style={{ color: 'rgb(7, 63, 247)' }} />
                 <span className={styles.loading}>
@@ -125,7 +155,7 @@ export default class IdAuthentication extends Component<IdAuthenticationProps> {
                 <span className={styles.invalidMessage}>
                   {intl.get('hiop.taxInfo.modal.notification.QRcodeInvild').d('二维码已失效')}
                 </span>
-                <Button onClick={this.getQrCode} icon="sync" color={ButtonColor.primary}>
+                <Button onClick={() => this.getQrCode(1)} icon="sync" color={ButtonColor.primary}>
                   {intl.get('hiop.taxInfo.modal.button.refresh').d('请刷新')}
                 </Button>
               </div>
@@ -139,7 +169,7 @@ export default class IdAuthentication extends Component<IdAuthenticationProps> {
           <Button color={ButtonColor.primary} onClick={() => this.handleContinue()}>
             {intl.get('hiop.taxInfo.modal.button.continue').d('认证成功，继续开票')}
           </Button>
-          <Button color={ButtonColor.primary} onClick={this.getQrCode}>
+          <Button color={ButtonColor.primary} onClick={() => this.getQrCode(1)}>
             {intl.get('hiop.taxInfo.modal.button.reAcquire').d('重新获取二维码')}
           </Button>
         </div>

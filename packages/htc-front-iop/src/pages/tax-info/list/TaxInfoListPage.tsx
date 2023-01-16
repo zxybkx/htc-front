@@ -58,6 +58,7 @@ const permissionPath = `${getPresentMenu().name}.ps`;
 export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
   state = {
     outChannelCode: undefined,
+    companyInfo: undefined as any,
   };
 
   tableLineDS = new DataSet({
@@ -355,10 +356,13 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
    */
   @Bind()
   idAuthentication() {
+    const { companyInfo } = this.state;
+    const { companyCode, employeeId, taxpayerNumber } = companyInfo;
+    const idAuthenticationProps = { companyCode, employeeId, taxpayerNumber };
     const modal = Modal.open({
       title: intl.get('hiop.taxInfo.modal.title.idAuthentication').d('身份认证'),
       closable: true,
-      children: <IdAuthentication onCloseModal={() => modal.close()} />,
+      children: <IdAuthentication {...idAuthenticationProps} onCloseModal={() => modal.close()} />,
       footer: null,
     });
   }
@@ -406,7 +410,7 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
       );
     });
     const buttonArray: JSX.Element[] = [];
-    if (outChannelCode !== 'DOUBLE_CHANNEL') {
+    if (outChannelCode === 'DOUBLE_CHANNEL') {
       buttonArray.push(
         <Button onClick={this.idAuthentication}>
           {intl.get('hiop.taxInfo.button.authorityIdAuthentication').d('电局身份认证')}
@@ -461,7 +465,7 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
       const { companyId, companyCode, employeeId, taxpayerNumber } = companyInfo;
       const resCop = await getTenantAgreementCompany({ companyId, tenantId });
       const { outChannelCode } = resCop;
-      this.setState({ outChannelCode });
+      this.setState({ outChannelCode, companyInfo });
       if (outChannelCode === 'DOUBLE_CHANNEL') {
         this.bluInvoiceDS.setQueryParameter('companyCode', companyCode);
         this.bluInvoiceDS.setQueryParameter('employeeId', employeeId);
