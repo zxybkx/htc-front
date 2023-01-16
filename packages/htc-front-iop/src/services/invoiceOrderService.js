@@ -391,6 +391,7 @@ export async function batchInvalid(params) {
     body: [otherParams],
   });
 }
+
 /**
  * @description: 电票=>电票下载
  * @function: paperDeliverNotice
@@ -402,5 +403,20 @@ export async function electronicDownload(params) {
   return request(`${HIOP_API}/v1/${tenantId}/invoicing-order-headers/electricity-ticket-download`, {
     method: 'POST',
     body: params,
+  });
+}
+
+/**
+ * @description: 订单行-商品折扣
+ * @function: paperDeliverNotice
+ * @param {object} params
+ * @returns {object} fetch Promise
+ */
+export async function batchSaveDiscount(params) {
+  const { tenantId, discountAmount, discountRate, list } = params;
+  return request(`${HIOP_API}/v1/${tenantId}/invoicing-order-lines/batch-save-discount`, {
+    method: 'POST',
+    query: { discountAmount, discountRate },
+    body: list,
   });
 }
