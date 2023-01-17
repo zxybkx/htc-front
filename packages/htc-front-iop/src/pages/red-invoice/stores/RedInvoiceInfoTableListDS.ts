@@ -279,6 +279,7 @@ export default (): DataSetProps => {
             lovPara: ({ record }) => {
               return { companyId: record.get('companyId') };
             },
+            required: ({ record }) => ['0', '52'].includes(record.get('invoiceTypeCode')),
           },
           ignore: FieldIgnore.always,
           required: true,
@@ -302,7 +303,9 @@ export default (): DataSetProps => {
           type: FieldType.string,
           bind: 'taxDiskNumberObj.extNumber',
           readOnly: true,
-          required: true,
+          computedProps: {
+            required: ({ record }) => ['0', '52'].includes(record.get('invoiceTypeCode')),
+          },
         },
         {
           name: 'invoiceTypeCode',
@@ -318,7 +321,9 @@ export default (): DataSetProps => {
           type: FieldType.string,
           lookupCode: 'HIOP.LATE_STATUS',
           defaultValue: 'N',
-          required: true,
+          computedProps: {
+            required: ({ record }) => ['0', '52'].includes(record.get('invoiceTypeCode')),
+          },
         },
       ],
     }),

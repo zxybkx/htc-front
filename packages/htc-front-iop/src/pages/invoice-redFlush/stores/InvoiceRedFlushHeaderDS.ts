@@ -67,6 +67,9 @@ export default (dsParams): DataSetProps => {
             record.set('deliveryWay', 0);
             record.set('electronicReceiverInfo', '');
           }
+          if (['85', '86'].includes(value)) {
+            record.set('remark', '');
+          }
         }
       },
       loadFailed: ({ dataSet }) => {
@@ -109,7 +112,7 @@ export default (dsParams): DataSetProps => {
             (record.get('invoiceVariety') !== '0' && record.get('invoiceVariety') !== '52') ||
             record.get('readonly'),
           required: ({ record }) =>
-            record.get('invoiceVariety') === '0' || record.get('invoiceVariety') === '52',
+            ['0', '52', '61', '81', '82', '85', '86'].includes(record.get('invoiceVariety')),
         },
         validator: (value, name, record) => redInfoSerialNumberValidator(value, name, record),
       },
@@ -119,8 +122,10 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         lookupCode: 'HMDM.INVOICE_TYPE',
         computedProps: {
-          readOnly: ({ record }) => ['0', '41', '52'].includes(record.get('invoiceVariety')),
+          readOnly: ({ record }) =>
+            ['0', '41', '52', '61', '81', '82'].includes(record.get('invoiceVariety')),
         },
+        required: true,
       },
       {
         name: 'billingType',
@@ -322,7 +327,8 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceRedFlush.modal.phoneOrEmail').d('手机/邮件'),
         type: FieldType.string,
         computedProps: {
-          required: ({ record }) => ['51', '52'].includes(record.get('invoiceVariety')),
+          required: ({ record }) =>
+            ['51', '52', '81', '61', '82'].includes(record.get('invoiceVariety')),
           pattern: ({ record }) => {
             if (record.get('electronicReceiverInfo')) {
               if (record.get('electronicReceiverInfo').indexOf('@') > -1) {
