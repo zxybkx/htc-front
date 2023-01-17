@@ -221,9 +221,23 @@ export default class SpecialRedInformationPage extends Component<
   @Bind()
   async handleCreateRedOrder() {
     const { queryDataSet } = this.props.headerDS;
-    const redInvoiceInfoHeaderIds = this.props.headerDS.selected
-      .map(rec => rec.get('redInvoiceInfoHeaderId'))
-      .join(',');
+    const list = this.props.headerDS.selected;
+    if (
+      list.some(record =>
+        ['02', '03', '05', '06', '07', '08'].includes(record.get('redInvoiceConfirmStatus'))
+      )
+    ) {
+      notification.error({
+        description: '',
+        message: intl
+          .get('hiop.redInvoiceInfo.notification.createRedOrder')
+          .d(
+            '信息表状态为“无需确认”、“购销双方已确认”和为空的，可以点击生成红字订单或者红字申请单'
+          ),
+      });
+      return;
+    }
+    const redInvoiceInfoHeaderIds = list.map(rec => rec.get('redInvoiceInfoHeaderId')).join(',');
     if (queryDataSet) {
       const curQueryInfo = queryDataSet.current!.toData();
       const { companyObj, ...otherData } = curQueryInfo;
@@ -255,13 +269,27 @@ export default class SpecialRedInformationPage extends Component<
    */
   @Bind()
   async handleCreateRedRequest() {
+    const list = this.props.headerDS.selected;
+    if (
+      list.some(record =>
+        ['02', '03', '05', '06', '07', '08'].includes(record.get('redInvoiceConfirmStatus'))
+      )
+    ) {
+      notification.error({
+        description: '',
+        message: intl
+          .get('hiop.redInvoiceInfo.notification.createRedOrder')
+          .d(
+            '信息表状态为“无需确认”、“购销双方已确认”和为空的，可以点击生成红字订单或者红字申请单'
+          ),
+      });
+      return;
+    }
     const companyCode = this.props.headerDS.current!.get('companyCode');
     const employeeNum =
       this.props.headerDS.queryDataSet &&
       this.props.headerDS.queryDataSet.current!.get('employeeNum');
-    const redInvoiceInfoHeaderIds = this.props.headerDS.selected
-      .map(rec => rec.get('redInvoiceInfoHeaderId'))
-      .join(',');
+    const redInvoiceInfoHeaderIds = list.map(rec => rec.get('redInvoiceInfoHeaderId')).join(',');
     const params = {
       organizationId,
       companyCode,
