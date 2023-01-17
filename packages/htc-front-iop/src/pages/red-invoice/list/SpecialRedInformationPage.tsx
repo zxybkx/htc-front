@@ -396,8 +396,8 @@ export default class SpecialRedInformationPage extends Component<
     const operators: any = [];
     if (
       outChannelCode === 'DOUBLE_CHANNEL' &&
-      ['61', '81', '82'].includes(invoiceTypeCode) &&
-      !['04', '05', '06', '07'].includes(redInvoiceConfirmStatus)
+      ['61', '81', '82', '85', '86'].includes(invoiceTypeCode) &&
+      ['02', '03'].includes(redInvoiceConfirmStatus)
     ) {
       if (!confirmType) {
         operators.push({

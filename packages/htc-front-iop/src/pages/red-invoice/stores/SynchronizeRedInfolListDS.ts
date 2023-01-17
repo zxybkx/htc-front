@@ -198,7 +198,7 @@ const HeaderDS = (): DataSetProps => {
         lookupCode: 'HIOP.LATE_STATUS',
         defaultValue: 'N',
         computedProps: {
-          required: ({ record }) => !['61', '81', '82'].includes(record.get('invoiceType')),
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceType')),
         },
       },
       {
