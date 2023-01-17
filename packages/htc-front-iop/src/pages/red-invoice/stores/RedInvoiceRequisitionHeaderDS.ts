@@ -13,7 +13,7 @@ import { getCurrentOrganizationId } from 'utils/utils';
 import { FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import moment from 'moment';
-import { DEFAULT_DATE_FORMAT } from 'utils/constants';
+import { DEFAULT_DATETIME_FORMAT } from 'utils/constants';
 
 /**
  * 只读校验规则
@@ -324,12 +324,12 @@ export default (dsParams): DataSetProps => {
       {
         name: 'invoiceDate',
         label: intl.get('hiop.invoiceWorkbench.modal.invoiceDate').d('开票日期'),
-        type: FieldType.date,
+        type: FieldType.dateTime,
         computedProps: {
           readOnly: ({ record }) => record.get('deductionStatus') !== '01',
           required: ({ record }) => record.get('deductionStatus') !== '01',
         },
-        transformRequest: value => value && moment(value).format(DEFAULT_DATE_FORMAT),
+        transformRequest: value => value && moment(value).format(DEFAULT_DATETIME_FORMAT),
       },
       {
         name: 'sellerName',
