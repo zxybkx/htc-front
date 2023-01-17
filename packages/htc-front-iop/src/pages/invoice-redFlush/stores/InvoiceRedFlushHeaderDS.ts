@@ -109,7 +109,7 @@ export default (dsParams): DataSetProps => {
         labelWidth: '120',
         computedProps: {
           readOnly: ({ record }) =>
-            (record.get('invoiceVariety') !== '0' && record.get('invoiceVariety') !== '52') ||
+            !['0', '52', '61', '81', '82', '85', '86'].includes(record.get('invoiceVariety')) ||
             record.get('readonly'),
           required: ({ record }) =>
             ['0', '52', '61', '81', '82', '85', '86'].includes(record.get('invoiceVariety')),

@@ -178,6 +178,11 @@ export default (): DataSetProps => {
             const { extNumber } = value;
             record.set('extensionNumberView', extNumber);
           }
+          if (name === 'invoiceTypeCode' && !['0', '52'].includes(value)) {
+            record.set('taxDiskNumberObj', null);
+            record.set('extensionNumber', null);
+            record.set('overdueStatus', null);
+          }
         },
       },
       fields: [
@@ -312,15 +317,15 @@ export default (): DataSetProps => {
           label: intl.get('hiop.invoiceWorkbench.modal.invoiceVariety').d('发票种类'),
           type: FieldType.string,
           lookupCode: 'HIOP.SPECIAL_VAT_INVOICE_TYPE',
-          defaultValue: 0,
-          required: true,
+          // defaultValue: 0,
+          // required: true,
         },
         {
           name: 'overdueStatus',
           label: intl.get('hiop.redInvoiceInfo.modal.overdueStatus').d('逾期状态'),
           type: FieldType.string,
           lookupCode: 'HIOP.LATE_STATUS',
-          defaultValue: 'N',
+          // defaultValue: 'N',
           computedProps: {
             required: ({ record }) => ['0', '52'].includes(record.get('invoiceTypeCode')),
           },
