@@ -230,7 +230,9 @@ const HeaderDS = (): DataSetProps => {
         type: FieldType.string,
         lookupCode: 'HIOP.RED_DOWNLOAD_SCOPE',
         defaultValue: 0,
-        required: true,
+        computedProps: {
+          required: ({ record }) => ['0', '52'].includes(record.get('invoiceType')),
+        },
         labelWidth: '120',
       },
       {

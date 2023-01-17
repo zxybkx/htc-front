@@ -22,7 +22,7 @@ import {
   Table,
   TextField,
 } from 'choerodon-ui/pro';
-import { Col, Icon, Row, Tag } from 'choerodon-ui';
+import { Col, Row, Tag } from 'choerodon-ui';
 import { Buttons } from 'choerodon-ui/pro/lib/table/Table';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import formatterCollections from 'utils/intl/formatterCollections';
@@ -73,7 +73,6 @@ export default class SpecialRedInformationPage extends Component<
 > {
   state = {
     outChannelCode: undefined,
-    showMore: false,
   };
 
   async componentDidMount() {
@@ -116,14 +115,7 @@ export default class SpecialRedInformationPage extends Component<
   @Bind()
   renderQueryBar(props) {
     const { queryDataSet, dataSet, buttons } = props;
-    const { showMore } = this.state;
     if (queryDataSet) {
-      const queryMoreArray: JSX.Element[] = [];
-      queryMoreArray.push(<DateTimePicker name="redInvoiceDate" />);
-      queryMoreArray.push(<Lov name="taxDiskNumberObj" />);
-      queryMoreArray.push(<TextField name="extensionNumber" />);
-      queryMoreArray.push(<Select name="invoiceTypeCode" />);
-      queryMoreArray.push(<Select name="overdueStatus" />);
       return (
         <>
           <Row type="flex" style={{ flexWrap: 'nowrap' }}>
@@ -132,19 +124,14 @@ export default class SpecialRedInformationPage extends Component<
                 <Lov name="companyObj" onChange={this.getChannelCode} />
                 <TextField name="employeeDesc" />
                 <TextField name="taxpayerNumber" />
-                {showMore && queryMoreArray}
+                <DateTimePicker name="redInvoiceDate" />
+                <Lov name="taxDiskNumberObj" />
+                <TextField name="extensionNumber" />
+                <Select name="invoiceTypeCode" />
+                <Select name="overdueStatus" />
               </Form>
             </Col>
             <Col>
-              <Button
-                funcType={FuncType.link}
-                onClick={() => this.setState({ showMore: !showMore })}
-              >
-                <span>
-                  {intl.get('hzero.common.button.option').d('更多')}
-                  {showMore ? <Icon type="expand_more" /> : <Icon type="expand_less" />}
-                </span>
-              </Button>
               <Button
                 onClick={() => {
                   queryDataSet.reset();
