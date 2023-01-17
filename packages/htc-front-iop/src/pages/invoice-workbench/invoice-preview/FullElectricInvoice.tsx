@@ -2,7 +2,7 @@
  * @Description: 全电专普票预览
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2023-01-04 15:54:20
- * @LastEditTime: 2023-01-12 15:38:57
+ * @LastEditTime: 2023-01-16 18:30:53
  * @Copyright: Copyright (c) 2020, Hand
  */
 
@@ -187,7 +187,7 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
                   <div className={style.invoiceInfoFooter__lab}>备注</div>
                   <div style={{ padding: '16px' }}>
                     {remarkDom}
-                    <div className={style.color333}>{invoiceData.userRemark}</div>
+                    <pre className={style.color333}>{invoiceData.userRemark}</pre>
                   </div>
                 </div>
               </div>

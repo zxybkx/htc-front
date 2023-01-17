@@ -569,8 +569,16 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       urlSourceType !== 'TOBE';
     const typeRes = ['61', '81', '82', '83', '84', '85', '86', '87', '88'].includes(invoiceType)
       ? [
-          { name: 'specialTaxationMethod', width: 140 },
-          { name: 'taxPreferPolicyTypeCode', width: 140 },
+          {
+            name: 'specialTaxationMethod',
+            editor: record => adjustEditAble(record) && <Select name="specialTaxationMethod" />,
+            width: 140,
+          },
+          {
+            name: 'taxPreferPolicyTypeCode',
+            editor: record => adjustEditAble(record) && <Select name="taxPreferPolicyTypeCode" />,
+            width: 140,
+          },
         ]
       : [
           {

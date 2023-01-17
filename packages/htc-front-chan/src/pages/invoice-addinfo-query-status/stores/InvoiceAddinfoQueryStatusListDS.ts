@@ -194,11 +194,6 @@ export default (): DataSetProps => {
         type: FieldType.string,
       },
       {
-        name: 'fullElectDeliverStatus',
-        label: intl.get(`${modelCode}.view.fullElectDeliverStatus`).d('全电发票交付状态'),
-        type: FieldType.string,
-      },
-      {
         name: 'fullElectDeliverNum',
         label: intl.get(`${modelCode}.view.fullElectDeliverNum`).d('全电发票交付重试次数'),
         type: FieldType.string,
