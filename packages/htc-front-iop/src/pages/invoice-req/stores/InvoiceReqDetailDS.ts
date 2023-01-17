@@ -34,7 +34,7 @@ const receiptRequiredRule = (record, name) => {
     ['0', '52'].includes(invoiceType)
   ) {
     return true;
-  } else if (['2', '41', '51'].includes(invoiceType)) {
+  } else if (['2', '41', '51', '61', '81', '82', '85', '86'].includes(invoiceType)) {
     if (requestType === 'PURCHASE_INVOICE') {
       return name !== 'receiptAccount';
     } else if (['PROFORMA_INVOICE', 'SALES_INVOICE'].includes(requestType)) {
@@ -320,7 +320,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'fullElectricAddress',
-        label: intl.get('htc.common.modal.fullElectricAddress').d('地址'),
+        label: intl.get('htc.common.modal.sellerAddress').d('地址'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
@@ -329,7 +329,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'fullElectricPhone',
-        label: intl.get('htc.common.modal.fullElectricPhone').d('电话'),
+        label: intl.get('htc.common.modal.sellerPhone').d('电话'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
@@ -349,7 +349,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'fullElectricOpeanBank',
-        label: intl.get('htc.common.modal.fullElectricOpeanBank').d('开户行'),
+        label: intl.get('htc.common.modal.buyerOpeanBank').d('开户行'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
@@ -358,7 +358,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'fullElectricBankAccount',
-        label: intl.get('htc.common.modal.fullElectricBankAccount').d('账号'),
+        label: intl.get('htc.common.modal.buyerBankAccount').d('账号'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) => headerReadOnlyRule(record),
@@ -921,7 +921,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'buildingCrossCitySign',
-        label: intl.get('hiop.invoiceWorkbench.view.buildingCrossCitySign').d('跨地市标志'),
+        label: intl.get('hiop.invoiceWorkbench.view.leaseCrossCitySign').d('跨地市标志'),
         type: FieldType.string,
         computedProps: {
           required: ({ record }) => ctnServicesRequiredRule(record),

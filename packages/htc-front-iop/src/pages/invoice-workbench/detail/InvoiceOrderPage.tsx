@@ -384,8 +384,16 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     const regExp = /(^\d*.0*$)/;
     const typeRes = ['61', '81', '82', '83', '84', '85', '86', '87', '88'].includes(invoiceVariety)
       ? [
-          { name: 'specialTaxationMethod', width: 140 },
-          { name: 'taxPreferPolicyTypeCode', width: 140 },
+          {
+            name: 'specialTaxationMethod',
+            width: 140,
+            editor: adjustEditAble() && <Select name="specialTaxationMethod" />,
+          },
+          {
+            name: 'taxPreferPolicyTypeCode',
+            width: 140,
+            editor: adjustEditAble() && <Select name="taxPreferPolicyTypeCode" />,
+          },
         ]
       : [
           { name: 'zeroTaxRateFlag', editor: !isDisabled, width: 180 },
@@ -1232,8 +1240,8 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         <TextField name="realEstateAddress" labelWidth={140} />,
         <TextField name="realEstateDetailAddress" labelWidth={140} />,
         <Select name="leaseCrossCitySign">
-          <Option value="Y">是</Option>
-          <Option value="N">否</Option>
+          <Option value="Y">{intl.get('hzero.common.yes').d('是')}</Option>
+          <Option value="N">{intl.get('hzero.common.no').d('否')}</Option>
         </Select>,
         <DatePicker name="leaseTermFrom" />,
         <DatePicker name="leaseTermTo" />,
@@ -1246,8 +1254,8 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
         <TextField name="occurDetailAddress" labelWidth={140} />,
         <TextField name="buildingProjectName" labelWidth={140} />,
         <Select name="buildingCrossCitySign">
-          <Option value="Y">是</Option>
-          <Option value="N">否</Option>
+          <Option value="Y">{intl.get('hzero.common.yes').d('是')}</Option>
+          <Option value="N">{intl.get('hzero.common.no').d('否')}</Option>
         </Select>,
         <TextField name="landVatItemNo" />,
       ];

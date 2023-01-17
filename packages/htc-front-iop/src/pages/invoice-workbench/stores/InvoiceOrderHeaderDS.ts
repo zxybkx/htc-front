@@ -161,6 +161,8 @@ export default (dsParams): DataSetProps => {
           setCustomerInfo(value, oldValue, record, 1, dsParams.companyId);
         }
         if (name === 'invoiceTypeObj' && value) {
+          console.log(123124);
+
           const invoiceVariety = value.value;
           if (
             invoiceVariety !== '51' &&
@@ -332,7 +334,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'buyerAddress',
-        label: intl.get('htc.common.modal.gmfdz').d('地址'),
+        label: intl.get('htc.common.modal.sellerAddress').d('地址'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -342,7 +344,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'buyerPhone',
-        label: intl.get('htc.common.modal.gmflxdh').d('电话'),
+        label: intl.get('htc.common.modal.sellerPhone').d('电话'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -363,7 +365,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'buyerOpeanBank',
-        label: intl.get('htc.common.modal.gmfkhh').d('开户行'),
+        label: intl.get('htc.common.modal.buyerOpeanBank').d('开户行'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -373,7 +375,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'buyerBankAccount',
-        label: intl.get('htc.common.modal.gmfyhzh').d('银行账号'),
+        label: intl.get('htc.common.modal.buyerBankAccount').d('银行账号'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -444,7 +446,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'sellerAddress',
-        label: intl.get('htc.common.modal.xsfdz').d('地址'),
+        label: intl.get('htc.common.modal.sellerAddress').d('地址'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -454,7 +456,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'sellerPhone',
-        label: intl.get('htc.common.modal.xsflxdh').d('电话'),
+        label: intl.get('htc.common.modal.sellerPhone').d('电话'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -474,7 +476,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'sellerOpeanBank',
-        label: intl.get('htc.common.modal.xsfkhh').d('开户行'),
+        label: intl.get('htc.common.modal.buyerOpeanBank').d('开户行'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -484,7 +486,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'sellerBankAccount',
-        label: intl.get('htc.common.modal.xsfyhzh').d('银行账号'),
+        label: intl.get('htc.common.modal.buyerBankAccount').d('银行账号'),
         type: FieldType.string,
         computedProps: {
           readOnly: ({ record }) =>
@@ -679,7 +681,7 @@ export default (dsParams): DataSetProps => {
       },
       {
         name: 'buildingCrossCitySign',
-        label: intl.get('hiop.invoiceWorkbench.view.buildingCrossCitySign').d('跨地市标志'),
+        label: intl.get('hiop.invoiceWorkbench.view.leaseCrossCitySign').d('跨地市标志'),
         type: FieldType.string,
         computedProps: {
           required: ({ record }) => ctnServicesRequiredRule(record),
