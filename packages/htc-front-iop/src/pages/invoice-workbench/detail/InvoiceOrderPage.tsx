@@ -46,8 +46,10 @@ import {
   orderCopy,
   orderNew,
   review,
+  batchSaveDiscount,
 } from '@src/services/invoiceOrderService';
 import { closeTab } from 'utils/menuTab';
+import { observer } from 'mobx-react-lite';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { find, isEmpty, last, replace } from 'lodash';
 import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
@@ -58,7 +60,7 @@ import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
 import InvoiceQueryTable from '@src/utils/invoice-query/InvoiceQueryTable';
 import { FormLayout } from 'choerodon-ui/pro/lib/form/enum';
 import InvoiceOrderHeaderDS from '../stores/InvoiceOrderHeaderDS';
-import InvoiceOrderLinesDS from '../stores/InvoiceOrderLinesDS';
+import InvoiceOrderLinesDS, { CommodityDiscountDS } from '../stores/InvoiceOrderLinesDS';
 import IssuePreview from './IssuesPreview';
 import FullElectricInvoice from '../invoice-preview/FullElectricInvoice';
 import styles from '../invoiceWorkbench.module.less';
@@ -80,6 +82,7 @@ interface InvoiceOrderPageProps extends RouteComponentProps {
     'hiop.tobeInvoice',
     'hivp.invoices',
     'hivp.invoicesArchiveUpload',
+    'hivp.checkCertification',
   ],
 })
 export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
@@ -95,6 +98,11 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     children: {
       lineData: this.invoiceOrderLinesDS,
     },
+  });
+
+  commodityDiscountDS = new DataSet({
+    autoQuery: false,
+    ...CommodityDiscountDS(),
   });
 
   state = {
@@ -874,12 +882,100 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
     }
   }
 
+  @Bind()
+  commodityRate(value) {
+    if (value) {
+      const amount = this.commodityDiscountDS.current!.get('amount');
+      const discountAmount = Number(((amount * value) / 100).toFixed(2));
+      this.commodityDiscountDS.current!.set({ discountAmount });
+    }
+  }
+
+  @Bind()
+  commodityDiscountAmount(value) {
+    const amount = this.commodityDiscountDS.current!.get('amount');
+    if (value && amount !== 0) {
+      const discountRate = Number(((value / amount) * 100).toFixed(3));
+      this.commodityDiscountDS.current!.set({ discountRate });
+    }
+  }
+
+  @Bind()
+  async handleCommodityDiscount() {
+    const list = this.invoiceOrderLinesDS.selected.map(record => record.toData());
+    const discountRate = this.commodityDiscountDS.current!.get('discountRate');
+    const discountAmount = this.commodityDiscountDS.current!.get('discountAmount');
+    const params = {
+      tenantId,
+      discountAmount,
+      discountRate,
+      list,
+    };
+    const res = getResponse(await batchSaveDiscount(params));
+    if (res) {
+      this.invoiceOrderLinesDS.query();
+    }
+  }
+
+  commodityCount() {
+    const list = this.invoiceOrderLinesDS.selected.map(record => record.toData());
+    if (list.some(item => item.invoiceLineNature === '1')) {
+      notification.error({
+        description: '',
+        message: intl
+          .get('hiop.invoiceWorkbench.notification.error.commodityCount')
+          .d('存在折扣行，无法再添加折扣'),
+      });
+      return;
+    }
+    const number = list.length;
+    let amount = 0;
+    list.forEach(item => {
+      amount += item.amount;
+    });
+    this.commodityDiscountDS.create({ number, amount });
+    Modal.open({
+      title: intl.get('hiop.invoiceWorkbench.modal.title.discount').d('商品折扣'),
+      children: (
+        <Form dataSet={this.commodityDiscountDS}>
+          <TextField name="number" />
+          <Currency
+            name="amount"
+            addonAfter={intl.get('hivp.checkCertification.unit.yuan').d('元')}
+          />
+          <TextField name="discountRate" addonAfter="%(0.001~100)" onChange={this.commodityRate} />
+          <TextField
+            name="discountAmount"
+            addonAfter={intl
+              .get('hiop.invoiceWorkbench.modal.discountAmountAddonAfter')
+              .d('元(0.01~被折扣行金额)')}
+            onChange={this.commodityDiscountAmount}
+          />
+        </Form>
+      ),
+      onOk: () => this.handleCommodityDiscount(),
+    });
+  }
+
   /**
    * 返回表格行按钮
    * @return {*[]}
    */
   get lineButton(): Buttons[] {
     const { isDisabled, addDisabled } = this.state;
+    const DiscountButton = observer((props: any) => {
+      const discountDisabled = props.dataSet!.selected.length === 0;
+      return (
+        <Button
+          key={props.key}
+          onClick={props.onClick}
+          disabled={isDisabled || discountDisabled}
+          funcType={props.funcType}
+        >
+          {props.title}
+        </Button>
+      );
+    });
     return [
       <Button
         icon="playlist_add"
@@ -890,6 +986,13 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       >
         {intl.get('hzero.common.add').d('新增')}
       </Button>,
+      <DiscountButton
+        key="batchDiscount"
+        funcType={FuncType.link}
+        onClick={() => this.commodityCount()}
+        dataSet={this.invoiceOrderLinesDS}
+        title={intl.get('hiop.invoiceWorkbench.button.batchDiscount').d('折扣')}
+      />,
     ];
   }
 

@@ -447,7 +447,7 @@ export default (): DataSetProps => {
       },
     },
     primaryKey: 'invoicingOrderLineId',
-    selection: false,
+    // selection: false,
     paging: false,
     events: {
       update: ({ dataSet, record, name, value }) => {
@@ -740,3 +740,38 @@ export default (): DataSetProps => {
     ],
   };
 };
+
+const CommodityDiscountDS = (): DataSetProps => {
+  return {
+    fields: [
+      {
+        name: 'number',
+        label: intl.get('hiop.invoiceWorkbench.modal.zkhs').d('折扣行数'),
+        type: FieldType.number,
+        readOnly: true,
+      },
+      {
+        name: 'amount',
+        label: intl.get('htc.common。view.amount').d('金额'),
+        type: FieldType.currency,
+        readOnly: true,
+      },
+      {
+        name: 'discountRate',
+        label: intl.get('hiop.invoiceWorkbench.modal.discountRate').d('折扣率'),
+        type: FieldType.number,
+        required: true,
+        min: 0.001,
+        max: 100,
+        precision: 3,
+      },
+      {
+        name: 'discountAmount',
+        label: intl.get('hiop.invoiceReq.modal.discountAmount').d('折扣金额'),
+        type: FieldType.currency,
+        required: true,
+      },
+    ],
+  };
+};
+export { CommodityDiscountDS };
