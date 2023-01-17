@@ -466,7 +466,7 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     const headerData = this.invoiceRedFlushHeaderDS.current!.toData();
     const { blueInvoiceCode, blueInvoiceNo } = headerData;
     const { invoiceVariety } = this.state;
-    if (invoiceVariety === '0' || invoiceVariety === '52') {
+    if (['0', '52', '61', '81', '82', '85', '86'].includes(invoiceVariety)) {
       this.redInvoiceInfoLinesDS.setQueryParameter('blueInvoiceCode', blueInvoiceCode);
       this.redInvoiceInfoLinesDS.setQueryParameter('blueInvoiceNo', blueInvoiceNo);
       this.redInvoiceInfoLinesDS.query();
