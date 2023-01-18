@@ -400,12 +400,15 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
   @Bind()
   redInfoSerialChange(value) {
     if (value) {
-      const validateNumber = new RegExp(/^\d{16}$/);
-      if (validateNumber.test(value)) {
-        this.invoiceRedFlushLineDS.setQueryParameter('redInvoiceHeaderId', null);
-        this.renderSpecialRemark(value);
-        this.queryLines();
-      }
+      this.invoiceRedFlushLineDS.setQueryParameter('redInvoiceHeaderId', null);
+      this.renderSpecialRemark(value);
+      this.queryLines();
+      // const validateNumber = new RegExp(/^\d{16}$/);
+      // if (validateNumber.test(value)) {
+      //   this.invoiceRedFlushLineDS.setQueryParameter('redInvoiceHeaderId', null);
+      //   this.renderSpecialRemark(value);
+      //   this.queryLines();
+      // }
     }
   }
 
