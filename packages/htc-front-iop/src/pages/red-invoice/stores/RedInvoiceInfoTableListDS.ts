@@ -11,6 +11,7 @@ import { AxiosRequestConfig } from 'axios';
 import { DataSetProps } from 'choerodon-ui/pro/lib/data-set/DataSet';
 import { DataSet } from 'choerodon-ui/pro';
 import { getCurrentOrganizationId } from 'utils/utils';
+import { getTenantAgreementCompany } from '@htccommon/services/commonService';
 import { DataSetSelection, FieldIgnore, FieldType } from 'choerodon-ui/pro/lib/data-set/enum';
 import intl from 'utils/intl';
 import { DEFAULT_DATETIME_FORMAT } from 'utils/constants';
@@ -167,11 +168,20 @@ export default (): DataSetProps => {
             record.set('employeeDesc', employeeDesc);
             record.set('taxpayerNumber', taxpayerNumber);
             /* 设置金税盘编码默认值 */
-            const taxDiskRes = await queryUnifyIdpValue('HIOP.TAX_DISK_NUMBER', { companyId });
-            if (taxDiskRes && taxDiskRes.length > 0) {
-              const taxNumberInfo = taxDiskRes[0];
-              record.set('taxDiskNumberObj', taxNumberInfo);
-              record.set('extensionNumber', taxNumberInfo.extNumber);
+            record.set('taxDiskNumberObj', null);
+            record.set('extensionNumber', null);
+            const resCop = await getTenantAgreementCompany({
+              companyId: value.companyId,
+              tenantId: organizationId,
+            });
+            const { outChannelCode } = resCop;
+            if (outChannelCode !== 'DOUBLE_CHANNEL') {
+              const taxDiskRes = await queryUnifyIdpValue('HIOP.TAX_DISK_NUMBER', { companyId });
+              if (taxDiskRes && taxDiskRes.length > 0) {
+                const taxNumberInfo = taxDiskRes[0];
+                record.set('taxDiskNumberObj', taxNumberInfo);
+                record.set('extensionNumber', taxNumberInfo.extNumber);
+              }
             }
           }
           if (value && name === 'taxDiskNumberObj') {

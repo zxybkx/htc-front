@@ -14,6 +14,7 @@ import {
   Button,
   Currency,
   DataSet,
+  DatePicker,
   DateTimePicker,
   Form,
   Lov,
@@ -856,7 +857,7 @@ export default class SpecialRedApplicationPage extends Component<RedInvoiceRequi
                   <TextField name="blueInvoiceCode" />
                 )}
                 <TextField name="blueInvoiceNo" label={bottomNoLabel} />
-                <DateTimePicker name="invoiceDate" label={dateLabel} />
+                <DatePicker name="invoiceDate" label={dateLabel} />
               </Form>
             </Spin>
           </Card>
