@@ -2,7 +2,7 @@
  * @Description: 通用发票表格
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2023-01-05 17:06:17
- * @LastEditTime: 2023-01-12 15:29:49
+ * @LastEditTime: 2023-01-18 10:29:47
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React from 'react';
@@ -63,7 +63,6 @@ export default ({ lineData }) => (
           </tr>
         );
       })}
-      ;
     </tbody>
   </table>
 );

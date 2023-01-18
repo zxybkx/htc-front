@@ -17,25 +17,20 @@ import { DataSetSelection, FieldType } from 'choerodon-ui/pro/lib/data-set/enum'
 export default (dsProps): DataSetProps => {
   const API_PREFIX = commonConfig.IOP_API || '';
   const tenantId = getCurrentOrganizationId();
-  const { invoiceType, companyCode, employeeNum } = dsProps;
-  const isQueryAllChecked = invoiceType && ['0', '52'].includes(invoiceType);
+  const { companyCode, employeeNum, employeeId, taxpayerNumber } = dsProps;
+
   return {
     transport: {
-      read: (config): AxiosRequestConfig => {
-        const { isQueryAll } = config.data;
-        let url = `${API_PREFIX}/v1/${tenantId}/htc-enterprise-information/enterprise-information-standard`;
-        if (isQueryAll === 'Y') {
-          url = `${API_PREFIX}/v1/${tenantId}/htc-enterprise-information/enterprise-information`;
-        }
+      read: (): AxiosRequestConfig => {
+        const url = `${API_PREFIX}/v1/${tenantId}/htc-enterprise-information/smart-head-up`;
         const axiosConfig: AxiosRequestConfig = {
-          // ...config,
           url,
           params: {
-            // ...config.params,
             tenantId,
             companyCode,
+            employeeId,
             employeeNumber: employeeNum,
-            enterpriseNameAndCodeDTO: { enterpriseName: config.data.enterpriseName },
+            taxpayerNumber,
           },
           method: 'POST',
         };
@@ -43,20 +38,21 @@ export default (dsProps): DataSetProps => {
       },
     },
     events: {
-      beforeLoad: ({ data }) => {
-        const oldData = [...data];
-        data.splice(0, data.length);
-        if (oldData[0] && oldData[0].data.length > 0) {
-          oldData[0].data.forEach((rec) => data.push(rec));
-        }
-      },
+      // beforeLoad: ({ data }) => {
+      //   console.log('///', data);
+      //   // const oldData = [...data];
+      //   // data.splice(0, data.length);
+      //   // if (oldData[0] && oldData[0].data.length > 0) {
+      //   //   oldData[0].data.forEach((rec) => data.push(rec));
+      //   // }
+      // },
     },
     // pageSize: 10,
     paging: false,
     selection: DataSetSelection.single,
     fields: [
       {
-        name: 'enterpriseName',
+        name: 'taxpayerName',
         label: intl.get('hiop.invoiceQuery.modal.enterpriseName').d('企业名称'),
         type: FieldType.string,
       },
@@ -66,28 +62,43 @@ export default (dsProps): DataSetProps => {
         type: FieldType.string,
       },
       {
-        name: 'businessAddressPhone',
-        label: intl.get('htc.common.modal.companyAddressPhone').d('地址、电话'),
+        name: 'depositBankName',
+        label: intl.get('htc.common.modal.depositBankName').d('开户行名称'),
         type: FieldType.string,
       },
       {
-        name: 'corporateBankAccount',
-        label: intl.get('htc.common.modal.bankNumber').d('开户行及账号'),
+        name: 'bankAccount',
+        label: intl.get('htc.common.modal.bankAccount').d('银行账号'),
+        type: FieldType.string,
+      },
+      {
+        name: 'phoneNumber',
+        label: intl.get('htc.common.modal.phoneNumber').d('联系电话'),
+        type: FieldType.string,
+      },
+      {
+        name: 'address',
+        label: intl.get('htc.common.modal.address').d('地址'),
+        type: FieldType.string,
+      },
+      {
+        name: 'taxpayerRiskLevel',
+        label: intl.get('htc.common.modal.taxpayerRiskLevel').d('纳税人风险等级'),
         type: FieldType.string,
       },
     ],
     queryDataSet: new DataSet({
       fields: [
         {
-          name: 'enterpriseName',
+          name: 'taxpayerRetrievedName',
           label: intl.get('hiop.invoiceQuery.modal.enterpriseName').d('企业名称'),
           type: FieldType.string,
           required: true,
           computedProps: {
             pattern: function pattern(_ref4) {
               const { record } = _ref4;
-              const validateName = new RegExp(/^[\u4e00-\u9fa5]{3,}$/);
-              const value = record.get('enterpriseName');
+              const validateName = new RegExp(/^[\u4e00-\u9fa5]{4,}$/);
+              const value = record.get('taxpayerRetrievedName');
               if (value) {
                 return validateName;
               }
@@ -96,17 +107,8 @@ export default (dsProps): DataSetProps => {
           defaultValidationMessages: {
             patternMismatch: intl
               .get('hiop.invoiceQuery.message.enterpriseName')
-              .d('请输入至少3个中文字符'),
+              .d('请输入至少4个中文字符'),
           },
-        },
-        {
-          name: 'isQueryAll',
-          label: intl.get('hiop.invoiceQuery.modal.isQueryAll').d('查询全部信息'),
-          type: FieldType.boolean,
-          trueValue: 'Y',
-          falseValue: 'N',
-          defaultValue: 'N',
-          readOnly: isQueryAllChecked,
         },
       ],
     }),

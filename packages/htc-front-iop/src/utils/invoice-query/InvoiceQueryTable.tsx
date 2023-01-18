@@ -7,7 +7,7 @@
  * @Copyright: Copyright (c) 2020, Hand
  */
 import React, { Component } from 'react';
-import { Button, CheckBox, DataSet, Form, Table, TextField } from 'choerodon-ui/pro';
+import { Button, DataSet, Form, Table, TextField } from 'choerodon-ui/pro';
 import { Col, Row } from 'choerodon-ui';
 import intl from 'utils/intl';
 import formatterCollections from 'utils/intl/formatterCollections';
@@ -15,7 +15,6 @@ import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import { SelectionMode } from 'choerodon-ui/pro/lib/table/enum';
 import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import { Bind } from 'lodash-decorators';
-import { concat } from 'lodash';
 import InvoiceQueryListDS from './stores/InvoiceQueryListDS';
 
 interface InvoiceQueryTableProps {
@@ -38,35 +37,27 @@ interface InvoiceQueryTableProps {
   ],
 })
 export default class InvoiceQueryTable extends Component<InvoiceQueryTableProps> {
-  state = { isQueryAll: false };
-
   invoiceQueryListDS = new DataSet({
     autoQuery: false,
     ...InvoiceQueryListDS(this.props),
   });
 
   componentDidMount() {
-    const { invoiceType, enterpriseName } = this.props;
+    const { enterpriseName } = this.props;
     const { queryDataSet } = this.invoiceQueryListDS;
     if (queryDataSet) {
       if (!queryDataSet.current) {
         queryDataSet.create();
       }
-      if (['0', '52'].includes(invoiceType)) {
-        queryDataSet.getField('isQueryAll')!.set('defaultValue', 'Y');
-        queryDataSet.current!.set({ isQueryAll: 'Y' });
-        this.setState({ isQueryAll: true });
-      }
       if (enterpriseName) {
-        queryDataSet.current!.set({ enterpriseName });
+        queryDataSet.current!.set({ taxpayerRetrievedName: enterpriseName });
         this.invoiceQueryListDS.query();
       }
     }
   }
 
   get columns(): ColumnProps[] {
-    const { isQueryAll } = this.state;
-    const initialColumns = [
+    return [
       {
         header: intl.get('htc.common.orderSeq').d('序号'),
         width: 60,
@@ -74,19 +65,19 @@ export default class InvoiceQueryTable extends Component<InvoiceQueryTableProps>
           return dataSet && record ? dataSet.indexOf(record) + 1 : '';
         },
       },
-      { name: 'enterpriseName' },
+      { name: 'taxpayerName' },
       { name: 'taxpayerNumber' },
+      { name: 'depositBankName' },
+      { name: 'bankAccount' },
+      { name: 'phoneNumber' },
+      { name: 'address' },
+      { name: 'taxpayerRiskLevel' },
     ];
-    const otherColumns = [{ name: 'businessAddressPhone' }, { name: 'corporateBankAccount' }];
-    return isQueryAll ? concat(initialColumns, otherColumns) : initialColumns;
   }
 
   @Bind()
   handleQuery() {
     this.invoiceQueryListDS.query();
-    this.setState({
-      isQueryAll: this.invoiceQueryListDS.queryDataSet!.current!.get('isQueryAll') === 'Y',
-    });
   }
 
   @Bind()
@@ -98,16 +89,12 @@ export default class InvoiceQueryTable extends Component<InvoiceQueryTableProps>
           <Row type="flex" justify="space-between" align="middle">
             <Col span={18}>
               <Form columns={queryFieldsLimit} dataSet={queryDataSet}>
-                <TextField name="enterpriseName" colSpan={2} />
-                <CheckBox name="isQueryAll" />
+                <TextField name="taxpayerRetrievedName" colSpan={2} />
               </Form>
             </Col>
             <Col span={6} style={{ textAlign: 'end' }}>
               <Button color={ButtonColor.primary} onClick={this.handleQuery}>
                 {intl.get('hzero.common.button.search').d('查询')}
-              </Button>
-              <Button color={ButtonColor.primary} onClick={this.chooseCompany}>
-                {intl.get('hzero.common.button.select').d('选择')}
               </Button>
             </Col>
           </Row>
@@ -118,19 +105,42 @@ export default class InvoiceQueryTable extends Component<InvoiceQueryTableProps>
   }
 
   @Bind()
-  chooseCompany() {
-    const { sourceRecord, sourceField } = this.props;
-    const lists = this.invoiceQueryListDS.selected.map(rec => rec.toData());
-    sourceRecord.set(sourceField, lists[0]);
-    this.props.onCloseModal();
-  }
-
-  @Bind()
   handleRow(record) {
     const { sourceRecord, sourceField } = this.props;
     return {
       onDoubleClick: () => {
-        sourceRecord.set(sourceField, record.toData());
+        const {
+          address,
+          bankAccount,
+          depositBankName,
+          phoneNumber,
+          taxpayerName,
+          taxpayerNumber,
+          // taxpayerRiskLevel,
+        } = record.toData();
+        sourceRecord.set(sourceField, {
+          enterpriseName: taxpayerName,
+          taxpayerNumber,
+          businessAddressPhone: `${address || ''}${phoneNumber || ''}`,
+          corporateBankAccount: `${depositBankName || ''}${bankAccount || ''}`,
+        });
+
+        if (sourceField === 'receiptObj' && 'fullElectricOpeanBank' in sourceRecord.data) {
+          sourceRecord.set('fullElectricOpeanBank', depositBankName);
+          sourceRecord.set('fullElectricBankAccount', bankAccount);
+          sourceRecord.set('fullElectricAddress', address);
+          sourceRecord.set('fullElectricPhone', phoneNumber);
+        } else if (sourceField === 'buyerObj') {
+          sourceRecord.set('buyerOpeanBank', depositBankName);
+          sourceRecord.set('buyerBankAccount', bankAccount);
+          sourceRecord.set('buyerAddress', address);
+          sourceRecord.set('buyerPhone', phoneNumber);
+        } else {
+          sourceRecord.set('sellerOpeanBank', depositBankName);
+          sourceRecord.set('sellerBankAccount', bankAccount);
+          sourceRecord.set('sellerAddress', address);
+          sourceRecord.set('sellerPhone', phoneNumber);
+        }
         this.props.onCloseModal();
       },
     };

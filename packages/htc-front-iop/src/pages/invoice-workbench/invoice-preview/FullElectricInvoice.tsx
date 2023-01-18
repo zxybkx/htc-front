@@ -2,7 +2,7 @@
  * @Description: 全电专普票预览
  * @Author: xinyan.zhou@hand-china.com
  * @Date: 2023-01-04 15:54:20
- * @LastEditTime: 2023-01-16 18:30:53
+ * @LastEditTime: 2023-01-18 10:28:51
  * @Copyright: Copyright (c) 2020, Hand
  */
 
@@ -40,13 +40,15 @@ const IssuePreview: FunctionComponent<Props> = (props: Props) => {
     landVatItemNo,
     buildingCrossCitySign,
   } = invoiceData;
-  const transLines = lines.map(item => {
-    const tempObj = {
-      ...item,
-      amount: item.amount - item.taxAmount,
-    };
-    return tempObj;
-  });
+  const transLines =
+    lines &&
+    lines.map(item => {
+      const tempObj = {
+        ...item,
+        amount: item.amount - item.taxAmount,
+      };
+      return tempObj;
+    });
   let remarkDom: ReactElement | null = null;
   let headerLeftDom: ReactElement | null = null;
   let tableDom: ReactElement = <SimpleTable lineData={transLines} />;

@@ -117,7 +117,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     curCompanyId: undefined,
     showMore: false,
     deliverModalTag: true, // true 批量交付 false 单个交付
-    outChannelCode: undefined, // 判断是否双规开票通道 DOUBLE_CHANNEL
+    outChannelCode: undefined,
   };
 
   deliverInfoDS = dsParams =>
@@ -613,7 +613,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         invoiceOrderHeaderIds: String(lineData.invoicingOrderHeaderId),
         invoiceInformation: lineData.invoiceCode
           ? `${lineData.invoiceCode} - ${lineData.invoiceNo}`
-          : lineData.invoiceNo,
+          : lineData.fullElectricInvoiceNo,
         type: ModalType.electronic,
       });
       // 电子
@@ -738,7 +738,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     const invoiceVarietys = invoicingOrderHeaderList.map(item => item.invoiceVariety);
     const invoiceOrderHeaderIds = invoicingOrderHeaderList.map(item => item.invoicingOrderHeaderId);
     const invoiceInfos = invoicingOrderHeaderList.map(item =>
-      item.invoiceCode ? `${item.invoiceCode}-${item.invoiceNo}` : item.invoiceNo
+      item.invoiceCode ? `${item.invoiceCode}-${item.invoiceNo}` : item.fullElectricInvoiceNo
     );
     if (invoicingOrderHeaderList.some(item => item.orderStatus !== 'F')) {
       Modal.warning(

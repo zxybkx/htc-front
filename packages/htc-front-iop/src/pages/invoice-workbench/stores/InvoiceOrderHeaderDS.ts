@@ -161,8 +161,6 @@ export default (dsParams): DataSetProps => {
           setCustomerInfo(value, oldValue, record, 1, dsParams.companyId);
         }
         if (name === 'invoiceTypeObj' && value) {
-          console.log(123124);
-
           const invoiceVariety = value.value;
           if (
             invoiceVariety !== '51' &&
@@ -675,7 +673,6 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.view.landVatItemNo').d('土地增值税项目编号'),
         type: FieldType.string,
         computedProps: {
-          required: ({ record }) => ctnServicesRequiredRule(record),
           readOnly: ({ record }) => headerReadOnlyRule(record),
         },
       },

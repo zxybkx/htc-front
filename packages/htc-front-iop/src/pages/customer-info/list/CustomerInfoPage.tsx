@@ -63,7 +63,7 @@ interface CommodityInfoPageProps extends RouteComponentProps {
     });
     return { customerInfoListDS };
   },
-  { cacheState: true },
+  { cacheState: true }
 )
 export default class CustomerInfoPage extends Component<CommodityInfoPageProps> {
   async componentDidMount() {
@@ -157,7 +157,7 @@ export default class CustomerInfoPage extends Component<CommodityInfoPageProps> 
           employeeId: queryDataSet.current?.get('employeeId'),
           employeeNum: queryDataSet.current?.get('employeeNum'),
         },
-        0,
+        0
       );
       this.openModalCustomer(record, true);
     }
@@ -251,6 +251,8 @@ export default class CustomerInfoPage extends Component<CommodityInfoPageProps> 
     if (queryDataSet) {
       const companyCode = queryDataSet.current!.get('companyCode');
       const employeeNum = queryDataSet.current!.get('employeeNum');
+      const employeeId = queryDataSet.current!.get('employeeId');
+      const taxpayerNumber = queryDataSet.current!.get('taxpayerNumber');
       const curHeader = record.toData();
       const invoiceQueryProps = {
         invoiceType: curHeader.invoiceType,
@@ -259,6 +261,8 @@ export default class CustomerInfoPage extends Component<CommodityInfoPageProps> 
         sourceField: 'receiptObj',
         companyCode,
         employeeNum,
+        employeeId,
+        taxpayerNumber,
       };
       const modal = Modal.open({
         key: Modal.key(),
@@ -266,6 +270,7 @@ export default class CustomerInfoPage extends Component<CommodityInfoPageProps> 
         destroyOnClose: true,
         closable: true,
         footer: null,
+        bodyStyle: { height: 'calc(60vh)' },
         style: { width: '50%' },
         children: <InvoiceQueryTable {...invoiceQueryProps} onCloseModal={() => modal.close()} />,
       });
@@ -297,8 +302,8 @@ export default class CustomerInfoPage extends Component<CommodityInfoPageProps> 
 
   @Bind()
   async handleSubmit() {
-   const res = await this.props.customerInfoListDS.submit();
-    if(res && res.content) {
+    const res = await this.props.customerInfoListDS.submit();
+    if (res && res.content) {
       this.props.customerInfoListDS.query(this.props.customerInfoListDS.currentPage || 0);
     }
   }
