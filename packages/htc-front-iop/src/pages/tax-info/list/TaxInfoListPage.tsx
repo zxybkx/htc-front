@@ -15,14 +15,17 @@ import { ColumnProps } from 'choerodon-ui/pro/lib/table/Column';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { ColumnAlign, ColumnLock } from 'choerodon-ui/pro/lib/table/enum';
 import { ButtonColor, FuncType } from 'choerodon-ui/pro/lib/button/enum';
-import { Button, DataSet, Modal, Table } from 'choerodon-ui/pro';
+import { Button, DataSet, Form, Lov, Modal, Table, TextField } from 'choerodon-ui/pro';
 import { Buttons, Commands } from 'choerodon-ui/pro/lib/table/Table';
 import intl from 'utils/intl';
 import notification from 'utils/notification';
 import { Button as PermissionButton } from 'components/Permission';
 import { getPresentMenu } from '@htccommon/utils/utils';
 import { getCurrentOrganizationId, getResponse } from 'utils/utils';
-import { getCurrentEmployeeInfoOut } from '@htccommon/services/commonService';
+import {
+  getCurrentEmployeeInfoOut,
+  getTenantAgreementCompany,
+} from '@htccommon/services/commonService';
 import {
   avoidLogin,
   batchUpdateInvoice,
@@ -30,10 +33,11 @@ import {
   updateInvoice,
   updateTax,
 } from '@src/services/taxInfoService';
-import { Card } from 'choerodon-ui';
+import { Card, Col, Row } from 'choerodon-ui';
 import TaxHeadersDS from '../stores/TaxHeadersDS';
 import TaxLinesDS from '../stores/TaxLinesDS';
-import styles from '../taxInfo.module.less';
+import BluInvoiceDS from '../stores/BluInvoiceDS';
+import IdAuthentication from '../../idAuthentication-modal/IdAuthentication';
 
 interface TaxInfoPageProps {
   dispatch: Dispatch<any>;
@@ -43,9 +47,20 @@ const tenantId = getCurrentOrganizationId();
 const permissionPath = `${getPresentMenu().name}.ps`;
 
 @formatterCollections({
-  code: ['hiop.taxInfo', 'hiop.invoiceWorkbench', 'htc.common', 'hiop.redInvoiceInfo'],
+  code: [
+    'hiop.taxInfo',
+    'hiop.invoiceWorkbench',
+    'htc.common',
+    'hiop.redInvoiceInfo',
+    'hiop.taxRateStatistic',
+  ],
 })
 export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
+  state = {
+    outChannelCode: undefined,
+    companyInfo: undefined as any,
+  };
+
   tableLineDS = new DataSet({
     autoQuery: false,
     ...TaxLinesDS(),
@@ -59,6 +74,11 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
     },
   });
 
+  bluInvoiceDS = new DataSet({
+    autoQuery: false,
+    ...BluInvoiceDS(),
+  });
+
   async componentDidMount() {
     const res = await getCurrentEmployeeInfoOut({ tenantId });
     if (res && res.content) {
@@ -67,6 +87,7 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
       if (queryDataSet) {
         queryDataSet.current!.set({ companyObj: empInfo });
       }
+      this.getChannelCode(empInfo);
     }
   }
 
@@ -305,10 +326,53 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
   }
 
   /**
+   * 返回蓝字发票统计信息行
+   * @returns {*[]}
+   */
+  get bluInvoiceColumns(): ColumnProps[] {
+    return [
+      { name: 'syzzfpzs' },
+      { name: 'ysyfpzs' },
+      { name: 'ykjlpzs' },
+      { name: 'ysyfpsxed' },
+      { name: 'zsxed' },
+      { name: 'fphjje' },
+      { name: 'sysxed' },
+      { name: 'fphjse' },
+    ];
+  }
+
+  @Bind()
+  handleContinue(modal) {
+    modal.close();
+    notification.success({
+      description: '',
+      message: intl.get('hzero.common.notification.success').d('操作成功'),
+    });
+  }
+
+  /**
+   * 身份认证弹窗
+   */
+  @Bind()
+  idAuthentication() {
+    const { companyInfo } = this.state;
+    const { companyCode, employeeId, taxpayerNumber } = companyInfo;
+    const idAuthenticationProps = { companyCode, employeeId, taxpayerNumber };
+    const modal = Modal.open({
+      title: intl.get('hiop.taxInfo.modal.title.idAuthentication').d('身份认证'),
+      closable: true,
+      children: <IdAuthentication {...idAuthenticationProps} onCloseModal={() => modal.close()} />,
+      footer: null,
+    });
+  }
+
+  /**
    * 返回纳税人税控主信息头按钮组
    * @returns {*[]}
    */
   get buttons(): Buttons[] {
+    const { outChannelCode } = this.state;
     const UpdateTaxButton = observer((props: any) => {
       const isDisabled = !(props.dataSet && props.dataSet.current?.get('companyId'));
       return (
@@ -345,13 +409,23 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
         </PermissionButton>
       );
     });
-    return [
+    const buttonArray: JSX.Element[] = [];
+    if (outChannelCode === 'DOUBLE_CHANNEL') {
+      buttonArray.push(
+        <Button onClick={this.idAuthentication}>
+          {intl.get('hiop.taxInfo.button.authorityIdAuthentication').d('电局身份认证')}
+        </Button>
+      );
+    }
+    buttonArray.push(
       <UpdateTaxButton
         key="updateTaxInfo"
         dataSet={this.tableHeaderDS.queryDataSet}
         onClick={this.handleUpdateTax}
         title={intl.get('hiop.taxInfo.button.updateTaxInfo').d('更新税控信息')}
-      />,
+      />
+    );
+    buttonArray.push(
       <InvoiceApplicationBtn
         key="invoiceApply"
         dataSet={this.tableHeaderDS}
@@ -360,8 +434,9 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
         title={intl.get('hiop.taxInfo.button.invoiceApply').d('发票申领')}
         permissionCode="invoice-apply"
         permissionMeaning="按钮-发票申领"
-      />,
-    ];
+      />
+    );
+    return buttonArray;
   }
 
   /**
@@ -381,7 +456,69 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
     ];
   }
 
+  /**
+   * 获取销项通道
+   */
+  @Bind()
+  async getChannelCode(companyInfo) {
+    if (companyInfo) {
+      const { companyId, companyCode, employeeId, taxpayerNumber } = companyInfo;
+      const resCop = await getTenantAgreementCompany({ companyId, tenantId });
+      const { outChannelCode } = resCop;
+      this.setState({ outChannelCode, companyInfo });
+      if (outChannelCode === 'DOUBLE_CHANNEL') {
+        this.bluInvoiceDS.setQueryParameter('companyCode', companyCode);
+        this.bluInvoiceDS.setQueryParameter('employeeId', employeeId);
+        this.bluInvoiceDS.setQueryParameter('taxpayerNumber', taxpayerNumber);
+        this.bluInvoiceDS.query();
+      }
+    }
+  }
+
+  /**
+   * 自定义查询条
+   */
+  @Bind()
+  renderQueryBar(props) {
+    const { queryDataSet, dataSet, buttons } = props;
+    return (
+      <>
+        <Row type="flex" style={{ flexWrap: 'nowrap', marginTop: 10 }}>
+          <Col span={20}>
+            <Form columns={3} dataSet={queryDataSet}>
+              <Lov name="companyObj" onChange={this.getChannelCode} />
+              <TextField name="taxpayerNumber" />
+              <TextField name="employeeDesc" />
+            </Form>
+          </Col>
+          <Col>
+            <Button
+              onClick={() => {
+                queryDataSet.reset();
+                queryDataSet.create();
+              }}
+            >
+              {intl.get('hzero.common.button.reset').d('重置')}
+            </Button>
+            <Button
+              color={ButtonColor.primary}
+              onClick={() => {
+                dataSet.query();
+              }}
+            >
+              {intl.get('hzero.common.button.search').d('查询')}
+            </Button>
+          </Col>
+        </Row>
+        <Row type="flex" justify="end">
+          <Col>{buttons}</Col>
+        </Row>
+      </>
+    );
+  }
+
   render() {
+    const { outChannelCode } = this.state;
     return (
       <>
         <Header title={intl.get('hiop.taxInfo.title.invoiceInfo').d('税控信息')} />
@@ -389,12 +526,10 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
           <Card style={{ marginBottom: '8px' }}>
             <Table
               key="taxHeader"
-              // header={intl.get(`${modelCode}.table.taxHeader`).d('纳税人税控主信息')}
               dataSet={this.tableHeaderDS}
               columns={this.headerColumns}
               buttons={this.buttons}
-              queryFieldsLimit={3}
-              className={styles.table}
+              queryBar={this.renderQueryBar}
               style={{ height: 200 }}
             />
           </Card>
@@ -405,10 +540,21 @@ export default class TaxInfoListPage extends Component<TaxInfoPageProps> {
               dataSet={this.tableLineDS}
               buttons={this.lineButtons}
               columns={this.lineColumns}
-              className={styles.table}
               style={{ height: 200 }}
             />
           </Card>
+          {outChannelCode === 'DOUBLE_CHANNEL' && (
+            <Card>
+              <Table
+                key="blueInkInvoice"
+                header={intl
+                  .get('hiop.taxInfo.view.blueInkInvoiceStatistics')
+                  .d('蓝字发票统计信息')}
+                dataSet={this.bluInvoiceDS}
+                columns={this.bluInvoiceColumns}
+              />
+            </Card>
+          )}
         </Content>
       </>
     );
