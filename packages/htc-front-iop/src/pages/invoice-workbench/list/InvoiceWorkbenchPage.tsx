@@ -605,7 +605,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
         invoiceOrderHeaderIds: String(lineData.invoicingOrderHeaderId),
         invoiceInformation: lineData.invoiceCode
           ? `${lineData.invoiceCode} - ${lineData.invoiceNo}`
-          : lineData.invoiceNo,
+          : lineData.fullElectricInvoiceNo,
         type: ModalType.electronic,
       });
       // 电子
@@ -730,7 +730,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     const invoiceVarietys = invoicingOrderHeaderList.map(item => item.invoiceVariety);
     const invoiceOrderHeaderIds = invoicingOrderHeaderList.map(item => item.invoicingOrderHeaderId);
     const invoiceInfos = invoicingOrderHeaderList.map(item =>
-      item.invoiceCode ? `${item.invoiceCode}-${item.invoiceNo}` : item.invoiceNo
+      item.invoiceCode ? `${item.invoiceCode}-${item.invoiceNo}` : item.fullElectricInvoiceNo
     );
     if (invoicingOrderHeaderList.some(item => item.orderStatus !== 'F')) {
       Modal.warning(

@@ -352,6 +352,8 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       sourceField: 'receiptObj',
       companyCode: empInfo && empInfo.companyCode,
       employeeNum: empInfo && empInfo.employeeNum,
+      employeeId: empInfo && empInfo.employeeId,
+      taxpayerNumber: empInfo && empInfo.taxpayerNumber,
     };
     const modal = Modal.open({
       key: Modal.key(),
@@ -359,6 +361,7 @@ export default class InvoiceReqDetailPage extends Component<InvoiceReqDetailPage
       destroyOnClose: true,
       closable: true,
       footer: null,
+      bodyStyle: { height: 'calc(60vh)' },
       style: { width: '50%' },
       children: <InvoiceQueryTable {...invoiceQueryProps} onCloseModal={() => modal.close()} />,
     });

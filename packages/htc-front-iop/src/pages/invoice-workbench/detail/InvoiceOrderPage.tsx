@@ -1004,8 +1004,8 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
   handleCompanySearch(type) {
     const { employeeInfo } = this.state;
     if (!employeeInfo) return;
-    const curData = this.invoiceOrderHeaderDS.current!.toData();
-    const { companyCode, employeeNum } = employeeInfo;
+    const curData = this.invoiceOrderHeaderDS.current?.toData();
+    const { companyCode, employeeNum, employeeId, taxpayerNumber } = employeeInfo;
     const invoiceQueryProps = {
       invoiceType: curData.invoiceVariety,
       enterpriseName: type === 0 ? curData.buyerName : curData.sellerName,
@@ -1013,6 +1013,8 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       sourceField: type === 0 ? 'buyerObj' : 'sellerObj',
       companyCode,
       employeeNum,
+      employeeId,
+      taxpayerNumber,
     };
     const modal = Modal.open({
       key: Modal.key(),
@@ -1020,6 +1022,7 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
       destroyOnClose: true,
       closable: true,
       footer: null,
+      bodyStyle: { height: 'calc(60vh)' },
       style: { width: '50%' },
       children: <InvoiceQueryTable {...invoiceQueryProps} onCloseModal={() => modal.close()} />,
     });
@@ -1658,40 +1661,64 @@ export default class InvoiceOrderPage extends Component<InvoiceOrderPageProps> {
                 <Radio name="billingType" value="1" style={{ color: 'blue' }}>
                   {intl.get('hiop.invoiceWorkbench.label.blueInvoice').d('蓝字发票')}
                 </Radio>
-                {!['61', '81', '82'].includes(invoiceVariety) && (
+                {['61', '81', '82'].includes(invoiceVariety) ? (
                   <div className={styles.flex}>
                     <span style={{ color: 'blue' }}>
-                      {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
+                      {intl
+                        .get('hiop.invoiceWorkbench.modal.fullElectricInvoiceNo')
+                        .d('全电发票号码')}
+                      ：
                     </span>
-                    <TextField name="blueInvoiceCode" style={{ width: '100px' }} />
+                    <TextField name="fullElectricInvoiceNo" />
                   </div>
+                ) : (
+                  <>
+                    <div className={styles.flex}>
+                      <span style={{ color: 'blue' }}>
+                        {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
+                      </span>
+                      <TextField name="blueInvoiceCode" style={{ width: '100px' }} />
+                    </div>
+                    <div className={styles.flex}>
+                      <span style={{ color: 'blue' }}>
+                        {intl.get('hiop.invoiceWorkbench.label.invoiceNumber').d('发票号码：')}
+                      </span>
+                      <TextField style={{ width: '100px' }} name="blueInvoiceNo" />
+                    </div>
+                  </>
                 )}
-
-                <div className={styles.flex}>
-                  <span style={{ color: 'blue' }}>
-                    {intl.get('hiop.invoiceWorkbench.label.invoiceNumber').d('发票号码：')}
-                  </span>
-                  <TextField style={{ width: '100px' }} name="blueInvoiceNo" />
-                </div>
               </div>
               <div className={styles.invoiceContainer}>
                 <Radio name="billingType" value="2" style={{ color: 'red' }}>
                   {intl.get('hiop.invoiceWorkbench.label.redInvoice').d('红字发票')}
                 </Radio>
-                {!['61', '81', '82'].includes(invoiceVariety) && (
+                {['61', '81', '82'].includes(invoiceVariety) ? (
                   <div className={styles.flex}>
                     <span style={{ color: 'red' }}>
-                      {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
+                      {intl
+                        .get('hiop.invoiceWorkbench.modal.fullElectricInvoiceNo')
+                        .d('全电发票号码')}
+                      ：
                     </span>
-                    <TextField style={{ width: '100px' }} name="invoiceCode" />
+                    <TextField name="fullElectricInvoiceNo" />
                   </div>
+                ) : (
+                  <>
+                    <div className={styles.flex}>
+                      <span style={{ color: 'red' }}>
+                        {intl.get('hiop.invoiceWorkbench.label.invoiceCode').d('发票代码：')}
+                      </span>
+                      <TextField style={{ width: '100px' }} name="invoiceCode" />
+                    </div>
+
+                    <div className={styles.flex}>
+                      <span style={{ color: 'red' }}>
+                        {intl.get('hiop.invoiceWorkbench.label.invoiceNumber').d('发票号码：')}
+                      </span>
+                      <TextField name="invoiceNo" style={{ width: '100px' }} />
+                    </div>
+                  </>
                 )}
-                <div className={styles.flex}>
-                  <span style={{ color: 'red' }}>
-                    {intl.get('hiop.invoiceWorkbench.label.invoiceNumber').d('发票号码：')}
-                  </span>
-                  <TextField name="invoiceNo" style={{ width: '100px' }} />
-                </div>
               </div>
             </Form>
           </Spin>
