@@ -152,7 +152,9 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
           }
           this.setState({ invoiceVariety, listFlag });
           this.invoiceRedFlushHeaderDS.current!.set('redInvoice', '蓝字发票');
-          this.invoiceRedFlushHeaderDS.current!.set('remark', this.renderRemark());
+          if (!['61', '81', '82', '85', '86'].includes(invoiceVariety)) {
+            this.invoiceRedFlushHeaderDS.current!.set('remark', this.renderRemark());
+          }
         }
       });
       this.setState({ empInfo: currentEmployee });
@@ -388,9 +390,12 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
    */
   @Bind()
   renderSpecialRemark(value) {
-    const remark = this.renderRemark();
-    const specialRemark = `${remark}，开具红字增值税专用发票信息表编号${value}`;
-    this.invoiceRedFlushHeaderDS.current!.set('remark', specialRemark);
+    const { invoiceVariety } = this.state;
+    if (!['61', '81', '82', '85', '86'].includes(invoiceVariety)) {
+      const remark = this.renderRemark();
+      const specialRemark = `${remark}，开具红字增值税专用发票信息表编号${value}`;
+      this.invoiceRedFlushHeaderDS.current!.set('remark', specialRemark);
+    }
   }
 
   /**
@@ -467,11 +472,13 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
   @Bind()
   handleRedInfoSerial() {
     const headerData = this.invoiceRedFlushHeaderDS.current!.toData();
-    const { blueInvoiceCode, blueInvoiceNo } = headerData;
+    const { blueInvoiceCode, blueInvoiceNo, fullElectricInvoiceNo } = headerData;
     const { invoiceVariety } = this.state;
     if (['0', '52', '61', '81', '82', '85', '86'].includes(invoiceVariety)) {
       this.redInvoiceInfoLinesDS.setQueryParameter('blueInvoiceCode', blueInvoiceCode);
       this.redInvoiceInfoLinesDS.setQueryParameter('blueInvoiceNo', blueInvoiceNo);
+      this.redInvoiceInfoLinesDS.setQueryParameter('fullElectricInvoiceNo', fullElectricInvoiceNo);
+      this.redInvoiceInfoLinesDS.setQueryParameter('invoiceTypeCode', invoiceVariety);
       this.redInvoiceInfoLinesDS.query();
       const modal = Modal.open({
         key: Modal.key(),
@@ -677,9 +684,14 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
     );
   }
 
+  @Bind()
+  invoiceVarietyChange(value) {
+    this.setState({ invoiceVariety: value });
+  }
+
   render() {
     const { match } = this.props;
-    const { showMore } = this.state;
+    const { showMore, invoiceVariety } = this.state;
     const { sourceType } = match.params;
     let backPath = '/htc-front-iop/invoice-workbench/list';
     if (sourceType) {
@@ -730,7 +742,11 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
                 suffix={<Icon type="search" onClick={this.handleRedInfoSerial} />}
                 clearButton
               />
-              <Select name="invoiceVariety" onOption={this.handleOption} />
+              <Select
+                name="invoiceVariety"
+                onChange={this.invoiceVarietyChange}
+                onOption={this.handleOption}
+              />
             </Form>
           </Card>
           <Card style={{ marginTop: 10 }}>
@@ -775,22 +791,28 @@ export default class InvoiceRedFlushPage extends Component<InvoiceVoidPageProps>
               <Lov name="reviewerNameObj" />
               {/*---*/}
               <TextField name="redInvoice" />
-              <TextField
-                name="blueInvoiceCode"
-                label={
-                  <span style={{ color: 'blue' }}>
-                    {intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码')}
-                  </span>
-                }
-              />
-              <TextField
-                name="blueInvoiceNo"
-                label={
-                  <span style={{ color: 'blue' }}>
-                    {intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码')}
-                  </span>
-                }
-              />
+              {['61', '81', '82', '85', '86'].includes(invoiceVariety) ? (
+                <TextField name="fullElectricInvoiceNo" />
+              ) : (
+                <>
+                  <TextField
+                    name="blueInvoiceCode"
+                    label={
+                      <span style={{ color: 'blue' }}>
+                        {intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码')}
+                      </span>
+                    }
+                  />
+                  <TextField
+                    name="blueInvoiceNo"
+                    label={
+                      <span style={{ color: 'blue' }}>
+                        {intl.get('hiop.invoiceWorkbench.modal.InvoiceNo').d('发票号码')}
+                      </span>
+                    }
+                  />
+                </>
+              )}
               {/*---*/}
               <Select name="redMarkReason" colSpan={3} />
               <TextArea name="remark" rows={1} colSpan={3} resize={ResizeType.both} />

@@ -244,6 +244,12 @@ export default (dsParams): DataSetProps => {
         bind: 'reviewerNameObj.employeeName',
       },
       {
+        name: 'fullElectricInvoiceNo',
+        label: intl.get('hiop.invoiceWorkbench.modal.fullElectricInvoiceNo').d('全电发票号码'),
+        type: FieldType.string,
+        readOnly: true,
+      },
+      {
         name: 'blueInvoiceCode',
         label: intl.get('hiop.invoiceWorkbench.modal.InvoiceCode').d('发票代码'),
         type: FieldType.string,
