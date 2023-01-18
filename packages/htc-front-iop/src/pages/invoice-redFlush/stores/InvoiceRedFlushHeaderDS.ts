@@ -23,15 +23,15 @@ import { phoneReg } from '@htccommon/utils/utils';
  * @params {object} record-行记录
  * @returns {string/undefined}
  */
-const redInfoSerialNumberValidator = (value, name, record) => {
-  if (value && name && record) {
-    const validateNumber = new RegExp(/^\d{16}$/);
-    if (!validateNumber.test(value)) {
-      return Promise.resolve('请输入16位数字');
-    }
-  }
-  return Promise.resolve(true);
-};
+// const redInfoSerialNumberValidator = (value, name, record) => {
+//   if (value && name && record) {
+//     const validateNumber = new RegExp(/^\d{16}$/);
+//     if (!validateNumber.test(value)) {
+//       return Promise.resolve('请输入16位数字');
+//     }
+//   }
+//   return Promise.resolve(true);
+// };
 
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.IOP_API || '';
@@ -107,6 +107,7 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.redInfoSerialNumber').d('红字信息表编号'),
         type: FieldType.string,
         labelWidth: '120',
+        maxLength: 20,
         computedProps: {
           readOnly: ({ record }) =>
             !['0', '52', '61', '81', '82', '85', '86'].includes(record.get('invoiceVariety')) ||
@@ -114,7 +115,7 @@ export default (dsParams): DataSetProps => {
           required: ({ record }) =>
             ['0', '52', '61', '81', '82', '85', '86'].includes(record.get('invoiceVariety')),
         },
-        validator: (value, name, record) => redInfoSerialNumberValidator(value, name, record),
+        // validator: (value, name, record) => redInfoSerialNumberValidator(value, name, record),
       },
       {
         name: 'invoiceVariety',
@@ -231,8 +232,9 @@ export default (dsParams): DataSetProps => {
         cascadeMap: { companyId: 'companyId' },
         computedProps: {
           readOnly: ({ record }) => record.get('readonly'),
+          required: ({ record }) =>
+            !['61', '81', '82', '85', '86'].includes(record.get('invoiceVariety')),
         },
-        required: true,
         ignore: FieldIgnore.always,
       },
       {
