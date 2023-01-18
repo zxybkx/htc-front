@@ -396,10 +396,33 @@ export default class SpecialRedInformationPage extends Component<
     const operators: any = [];
     if (
       outChannelCode === 'DOUBLE_CHANNEL' &&
-      ['61', '81', '82', '85', '86'].includes(invoiceTypeCode) &&
-      ['02', '03'].includes(redInvoiceConfirmStatus)
+      ['61', '81', '82', '85', '86'].includes(invoiceTypeCode)
     ) {
-      if (!confirmType) {
+      if (['01', '04'].includes(redInvoiceConfirmStatus)) {
+        operators.push({
+          key: 'download',
+          ele: (
+            <a onClick={() => this.handleDownloadPdfFile(record)}>
+              {intl.get('hiop.redInvoiceInfo.button.download').d('导出文件')}
+            </a>
+          ),
+          len: 4,
+          title: intl.get('hiop.redInvoiceInfo.button.download').d('导出文件'),
+        });
+      }
+      if (['0', '1'].includes(confirmType)) {
+        operators.push({
+          key: 'refresh',
+          ele: (
+            <a onClick={() => this.handleAgreeOrRefuse(record, 2)}>
+              {intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态')}
+            </a>
+          ),
+          len: 4,
+          title: intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态'),
+        });
+      }
+      if (['02', '03'].includes(redInvoiceConfirmStatus)) {
         operators.push({
           key: 'agree',
           ele: (
@@ -420,20 +443,9 @@ export default class SpecialRedInformationPage extends Component<
           len: 2,
           title: intl.get('hzero.common.button.refuse').d('拒绝'),
         });
-      } else if (['0', '1'].includes(confirmType)) {
-        operators.push({
-          key: 'refresh',
-          ele: (
-            <a onClick={() => this.handleAgreeOrRefuse(record, 2)}>
-              {intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态')}
-            </a>
-          ),
-          len: 4,
-          title: intl.get('hiop.invoiceWorkbench.button.fresh').d('刷新状态'),
-        });
       }
     }
-    if (confirmType === '2') {
+    if (['0', '52'].includes(invoiceTypeCode)) {
       operators.push({
         key: 'download',
         ele: (
