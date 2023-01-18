@@ -200,7 +200,7 @@ export default class SpecialRedInformationPage extends Component<RedInvoiceRequi
                 <TextField name="redInfoSerialNumber" />
                 {['61', '81', '82', '85', '86'].includes(invoiceTypeCode) && (
                   <>
-                    <TextField name="redInvoiceConfirmationNo" />
+                    {/* <TextField name="redInvoiceConfirmationNo" /> */}
                     <Select name="redInvoiceConfirmStatus" />
                     <Select name="redMarkReason" />
                     <TextField name="redInvoiceNo" />

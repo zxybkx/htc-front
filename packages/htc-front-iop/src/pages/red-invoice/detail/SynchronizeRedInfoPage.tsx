@@ -48,6 +48,7 @@ interface RedInvoiceRequisitionListPageProps extends RouteComponentProps {
 export default class SynchronizeRedInfoPage extends Component<RedInvoiceRequisitionListPageProps> {
   state = {
     outChannelCode: undefined,
+    invoiceType: '0',
   };
 
   synchronizeRedInfoDS = new DataSet({
@@ -166,30 +167,32 @@ export default class SynchronizeRedInfoPage extends Component<RedInvoiceRequisit
       {
         name: 'overdueStatus',
         renderer({ value, record }) {
-          if (value === 'N') {
-            return (
-              <Tag
-                style={{
-                  background: '#fff',
-                  border: '1px solid #3889FF',
-                  color: '#3889FF',
-                }}
-              >
-                {record?.getField('overdueStatus')?.getText()}
-              </Tag>
-            );
-          } else {
-            return (
-              <Tag
-                style={{
-                  background: '#fff',
-                  border: '1px solid #FF5F57',
-                  color: '#FF5F57',
-                }}
-              >
-                {record?.getField('overdueStatus')?.getText()}
-              </Tag>
-            );
+          if (value) {
+            if (value === 'N') {
+              return (
+                <Tag
+                  style={{
+                    background: '#fff',
+                    border: '1px solid #3889FF',
+                    color: '#3889FF',
+                  }}
+                >
+                  {record?.getField('overdueStatus')?.getText()}
+                </Tag>
+              );
+            } else {
+              return (
+                <Tag
+                  style={{
+                    background: '#fff',
+                    border: '1px solid #FF5F57',
+                    color: '#FF5F57',
+                  }}
+                >
+                  {record?.getField('overdueStatus')?.getText()}
+                </Tag>
+              );
+            }
           }
         },
       },
@@ -355,8 +358,13 @@ export default class SynchronizeRedInfoPage extends Component<RedInvoiceRequisit
     ];
   }
 
+  @Bind()
+  getInvoiceType(value) {
+    this.setState({ invoiceType: value });
+  }
+
   render() {
-    const { outChannelCode } = this.state;
+    const { outChannelCode, invoiceType } = this.state;
     return (
       <>
         <Header
@@ -366,12 +374,12 @@ export default class SynchronizeRedInfoPage extends Component<RedInvoiceRequisit
         <Content>
           <Form columns={4} dataSet={this.headerDS}>
             <DatePicker name="fillDate" />
-            <Select name="overdueStatus" />
+            {['0', '52'].includes(invoiceType) && <Select name="overdueStatus" />}
             <TextField name="informationSheetNumber" />
             <TextField name="purchasersTaxNumber" />
             <TextField name="salesTaxNumber" />
-            <Select name="invoiceType" />
-            <Select name="informationSheetDownloadRange" />
+            <Select name="invoiceType" onChange={this.getInvoiceType} />
+            {['0', '52'].includes(invoiceType) && <Select name="informationSheetDownloadRange" />}
             {outChannelCode === 'DOUBLE_CHANNEL' && <Select name="applicantType" />}
           </Form>
           <Table

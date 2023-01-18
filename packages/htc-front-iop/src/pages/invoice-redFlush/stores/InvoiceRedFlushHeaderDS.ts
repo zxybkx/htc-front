@@ -23,15 +23,15 @@ import { phoneReg } from '@htccommon/utils/utils';
  * @params {object} record-行记录
  * @returns {string/undefined}
  */
-const redInfoSerialNumberValidator = (value, name, record) => {
-  if (value && name && record) {
-    const validateNumber = new RegExp(/^\d{16}$/);
-    if (!validateNumber.test(value)) {
-      return Promise.resolve('请输入16位数字');
-    }
-  }
-  return Promise.resolve(true);
-};
+// const redInfoSerialNumberValidator = (value, name, record) => {
+//   if (value && name && record) {
+//     const validateNumber = new RegExp(/^\d{16}$/);
+//     if (!validateNumber.test(value)) {
+//       return Promise.resolve('请输入16位数字');
+//     }
+//   }
+//   return Promise.resolve(true);
+// };
 
 export default (dsParams): DataSetProps => {
   const API_PREFIX = commonConfig.IOP_API || '';
@@ -66,6 +66,9 @@ export default (dsParams): DataSetProps => {
           } else {
             record.set('deliveryWay', 0);
             record.set('electronicReceiverInfo', '');
+          }
+          if (['85', '86'].includes(value)) {
+            record.set('remark', '');
           }
         }
       },
@@ -104,14 +107,15 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.redInfoSerialNumber').d('红字信息表编号'),
         type: FieldType.string,
         labelWidth: '120',
+        maxLength: 20,
         computedProps: {
           readOnly: ({ record }) =>
-            (record.get('invoiceVariety') !== '0' && record.get('invoiceVariety') !== '52') ||
+            !['0', '52', '61', '81', '82', '85', '86'].includes(record.get('invoiceVariety')) ||
             record.get('readonly'),
           required: ({ record }) =>
-            record.get('invoiceVariety') === '0' || record.get('invoiceVariety') === '52',
+            ['0', '52', '61', '81', '82', '85', '86'].includes(record.get('invoiceVariety')),
         },
-        validator: (value, name, record) => redInfoSerialNumberValidator(value, name, record),
+        // validator: (value, name, record) => redInfoSerialNumberValidator(value, name, record),
       },
       {
         name: 'invoiceVariety',
@@ -119,8 +123,10 @@ export default (dsParams): DataSetProps => {
         type: FieldType.string,
         lookupCode: 'HMDM.INVOICE_TYPE',
         computedProps: {
-          readOnly: ({ record }) => ['0', '41', '52'].includes(record.get('invoiceVariety')),
+          readOnly: ({ record }) =>
+            ['0', '41', '52', '61', '81', '82'].includes(record.get('invoiceVariety')),
         },
+        required: true,
       },
       {
         name: 'billingType',
@@ -226,8 +232,9 @@ export default (dsParams): DataSetProps => {
         cascadeMap: { companyId: 'companyId' },
         computedProps: {
           readOnly: ({ record }) => record.get('readonly'),
+          required: ({ record }) =>
+            !['61', '81', '82', '85', '86'].includes(record.get('invoiceVariety')),
         },
-        required: true,
         ignore: FieldIgnore.always,
       },
       {
@@ -235,6 +242,12 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceWorkbench.modal.reviewerName').d('复核'),
         type: FieldType.string,
         bind: 'reviewerNameObj.employeeName',
+      },
+      {
+        name: 'fullElectricInvoiceNo',
+        label: intl.get('hiop.invoiceWorkbench.modal.fullElectricInvoiceNo').d('全电发票号码'),
+        type: FieldType.string,
+        readOnly: true,
       },
       {
         name: 'blueInvoiceCode',
@@ -322,7 +335,8 @@ export default (dsParams): DataSetProps => {
         label: intl.get('hiop.invoiceRedFlush.modal.phoneOrEmail').d('手机/邮件'),
         type: FieldType.string,
         computedProps: {
-          required: ({ record }) => ['51', '52'].includes(record.get('invoiceVariety')),
+          required: ({ record }) =>
+            ['51', '52', '81', '61', '82'].includes(record.get('invoiceVariety')),
           pattern: ({ record }) => {
             if (record.get('electronicReceiverInfo')) {
               if (record.get('electronicReceiverInfo').indexOf('@') > -1) {

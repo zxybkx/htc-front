@@ -19,7 +19,7 @@ import formatterCollections from 'utils/intl/formatterCollections';
 import { Bind } from 'lodash-decorators';
 import { RouteComponentProps } from 'react-router-dom';
 import ExcelExport from 'components/ExcelExport';
-import { Col, Dropdown, Icon, Menu, Row, Tag } from 'choerodon-ui';
+import { Alert, Col, Dropdown, Icon, Menu, Row, Tag } from 'choerodon-ui';
 import commonConfig from '@htccommon/config/commonConfig';
 import {
   Button,
@@ -70,6 +70,7 @@ import MenuItem from 'choerodon-ui/lib/menu/MenuItem';
 import { ResizeType } from 'choerodon-ui/pro/lib/text-area/enum';
 import InvoiceWorkbenchDS from '../stores/InvoiceWorkbenchDS';
 import DeliverInfoDS from '../stores/DeliverInfoDs';
+import IdAuthentication from '../../idAuthentication-modal/IdAuthentication';
 
 enum ModalType {
   electronic,
@@ -116,7 +117,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     curCompanyId: undefined,
     showMore: false,
     deliverModalTag: true, // true 批量交付 false 单个交付
-    outChannelCode: undefined, // 判断是否双规开票通道 DOUBLE_CHANNEL
+    outChannelCode: undefined,
   };
 
   deliverInfoDS = dsParams =>
@@ -139,14 +140,20 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           curCompanyId = empInfo.companyId;
         }
       }
-      getTenantAgreementCompany({ companyId: curCompanyId, tenantId }).then(resCop => {
-        const { outChannelCode } = resCop;
-        // console.log('outChannelCode', outChannelCode); DOUBLE_CHANNEL
-        this.setState({ outChannelCode });
-      });
+      this.getChannelCode(curCompanyId);
       this.setState({ curCompanyId });
       this.props.invoiceWorkbenchDS.query(this.props.invoiceWorkbenchDS.currentPage || 0);
     }
+  }
+
+  /**
+   * 获取销项通道
+   */
+  @Bind()
+  async getChannelCode(companyId) {
+    const resCop = await getTenantAgreementCompany({ companyId, tenantId });
+    const { outChannelCode } = resCop;
+    this.setState({ outChannelCode });
   }
 
   /**
@@ -158,6 +165,7 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     if (value) {
       const { companyId } = value;
       this.setState({ curCompanyId: companyId });
+      this.getChannelCode(companyId);
     }
   }
 
@@ -1880,7 +1888,30 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
     );
   }
 
+  /**
+   * 身份认证弹窗
+   */
+  @Bind()
+  idAuthentication() {
+    const { queryDataSet } = this.props.invoiceWorkbenchDS;
+    if (queryDataSet) {
+      const employeeId = queryDataSet.current!.get('employeeId');
+      const companyCode = queryDataSet.current!.get('companyCode');
+      const taxpayerNumber = queryDataSet.current!.get('taxpayerNumber');
+      const idAuthenticationProps = { companyCode, employeeId, taxpayerNumber };
+      const modal = Modal.open({
+        title: intl.get('hiop.taxInfo.modal.title.idAuthentication').d('身份认证'),
+        closable: true,
+        children: (
+          <IdAuthentication {...idAuthenticationProps} onCloseModal={() => modal.close()} />
+        ),
+        footer: null,
+      });
+    }
+  }
+
   render() {
+    const { outChannelCode } = this.state;
     return (
       <>
         <Header title={intl.get('hiop.invoiceWorkbench.header').d('销项发票控制台')}>
@@ -1893,6 +1924,24 @@ export default class InvoiceWorkbenchPage extends Component<InvoiceWorkbenchPage
           </Button>
         </Header>
         <Content>
+          {outChannelCode === 'DOUBLE_CHANNEL' && (
+            <Alert
+              message={
+                <span>
+                  {intl
+                    .get('hiop.invoiceWorkbench.modal.alert.aragraphOne')
+                    .d('温馨提醒：为防止身份认证失效导致批量开具失败，您可点击')}
+                  <a onClick={this.idAuthentication}>
+                    {intl.get('hiop.taxInfo.modal.title.idAuthentication').d('身份认证')}
+                  </a>
+                  {intl.get('hiop.invoiceWorkbench.modal.alert.aragraphThree').d('补充有效时长。')}
+                </span>
+              }
+              type="info"
+              showIcon
+              style={{ marginBottom: 10 }}
+            />
+          )}
           <Table
             buttons={this.buttons}
             dataSet={this.props.invoiceWorkbenchDS}
